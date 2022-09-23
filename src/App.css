@@ -36,3 +36,16 @@
     transform: rotate(360deg);
   }
 }
+
+.amplify-menu-content {
+  --amplify-components-button-color: var(--amplify-colors-brand-secondary-90);
+}
+.amplify-menu-content__item:hover {
+  background-color: var(--amplify-colors-yellow-40);
+}
+.amplify-menu-trigger {
+  --amplify-components-button-border-color: var(
+    --amplify-colors-brand-secondary-90
+  );
+  --amplify-components-button-color: var(--amplify-colors-brand-secondary-90);
+}
