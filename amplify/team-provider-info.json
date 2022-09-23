@@ -33,6 +33,16 @@
       "StackName": "amplify-amplifya6ae2877bc9f4-staging-221854",
       "StackId": "arn:aws:cloudformation:us-west-1:781466862382:stack/amplify-amplifya6ae2877bc9f4-staging-221854/36b9d5d0-3932-11ed-a63f-02b997fb1809",
       "AmplifyAppId": "d3b40aa52kf7sa"
+    },
+    "categories": {
+      "auth": {
+        "tennisreact": {
+          "userPoolId": "us-west-1_A6OXiUVhP",
+          "userPoolName": "tennis-players",
+          "webClientId": "3hsfiuoek9nrs3128k7sps8s2h",
+          "nativeClientId": "v61d8miomfti4603sipoek5mb"
+        }
+      }
     }
   }
 }
