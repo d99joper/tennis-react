@@ -63,4 +63,6 @@ function App({ signOut }) {
     </div>
   );
 }
-  export default withAuthenticator(App);
+  export default withAuthenticator(App, {
+    socialProviders: ['google']
+  });
