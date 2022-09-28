@@ -1,4 +1,5 @@
 import { withAuthenticator, Menu, MenuItem, View, Link, Flex, Heading } from '@aws-amplify/ui-react';
+import { Amplify, Auth } from 'aws-amplify';
 import {
     BrowserRouter as Router,
     Routes,
@@ -10,7 +11,9 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
  import Profile from './profile'
 import NoPage from "./NoPage";
+import awsconfig from './aws-exports';
 
+Amplify.configure(awsconfig);
 
 function Home() {
     return <Heading level={2}>Home</Heading>;
@@ -64,5 +67,5 @@ function App({ signOut }) {
   );
 }
   export default withAuthenticator(App, {
-    socialProviders: ['google']
+    socialProviders: ['amazon']
   });
