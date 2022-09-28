@@ -1,0 +1,76 @@
+{
+  "version": "1",
+  "cognitoConfig": {
+    "identityPoolName": "tennisreact9ea7bf97_identitypool_9ea7bf97",
+    "allowUnauthenticatedIdentities": false,
+    "resourceNameTruncated": "tennis9ea7bf97",
+    "userPoolName": "tennisreact9ea7bf97_userpool_9ea7bf97",
+    "autoVerifiedAttributes": [
+      "email"
+    ],
+    "mfaConfiguration": "OFF",
+    "mfaTypes": [
+      "SMS Text Message"
+    ],
+    "smsAuthenticationMessage": "Your authentication code is {####}",
+    "smsVerificationMessage": "Your verification code is {####}",
+    "emailVerificationSubject": "Your verification code",
+    "emailVerificationMessage": "Your verification code is {####}",
+    "defaultPasswordPolicy": false,
+    "passwordPolicyMinLength": 8,
+    "passwordPolicyCharacters": [],
+    "requiredAttributes": [
+      "email",
+      "name"
+    ],
+    "aliasAttributes": [],
+    "userpoolClientGenerateSecret": false,
+    "userpoolClientRefreshTokenValidity": 30,
+    "userpoolClientWriteAttributes": [
+      "email"
+    ],
+    "userpoolClientReadAttributes": [
+      "email"
+    ],
+    "userpoolClientLambdaRole": "tennis9ea7bf97_userpoolclient_lambda_role",
+    "userpoolClientSetAttributes": false,
+    "sharedId": "9ea7bf97",
+    "resourceName": "tennisreact9ea7bf97",
+    "authSelections": "identityPoolAndUserPool",
+    "useDefault": "defaultSocial",
+    "hostedUI": true,
+    "usernameAttributes": [
+      "email"
+    ],
+    "triggers": {
+      "DefineAuthChallenge": [
+        "captcha-define-challenge"
+      ],
+      "CreateAuthChallenge": [
+        "captcha-create-challenge"
+      ],
+      "VerifyAuthChallengeResponse": [
+        "captcha-verify"
+      ],
+      "CustomMessage": [
+        "verification-link"
+      ],
+      "PostConfirmation": [
+        "add-to-group"
+      ]
+    },
+    "hostedUIDomainName": "mytennisspace",
+    "authProvidersUserPool": [
+      "Facebook",
+      "Google",
+      "LoginWithAmazon"
+    ],
+    "hostedUIProviderMeta": "[{\"ProviderName\":\"Facebook\",\"authorize_scopes\":\"email,public_profile\",\"AttributeMapping\":{\"email\":\"email\",\"name\":\"name\",\"username\":\"id\"}},{\"ProviderName\":\"Google\",\"authorize_scopes\":\"openid email profile\",\"AttributeMapping\":{\"email\":\"email\",\"name\":\"name\",\"username\":\"sub\"}},{\"ProviderName\":\"LoginWithAmazon\",\"authorize_scopes\":\"profile profile:user_id\",\"AttributeMapping\":{\"email\":\"email\",\"name\":\"name\",\"username\":\"user_id\"}}]",
+    "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"https://mytennis.space/\"],\"LogoutURLs\":[\"https://mytennis.space/\"]}",
+    "userPoolGroupList": [],
+    "serviceName": "Cognito",
+    "verificationBucketName": "tennisreact9ea7bf97verificationbucket",
+    "usernameCaseSensitive": false,
+    "useEnabledMfas": true
+  }
+}
