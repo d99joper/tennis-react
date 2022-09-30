@@ -13,9 +13,6 @@
       "AuthTriggerTemplateURL": "https://s3.amazonaws.com/amplify-tennisreact-master-224847-deployment/amplify-cfn-templates/auth/auth-trigger-cloudformation-template.json"
     },
     "categories": {
-      "auth": {
-        "tennisreact9ea7bf97": {}
-      },
       "function": {
         "tennisreact9ea7bf97DefineAuthChallenge": {
           "deploymentBucketName": "amplify-tennisreact-master-224847-deployment",
@@ -42,6 +39,9 @@
           "deploymentBucketName": "amplify-tennisreact-master-224847-deployment",
           "s3Key": "amplify-builds/tennisreact9ea7bf97PostConfirmation-6b475838624f38496c6b-build.zip"
         }
+      },
+      "auth": {
+        "tennisreact": {}
       }
     }
   },

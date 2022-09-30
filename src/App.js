@@ -67,5 +67,5 @@ function App({ signOut }) {
   );
 }
   export default withAuthenticator(App, {
-    socialProviders: ['amazon']
+    //socialProviders: ['amazon']
   });
