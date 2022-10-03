@@ -7,6 +7,8 @@
       "customAuth": false,
       "frontendAuthConfig": {
         "socialProviders": [
+          "FACEBOOK",
+          "GOOGLE",
           "AMAZON"
         ],
         "usernameAttributes": [

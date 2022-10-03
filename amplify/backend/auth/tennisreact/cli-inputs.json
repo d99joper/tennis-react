@@ -51,9 +51,11 @@
     "hostedUI": true,
     "hostedUIDomainName": "5u2eg6m0vl42",
     "authProvidersUserPool": [
+      "Facebook",
+      "Google",
       "LoginWithAmazon"
     ],
-    "hostedUIProviderMeta": "[{\"ProviderName\":\"LoginWithAmazon\",\"authorize_scopes\":\"profile profile:user_id\",\"AttributeMapping\":{\"name\":\"name\",\"email\":\"email\",\"username\":\"user_id\"}}]",
+    "hostedUIProviderMeta": "[{\"ProviderName\":\"Facebook\",\"authorize_scopes\":\"public_profile,email\",\"AttributeMapping\":{\"name\":\"name\",\"email\":\"email\",\"username\":\"id\"}},{\"ProviderName\":\"Google\",\"authorize_scopes\":\"openid profile email\",\"AttributeMapping\":{\"name\":\"name\",\"email\":\"email\",\"username\":\"sub\"}},{\"ProviderName\":\"LoginWithAmazon\",\"authorize_scopes\":\"profile profile:user_id\",\"AttributeMapping\":{\"name\":\"name\",\"email\":\"email\",\"username\":\"user_id\"}}]",
     "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"https://staging.d3b40aa52kf7sa.amplifyapp.com/\"],\"LogoutURLs\":[\"https://staging.d3b40aa52kf7sa.amplifyapp.com/\"]}",
     "usernameCaseSensitive": false,
     "useEnabledMfas": true,
