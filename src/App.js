@@ -9,7 +9,7 @@ import "@aws-amplify/ui-react/styles.css";
 import { API, Storage } from 'aws-amplify';
 import React, { useEffect, useState } from 'react';
 import './App.css';
- import Profile from './profile'
+import Profile from './views/profile'
 import NoPage from "./NoPage";
 import awsconfig from './aws-exports';
 
@@ -27,11 +27,13 @@ function Home() {
 //     return <Heading level={2}>Profile</Heading>;
 //   }
 
-function App({ signOut }) {
+function App({ signOut, user }) {
   
-
+  console.log(user);
   return (
     <div className="App">
+      
+      <h1>Hello {user.attributes.name} ({user.attributes.email}) on staging</h1>
         <View width="4rem">
             <Router>
             
@@ -46,7 +48,7 @@ function App({ signOut }) {
                         <Link href="/about">About</Link>
                     </MenuItem>
                 </Menu>
-            
+                
                 {/* <Flex>
                     <ReactRouterLink to="/" component={Link}>Home</ReactRouterLink>
                     <ReactRouterLink to="/about" component={Link}>About</ReactRouterLink>

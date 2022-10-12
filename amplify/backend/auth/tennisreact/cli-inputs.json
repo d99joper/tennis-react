@@ -2,7 +2,7 @@
   "version": "1",
   "cognitoConfig": {
     "identityPoolName": "testAuthIdentityPool",
-    "allowUnauthenticatedIdentities": false,
+    "allowUnauthenticatedIdentities": true,
     "resourceNameTruncated": "tennisfa63742b",
     "userPoolName": "tennisreact",
     "autoVerifiedAttributes": [
@@ -56,7 +56,11 @@
       "LoginWithAmazon"
     ],
     "hostedUIProviderMeta": "[{\"ProviderName\":\"Facebook\",\"authorize_scopes\":\"public_profile,email\",\"AttributeMapping\":{\"name\":\"name\",\"email\":\"email\",\"username\":\"id\"}},{\"ProviderName\":\"Google\",\"authorize_scopes\":\"openid profile email\",\"AttributeMapping\":{\"name\":\"name\",\"email\":\"email\",\"username\":\"sub\"}},{\"ProviderName\":\"LoginWithAmazon\",\"authorize_scopes\":\"profile profile:user_id\",\"AttributeMapping\":{\"name\":\"name\",\"email\":\"email\",\"username\":\"user_id\"}}]",
+<<<<<<< HEAD
     "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"https://staging.d3b40aa52kf7sa.amplifyapp.com/\"],\"LogoutURLs\":[\"https://staging.d3b40aa52kf7sa.amplifyapp.com/\"]}",
+=======
+    "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"https://master.d3b40aa52kf7sa.amplifyapp.com/\"],\"LogoutURLs\":[\"https://master.d3b40aa52kf7sa.amplifyapp.com/\"]}",
+>>>>>>> master
     "usernameCaseSensitive": false,
     "useEnabledMfas": true,
     "authRoleArn": {
