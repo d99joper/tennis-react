@@ -60,7 +60,8 @@
     },
     "categories": {
       "auth": {
-        "tennisreact": {}
+        "tennisreact": {},
+        "true": {}
       },
       "function": {
         "tennisreact9ea7bf97DefineAuthChallenge": {

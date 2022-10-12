@@ -1,0 +1,16 @@
+{
+  "resourceName": "profilePics",
+  "policyUUID": "457ba5dd",
+  "bucketName": "tennisreact6c8001a10af34319873b2024805432fc",
+  "storageAccess": "authAndGuest",
+  "guestAccess": [
+    "READ"
+  ],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ",
+    "DELETE"
+  ],
+  "triggerFunction": "NONE",
+  "groupAccess": {}
+}

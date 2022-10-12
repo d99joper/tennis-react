@@ -33,7 +33,7 @@ function App({ signOut, user }) {
   return (
     <div className="App">
       
-      <h1>Hello {user.attributes.name} ({user.attributes.email}) on master</h1>
+      <h1>Hello {user.attributes.name} ({user.attributes.email})</h1>
         <View width="4rem">
             <Router>
             
