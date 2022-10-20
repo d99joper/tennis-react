@@ -21,8 +21,9 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => { // useEffect hook
-    
     Hub.listen('auth', (data) => {
+      const userData = data.payload.attributes;
+      console.log(userData);
       switch (data.payload.event) {
         case 'signIn':
             console.log('user signed in');
@@ -39,14 +40,14 @@ function App() {
             console.log('user signed up');
             
             // create a new Player
-            const data = {
-              name: data.name,
-              email: data.email,
-              userId: data.username
+            const loadData = {
+              name: userData.name,
+              email: userData.email,
+              userId: userData.username
             };
             API.graphql({
               query: createPlayerMutation,
-              variables: { input: data },
+              variables: { input: loadData },
             });
 
             // set signed in status
@@ -104,7 +105,7 @@ function App() {
         
         <div className="Content">
         
-        <h1>{isLoggedIn === true ? 'Hello ' + currentUser.name :"" } </h1>
+        {/* <h1>{isLoggedIn === true ? 'Hello ' + currentUser.name :"" } </h1> */}
         
         </div>
       </Suspense>
