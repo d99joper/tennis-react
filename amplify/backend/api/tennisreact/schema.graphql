@@ -1,0 +1,68 @@
+# import {GraphQLScalarType, Kind} from 'graphql'
+# This "input" configures a global authorization rule to enable public access to
+# all models in this schema. Learn more about authorization rules here: https://docs.amplify.aws/cli/graphql/authorization-rules
+input AMPLIFY { globalAuthRule: AuthRule = { allow: public } } # FOR TESTING ONLY!
+
+# scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
+# scalar DateTime
+
+# const dateScalar = new GraphQLScalarType({
+#   name: 'Date',
+#   description: 'Date custom scalar type',
+#   serialize(value) {
+#     return value.getTime(); // Convert outgoing Date to integer for JSON
+#   },
+#   parseValue(value) {
+#     return new Date(value); // Convert incoming integer to Date
+#   },
+#   parseLiteral(ast) {
+#     if (ast.kind === Kind.INT) {
+#       // Convert hard-coded AST string to integer and then to Date
+#       return new Date(parseInt(ast.value, 10));
+#     }
+#     // Invalid hard-coded value (not an integer)
+#     return null;
+#   },
+# });
+
+
+
+type Player @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) {
+  id: ID!
+  userGUID: ID!
+  name: String!
+  email: AWSEmail!
+  phone: AWSPhone
+  about: String
+  image: String
+  NTRP: String
+  UTR: String
+  matches: [Match!] @hasMany
+  ladders: [Ladder!] @hasMany
+}
+
+type Ladder @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) {
+  id: ID!
+  name: String!
+  location: String!
+  matches: [Match!] @hasMany
+  players: [Player!] @hasMany
+}
+
+type Match @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) {
+  id: ID!
+  playedOn: AWSDate!
+  reportedOn: AWSDateTime!
+  winner: Player!
+  loser: Player! 
+  score: String!
+  ladder: Ladder @belongsTo
+  comments: [Comment!] @hasMany
+}
+
+type Comment @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) {
+  id: ID!
+  createdOn: String!
+  match: Match @belongsTo
+  content: String!
+}
