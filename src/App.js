@@ -22,7 +22,10 @@ function App() {
 
   useEffect(() => { // useEffect hook
     Hub.listen('auth', (data) => {
-      const userData = data.payload.attributes;
+      const userData = data.payload.user;
+      console.log(data);
+      console.log(data.payload.user.username);
+      console.log(data.payload.user.userSub);
       console.log(userData);
       switch (data.payload.event) {
         case 'signIn':
@@ -42,8 +45,8 @@ function App() {
             // create a new Player
             const loadData = {
               name: userData.name,
-              email: userData.email,
-              userId: userData.username
+              email: userData.username,
+              userId: userData.userSub
             };
             API.graphql({
               query: createPlayerMutation,
