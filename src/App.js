@@ -22,10 +22,10 @@ function App() {
 
   useEffect(() => { // useEffect hook
     Hub.listen('auth', (data) => {
-      const userData = data.payload.user;
+      const userData = data.payload.data;
       console.log(data);
-      console.log(data.payload.user.username);
-      console.log(data.payload.user.userSub);
+      console.log(data.payload.data.user.username);
+      console.log(data.payload.data.userSub);
       console.log(userData);
       switch (data.payload.event) {
         case 'signIn':
@@ -45,7 +45,7 @@ function App() {
             // create a new Player
             const loadData = {
               name: userData.name,
-              email: userData.username,
+              email: userData.user.username,
               userId: userData.userSub
             };
             API.graphql({

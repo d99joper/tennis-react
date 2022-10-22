@@ -2,7 +2,7 @@
   "version": "1",
   "cognitoConfig": {
     "identityPoolName": "testAuthIdentityPool",
-    "allowUnauthenticatedIdentities": true,
+    "allowUnauthenticatedIdentities": false,
     "resourceNameTruncated": "tennisfa63742b",
     "userPoolName": "tennisreact",
     "autoVerifiedAttributes": [
@@ -14,16 +14,11 @@
     ],
     "smsAuthenticationMessage": "Your authentication code is {####}",
     "smsVerificationMessage": "Your verification code is {####}",
-    "emailVerificationSubject": "Verification code: {####}",
-    "emailVerificationMessage": "Verification code: {####}",
+    "emailVerificationSubject": "My Tennis Space verification code",
+    "emailVerificationMessage": "My Tennis Space verification code is {####}",
     "defaultPasswordPolicy": false,
     "passwordPolicyMinLength": 8,
-    "passwordPolicyCharacters": [
-      "Requires Lowercase",
-      "Requires Numbers",
-      "Requires Symbols",
-      "Requires Uppercase"
-    ],
+    "passwordPolicyCharacters": [],
     "requiredAttributes": [
       "name",
       "email"
@@ -46,8 +41,6 @@
     "userPoolGroups": false,
     "userPoolGroupList": [],
     "adminQueries": false,
-    "thirdPartyAuth": false,
-    "authProviders": [],
     "hostedUI": true,
     "hostedUIDomainName": "5u2eg6m0vl42",
     "authProvidersUserPool": [
@@ -56,11 +49,6 @@
       "LoginWithAmazon"
     ],
     "hostedUIProviderMeta": "[{\"ProviderName\":\"Facebook\",\"authorize_scopes\":\"public_profile,email\",\"AttributeMapping\":{\"name\":\"name\",\"email\":\"email\",\"username\":\"id\"}},{\"ProviderName\":\"Google\",\"authorize_scopes\":\"openid profile email\",\"AttributeMapping\":{\"name\":\"name\",\"email\":\"email\",\"username\":\"sub\"}},{\"ProviderName\":\"LoginWithAmazon\",\"authorize_scopes\":\"profile profile:user_id\",\"AttributeMapping\":{\"name\":\"name\",\"email\":\"email\",\"username\":\"user_id\"}}]",
-<<<<<<< HEAD
-    "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"https://staging.d3b40aa52kf7sa.amplifyapp.com/\"],\"LogoutURLs\":[\"https://staging.d3b40aa52kf7sa.amplifyapp.com/\"]}",
-=======
-    "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"https://master.d3b40aa52kf7sa.amplifyapp.com/\"],\"LogoutURLs\":[\"https://master.d3b40aa52kf7sa.amplifyapp.com/\"]}",
->>>>>>> master
     "usernameCaseSensitive": false,
     "useEnabledMfas": true,
     "authRoleArn": {
@@ -76,6 +64,9 @@
       ]
     },
     "breakCircularDependency": true,
-    "dependsOn": []
+    "dependsOn": [],
+    "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"https://staging.d3b40aa52kf7sa.amplifyapp.com/profile/\",\"https://localhost:3000/profile/\"],\"LogoutURLs\":[\"https://staging.d3b40aa52kf7sa.amplifyapp.com/\",\"https://localhost:3000/\"]}",
+    "authProviders": [],
+    "thirdPartyAuth": false
   }
 }
