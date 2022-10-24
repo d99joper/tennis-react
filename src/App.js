@@ -1,13 +1,51 @@
 import { Amplify, Hub, API } from 'aws-amplify';
 import "@aws-amplify/ui-react/styles.css";
-import React, { useState, useEffect, Suspense  } from 'react';
+import React, { useState, useEffect, Suspense, useRef  } from 'react';
 import './App.css';
 import awsconfig from './aws-exports';
 import {helpers} from './helpers/helpers';
 import MyRouter from './routes';
 import {LocalStorage} from './services/';
 import Footer from './views/footer';
-import {createPlayer as createPlayerMutation} from "./graphql/mutations";
+import {
+  createPlayer as createPlayerMutation,
+  updatePlayer as updatePlayerMutation
+} from "./graphql/mutations";
+
+// const isLocalhost = Boolean(
+//   window.location.hostname === "localhost" ||
+//     // [::1] is the IPv6 localhost address.
+//     window.location.hostname === "[::1]" ||
+//     // 127.0.0.1/8 is considered localhost for IPv4.
+//     window.location.hostname.match(
+//       /^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/
+//     )
+// );
+
+// // Assuming you have two redirect URIs, and the first is for production and second is for localhost
+// const [
+//   productionRedirectSignIn,
+//   localRedirectSignIn
+// ] = awsconfig.oauth.redirectSignIn.split(",");
+
+// const [
+//   productionRedirectSignOut,
+//   localRedirectSignOut
+// ] = awsconfig.oauth.redirectSignOut.split(",");
+
+// console.log(isLocalhost ? localRedirectSignIn : productionRedirectSignIn);
+
+// const updatedAwsConfig = {
+//   ...awsconfig,
+//   oauth: {
+//     ...awsconfig.oauth,
+//     redirectSignIn: isLocalhost ? localRedirectSignIn : productionRedirectSignIn,
+//     redirectSignOut: isLocalhost ? localRedirectSignOut : productionRedirectSignOut,
+//   }
+// }
+
+// Amplify.configure(updatedAwsConfig);
+// console.log(awsconfig.oauth.redirectSignOut);
 
 Amplify.configure(awsconfig);
 
@@ -19,40 +57,76 @@ function App() {
 
   const [isLoading, setLoading] = useState(true); // Loading state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const newUser = useRef(null);
+
+  let newUser2 = null;
 
   useEffect(() => { // useEffect hook
     Hub.listen('auth', (data) => {
-      const userData = data.payload.data;
       console.log(data);
-      console.log(data.payload.data.user.username);
-      console.log(data.payload.data.userSub);
-      console.log(userData);
       switch (data.payload.event) {
         case 'signIn':
             console.log('user signed in');
             // set signed in status
-            LocalStorage.set('isLoggedIn', true);
             setIsLoggedIn(true);
-            // helpers.getUserAttributes().then((data) => {
-            //   currentUser = data;
-            //   console.log(currentUser);
-            // });    
-            //window.location.reload(false);
+            //if(newUser2) {
+            if(newUser.current) {
+              console.log('update user name');
+              // update the user name for the new user just created
+              try {
+                API.graphql({
+                  query: updatePlayerMutation,
+                  variables: {
+                    input: {
+                        //id: newUser2,
+                        id: newUser.current,
+                        name: data.payload.data.attributes.name
+                      },
+                     conditions: {id: newUser.current}
+                  }
+                }).then((result) => {
+                  console.log(result);
+                  
+                  // done, now reset the newUser flag
+                  newUser.current = null;
+                  //newUser2 = null;
+                });
+              }
+              catch(e) {
+                console.log(e);
+              }
+            }
+            break;
+        case 'confirmSignUp':
+          console.log('user confirmed');
             break;
         case 'signUp':
+          
+            const userData = data.payload.data;
             console.log('user signed up');
             
             // create a new Player
             const loadData = {
-              name: userData.name,
+              name: userData.user.username,
               email: userData.user.username,
-              userId: userData.userSub
+              id: userData.userSub,
+              userGUID: userData.userSub
             };
-            API.graphql({
-              query: createPlayerMutation,
-              variables: { input: loadData },
-            });
-
+            
+            try{
+              API.graphql({
+                query: createPlayerMutation,
+                variables: { input: loadData },
+              }).then((result) => {
+                //setNewUser(result.data.createPlayer.id);
+                newUser.current = result.data.createPlayer.id;
+                //newUser2 = result.data.createPlayer.id;
+              });
+            }
+            catch(e){
+              console.error(e);
+            }
+            
             // set signed in status
             setIsLoggedIn(true);  
             break;
