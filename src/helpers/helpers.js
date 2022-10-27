@@ -1,4 +1,10 @@
-import { Amplify, Auth } from 'aws-amplify';
+import { API, Auth } from 'aws-amplify';
+import { listPlayers, getPlayer } from "../graphql/queries";
+import {
+  createPlayer as createPlayerMutation,
+  updatePlayer as updatePlayerMutation,
+  deletePlayer as deletePlayerMutation,
+} from "../graphql/mutations";
 import React, {useState} from 'react';
 
 
@@ -34,6 +40,37 @@ const checkUser = () => {
     });
 };
 
+const userFunctions = {
+
+    getPlayerByEmail: async function(email) {
+        let filter = {
+            email: {
+                eq: email 
+            }
+        };
+        const apiData = await API.graphql({ query: listPlayers, variables: { filter: filter}  });
+
+        const playersFromAPI = apiData.data.listPlayers.items;
+
+        // if(playersFromAPI[0])
+        //     return playersFromAPI[0]
+        // else
+        //     return null;
+
+        await Promise.any(playersFromAPI
+            // playersFromAPI.map(async (player) => {
+            //     console.log(player);
+            //   if (player.image) {
+            //     const url = await Storage.get(player.name);
+            //     player.image = url;
+            //   }
+            //   return player;
+            // })
+          ).then((player) => {console.log(player); return player});
+        // setPlayers(playersFromAPI);
+    }
+}
+
 const helpers = {
     
     CheckIfSignedIn: async function (){        
@@ -64,4 +101,4 @@ const helpers = {
 };
 
 
-export {helpers, UserSignIn, checkUser};
+export {helpers, userFunctions, UserSignIn, checkUser};

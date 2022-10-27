@@ -19,7 +19,7 @@ import {
   updatePlayer as updatePlayerMutation,
   deletePlayer as deletePlayerMutation,
 } from "../graphql/mutations";
-import helpers from '../helpers/helpers'
+import {userFunctions} from '../helpers/helpers'
 
 
 function Profile(props) {
@@ -32,9 +32,21 @@ function Profile(props) {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [players, setPlayers] = useState([]);
     const [thisPlayer, setThisPlayer] = useState([]);
+    const [player, setPlayer] = useState(null);
+    
 
     useEffect(() => {
-        //fetchPlayers();
+        //fetchPlayers('jonas.pk.persson@gmail.com');
+        async function checkPlayer() {
+            const p = await userFunctions.getPlayerByEmail('jonas.pk.persson@gmail.com');
+            setPlayer(p);
+        };
+        console.log(player);
+        if(!player) {
+            checkPlayer();
+            console.log(player);
+        }
+        
         let userId;
         if(params.userId)
             userId = params.userId;
@@ -86,13 +98,19 @@ function Profile(props) {
         //setThisPlayer(playerFromAPI);
     }
 
-    async function fetchPlayers() {
-        const apiData = await API.graphql({ query: listPlayers });
+    async function fetchPlayers(email) {
+        let filter = {
+            email: {
+                eq: email // filter priority = 1
+            }
+        };
+        const apiData = await API.graphql({ query: listPlayers, variables: { filter: filter}  });
 
         const playersFromAPI = apiData.data.listPlayers.items;
 
         await Promise.all(
             playersFromAPI.map(async (player) => {
+                console.log(player);
               if (player.image) {
                 const url = await Storage.get(player.name);
                 player.image = url;
@@ -186,82 +204,3 @@ function Profile(props) {
 };
 
 export default Profile;
-
-//return (
-//         <>
-//             <View margin="3rem 0" >
-//                 <Flex direction="row">
-//                     {/* <Flex direction="column">
-//                         {thisPlayer.image && (
-//                             <Image
-//                                 src={thisPlayer.image}
-//                                 alt={`visual aid for ${thisPlayer.name}`}
-//                                 style={{ width: 150 }}
-//                             />
-//                         )}
-//                     </Flex> */}
-//                     <Flex direction="column"></Flex>
-//                 </Flex>
-//             </View>
-
-//             <Heading level={2}>Profile</Heading>
-
-//             <View as="form" margin="3rem 0" onSubmit={createPlayer}>
-//                 <Flex direction="row" justifyContent="center">
-//                 <TextField
-//                     name="name"
-//                     placeholder="Note Name"
-//                     label="Note Name"
-//                     labelHidden
-//                     variation="quiet"
-//                     required
-//                 />
-//                 <TextField
-//                     name="about"
-//                     placeholder="Note Description"
-//                     label="Note Description"
-//                     labelHidden
-//                     variation="quiet"
-//                     required
-//                 />
-//                 <View
-//                     name="image"
-//                     as="input"
-//                     type="file"
-//                     style={{ alignSelf: "end" }}
-//                     />
-//                 <Button type="submit" variation="primary">
-//                     Create Player
-//                 </Button>
-//                 </Flex>
-//             </View>
-//             <Heading level={2}>Current Players</Heading>
-//             <View margin="3rem 0">
-
-//                 {players.map((player) => (
-//                 <Flex
-//                     key={player.id}
-//                     direction="row"
-//                     justifyContent="center"
-//                     alignItems="center"
-//                 >
-//                     <Text as="strong" fontWeight={700}>
-//                     {player.name}
-//                     </Text>
-//                     <Text as="span">{player.about}</Text>
-//                     {player.image && (
-//                         <Image
-//                             src={player.image}
-//                             alt={`visual aid for ${players.name}`}
-//                             style={{ width: 150 }}
-//                         />
-//                     )}
-//                                         <Button variation="link" onClick={() => deletePlayer(player)}>
-//                     Delete Player
-//                     </Button>
-//                 </Flex>
-//                 ))}
-//             </View>
-// <hr></hr>
-//             <Link to='/'>Home</Link>
-//         </>

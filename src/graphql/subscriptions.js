@@ -2,8 +2,8 @@
 // this is an auto generated file. This will be overwritten
 
 export const onCreatePlayer = /* GraphQL */ `
-  subscription OnCreatePlayer {
-    onCreatePlayer {
+  subscription OnCreatePlayer($filter: ModelSubscriptionPlayerFilterInput) {
+    onCreatePlayer(filter: $filter) {
       id
       userGUID
       name
@@ -44,8 +44,8 @@ export const onCreatePlayer = /* GraphQL */ `
   }
 `;
 export const onUpdatePlayer = /* GraphQL */ `
-  subscription OnUpdatePlayer {
-    onUpdatePlayer {
+  subscription OnUpdatePlayer($filter: ModelSubscriptionPlayerFilterInput) {
+    onUpdatePlayer(filter: $filter) {
       id
       userGUID
       name
@@ -86,8 +86,8 @@ export const onUpdatePlayer = /* GraphQL */ `
   }
 `;
 export const onDeletePlayer = /* GraphQL */ `
-  subscription OnDeletePlayer {
-    onDeletePlayer {
+  subscription OnDeletePlayer($filter: ModelSubscriptionPlayerFilterInput) {
+    onDeletePlayer(filter: $filter) {
       id
       userGUID
       name
@@ -128,8 +128,8 @@ export const onDeletePlayer = /* GraphQL */ `
   }
 `;
 export const onCreateLadder = /* GraphQL */ `
-  subscription OnCreateLadder {
-    onCreateLadder {
+  subscription OnCreateLadder($filter: ModelSubscriptionLadderFilterInput) {
+    onCreateLadder(filter: $filter) {
       id
       name
       location
@@ -170,8 +170,8 @@ export const onCreateLadder = /* GraphQL */ `
   }
 `;
 export const onUpdateLadder = /* GraphQL */ `
-  subscription OnUpdateLadder {
-    onUpdateLadder {
+  subscription OnUpdateLadder($filter: ModelSubscriptionLadderFilterInput) {
+    onUpdateLadder(filter: $filter) {
       id
       name
       location
@@ -212,8 +212,8 @@ export const onUpdateLadder = /* GraphQL */ `
   }
 `;
 export const onDeleteLadder = /* GraphQL */ `
-  subscription OnDeleteLadder {
-    onDeleteLadder {
+  subscription OnDeleteLadder($filter: ModelSubscriptionLadderFilterInput) {
+    onDeleteLadder(filter: $filter) {
       id
       name
       location
@@ -254,8 +254,8 @@ export const onDeleteLadder = /* GraphQL */ `
   }
 `;
 export const onCreateMatch = /* GraphQL */ `
-  subscription OnCreateMatch {
-    onCreateMatch {
+  subscription OnCreateMatch($filter: ModelSubscriptionMatchFilterInput) {
+    onCreateMatch(filter: $filter) {
       id
       playedOn
       reportedOn
@@ -332,8 +332,8 @@ export const onCreateMatch = /* GraphQL */ `
   }
 `;
 export const onUpdateMatch = /* GraphQL */ `
-  subscription OnUpdateMatch {
-    onUpdateMatch {
+  subscription OnUpdateMatch($filter: ModelSubscriptionMatchFilterInput) {
+    onUpdateMatch(filter: $filter) {
       id
       playedOn
       reportedOn
@@ -410,8 +410,8 @@ export const onUpdateMatch = /* GraphQL */ `
   }
 `;
 export const onDeleteMatch = /* GraphQL */ `
-  subscription OnDeleteMatch {
-    onDeleteMatch {
+  subscription OnDeleteMatch($filter: ModelSubscriptionMatchFilterInput) {
+    onDeleteMatch(filter: $filter) {
       id
       playedOn
       reportedOn
@@ -488,8 +488,8 @@ export const onDeleteMatch = /* GraphQL */ `
   }
 `;
 export const onCreateComment = /* GraphQL */ `
-  subscription OnCreateComment {
-    onCreateComment {
+  subscription OnCreateComment($filter: ModelSubscriptionCommentFilterInput) {
+    onCreateComment(filter: $filter) {
       id
       createdOn
       match {
@@ -548,8 +548,8 @@ export const onCreateComment = /* GraphQL */ `
   }
 `;
 export const onUpdateComment = /* GraphQL */ `
-  subscription OnUpdateComment {
-    onUpdateComment {
+  subscription OnUpdateComment($filter: ModelSubscriptionCommentFilterInput) {
+    onUpdateComment(filter: $filter) {
       id
       createdOn
       match {
@@ -608,8 +608,8 @@ export const onUpdateComment = /* GraphQL */ `
   }
 `;
 export const onDeleteComment = /* GraphQL */ `
-  subscription OnDeleteComment {
-    onDeleteComment {
+  subscription OnDeleteComment($filter: ModelSubscriptionCommentFilterInput) {
+    onDeleteComment(filter: $filter) {
       id
       createdOn
       match {
