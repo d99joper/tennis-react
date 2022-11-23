@@ -1,0 +1,64 @@
+.profileWrapper {
+    grid-gap: 0.5rem;
+    display: grid;
+    background-color: #fff;
+    color: #444;
+    grid-template-areas: 
+        "header"
+        "profilePic"
+        "stats"
+        "about"
+        "matches"
+    /*  templateColumns={{ base: '1fr', large: "1fr 2fr 2fr" }}
+        templateRows="1fr" */
+}
+
+.hiddenImageInput {
+    display: none;
+    align-self: "end"
+}
+
+.header {
+    grid-area: header;
+}
+
+.profilePic {
+    grid-area: profilePic;
+}
+
+.stats {
+    grid-area: stats;
+}
+
+.about {
+    grid-area: about;
+}
+
+.matches {
+    grid-area: matches;
+}
+
+.profileImage {
+    width: 150px; 
+}
+
+.profileImageContainer {
+    background-color: var(--amplify-colors-purple-10);
+    border-radius: 50%;
+    max-width: 150px;
+    max-height: 150px;
+    overflow: hidden;
+    border: solid 1px var(--amplify-colors-purple-100);
+}
+
+@media only screen and (min-width: 600px)   {
+    .profileWrapper {
+      grid-template-columns: 1fr 2fr 2fr;
+      grid-template-areas:
+      "header  header  header"
+      "profilePic stats stats"
+      "about about about"
+      "matches  matches  matches";
+      /* max-width: 600px; */
+    }
+  }

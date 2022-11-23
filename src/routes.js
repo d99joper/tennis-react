@@ -1,11 +1,13 @@
 import {
-    BrowserRouter as Router,
+    BrowserRouter,
     Routes,
-    Route,
+    Route
   } from 'react-router-dom';
 import { Heading } from '@aws-amplify/ui-react';
 import Login from './views/login'
 import Profile from './views/profile'
+import LadderView from './views/ladderView'
+// import Ladder from './views/ladder'
 import NoPage from './views/NoPage'
 import AuthTest from './views/authTest'
 import Navbar from './components/layout/navbar';
@@ -21,9 +23,10 @@ function About() {
 
 const MyRouter = (props) => {
   return (
-    <Router key="MyMainBrowserRouter">
-      
-      <Navbar useMenu={MyMenu} isLoggedIn={props.isLoggedIn} testing={props.testing} key="myNavbar"/>
+    <BrowserRouter key="MyMainBrowserRouter">
+      <header>
+        <Navbar useMenu={MyMenu} isLoggedIn={props.isLoggedIn} testing={props.testing} key="myNavbar"/>
+      </header>
       <div className='Content'>
         <Routes key="MyMainRoutes">
             <Route exact path="/"  element={<Home />} />
@@ -31,8 +34,8 @@ const MyRouter = (props) => {
             <Route path="/profile" element={<Profile isLoggedIn={props.isLoggedIn} />} />
             <Route path="/profile/:userid" element={<Profile isLoggedIn={props.isLoggedIn} />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/ladders" element={<Home />} >
-              <Route path=":ladderId" element={<Home />} />
+            <Route path="/ladders" element={<LadderView />} >
+              <Route path=":ladderId" element={<LadderView />} />
               <Route path="new" element={<Home />} />
               <Route index element={<Home />} />
             </Route>
@@ -41,7 +44,7 @@ const MyRouter = (props) => {
             <Route path="*" element={<NoPage />} />
         </Routes>
       </div>
-    </Router>
+    </BrowserRouter>
   )
 };
 

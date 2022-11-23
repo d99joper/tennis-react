@@ -10,19 +10,19 @@ const Navbar = ({useMenu: MyMenu, isLoggedIn, testing}) => {
       <ul className="nav-unordered-list">
         <li className="nav-list-item">
           <NavLink to="/" style={({isActive}) => ({
-            color: isActive ? 'greenyellow' : 'white'})}>
+            color: isActive ? '#000000' : '#aaaaaa'})}>
             Home
           </NavLink>
         </li>
         <li className="nav-list-item">
           <NavLink to="/about" style={({isActive}) => ({
-            color: isActive ? 'greenyellow' : 'white'})}>
+            color: isActive ? '#000000' : '#aaaaaa'})}>
             About
           </NavLink>
         </li>
         <li className="nav-list-item">
           <NavLink to="/profile" style={({isActive}) => ({
-            color: isActive ? 'greenyellow' : 'white'})}>
+            color: isActive ? '#000000' : '#aaaaaa'})}>
             Profile
           </NavLink>
         </li>

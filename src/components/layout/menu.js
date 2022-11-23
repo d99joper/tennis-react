@@ -1,8 +1,7 @@
 import { Menu, MenuItem, View } from '@aws-amplify/ui-react';
 import {Link} from 'react-router-dom';
 import React from "react";
-import {helpers} from '../../helpers/helpers';
-import { LocalStorage } from '../../services';
+import {userFunctions} from '../../helpers/helpers';
 
 
 const MyMenu = (props) => {
@@ -31,7 +30,7 @@ const MyMenu = (props) => {
                     : null 
                 }
                 {props.isLoggedIn === true ?
-                    <MenuItem onClick={helpers.signOut}>
+                    <MenuItem onClick={userFunctions.signOut}>
                         Logout
                     </MenuItem>
                     :null
