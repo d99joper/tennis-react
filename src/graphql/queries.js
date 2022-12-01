@@ -1,79 +1,6 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const getPlayer = /* GraphQL */ `
-  query GetPlayer($id: ID!) {
-    getPlayer(id: $id) {
-      id
-      userGUID
-      name
-      email
-      phone
-      about
-      image
-      NTRP
-      UTR
-      matches {
-        items {
-          id
-          playedOn
-          reportedOn
-          score
-          createdOn
-          updatedOn
-          playerMatchesId
-          ladderMatchesId
-        }
-        nextToken
-      }
-      ladders {
-        items {
-          id
-          name
-          location
-          createdOn
-          updatedOn
-          playerLaddersId
-        }
-        nextToken
-      }
-      createdOn
-      updatedOn
-      ladderPlayersId
-    }
-  }
-`;
-export const listPlayers = /* GraphQL */ `
-  query ListPlayers(
-    $filter: ModelPlayerFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    listPlayers(filter: $filter, limit: $limit, nextToken: $nextToken) {
-      items {
-        id
-        userGUID
-        name
-        email
-        phone
-        about
-        image
-        NTRP
-        UTR
-        matches {
-          nextToken
-        }
-        ladders {
-          nextToken
-        }
-        createdOn
-        updatedOn
-        ladderPlayersId
-      }
-      nextToken
-    }
-  }
-`;
 export const getLadder = /* GraphQL */ `
   query GetLadder($id: ID!) {
     getLadder(id: $id) {
@@ -107,6 +34,7 @@ export const getLadder = /* GraphQL */ `
           createdOn
           updatedOn
           ladderPlayersId
+          owner
         }
         nextToken
       }
@@ -166,6 +94,7 @@ export const getMatch = /* GraphQL */ `
         createdOn
         updatedOn
         ladderPlayersId
+        owner
       }
       loser {
         id
@@ -186,6 +115,7 @@ export const getMatch = /* GraphQL */ `
         createdOn
         updatedOn
         ladderPlayersId
+        owner
       }
       score
       ladder {
@@ -243,6 +173,7 @@ export const listMatches = /* GraphQL */ `
           createdOn
           updatedOn
           ladderPlayersId
+          owner
         }
         loser {
           id
@@ -257,6 +188,7 @@ export const listMatches = /* GraphQL */ `
           createdOn
           updatedOn
           ladderPlayersId
+          owner
         }
         score
         ladder {
@@ -301,6 +233,7 @@ export const getComment = /* GraphQL */ `
           createdOn
           updatedOn
           ladderPlayersId
+          owner
         }
         loser {
           id
@@ -315,6 +248,7 @@ export const getComment = /* GraphQL */ `
           createdOn
           updatedOn
           ladderPlayersId
+          owner
         }
         score
         ladder {
@@ -362,6 +296,81 @@ export const listComments = /* GraphQL */ `
         content
         updatedOn
         matchCommentsId
+      }
+      nextToken
+    }
+  }
+`;
+export const getPlayer = /* GraphQL */ `
+  query GetPlayer($id: ID!) {
+    getPlayer(id: $id) {
+      id
+      userGUID
+      name
+      email
+      phone
+      about
+      image
+      NTRP
+      UTR
+      matches {
+        items {
+          id
+          playedOn
+          reportedOn
+          score
+          createdOn
+          updatedOn
+          playerMatchesId
+          ladderMatchesId
+        }
+        nextToken
+      }
+      ladders {
+        items {
+          id
+          name
+          location
+          createdOn
+          updatedOn
+          playerLaddersId
+        }
+        nextToken
+      }
+      createdOn
+      updatedOn
+      ladderPlayersId
+      owner
+    }
+  }
+`;
+export const listPlayers = /* GraphQL */ `
+  query ListPlayers(
+    $filter: ModelPlayerFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listPlayers(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        userGUID
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        matches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        createdOn
+        updatedOn
+        ladderPlayersId
+        owner
       }
       nextToken
     }
