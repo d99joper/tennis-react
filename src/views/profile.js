@@ -176,8 +176,8 @@ function Profile(props) {
                                 </Modal>
                             <Text fontSize='x-large'>{player.name}</Text>
                             <Text fontSize='small'>{isLoggedIn ? <a href={`mailto:${player.email}`}>{player.email}</a> : 'Email only visible to other players'}</Text>
-                            <PhoneNumber number="player.phone" editable={isEdit} />
-                            <Text fontSize='small'>{isLoggedIn ? (player.phone) : ''}</Text>
+                            <PhoneNumber number={player.phone} editable={isEdit} />
+                            {/* <Text fontSize='small'>{isLoggedIn ? (player.phone) : ''}</Text> */}
                         </Card>
                         <Card className='card' variation="elevated" flex="1" as="form" onSubmit={updateProfileData}>
                             <div style={{float:'right'}}>
