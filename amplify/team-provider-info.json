@@ -67,27 +67,27 @@
       "function": {
         "tennisreact9ea7bf97DefineAuthChallenge": {
           "deploymentBucketName": "amplify-amplifya6ae2877bc9f4-staging-221854-deployment",
-          "s3Key": "amplify-builds/tennisreact9ea7bf97DefineAuthChallenge-584648346c6c64347054-build.zip"
+          "s3Key": "amplify-builds/tennisreact9ea7bf97DefineAuthChallenge-2f373755386a48326a6b-build.zip"
         },
         "tennisreact9ea7bf97CreateAuthChallenge": {
           "deploymentBucketName": "amplify-amplifya6ae2877bc9f4-staging-221854-deployment",
-          "s3Key": "amplify-builds/tennisreact9ea7bf97CreateAuthChallenge-56764e4d566e6e64594e-build.zip"
+          "s3Key": "amplify-builds/tennisreact9ea7bf97CreateAuthChallenge-34547944753746475a65-build.zip"
         },
         "tennisreact9ea7bf97VerifyAuthChallengeResponse": {
           "deploymentBucketName": "amplify-amplifya6ae2877bc9f4-staging-221854-deployment",
-          "s3Key": "amplify-builds/tennisreact9ea7bf97VerifyAuthChallengeResponse-71766448353132675751-build.zip",
+          "s3Key": "amplify-builds/tennisreact9ea7bf97VerifyAuthChallengeResponse-64656d4e465239794378-build.zip",
           "RECAPTCHASECRET": "6LeYIzUiAAAAAEcdqyYNPk-8NA068nYpOY0hXN9f"
         },
         "tennisreact9ea7bf97CustomMessage": {
           "deploymentBucketName": "amplify-amplifya6ae2877bc9f4-staging-221854-deployment",
-          "s3Key": "amplify-builds/tennisreact9ea7bf97CustomMessage-752f305355714936445a-build.zip",
+          "s3Key": "amplify-builds/tennisreact9ea7bf97CustomMessage-6a4a313569597a675673-build.zip",
           "REDIRECTURL": "http://mytennis.space",
           "EMAILSUBJECT": "hi",
           "EMAILMESSAGE": "no"
         },
         "tennisreact9ea7bf97PostConfirmation": {
           "deploymentBucketName": "amplify-amplifya6ae2877bc9f4-staging-221854-deployment",
-          "s3Key": "amplify-builds/tennisreact9ea7bf97PostConfirmation-516c446a756a706d5a5a-build.zip",
+          "s3Key": "amplify-builds/tennisreact9ea7bf97PostConfirmation-6447766f6b59727a6c61-build.zip",
           "GROUP": "players"
         }
       },

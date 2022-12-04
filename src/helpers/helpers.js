@@ -31,12 +31,14 @@ const userFunctions = {
                 const nameArr = image.name.split('.')
                 imageName = nameArr[0] + '_' + Date.now() + '.' + nameArr.pop()
             }
-    
+            
             let inputData = {
                 id: userId, 
-                name: player.name,
-                image: imageName,
-                phone: player.phone,
+                ...(player.name && {name: player.name}),
+                ...(image && {image: imageName}),
+                phone: (typeof player.phone !== "undefined") 
+                    ? (player.phone.length === 0 ? null : player.phone) 
+                    : player.phone,
                 about: player.about,
                 NTRP: player.NTRP,
                 UTR: player.UTR
@@ -59,9 +61,11 @@ const userFunctions = {
             })
 
             console.log('Player updated', result.data.updatePlayer)
-            // set the image url and return the player
             let updatedPlayer = result.data.updatePlayer
-            updatedPlayer.imageUrl = await Storage.get(imageName);
+            
+            // set the image url and return the player
+            updatedPlayer.imageUrl = await Storage.get(updatedPlayer.image);
+            
             return updatedPlayer
           }
           catch(e) {
@@ -108,6 +112,7 @@ const userFunctions = {
             if(typeof user !== 'undefined') {
                 const player_array = await this.getPlayerByEmail(user.attributes.email);
                 let player = player_array[0];
+                console.log(player)
                 if(player.image)
                     player.imageUrl = await Storage.get(player.image)
                 
@@ -149,12 +154,12 @@ const userFunctions = {
                     eq: email 
                 }
             };
-            
+            console.log(emailFilter)
             console.log('getPlayerByEmail');
             const apiData = await API.graphql({ query: listPlayers, variables: { filter: emailFilter}  });
     
             const playersFromAPI = apiData.data.listPlayers.items;
-            
+            console.log(playersFromAPI)
             if(includeImage)
                 await Promise.all(
                     playersFromAPI.map(async (player) => {

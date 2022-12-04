@@ -27,9 +27,9 @@ input AMPLIFY { globalAuthRule: AuthRule = { allow: public } } # FOR TESTING ONL
 
 
 
-type Player @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) @auth(rules: [
-  { allow: public, operations: [read]}
-]) {
+type Player @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) 
+  # @auth(rules: [{ allow: public, operations: [read]}]) 
+{
   id: ID!
   userGUID: ID!
   name: String!

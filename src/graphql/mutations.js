@@ -110,8 +110,8 @@ export const updateLadder = /* GraphQL */ `
   ) {
     updateLadder(input: $input, condition: $condition) {
       id
-          name
-          location
+      name
+      location
       matches {
         nextToken
       }

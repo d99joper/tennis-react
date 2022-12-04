@@ -2,7 +2,9 @@ import React from 'react';
 import './PhoneNumber.css'
 
 function PhoneNumber(props) {
+    //const {onNewNumber} = props
     const [number, setNumber] = React.useState(props.number);
+    let latestNumber = props.number
     const [error, setError] = React.useState(null);
 
     const handleChange = event => {
@@ -24,12 +26,16 @@ function PhoneNumber(props) {
 
     const handleBlur = () => {
         // Use a different regular expression to validate the phone number
-        const digitCount = number.replace(/[^0-9]/g, '').length
-
-        if(digitCount !== 10) {
-            setError("Not a valid number");
-        } 
+        const digitCount = (number ?? '').replace(/[^0-9]/g, '').length
         
+        if(digitCount !== 10 && digitCount !== 0) {
+            setError("Not a valid number");
+            setNumber(latestNumber)
+        } 
+        else {
+            props.onNewNumber(number)
+            latestNumber = number
+        }
     };
 
     const formattedNumber = (number ?? '').replace(/[^0-9]/g, '').replace(
