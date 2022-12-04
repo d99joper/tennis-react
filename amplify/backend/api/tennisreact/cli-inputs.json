@@ -5,13 +5,24 @@
     "serviceName": "AppSync",
     "defaultAuthType": {
       "mode": "API_KEY",
+<<<<<<< Updated upstream
       "expirationTime": 7
+=======
+      "expirationTime": 360,
+      "apiKeyExpirationDate": "2023-11-28T02:39:51.556Z",
+      "keyDescription": "dec 2023"
+>>>>>>> Stashed changes
     },
     "additionalAuthTypes": [
       {
         "mode": "AMAZON_COGNITO_USER_POOLS",
         "cognitoUserPoolId": "authtennisreact"
       }
+<<<<<<< Updated upstream
     ]
+=======
+    ],
+    "conflictResolution": {}
+>>>>>>> Stashed changes
   }
 }

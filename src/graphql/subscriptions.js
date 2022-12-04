@@ -1,6 +1,78 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
+export const onCreatePlayer = /* GraphQL */ `
+  subscription OnCreatePlayer($filter: ModelSubscriptionPlayerFilterInput) {
+    onCreatePlayer(filter: $filter) {
+      id
+      userGUID
+      name
+      email
+      phone
+      about
+      image
+      NTRP
+      UTR
+      matches {
+        nextToken
+      }
+      ladders {
+        nextToken
+      }
+      createdOn
+      updatedOn
+      ladderPlayersId
+    }
+  }
+`;
+export const onUpdatePlayer = /* GraphQL */ `
+  subscription OnUpdatePlayer($filter: ModelSubscriptionPlayerFilterInput) {
+    onUpdatePlayer(filter: $filter) {
+      id
+      userGUID
+      name
+      email
+      phone
+      about
+      image
+      NTRP
+      UTR
+      matches {
+        nextToken
+      }
+      ladders {
+        nextToken
+      }
+      createdOn
+      updatedOn
+      ladderPlayersId
+    }
+  }
+`;
+export const onDeletePlayer = /* GraphQL */ `
+  subscription OnDeletePlayer($filter: ModelSubscriptionPlayerFilterInput) {
+    onDeletePlayer(filter: $filter) {
+      id
+      userGUID
+      name
+      email
+      phone
+      about
+      image
+      NTRP
+      UTR
+      matches {
+        nextToken
+      }
+      ladders {
+        nextToken
+      }
+      createdOn
+      updatedOn
+      ladderPlayersId
+    }
+  }
+`;
 export const onCreateLadder = /* GraphQL */ `
   subscription OnCreateLadder($filter: ModelSubscriptionLadderFilterInput) {
     onCreateLadder(filter: $filter) {
@@ -8,34 +80,9 @@ export const onCreateLadder = /* GraphQL */ `
       name
       location
       matches {
-        items {
-          id
-          playedOn
-          reportedOn
-          score
-          createdOn
-          updatedOn
-          playerMatchesId
-          ladderMatchesId
-        }
         nextToken
       }
       players {
-        items {
-          id
-          userGUID
-          name
-          email
-          phone
-          about
-          image
-          NTRP
-          UTR
-          createdOn
-          updatedOn
-          ladderPlayersId
-          owner
-        }
         nextToken
       }
       createdOn
@@ -51,34 +98,9 @@ export const onUpdateLadder = /* GraphQL */ `
       name
       location
       matches {
-        items {
-          id
-          playedOn
-          reportedOn
-          score
-          createdOn
-          updatedOn
-          playerMatchesId
-          ladderMatchesId
-        }
         nextToken
       }
       players {
-        items {
-          id
-          userGUID
-          name
-          email
-          phone
-          about
-          image
-          NTRP
-          UTR
-          createdOn
-          updatedOn
-          ladderPlayersId
-          owner
-        }
         nextToken
       }
       createdOn
@@ -94,34 +116,9 @@ export const onDeleteLadder = /* GraphQL */ `
       name
       location
       matches {
-        items {
-          id
-          playedOn
-          reportedOn
-          score
-          createdOn
-          updatedOn
-          playerMatchesId
-          ladderMatchesId
-        }
         nextToken
       }
       players {
-        items {
-          id
-          userGUID
-          name
-          email
-          phone
-          about
-          image
-          NTRP
-          UTR
-          createdOn
-          updatedOn
-          ladderPlayersId
-          owner
-        }
         nextToken
       }
       createdOn
@@ -146,16 +143,9 @@ export const onCreateMatch = /* GraphQL */ `
         image
         NTRP
         UTR
-        matches {
-          nextToken
-        }
-        ladders {
-          nextToken
-        }
         createdOn
         updatedOn
         ladderPlayersId
-        owner
       }
       loser {
         id
@@ -167,40 +157,20 @@ export const onCreateMatch = /* GraphQL */ `
         image
         NTRP
         UTR
-        matches {
-          nextToken
-        }
-        ladders {
-          nextToken
-        }
         createdOn
         updatedOn
         ladderPlayersId
-        owner
       }
       score
       ladder {
         id
         name
         location
-        matches {
-          nextToken
-        }
-        players {
-          nextToken
-        }
         createdOn
         updatedOn
         playerLaddersId
       }
       comments {
-        items {
-          id
-          createdOn
-          content
-          updatedOn
-          matchCommentsId
-        }
         nextToken
       }
       createdOn
@@ -226,16 +196,9 @@ export const onUpdateMatch = /* GraphQL */ `
         image
         NTRP
         UTR
-        matches {
-          nextToken
-        }
-        ladders {
-          nextToken
-        }
         createdOn
         updatedOn
         ladderPlayersId
-        owner
       }
       loser {
         id
@@ -247,40 +210,20 @@ export const onUpdateMatch = /* GraphQL */ `
         image
         NTRP
         UTR
-        matches {
-          nextToken
-        }
-        ladders {
-          nextToken
-        }
         createdOn
         updatedOn
         ladderPlayersId
-        owner
       }
       score
       ladder {
         id
         name
         location
-        matches {
-          nextToken
-        }
-        players {
-          nextToken
-        }
         createdOn
         updatedOn
         playerLaddersId
       }
       comments {
-        items {
-          id
-          createdOn
-          content
-          updatedOn
-          matchCommentsId
-        }
         nextToken
       }
       createdOn
@@ -306,16 +249,9 @@ export const onDeleteMatch = /* GraphQL */ `
         image
         NTRP
         UTR
-        matches {
-          nextToken
-        }
-        ladders {
-          nextToken
-        }
         createdOn
         updatedOn
         ladderPlayersId
-        owner
       }
       loser {
         id
@@ -327,40 +263,20 @@ export const onDeleteMatch = /* GraphQL */ `
         image
         NTRP
         UTR
-        matches {
-          nextToken
-        }
-        ladders {
-          nextToken
-        }
         createdOn
         updatedOn
         ladderPlayersId
-        owner
       }
       score
       ladder {
         id
         name
         location
-        matches {
-          nextToken
-        }
-        players {
-          nextToken
-        }
         createdOn
         updatedOn
         playerLaddersId
       }
       comments {
-        items {
-          id
-          createdOn
-          content
-          updatedOn
-          matchCommentsId
-        }
         nextToken
       }
       createdOn
@@ -379,48 +295,7 @@ export const onCreateComment = /* GraphQL */ `
         id
         playedOn
         reportedOn
-        winner {
-          id
-          userGUID
-          name
-          email
-          phone
-          about
-          image
-          NTRP
-          UTR
-          createdOn
-          updatedOn
-          ladderPlayersId
-          owner
-        }
-        loser {
-          id
-          userGUID
-          name
-          email
-          phone
-          about
-          image
-          NTRP
-          UTR
-          createdOn
-          updatedOn
-          ladderPlayersId
-          owner
-        }
         score
-        ladder {
-          id
-          name
-          location
-          createdOn
-          updatedOn
-          playerLaddersId
-        }
-        comments {
-          nextToken
-        }
         createdOn
         updatedOn
         playerMatchesId
@@ -441,48 +316,7 @@ export const onUpdateComment = /* GraphQL */ `
         id
         playedOn
         reportedOn
-        winner {
-          id
-          userGUID
-          name
-          email
-          phone
-          about
-          image
-          NTRP
-          UTR
-          createdOn
-          updatedOn
-          ladderPlayersId
-          owner
-        }
-        loser {
-          id
-          userGUID
-          name
-          email
-          phone
-          about
-          image
-          NTRP
-          UTR
-          createdOn
-          updatedOn
-          ladderPlayersId
-          owner
-        }
         score
-        ladder {
-          id
-          name
-          location
-          createdOn
-          updatedOn
-          playerLaddersId
-        }
-        comments {
-          nextToken
-        }
         createdOn
         updatedOn
         playerMatchesId
@@ -503,48 +337,7 @@ export const onDeleteComment = /* GraphQL */ `
         id
         playedOn
         reportedOn
-        winner {
-          id
-          userGUID
-          name
-          email
-          phone
-          about
-          image
-          NTRP
-          UTR
-          createdOn
-          updatedOn
-          ladderPlayersId
-          owner
-        }
-        loser {
-          id
-          userGUID
-          name
-          email
-          phone
-          about
-          image
-          NTRP
-          UTR
-          createdOn
-          updatedOn
-          ladderPlayersId
-          owner
-        }
         score
-        ladder {
-          id
-          name
-          location
-          createdOn
-          updatedOn
-          playerLaddersId
-        }
-        comments {
-          nextToken
-        }
         createdOn
         updatedOn
         playerMatchesId
@@ -553,144 +346,6 @@ export const onDeleteComment = /* GraphQL */ `
       content
       updatedOn
       matchCommentsId
-    }
-  }
-`;
-export const onCreatePlayer = /* GraphQL */ `
-  subscription OnCreatePlayer(
-    $filter: ModelSubscriptionPlayerFilterInput
-    $owner: String
-  ) {
-    onCreatePlayer(filter: $filter, owner: $owner) {
-      id
-      userGUID
-      name
-      email
-      phone
-      about
-      image
-      NTRP
-      UTR
-      matches {
-        items {
-          id
-          playedOn
-          reportedOn
-          score
-          createdOn
-          updatedOn
-          playerMatchesId
-          ladderMatchesId
-        }
-        nextToken
-      }
-      ladders {
-        items {
-          id
-          name
-          location
-          createdOn
-          updatedOn
-          playerLaddersId
-        }
-        nextToken
-      }
-      createdOn
-      updatedOn
-      ladderPlayersId
-      owner
-    }
-  }
-`;
-export const onUpdatePlayer = /* GraphQL */ `
-  subscription OnUpdatePlayer(
-    $filter: ModelSubscriptionPlayerFilterInput
-    $owner: String
-  ) {
-    onUpdatePlayer(filter: $filter, owner: $owner) {
-      id
-      userGUID
-      name
-      email
-      phone
-      about
-      image
-      NTRP
-      UTR
-      matches {
-        items {
-          id
-          playedOn
-          reportedOn
-          score
-          createdOn
-          updatedOn
-          playerMatchesId
-          ladderMatchesId
-        }
-        nextToken
-      }
-      ladders {
-        items {
-          id
-          name
-          location
-          createdOn
-          updatedOn
-          playerLaddersId
-        }
-        nextToken
-      }
-      createdOn
-      updatedOn
-      ladderPlayersId
-      owner
-    }
-  }
-`;
-export const onDeletePlayer = /* GraphQL */ `
-  subscription OnDeletePlayer(
-    $filter: ModelSubscriptionPlayerFilterInput
-    $owner: String
-  ) {
-    onDeletePlayer(filter: $filter, owner: $owner) {
-      id
-      userGUID
-      name
-      email
-      phone
-      about
-      image
-      NTRP
-      UTR
-      matches {
-        items {
-          id
-          playedOn
-          reportedOn
-          score
-          createdOn
-          updatedOn
-          playerMatchesId
-          ladderMatchesId
-        }
-        nextToken
-      }
-      ladders {
-        items {
-          id
-          name
-          location
-          createdOn
-          updatedOn
-          playerLaddersId
-        }
-        nextToken
-      }
-      createdOn
-      updatedOn
-      ladderPlayersId
-      owner
     }
   }
 `;
