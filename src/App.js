@@ -93,18 +93,10 @@ function App(props) {
   return (
     <div className="App">
 
-      {/* <header>
-        <Navbar useMenu={MyMenu} isLoggedIn={isLoggedIn} testing={testing} key="myNavbar"/>
-      </header> */}
-      {/* {myRoutes} */}
-
-
       <Suspense fallback={<div>Loading...</div>}>
 
         <div className="Content">
           <MyRouter isLoggedIn={isLoggedIn} testing={testing} />
-          {/* <h1>{isLoggedIn === true ? 'Hello ' + currentUser.name :"" } </h1> */}
-
         </div>
       </Suspense>
       <Footer></Footer>

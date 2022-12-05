@@ -5,6 +5,8 @@ import {
   updatePlayer as updatePlayerMutation,
   deletePlayer as deletePlayerMutation,
 } from "../graphql/mutations";
+import { useEffect, useState } from 'react';
+
 
 
 const userFunctions = {
@@ -23,7 +25,21 @@ const userFunctions = {
         }       
     },
 
-    getPlayersForLadder: function(ladderId) {
+    useLadderPlayersData:  function(ladderId) {
+        const [data,setData] = useState([]);
+        useEffect(() => {
+            const fetchData = async () => {
+                const ladderPlayers = await this.getPlayersForLadder(ladderId)
+                setData(ladderPlayers)
+            }
+            fetchData()
+        },[ladderId])
+        
+        console.log(data)
+        return data
+    },
+
+    getPlayersForLadder: async function(ladderId) {
         return [{label: 'Jonas Persson', id:1}, {label: 'Gurra B', id:2}]
     },
 
@@ -250,22 +266,4 @@ const userFunctions = {
     }
 }
 
-const helpers = {
-    
-    getGUID: () => {
-        return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-        );
-    },
-    formatDate: (date) => {
-        date = new Date(date);
-        if(Object.prototype.toString.call(date) === '[object Date]')
-            return date.toLocaleDateString('en-us',{ year:"numeric", month:"short", day:"numeric"})
-
-        return 'not a date'
-    }
-    
-};
-
-
-export {helpers, userFunctions};
+export default userFunctions;

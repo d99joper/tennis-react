@@ -245,6 +245,7 @@ function Profile(props) {
                     </Flex>
                     <Flex direction="row" gap="1rem">
                         <Card className='card' variation="elevated">
+                            Latest matches
                             <Matches player={player}></Matches>
                         </Card>
                     </Flex>

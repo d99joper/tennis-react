@@ -44,7 +44,7 @@ a:hover {
 }
 
 .date {
-    width: 6.2rem;
+    width: 6.5rem;
     min-width: min-content;
 }
 
@@ -54,11 +54,11 @@ a:hover {
 }
 
 .ladderName {
-    width: 8rem;
+    width: 10rem;
     min-width: min-content;
 }
 
 .score {
-    width: 7rem;
+    width: 10rem;
     min-width: min-content;
 }
