@@ -10,14 +10,14 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
     const [loser, setLoser] = useState({name: ''})
     const [isWinner, setIsWinner] = useState('not set')
     const [set1W, setSet1W] = useState()
-    const [set2W, setSet2W] = useState()
-    const [set3W, setSet3W] = useState()
-    const [set4W, setSet4W] = useState()
-    const [set5W, setSet5W] = useState()
     const [set1L, setSet1L] = useState()
+    const [set2W, setSet2W] = useState()
     const [set2L, setSet2L] = useState()
+    const [set3W, setSet3W] = useState()
     const [set3L, setSet3L] = useState()
+    const [set4W, setSet4W] = useState()
     const [set4L, setSet4L] = useState()
+    const [set5W, setSet5W] = useState()
     const [set5L, setSet5L] = useState()
     const [showSet4, setShowSet4] = useState()
     const [showSet5, setShowSet5] = useState()
@@ -40,11 +40,18 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
         onSubmit(result);
     }
 
+    const handleLoserWinnerChange = (e,values, winner) => {
+        if(winner)
+            setWinner(values)
+        else
+            setLoser(values)
+    }
+
     const handleWinnerRadio = (e) => {
         const didPlayerWin = e.target.value
         // set and switch the winner/loser
         
-        if ("yes") {
+        if (didPlayerWin === "yes") {
             setLoser(winner)
             setWinner(player)
         }
@@ -115,12 +122,19 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
                     <label>
                         
                         <Autocomplete
-                            id="winner"
-                            options={!ladderPlayers ? [{label: 'Loading...', id:0}] : ladderPlayers}
+                            id="winner-search"
+                            options={!ladderPlayers ? [{name: 'Loading...', id:0}] : ladderPlayers}
                             disableClearable={isWinner === "yes"}
                             disabled={isWinner === "yes"}
+                            getOptionDisabled={(option) => option.name == loser.name}
                             autoSelect={true}
-                            defaultValue={winner.name}
+                            // onChange={(e, newValue) => {
+                            //     console.log(newValue)
+                            //     setWinner(newValue)
+                            //   }}
+                            onChange={(e,value) => {handleLoserWinnerChange(e,value, true)}}
+                            getOptionLabel={options => options.name}
+                            value={winner}
                             sx={{ width: 300 }}
                             renderInput={(params) => <TextField {...params} label="Winner" />}
                         />
@@ -141,12 +155,15 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
                     <label>
                         
                         <Autocomplete
-                            id="loser"
+                            id="loser-search"
                             options={!ladderPlayers ? [{label: 'Loading...', id:0}] : ladderPlayers}
                             disableClearable={isWinner === "no"}
                             disabled={isWinner === "no"}
+                            getOptionDisabled={(option) => option.name == winner.name}
                             autoSelect={true}
-                            defaultValue={loser.name}
+                            onChange={(e,value) => {handleLoserWinnerChange(e,value, false)}}
+                            value={loser}
+                            getOptionLabel={options => options.name}
                             sx={{ width: 300 }}
                             renderInput={(params) => <TextField {...params} label="Defeated" />}
                         />

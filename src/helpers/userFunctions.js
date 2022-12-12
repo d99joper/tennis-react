@@ -35,12 +35,11 @@ const userFunctions = {
             fetchData()
         },[ladderId])
         
-        console.log(data)
         return data
     },
 
     getPlayersForLadder: async function(ladderId) {
-        return [{label: 'Jonas Persson', id:1}, {label: 'Gurra B', id:2}]
+        return [{name: 'Jonas', id:1}, {name: 'Gurra B', id:2}]
     },
 
     UpdatePlayer: async function(player, userId, image) {
