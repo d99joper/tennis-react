@@ -106,47 +106,65 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
 
             {isWinner !== "not set" ?
                 <Flex direction={'column'} gap="1" marginTop={'1em'}>
-                    <Flex direction={'row'}>
-                        <Autocomplete
-                            id="winner-search"
-                            options={!ladderPlayers ? [{ name: 'Loading...', id: 0 }] : ladderPlayers}
-                            disableClearable={isWinner === "yes"}
-                            disabled={isWinner === "yes"}
-                            getOptionDisabled={(option) => option.name == loser.name}
-                            autoSelect={true}
-                            onChange={(e, value) => { handleLoserWinnerChange(e, value, true) }}
-                            getOptionLabel={options => options.name}
-                            value={winner}
-                            sx={{ width: 300 }}
-                            renderInput={(params) => <TextField {...params} label="Winner" />}
-                        />
-                        <TextField
-                            label="set 1"
-                            onChange={(e) => { handleSetChange(e, 1) }}
-                            value={set1}
-                            className="setBox"
-                            id="set1-search"
-                            required
-                            error={scoreError}
-                            helperText={scoreError && "please enter a valid set score"}
-                            placeholder="X-X">
-                        </TextField>
-                    </Flex>
-                    <Flex direction={'row'}>
-                        <Autocomplete
-                            id="loser-search"
-                            options={!ladderPlayers ? [{ label: 'Loading...', id: 0 }] : ladderPlayers}
-                            disableClearable={isWinner === "no"}
-                            disabled={isWinner === "no"}
-                            getOptionDisabled={(option) => option.name == winner.name}
-                            autoSelect={true}
-                            onChange={(e, value) => { handleLoserWinnerChange(e, value, false) }}
-                            value={loser}
-                            getOptionLabel={options => options.name}
-                            sx={{ width: 300 }}
-                            renderInput={(params) => <TextField {...params} label="Defeated" />}
-                        />
-                    </Flex>
+                    <Autocomplete
+                        id="winner-search"
+                        options={!ladderPlayers ? [{ name: 'Loading...', id: 0 }] : ladderPlayers}
+                        disableClearable={isWinner === "yes"}
+                        disabled={isWinner === "yes"}
+                        getOptionDisabled={(option) => option.name == loser.name}
+                        autoSelect={true}
+                        onChange={(e, value) => { handleLoserWinnerChange(e, value, true) }}
+                        getOptionLabel={options => options.name}
+                        value={winner}
+                        sx={{ width: 300 }}
+                        renderInput={(params) => <TextField {...params} label="Winner" />}
+                    />
+                    <Autocomplete
+                        id="loser-search"
+                        options={!ladderPlayers ? [{ label: 'Loading...', id: 0 }] : ladderPlayers}
+                        disableClearable={isWinner === "no"}
+                        disabled={isWinner === "no"}
+                        getOptionDisabled={(option) => option.name == winner.name}
+                        autoSelect={true}
+                        onChange={(e, value) => { handleLoserWinnerChange(e, value, false) }}
+                        value={loser}
+                        getOptionLabel={options => options.name}
+                        sx={{ width: 300 }}
+                        renderInput={(params) => <TextField {...params} label="Defeated" />}
+                    />
+                    <TextField
+                        label="set 1"
+                        onChange={(e) => { handleSetChange(e, 1) }}
+                        value={set1}
+                        className="setBox"
+                        id="set1-search"
+                        required
+                        error={scoreError}
+                        helperText={scoreError && "please enter a valid set score"}
+                        placeholder="X-X">
+                    </TextField>
+                    <TextField
+                        label="Set 2"
+                        onChange={(e) => { handleSetChange(e, 2) }}
+                        value={set2}
+                        className="setBox"
+                        id="set2-search"
+                        required
+                        error={scoreError}
+                        helperText={scoreError && "please enter a valid set score"}
+                        placeholder="X-X">
+                    </TextField>
+                    <TextField
+                        label="Set 2"
+                        onChange={(e) => { handleSetChange(e, 3) }}
+                        value={set3}
+                        className="setBox"
+                        id="set3-search"
+                        required
+                        error={scoreError}
+                        helperText={scoreError && "please enter a valid set score"}
+                        placeholder="X-X">
+                    </TextField>
                     <button type="submit">Add result</button>
                 </Flex>
                 : null}
