@@ -2,6 +2,7 @@ import { Flex, Radio, RadioGroupField } from '@aws-amplify/ui-react';
 import { Autocomplete, TextField } from '@mui/material'; //https://mui.com/material-ui/react-autocomplete/
 import React, { useEffect, useState } from 'react';
 import { userFunctions } from '../../../helpers/index';
+import SetInput from './SetInput'
 import './MatchEditor.css';
 
 const MatchEditor = ({ player, onSubmit, ...props }) => {
@@ -11,7 +12,7 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
     const [isWinner, setIsWinner] = useState('not set')
     const [scoreError, setScoreError] = useState(false)
     const [set1, setSet1] = useState('')
-    const [set2, setSet2] = useState()
+    const [set2, setSet2] = useState('')
     const [set3, setSet3] = useState()
     const [set4, setSet4] = useState()
     const [set5, setSet5] = useState()
@@ -60,18 +61,7 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
 
     const handleSetChange = (e, set) => {
         let setScore = e.target.value
-        setScore = setScore.replace(/[^\d- ]/g, '').trim();
-
-        if (/^\d+ ?- ?\d+$/.test(setScore)) setScoreError(false)
-        else { setScoreError(true) }
-
-        // get the individual games
-        const games = setScore && setScore.match(/\d+/g).map(Number);
-
-        if (games[0] > 20 || games[1] > 20) setScoreError(true)
-
-        if (Math.abs(games[0] - games[1]) === 1) console.log("show tiebreaker", Math.abs(games[0] - games[1]))
-
+        
         switch (set) {
             case 1:
                 setSet1(setScore)
@@ -132,39 +122,18 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
                         sx={{ width: 300 }}
                         renderInput={(params) => <TextField {...params} label="Defeated" />}
                     />
-                    <TextField
-                        label="set 1"
-                        onChange={(e) => { handleSetChange(e, 1) }}
+                    <SetInput 
+                        label="set 1" 
                         value={set1}
-                        className="setBox"
-                        id="set1-search"
-                        required
-                        error={scoreError}
-                        helperText={scoreError && "please enter a valid set score"}
-                        placeholder="X-X">
-                    </TextField>
-                    <TextField
-                        label="Set 2"
-                        onChange={(e) => { handleSetChange(e, 2) }}
+                        onChange={(e) => { handleSetChange(e, 1) }} 
+                        key="1"
+                    />
+                    <SetInput 
+                        label="set 2" 
                         value={set2}
-                        className="setBox"
-                        id="set2-search"
-                        required
-                        error={scoreError}
-                        helperText={scoreError && "please enter a valid set score"}
-                        placeholder="X-X">
-                    </TextField>
-                    <TextField
-                        label="Set 2"
-                        onChange={(e) => { handleSetChange(e, 3) }}
-                        value={set3}
-                        className="setBox"
-                        id="set3-search"
-                        required
-                        error={scoreError}
-                        helperText={scoreError && "please enter a valid set score"}
-                        placeholder="X-X">
-                    </TextField>
+                        onChange={(e) => { handleSetChange(e, 2) }} 
+                        key="2"
+                    />
                     <button type="submit">Add result</button>
                 </Flex>
                 : null}

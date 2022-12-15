@@ -1,5 +1,5 @@
 // Matches.js
-import { Button, Collection, Flex, View } from "@aws-amplify/ui-react";
+import { Button, Collection, Flex } from "@aws-amplify/ui-react";
 import {React, useState} from "react";
 import {Match, displayMode, MatchEditor} from "../index.js"
 import "./Matches.css"
