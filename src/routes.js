@@ -1,17 +1,14 @@
 import {
-    BrowserRouter,
-    Routes,
-    Route
-  } from 'react-router-dom';
+  BrowserRouter,
+  Routes,
+  Route
+} from 'react-router-dom';
 import { Heading } from '@aws-amplify/ui-react';
 import Login from './views/login'
-import Profile from './views/profile'
-import LadderView from './views/ladderView'
-// import Ladder from './views/ladder'
-import NoPage from './views/NoPage'
-import AuthTest from './views/authTest'
 import Navbar from './components/layout/navbar';
 import MyMenu from './components/layout/menu';
+import { lazy } from 'react';
+import { Suspense } from 'react';
 
 function Home() {
   return <Heading level={2}>Home</Heading>;
@@ -21,16 +18,21 @@ function About() {
   return <Heading level={2}>About</Heading>;
 };
 
+const Profile = lazy(() => import('./views/profile'))
+const LadderView = lazy(() => import('./views/ladderView'))
+const NoPage = lazy(() => import('./views/NoPage'))
+
 const MyRouter = (props) => {
   return (
     <BrowserRouter key="MyMainBrowserRouter">
       <header>
-        <Navbar useMenu={MyMenu} isLoggedIn={props.isLoggedIn} testing={props.testing} key="myNavbar"/>
+        <Navbar useMenu={MyMenu} isLoggedIn={props.isLoggedIn} testing={props.testing} key="myNavbar" />
       </header>
       <div className='Content'>
-        <Routes key="MyMainRoutes">
-            <Route exact path="/"  element={<Home />} />
-            <Route exact path="/about" element={<About />}/>
+        <Suspense fallback={<h2>Loading...</h2>}>
+          <Routes key="MyMainRoutes">
+            <Route exact path="/" element={<Home />} />
+            <Route exact path="/about" element={<About />} />
             <Route path="/profile" element={<Profile isLoggedIn={props.isLoggedIn} />} />
             <Route path="/profile/:userid" element={<Profile isLoggedIn={props.isLoggedIn} />} />
             <Route path="/login" element={<Login />} />
@@ -39,13 +41,12 @@ const MyRouter = (props) => {
               <Route path="new" element={<Home />} />
               <Route index element={<Home />} />
             </Route>
-            
-            <Route path="/authtest"  element={<AuthTest />} />
             <Route path="*" element={<NoPage />} />
-        </Routes>
+          </Routes>
+        </Suspense>
       </div>
     </BrowserRouter>
   )
 };
 
-  export default MyRouter;
+export default MyRouter;

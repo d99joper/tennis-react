@@ -1,3 +1,7 @@
 .setBox {
     width: 4.5rem;
 }
+
+.errorText {
+    min-width: 20rem;
+}

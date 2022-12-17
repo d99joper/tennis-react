@@ -1,6 +1,6 @@
 // Matches.js
 import { Button, Collection, Flex } from "@aws-amplify/ui-react";
-import {React, useState} from "react";
+import {React, useState, lazy} from "react";
 import {Match, displayMode, MatchEditor} from "../index.js"
 import "./Matches.css"
 
@@ -14,6 +14,8 @@ const Matches = ({
     allowAdd = true,
     ...props
 }) => {
+
+    //const MatchEditor = lazy(() => import("../MatchEditor/MatchEditor").then(module => {return { default: module.MatchEditor }}))
 
     const [matches, setMatches] = useState([
         {id: 1, playedOn: '2018-05-17', 
@@ -35,14 +37,6 @@ const Matches = ({
         ladder: {id:1, name: 'Davis 4.0'}, 
         comments: [{id:1, content:'nice'},{id:2, content: 'good game'}]},
         ]);
-    // id: ID!
-    // playedOn: AWSDate!
-    // reportedOn: AWSDateTime!
-    // winner: Player!
-    // loser: Player! 
-    // score: String!
-    // ladder: Ladder @belongsTo
-    // comments: [Comment!] @hasMany
     
     const setColor = ((match, index) => {
         //console.log('setColor winnerId', match.winner)

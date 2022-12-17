@@ -1,19 +1,31 @@
 import { Hub } from 'aws-amplify';
 import "@aws-amplify/ui-react/styles.css";
-import React, { useState, useEffect, Suspense, useRef } from 'react';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
-import { userFunctions } from './helpers/helpers';
+import { userFunctions } from './helpers/index';
 import MyRouter from './routes';
 import Footer from './views/footer';
+import { green } from '@mui/material/colors';
 
-function App(props) {
-
+function App() {
+  const PrimaryMainTheme = createTheme({
+    palette: {
+            // palette values for dark mode
+            primary: green,
+            divider: green[300],
+            background: {
+              default: green[10],
+              paper: green[100],
+            }
+     
+    }
+  });
   const testing = useRef(false);
   const newUser = useRef(false);
 
   const [isLoading, setLoading] = useState(true); // Loading state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
 
   useEffect(() => { // useEffect hook
     Hub.listen('auth', (data) => {
@@ -61,7 +73,6 @@ function App(props) {
       }
     });
 
-
     setLoading(false); //set loading state
   }, []);
 
@@ -92,14 +103,11 @@ function App(props) {
 
   return (
     <div className="App">
+      <ThemeProvider theme={PrimaryMainTheme}>
 
-      <Suspense fallback={<div>Loading...</div>}>
-
-        <div className="Content">
-          <MyRouter isLoggedIn={isLoggedIn} testing={testing} />
-        </div>
-      </Suspense>
+      <MyRouter isLoggedIn={isLoggedIn} testing={testing} />
       <Footer></Footer>
+      </ThemeProvider>
     </div>
   );
 }

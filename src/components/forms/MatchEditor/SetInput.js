@@ -37,6 +37,7 @@ const SetInput = (props) => {
     return (
         <TextField
             label={props.label}
+            FormHelperTextProps={{className: "errorText"}}
             onChange={handleSetChange}
             onBlur={handleBlur}
             value={setScore}

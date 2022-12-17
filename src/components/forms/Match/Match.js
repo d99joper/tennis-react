@@ -1,10 +1,10 @@
 import React from "react";
-import { Flex, Grid, Table, TableBody, TableCell, TableHead, TableRow, View } from "@aws-amplify/ui-react";
-import "./Match.css"
+import { Flex, View } from "@aws-amplify/ui-react";
 import { GiCrossedSwords } from 'react-icons/gi';
 import { GoCommentDiscussion } from 'react-icons/go';
 import { helpers } from "../../../helpers/helpers";
 import { Link } from "react-router-dom";
+import "./Match.css"
 
 const Match = ({
     index,

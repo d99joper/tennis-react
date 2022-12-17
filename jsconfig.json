@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "baseUrl": "./src",
+        "paths": {
+            "views":  ["src/views"]
+        }
+    },
+    "include": ["src"]
+}

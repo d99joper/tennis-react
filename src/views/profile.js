@@ -15,7 +15,7 @@ import {
     Divider,
     SwitchField
 } from "@aws-amplify/ui-react";
-import { userFunctions } from '../helpers/helpers'
+import { userFunctions } from 'helpers'
 import { Editable, Matches, Ladders, PhoneNumber } from '../components/forms/index.js'
 import Modal from '../components/layout/Modal/modal';
 import './profile.css';
@@ -142,7 +142,7 @@ function Profile(props) {
     if (error.status) {
         return <div>Error: {error.message}</div>;
     } else if (!isLoaded) {
-        return <div>Loading...</div>;
+        return <h2>Loading...</h2>;
     } else {
         return (
             <>

@@ -1,5 +1,4 @@
 import { Authenticator } from '@aws-amplify/ui-react';
-import { Amplify, Auth, signOut } from 'aws-amplify'; 
 import { helpers } from '../helpers/helpers';
 
 

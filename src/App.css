@@ -1,4 +1,3 @@
-
 .App {
   text-align: center;
   margin-inline: auto;
@@ -98,4 +97,8 @@ a:hover {
 
 .cursorHand {
     cursor: pointer;
+}
+
+.MuiOutlinedInput-root {
+  background-color: #ccff0022;
 }

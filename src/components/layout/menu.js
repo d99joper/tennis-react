@@ -1,7 +1,7 @@
 import { Menu, MenuItem, View } from '@aws-amplify/ui-react';
 import {Link} from 'react-router-dom';
 import React from "react";
-import {userFunctions} from '../../helpers/helpers';
+import {userFunctions} from '../../helpers';
 
 
 const MyMenu = (props) => {
