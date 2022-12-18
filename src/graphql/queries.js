@@ -21,7 +21,6 @@ export const getPlayer = /* GraphQL */ `
       }
       createdOn
       updatedOn
-      ladderPlayersId
     }
   }
 `;
@@ -44,7 +43,6 @@ export const listPlayers = /* GraphQL */ `
         UTR
         createdOn
         updatedOn
-        ladderPlayersId
       }
       nextToken
     }
@@ -56,6 +54,8 @@ export const getLadder = /* GraphQL */ `
       id
       name
       location
+      city
+      zip
       matches {
         nextToken
       }
@@ -64,7 +64,6 @@ export const getLadder = /* GraphQL */ `
       }
       createdOn
       updatedOn
-      playerLaddersId
     }
   }
 `;
@@ -79,9 +78,10 @@ export const listLadders = /* GraphQL */ `
         id
         name
         location
+        city
+        zip
         createdOn
         updatedOn
-        playerLaddersId
       }
       nextToken
     }
@@ -103,20 +103,22 @@ export const getStandings = /* GraphQL */ `
         UTR
         createdOn
         updatedOn
-        ladderPlayersId
       }
       ladder {
         id
         name
         location
+        city
+        zip
         createdOn
         updatedOn
-        playerLaddersId
       }
       points
       position
       createdOn
       updatedOn
+      standingsPlayerId
+      standingsLadderId
     }
   }
 `;
@@ -133,6 +135,8 @@ export const listStandings = /* GraphQL */ `
         position
         createdOn
         updatedOn
+        standingsPlayerId
+        standingsLadderId
       }
       nextToken
     }
@@ -156,7 +160,6 @@ export const getMatch = /* GraphQL */ `
         UTR
         createdOn
         updatedOn
-        ladderPlayersId
       }
       loser {
         id
@@ -170,7 +173,6 @@ export const getMatch = /* GraphQL */ `
         UTR
         createdOn
         updatedOn
-        ladderPlayersId
       }
       score
       setsWon
@@ -183,9 +185,10 @@ export const getMatch = /* GraphQL */ `
         id
         name
         location
+        city
+        zip
         createdOn
         updatedOn
-        playerLaddersId
       }
       comments {
         nextToken
@@ -264,6 +267,57 @@ export const listComments = /* GraphQL */ `
         content
         updatedOn
         matchCommentsId
+      }
+      nextToken
+    }
+  }
+`;
+export const getLadderPlayer = /* GraphQL */ `
+  query GetLadderPlayer($id: ID!) {
+    getLadderPlayer(id: $id) {
+      id
+      playerID
+      ladderID
+      player {
+        id
+        userGUID
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        createdOn
+        updatedOn
+      }
+      ladder {
+        id
+        name
+        location
+        city
+        zip
+        createdOn
+        updatedOn
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const listLadderPlayers = /* GraphQL */ `
+  query ListLadderPlayers(
+    $filter: ModelLadderPlayerFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listLadderPlayers(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        playerID
+        ladderID
+        createdAt
+        updatedAt
       }
       nextToken
     }

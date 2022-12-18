@@ -24,7 +24,6 @@ export const createPlayer = /* GraphQL */ `
       }
       createdOn
       updatedOn
-      ladderPlayersId
     }
   }
 `;
@@ -51,7 +50,6 @@ export const updatePlayer = /* GraphQL */ `
       }
       createdOn
       updatedOn
-      ladderPlayersId
     }
   }
 `;
@@ -78,7 +76,6 @@ export const deletePlayer = /* GraphQL */ `
       }
       createdOn
       updatedOn
-      ladderPlayersId
     }
   }
 `;
@@ -91,6 +88,8 @@ export const createLadder = /* GraphQL */ `
       id
       name
       location
+      city
+      zip
       matches {
         nextToken
       }
@@ -99,7 +98,6 @@ export const createLadder = /* GraphQL */ `
       }
       createdOn
       updatedOn
-      playerLaddersId
     }
   }
 `;
@@ -112,6 +110,8 @@ export const updateLadder = /* GraphQL */ `
       id
       name
       location
+      city
+      zip
       matches {
         nextToken
       }
@@ -120,7 +120,6 @@ export const updateLadder = /* GraphQL */ `
       }
       createdOn
       updatedOn
-      playerLaddersId
     }
   }
 `;
@@ -133,6 +132,8 @@ export const deleteLadder = /* GraphQL */ `
       id
       name
       location
+      city
+      zip
       matches {
         nextToken
       }
@@ -141,7 +142,6 @@ export const deleteLadder = /* GraphQL */ `
       }
       createdOn
       updatedOn
-      playerLaddersId
     }
   }
 `;
@@ -164,20 +164,22 @@ export const createStandings = /* GraphQL */ `
         UTR
         createdOn
         updatedOn
-        ladderPlayersId
       }
       ladder {
         id
         name
         location
+        city
+        zip
         createdOn
         updatedOn
-        playerLaddersId
       }
       points
       position
       createdOn
       updatedOn
+      standingsPlayerId
+      standingsLadderId
     }
   }
 `;
@@ -200,20 +202,22 @@ export const updateStandings = /* GraphQL */ `
         UTR
         createdOn
         updatedOn
-        ladderPlayersId
       }
       ladder {
         id
         name
         location
+        city
+        zip
         createdOn
         updatedOn
-        playerLaddersId
       }
       points
       position
       createdOn
       updatedOn
+      standingsPlayerId
+      standingsLadderId
     }
   }
 `;
@@ -236,20 +240,22 @@ export const deleteStandings = /* GraphQL */ `
         UTR
         createdOn
         updatedOn
-        ladderPlayersId
       }
       ladder {
         id
         name
         location
+        city
+        zip
         createdOn
         updatedOn
-        playerLaddersId
       }
       points
       position
       createdOn
       updatedOn
+      standingsPlayerId
+      standingsLadderId
     }
   }
 `;
@@ -274,7 +280,6 @@ export const createMatch = /* GraphQL */ `
         UTR
         createdOn
         updatedOn
-        ladderPlayersId
       }
       loser {
         id
@@ -288,7 +293,6 @@ export const createMatch = /* GraphQL */ `
         UTR
         createdOn
         updatedOn
-        ladderPlayersId
       }
       score
       setsWon
@@ -301,9 +305,10 @@ export const createMatch = /* GraphQL */ `
         id
         name
         location
+        city
+        zip
         createdOn
         updatedOn
-        playerLaddersId
       }
       comments {
         nextToken
@@ -336,7 +341,6 @@ export const updateMatch = /* GraphQL */ `
         UTR
         createdOn
         updatedOn
-        ladderPlayersId
       }
       loser {
         id
@@ -350,7 +354,6 @@ export const updateMatch = /* GraphQL */ `
         UTR
         createdOn
         updatedOn
-        ladderPlayersId
       }
       score
       setsWon
@@ -363,9 +366,10 @@ export const updateMatch = /* GraphQL */ `
         id
         name
         location
+        city
+        zip
         createdOn
         updatedOn
-        playerLaddersId
       }
       comments {
         nextToken
@@ -398,7 +402,6 @@ export const deleteMatch = /* GraphQL */ `
         UTR
         createdOn
         updatedOn
-        ladderPlayersId
       }
       loser {
         id
@@ -412,7 +415,6 @@ export const deleteMatch = /* GraphQL */ `
         UTR
         createdOn
         updatedOn
-        ladderPlayersId
       }
       score
       setsWon
@@ -425,9 +427,10 @@ export const deleteMatch = /* GraphQL */ `
         id
         name
         location
+        city
+        zip
         createdOn
         updatedOn
-        playerLaddersId
       }
       comments {
         nextToken
@@ -526,6 +529,114 @@ export const deleteComment = /* GraphQL */ `
       content
       updatedOn
       matchCommentsId
+    }
+  }
+`;
+export const createLadderPlayer = /* GraphQL */ `
+  mutation CreateLadderPlayer(
+    $input: CreateLadderPlayerInput!
+    $condition: ModelLadderPlayerConditionInput
+  ) {
+    createLadderPlayer(input: $input, condition: $condition) {
+      id
+      playerID
+      ladderID
+      player {
+        id
+        userGUID
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        createdOn
+        updatedOn
+      }
+      ladder {
+        id
+        name
+        location
+        city
+        zip
+        createdOn
+        updatedOn
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const updateLadderPlayer = /* GraphQL */ `
+  mutation UpdateLadderPlayer(
+    $input: UpdateLadderPlayerInput!
+    $condition: ModelLadderPlayerConditionInput
+  ) {
+    updateLadderPlayer(input: $input, condition: $condition) {
+      id
+      playerID
+      ladderID
+      player {
+        id
+        userGUID
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        createdOn
+        updatedOn
+      }
+      ladder {
+        id
+        name
+        location
+        city
+        zip
+        createdOn
+        updatedOn
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const deleteLadderPlayer = /* GraphQL */ `
+  mutation DeleteLadderPlayer(
+    $input: DeleteLadderPlayerInput!
+    $condition: ModelLadderPlayerConditionInput
+  ) {
+    deleteLadderPlayer(input: $input, condition: $condition) {
+      id
+      playerID
+      ladderID
+      player {
+        id
+        userGUID
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        createdOn
+        updatedOn
+      }
+      ladder {
+        id
+        name
+        location
+        city
+        zip
+        createdOn
+        updatedOn
+      }
+      createdAt
+      updatedAt
     }
   }
 `;

@@ -7,8 +7,6 @@ import {
 } from "../graphql/mutations";
 import { useEffect, useState } from 'react';
 
-
-
 const userFunctions = {
     
     createPlayerIfNotExist: async function() {

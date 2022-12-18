@@ -21,7 +21,6 @@ export const onCreatePlayer = /* GraphQL */ `
       }
       createdOn
       updatedOn
-      ladderPlayersId
     }
   }
 `;
@@ -45,7 +44,6 @@ export const onUpdatePlayer = /* GraphQL */ `
       }
       createdOn
       updatedOn
-      ladderPlayersId
     }
   }
 `;
@@ -69,7 +67,6 @@ export const onDeletePlayer = /* GraphQL */ `
       }
       createdOn
       updatedOn
-      ladderPlayersId
     }
   }
 `;
@@ -79,6 +76,8 @@ export const onCreateLadder = /* GraphQL */ `
       id
       name
       location
+      city
+      zip
       matches {
         nextToken
       }
@@ -87,7 +86,6 @@ export const onCreateLadder = /* GraphQL */ `
       }
       createdOn
       updatedOn
-      playerLaddersId
     }
   }
 `;
@@ -97,6 +95,8 @@ export const onUpdateLadder = /* GraphQL */ `
       id
       name
       location
+      city
+      zip
       matches {
         nextToken
       }
@@ -105,7 +105,6 @@ export const onUpdateLadder = /* GraphQL */ `
       }
       createdOn
       updatedOn
-      playerLaddersId
     }
   }
 `;
@@ -115,6 +114,8 @@ export const onDeleteLadder = /* GraphQL */ `
       id
       name
       location
+      city
+      zip
       matches {
         nextToken
       }
@@ -123,7 +124,6 @@ export const onDeleteLadder = /* GraphQL */ `
       }
       createdOn
       updatedOn
-      playerLaddersId
     }
   }
 `;
@@ -145,20 +145,22 @@ export const onCreateStandings = /* GraphQL */ `
         UTR
         createdOn
         updatedOn
-        ladderPlayersId
       }
       ladder {
         id
         name
         location
+        city
+        zip
         createdOn
         updatedOn
-        playerLaddersId
       }
       points
       position
       createdOn
       updatedOn
+      standingsPlayerId
+      standingsLadderId
     }
   }
 `;
@@ -180,20 +182,22 @@ export const onUpdateStandings = /* GraphQL */ `
         UTR
         createdOn
         updatedOn
-        ladderPlayersId
       }
       ladder {
         id
         name
         location
+        city
+        zip
         createdOn
         updatedOn
-        playerLaddersId
       }
       points
       position
       createdOn
       updatedOn
+      standingsPlayerId
+      standingsLadderId
     }
   }
 `;
@@ -215,20 +219,22 @@ export const onDeleteStandings = /* GraphQL */ `
         UTR
         createdOn
         updatedOn
-        ladderPlayersId
       }
       ladder {
         id
         name
         location
+        city
+        zip
         createdOn
         updatedOn
-        playerLaddersId
       }
       points
       position
       createdOn
       updatedOn
+      standingsPlayerId
+      standingsLadderId
     }
   }
 `;
@@ -250,7 +256,6 @@ export const onCreateMatch = /* GraphQL */ `
         UTR
         createdOn
         updatedOn
-        ladderPlayersId
       }
       loser {
         id
@@ -264,7 +269,6 @@ export const onCreateMatch = /* GraphQL */ `
         UTR
         createdOn
         updatedOn
-        ladderPlayersId
       }
       score
       setsWon
@@ -277,9 +281,10 @@ export const onCreateMatch = /* GraphQL */ `
         id
         name
         location
+        city
+        zip
         createdOn
         updatedOn
-        playerLaddersId
       }
       comments {
         nextToken
@@ -309,7 +314,6 @@ export const onUpdateMatch = /* GraphQL */ `
         UTR
         createdOn
         updatedOn
-        ladderPlayersId
       }
       loser {
         id
@@ -323,7 +327,6 @@ export const onUpdateMatch = /* GraphQL */ `
         UTR
         createdOn
         updatedOn
-        ladderPlayersId
       }
       score
       setsWon
@@ -336,9 +339,10 @@ export const onUpdateMatch = /* GraphQL */ `
         id
         name
         location
+        city
+        zip
         createdOn
         updatedOn
-        playerLaddersId
       }
       comments {
         nextToken
@@ -368,7 +372,6 @@ export const onDeleteMatch = /* GraphQL */ `
         UTR
         createdOn
         updatedOn
-        ladderPlayersId
       }
       loser {
         id
@@ -382,7 +385,6 @@ export const onDeleteMatch = /* GraphQL */ `
         UTR
         createdOn
         updatedOn
-        ladderPlayersId
       }
       score
       setsWon
@@ -395,9 +397,10 @@ export const onDeleteMatch = /* GraphQL */ `
         id
         name
         location
+        city
+        zip
         createdOn
         updatedOn
-        playerLaddersId
       }
       comments {
         nextToken
@@ -487,6 +490,111 @@ export const onDeleteComment = /* GraphQL */ `
       content
       updatedOn
       matchCommentsId
+    }
+  }
+`;
+export const onCreateLadderPlayer = /* GraphQL */ `
+  subscription OnCreateLadderPlayer(
+    $filter: ModelSubscriptionLadderPlayerFilterInput
+  ) {
+    onCreateLadderPlayer(filter: $filter) {
+      id
+      playerID
+      ladderID
+      player {
+        id
+        userGUID
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        createdOn
+        updatedOn
+      }
+      ladder {
+        id
+        name
+        location
+        city
+        zip
+        createdOn
+        updatedOn
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onUpdateLadderPlayer = /* GraphQL */ `
+  subscription OnUpdateLadderPlayer(
+    $filter: ModelSubscriptionLadderPlayerFilterInput
+  ) {
+    onUpdateLadderPlayer(filter: $filter) {
+      id
+      playerID
+      ladderID
+      player {
+        id
+        userGUID
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        createdOn
+        updatedOn
+      }
+      ladder {
+        id
+        name
+        location
+        city
+        zip
+        createdOn
+        updatedOn
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onDeleteLadderPlayer = /* GraphQL */ `
+  subscription OnDeleteLadderPlayer(
+    $filter: ModelSubscriptionLadderPlayerFilterInput
+  ) {
+    onDeleteLadderPlayer(filter: $filter) {
+      id
+      playerID
+      ladderID
+      player {
+        id
+        userGUID
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        createdOn
+        updatedOn
+      }
+      ladder {
+        id
+        name
+        location
+        city
+        zip
+        createdOn
+        updatedOn
+      }
+      createdAt
+      updatedAt
     }
   }
 `;

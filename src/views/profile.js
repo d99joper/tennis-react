@@ -53,6 +53,7 @@ function Profile(props) {
 
         const sessionPlayer = await userFunctions.getCurrentlyLoggedInPlayer()
         // Check if userid param was provided
+        
         if (params.userid) {
             console.log('userid provided');
             // Get the user from the userid -> paramPlayer

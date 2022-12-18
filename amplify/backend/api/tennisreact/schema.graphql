@@ -15,22 +15,24 @@ type Player @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" 
   image: String
   NTRP: String
   UTR: String
-  matches: [Match!] @hasMany
-  ladders: [Ladder!] @hasMany
+  matches: [Match!] @hasMany  
+  ladders: [Ladder!] @manyToMany(relationName: "ladderPlayer")
 }
 
 type Ladder @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) {
   id: ID!
   name: String!
   location: String!
-  matches: [Match!] @hasMany
-  players: [Player!] @hasMany
+  city: String
+  zip: String
+  matches: [Match!] @hasMany  
+  players: [Player!] @manyToMany(relationName: "ladderPlayer")
 }
 
 type Standings@model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) {
   id: ID!
-  player: Player!
-  ladder: Ladder!
+  player: Player! @hasOne
+  ladder: Ladder! @hasOne
   points: Int! @default(value: "0")
   position: Int! @default(value: "0")
 }
