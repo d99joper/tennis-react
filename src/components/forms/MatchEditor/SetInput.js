@@ -30,6 +30,7 @@ const SetInput = (props) => {
                     console.log("show tiebreaker", Math.abs(games[0] - games[1]))
             }
         }
+        props.handleBlur(e)
     }
 
     const formatScore = (score) => { return score.replace(/[^\d- ]/g, '').trim() }
@@ -43,7 +44,7 @@ const SetInput = (props) => {
             value={setScore}
             className="setBox"
             id="set-search"
-            required
+            required={!!props.required}
             error={error}
             helperText={error && "please enter a valid set score"}
             placeholder="X-X">

@@ -127,6 +127,111 @@ export const onDeleteLadder = /* GraphQL */ `
     }
   }
 `;
+export const onCreateStandings = /* GraphQL */ `
+  subscription OnCreateStandings(
+    $filter: ModelSubscriptionStandingsFilterInput
+  ) {
+    onCreateStandings(filter: $filter) {
+      id
+      player {
+        id
+        userGUID
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        createdOn
+        updatedOn
+        ladderPlayersId
+      }
+      ladder {
+        id
+        name
+        location
+        createdOn
+        updatedOn
+        playerLaddersId
+      }
+      points
+      position
+      createdOn
+      updatedOn
+    }
+  }
+`;
+export const onUpdateStandings = /* GraphQL */ `
+  subscription OnUpdateStandings(
+    $filter: ModelSubscriptionStandingsFilterInput
+  ) {
+    onUpdateStandings(filter: $filter) {
+      id
+      player {
+        id
+        userGUID
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        createdOn
+        updatedOn
+        ladderPlayersId
+      }
+      ladder {
+        id
+        name
+        location
+        createdOn
+        updatedOn
+        playerLaddersId
+      }
+      points
+      position
+      createdOn
+      updatedOn
+    }
+  }
+`;
+export const onDeleteStandings = /* GraphQL */ `
+  subscription OnDeleteStandings(
+    $filter: ModelSubscriptionStandingsFilterInput
+  ) {
+    onDeleteStandings(filter: $filter) {
+      id
+      player {
+        id
+        userGUID
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        createdOn
+        updatedOn
+        ladderPlayersId
+      }
+      ladder {
+        id
+        name
+        location
+        createdOn
+        updatedOn
+        playerLaddersId
+      }
+      points
+      position
+      createdOn
+      updatedOn
+    }
+  }
+`;
 export const onCreateMatch = /* GraphQL */ `
   subscription OnCreateMatch($filter: ModelSubscriptionMatchFilterInput) {
     onCreateMatch(filter: $filter) {
@@ -162,6 +267,12 @@ export const onCreateMatch = /* GraphQL */ `
         ladderPlayersId
       }
       score
+      setsWon
+      setsLost
+      gamesWon
+      gamesLost
+      tiebreaksWon
+      tiebreaksLost
       ladder {
         id
         name
@@ -215,6 +326,12 @@ export const onUpdateMatch = /* GraphQL */ `
         ladderPlayersId
       }
       score
+      setsWon
+      setsLost
+      gamesWon
+      gamesLost
+      tiebreaksWon
+      tiebreaksLost
       ladder {
         id
         name
@@ -268,6 +385,12 @@ export const onDeleteMatch = /* GraphQL */ `
         ladderPlayersId
       }
       score
+      setsWon
+      setsLost
+      gamesWon
+      gamesLost
+      tiebreaksWon
+      tiebreaksLost
       ladder {
         id
         name
@@ -296,6 +419,12 @@ export const onCreateComment = /* GraphQL */ `
         playedOn
         reportedOn
         score
+        setsWon
+        setsLost
+        gamesWon
+        gamesLost
+        tiebreaksWon
+        tiebreaksLost
         createdOn
         updatedOn
         playerMatchesId
@@ -317,6 +446,12 @@ export const onUpdateComment = /* GraphQL */ `
         playedOn
         reportedOn
         score
+        setsWon
+        setsLost
+        gamesWon
+        gamesLost
+        tiebreaksWon
+        tiebreaksLost
         createdOn
         updatedOn
         playerMatchesId
@@ -338,6 +473,12 @@ export const onDeleteComment = /* GraphQL */ `
         playedOn
         reportedOn
         score
+        setsWon
+        setsLost
+        gamesWon
+        gamesLost
+        tiebreaksWon
+        tiebreaksLost
         createdOn
         updatedOn
         playerMatchesId

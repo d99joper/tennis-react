@@ -3,30 +3,6 @@
 # all models in this schema. Learn more about authorization rules here: https://docs.amplify.aws/cli/graphql/authorization-rules
 input AMPLIFY { globalAuthRule: AuthRule = { allow: public } } # FOR TESTING ONLY!
 
-# scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
-# scalar DateTime
-
-# const dateScalar = new GraphQLScalarType({
-#   name: 'Date',
-#   description: 'Date custom scalar type',
-#   serialize(value) {
-#     return value.getTime(); // Convert outgoing Date to integer for JSON
-#   },
-#   parseValue(value) {
-#     return new Date(value); // Convert incoming integer to Date
-#   },
-#   parseLiteral(ast) {
-#     if (ast.kind === Kind.INT) {
-#       // Convert hard-coded AST string to integer and then to Date
-#       return new Date(parseInt(ast.value, 10));
-#     }
-#     // Invalid hard-coded value (not an integer)
-#     return null;
-#   },
-# });
-
-
-
 type Player @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) 
   # @auth(rules: [{ allow: public, operations: [read]}]) 
 {
@@ -51,6 +27,14 @@ type Ladder @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" 
   players: [Player!] @hasMany
 }
 
+type Standings@model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) {
+  id: ID!
+  player: Player!
+  ladder: Ladder!
+  points: Int! @default(value: "0")
+  position: Int! @default(value: "0")
+}
+
 type Match @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) {
   id: ID!
   playedOn: AWSDate!
@@ -58,6 +42,12 @@ type Match @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }
   winner: Player!
   loser: Player! 
   score: String!
+  setsWon: Int! 
+  setsLost: Int!
+  gamesWon: Int!
+  gamesLost: Int!
+  tiebreaksWon: Int! @default(value: "0")
+  tiebreaksLost: Int! @default(value: "0")
   ladder: Ladder @belongsTo
   comments: [Comment!] @hasMany
 }

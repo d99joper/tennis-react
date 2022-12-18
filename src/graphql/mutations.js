@@ -145,6 +145,114 @@ export const deleteLadder = /* GraphQL */ `
     }
   }
 `;
+export const createStandings = /* GraphQL */ `
+  mutation CreateStandings(
+    $input: CreateStandingsInput!
+    $condition: ModelStandingsConditionInput
+  ) {
+    createStandings(input: $input, condition: $condition) {
+      id
+      player {
+        id
+        userGUID
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        createdOn
+        updatedOn
+        ladderPlayersId
+      }
+      ladder {
+        id
+        name
+        location
+        createdOn
+        updatedOn
+        playerLaddersId
+      }
+      points
+      position
+      createdOn
+      updatedOn
+    }
+  }
+`;
+export const updateStandings = /* GraphQL */ `
+  mutation UpdateStandings(
+    $input: UpdateStandingsInput!
+    $condition: ModelStandingsConditionInput
+  ) {
+    updateStandings(input: $input, condition: $condition) {
+      id
+      player {
+        id
+        userGUID
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        createdOn
+        updatedOn
+        ladderPlayersId
+      }
+      ladder {
+        id
+        name
+        location
+        createdOn
+        updatedOn
+        playerLaddersId
+      }
+      points
+      position
+      createdOn
+      updatedOn
+    }
+  }
+`;
+export const deleteStandings = /* GraphQL */ `
+  mutation DeleteStandings(
+    $input: DeleteStandingsInput!
+    $condition: ModelStandingsConditionInput
+  ) {
+    deleteStandings(input: $input, condition: $condition) {
+      id
+      player {
+        id
+        userGUID
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        createdOn
+        updatedOn
+        ladderPlayersId
+      }
+      ladder {
+        id
+        name
+        location
+        createdOn
+        updatedOn
+        playerLaddersId
+      }
+      points
+      position
+      createdOn
+      updatedOn
+    }
+  }
+`;
 export const createMatch = /* GraphQL */ `
   mutation CreateMatch(
     $input: CreateMatchInput!
@@ -183,6 +291,12 @@ export const createMatch = /* GraphQL */ `
         ladderPlayersId
       }
       score
+      setsWon
+      setsLost
+      gamesWon
+      gamesLost
+      tiebreaksWon
+      tiebreaksLost
       ladder {
         id
         name
@@ -239,6 +353,12 @@ export const updateMatch = /* GraphQL */ `
         ladderPlayersId
       }
       score
+      setsWon
+      setsLost
+      gamesWon
+      gamesLost
+      tiebreaksWon
+      tiebreaksLost
       ladder {
         id
         name
@@ -295,6 +415,12 @@ export const deleteMatch = /* GraphQL */ `
         ladderPlayersId
       }
       score
+      setsWon
+      setsLost
+      gamesWon
+      gamesLost
+      tiebreaksWon
+      tiebreaksLost
       ladder {
         id
         name
@@ -326,6 +452,12 @@ export const createComment = /* GraphQL */ `
         playedOn
         reportedOn
         score
+        setsWon
+        setsLost
+        gamesWon
+        gamesLost
+        tiebreaksWon
+        tiebreaksLost
         createdOn
         updatedOn
         playerMatchesId
@@ -350,6 +482,12 @@ export const updateComment = /* GraphQL */ `
         playedOn
         reportedOn
         score
+        setsWon
+        setsLost
+        gamesWon
+        gamesLost
+        tiebreaksWon
+        tiebreaksLost
         createdOn
         updatedOn
         playerMatchesId
@@ -374,6 +512,12 @@ export const deleteComment = /* GraphQL */ `
         playedOn
         reportedOn
         score
+        setsWon
+        setsLost
+        gamesWon
+        gamesLost
+        tiebreaksWon
+        tiebreaksLost
         createdOn
         updatedOn
         playerMatchesId

@@ -1,4 +1,3 @@
-import { lazy } from 'react';
 
 const helpers = {
     
@@ -16,16 +15,16 @@ const helpers = {
         return 'not a date'
     },
 
-    lazyLoad: (path, namedExport) => {
-        return lazy(() => {
-            const promise = import(path)
-            if(namedExport == null) 
-                return promise
-            else {
-                return promise.then(module => ({ default: module[namedExport] }))
-            }
-        })
-    }
+    // lazyLoad: (path, namedExport) => {
+    //     return lazy(() => {
+    //         const promise = import(path)
+    //         if(namedExport == null) 
+    //             return promise
+    //         else {
+    //             return promise.then(module => ({ default: module[namedExport] }))
+    //         }
+    //     })
+    // }
     
 };
 

@@ -87,6 +87,57 @@ export const listLadders = /* GraphQL */ `
     }
   }
 `;
+export const getStandings = /* GraphQL */ `
+  query GetStandings($id: ID!) {
+    getStandings(id: $id) {
+      id
+      player {
+        id
+        userGUID
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        createdOn
+        updatedOn
+        ladderPlayersId
+      }
+      ladder {
+        id
+        name
+        location
+        createdOn
+        updatedOn
+        playerLaddersId
+      }
+      points
+      position
+      createdOn
+      updatedOn
+    }
+  }
+`;
+export const listStandings = /* GraphQL */ `
+  query ListStandings(
+    $filter: ModelStandingsFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listStandings(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        points
+        position
+        createdOn
+        updatedOn
+      }
+      nextToken
+    }
+  }
+`;
 export const getMatch = /* GraphQL */ `
   query GetMatch($id: ID!) {
     getMatch(id: $id) {
@@ -122,6 +173,12 @@ export const getMatch = /* GraphQL */ `
         ladderPlayersId
       }
       score
+      setsWon
+      setsLost
+      gamesWon
+      gamesLost
+      tiebreaksWon
+      tiebreaksLost
       ladder {
         id
         name
@@ -152,6 +209,12 @@ export const listMatches = /* GraphQL */ `
         playedOn
         reportedOn
         score
+        setsWon
+        setsLost
+        gamesWon
+        gamesLost
+        tiebreaksWon
+        tiebreaksLost
         createdOn
         updatedOn
         playerMatchesId
@@ -171,6 +234,12 @@ export const getComment = /* GraphQL */ `
         playedOn
         reportedOn
         score
+        setsWon
+        setsLost
+        gamesWon
+        gamesLost
+        tiebreaksWon
+        tiebreaksLost
         createdOn
         updatedOn
         playerMatchesId

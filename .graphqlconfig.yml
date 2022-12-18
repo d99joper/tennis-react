@@ -1,6 +1,6 @@
 projects:
-  tennisreact-staging:
-    schemaPath: src/graphql/schema.json
+  tennisreact:
+    schemaPath: amplify/backend/api/tennisreact/build/schema.graphql
     includes:
       - src/graphql/**/*.js
     excludes:
@@ -11,8 +11,5 @@ projects:
         generatedFileName: ''
         docsFilePath: src/graphql
         region: us-west-1
-        apiId: ctfb4fnlsbgdvmio6vrotgipk4
+        apiId: null
         maxDepth: 2
-extensions:
-  amplify:
-    version: 3
