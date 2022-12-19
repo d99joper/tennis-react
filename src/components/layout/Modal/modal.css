@@ -23,7 +23,9 @@
   }
   
   .modal-content {
-    width: 500px;
+    max-height: 550px;
+    overflow-y: auto;
+    border: 1px solid black;
     background-color: #fff;
     transition: all 0.3s ease-in-out;
     transform: translateY(-200px);
@@ -40,6 +42,7 @@
   .modal-header,
   .modal-footer {
     padding: 10px;
+    background-color: #ccff0022;
     /* text-align: center; */
   }
   

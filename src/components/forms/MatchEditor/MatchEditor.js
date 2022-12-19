@@ -1,7 +1,7 @@
 import { Flex, Radio, RadioGroupField } from '@aws-amplify/ui-react';
 import { Autocomplete, Select, TextField, MenuItem, InputLabel, FormControl, Checkbox, FormControlLabel, Button } from '@mui/material'; //https://mui.com/material-ui/react-autocomplete/
 import React, { useState } from 'react';
-import { userFunctions, enums } from '../../../helpers/index';
+import { enums, ladderFunctions as lf } from '../../../helpers/index';
 import SetInput from './SetInput'
 import './MatchEditor.css';
 
@@ -31,7 +31,7 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
     // Initialize the state for the score
     const [score, setScore] = useState([set1, set2, set3, set4, set5])
 
-    const ladderPlayers = userFunctions.useLadderPlayersData(ladderId);
+    const ladderPlayers = lf.GetLadderPlayers(ladderId);
     const handleSubmit = (event) => {
         event.preventDefault();
         // Create an object with the match result data
@@ -87,6 +87,7 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
         <form onSubmit={handleSubmit}>
             <RadioGroupField
                 label="Did you win?"
+                direction={'row'}
                 name="isWinner"
                 value={isWinner}
                 onChange={handleWinnerRadio}>

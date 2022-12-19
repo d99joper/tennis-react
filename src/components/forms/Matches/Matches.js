@@ -65,8 +65,8 @@ const Matches = ({
                     ></Match>
                 )}
             </Collection>
-            {(
-                allowAdd && displayAs === displayMode.Inline &&
+            {( // keep false for now (it's moved into the profile)
+                false && allowAdd && displayAs === displayMode.Inline &&
                 <Flex >
                     <Button>Add New</Button>
                     <MatchEditor player={player} onSubmit={(m) => {setMatches(...matches, m)}} />

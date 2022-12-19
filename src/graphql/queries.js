@@ -314,6 +314,10 @@ export const listLadderPlayers = /* GraphQL */ `
     listLadderPlayers(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
+        player {
+          name
+          id
+        }
         playerID
         ladderID
         createdAt

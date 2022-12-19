@@ -6,6 +6,7 @@ import {
   deletePlayer as deletePlayerMutation,
 } from "../graphql/mutations";
 import { useEffect, useState } from 'react';
+import ladderFunctions from './ladderFunctions';
 
 const userFunctions = {
     
@@ -23,22 +24,25 @@ const userFunctions = {
         }       
     },
 
-    useLadderPlayersData:  function(ladderId) {
-        const [data,setData] = useState([]);
-        useEffect(() => {
-            const fetchData = async () => {
-                const ladderPlayers = await this.getPlayersForLadder(ladderId)
-                setData(ladderPlayers)
-            }
-            fetchData()
-        },[ladderId])
+    // useLadderPlayersData:  function(ladderId) {
+    //     const [data,setData] = useState([]);
+    //     useEffect(() => {
+    //         const fetchData = async () => {
+    //             const ladderPlayers = await this.GetPlayersForLadder(ladderId)
+    //             setData(ladderPlayers)
+    //         }
+    //         fetchData()
+    //     },[ladderId])
         
-        return data
-    },
+    //     return data
+    // },
 
-    getPlayersForLadder: async function(ladderId) {
-        return [{name: 'Jonas', id:1}, {name: 'Gurra B', id:2}]
-    },
+    // getPlayersForLadder: async function(ladderId) {
+    //     const ladder = await ladderFunctions.GetLadder(ladderId)
+
+    //     console.log("ladder and ladder.players", ladder, ladder.players)
+    //     return [{name: 'Jonas', id:1}, {name: 'Gurra B', id:2}]
+    // },
 
     UpdatePlayer: async function(player, userId, image) {
         

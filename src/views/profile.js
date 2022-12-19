@@ -16,16 +16,14 @@ import {
     SwitchField
 } from "@aws-amplify/ui-react";
 import { userFunctions } from 'helpers'
-import { Editable, Matches, Ladders, PhoneNumber } from '../components/forms/index.js'
+import { Editable, Matches, Ladders, PhoneNumber, MatchEditor } from '../components/forms/index.js'
 import Modal from '../components/layout/Modal/modal';
 import './profile.css';
-import { ConsoleLogger } from '@aws-amplify/core';
-import userEvent from '@testing-library/user-event';
 
 
-function Profile(props) {
+function Profile() {
 
-    var options = { year: 'numeric', month: 'long', day: 'numeric' };
+    //var options = { year: 'numeric', month: 'long', day: 'numeric' };
     const NTRPItems = ["-", "1.5", "2.0", "2.5", "3.0", "3.5", "4.0", "4.5", "5.0", "5.5"];
 
     const params = useParams();
@@ -33,9 +31,10 @@ function Profile(props) {
     const [isLoaded, setIsLoaded] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
-    const [profileChange, setProfileChange] = useState(0)
+    //const [profileChange, setProfileChange] = useState(0)
     const [canEdit, setCanEdit] = useState(false);
-    const [showImagePicker, setShowImagePicker] = useState(false);
+    const [showImagePicker, setShowImagePicker] = useState(false); 
+    const [showMatchEditor, setShowMatchEditor] = useState(false); 
     const [player, setPlayer] = useState()
 
     const handleUpdatedPhoneNumber = newNumber => {
@@ -127,9 +126,11 @@ function Profile(props) {
 
     function openUserImagePicker(e) {
         e.preventDefault()
-
-        if (canEdit)
-            setShowImagePicker(true);
+        if (canEdit) setShowImagePicker(true);
+    }
+    function openMatchEditor(e) {
+        e.preventDefault()
+        if (canEdit) setShowMatchEditor(true);
     }
 
 
@@ -248,6 +249,15 @@ function Profile(props) {
                         <Card className='card' variation="elevated">
                             Latest matches
                             <Matches player={player}></Matches>
+                            <Button label="Add new match" 
+                                    onClick={(e) => { openMatchEditor(e) }}
+                            />
+                            <Modal
+                                title="Add a match"
+                                onClose={() => setShowMatchEditor(false)} show={showMatchEditor}
+                            >
+                                <MatchEditor player={player} onSubmit={updateProfileData} />
+                            </Modal>
                         </Card>
                     </Flex>
                 </Flex>
