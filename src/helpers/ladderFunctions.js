@@ -1,5 +1,6 @@
 import { API } from 'aws-amplify';
-import { listLadders, getLadder, listLadderPlayers } from "../graphql/queries";
+import { listLadders, getLadder } from "../graphql/queries";
+import { listLadderPlayersAsObjects } from "../graphql/customQueries";
 import {
     createLadder as createLadderMutation,
     updateLadder as updateLadderMutation,
@@ -9,29 +10,6 @@ import {
 import { useEffect, useState } from 'react';
 
 const ladderFunctions = {
-
-
-    // export const listLadderPlayers = /* GraphQL */ `
-    // query ListLadderPlayers(
-    //   $filter: ModelLadderPlayerFilterInput
-    //   $limit: Int
-    //   $nextToken: String
-    // ) {
-    //   listLadderPlayers(filter: $filter, limit: $limit, nextToken: $nextToken) {
-    //     items {
-    //       id
-    //       player {
-    //         name
-    //         id
-    //       }
-    //       playerID
-    //       ladderID
-    //       createdAt
-    //       updatedAt
-    //     }
-    //     nextToken
-    //   }
-    // }
 
     useLadderPlayersData: function (ladderId) {
         const [data, setData] = useState([]);
@@ -133,7 +111,7 @@ const ladderFunctions = {
             const filter = { ladderID: { eq: ladderId } }
             console.log(filter)
             const apiData = await API.graphql({
-                query: listLadderPlayers
+                query: listLadderPlayersAsObjects
             })
 
             const result = apiData.data.listLadderPlayers.items

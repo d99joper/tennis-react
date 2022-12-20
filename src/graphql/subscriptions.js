@@ -243,7 +243,7 @@ export const onCreateMatch = /* GraphQL */ `
     onCreateMatch(filter: $filter) {
       id
       playedOn
-      reportedOn
+      winnerID
       winner {
         id
         userGUID
@@ -257,6 +257,7 @@ export const onCreateMatch = /* GraphQL */ `
         createdOn
         updatedOn
       }
+      loserID
       loser {
         id
         userGUID
@@ -277,6 +278,7 @@ export const onCreateMatch = /* GraphQL */ `
       gamesLost
       tiebreaksWon
       tiebreaksLost
+      ladderID
       ladder {
         id
         name
@@ -301,7 +303,7 @@ export const onUpdateMatch = /* GraphQL */ `
     onUpdateMatch(filter: $filter) {
       id
       playedOn
-      reportedOn
+      winnerID
       winner {
         id
         userGUID
@@ -315,6 +317,7 @@ export const onUpdateMatch = /* GraphQL */ `
         createdOn
         updatedOn
       }
+      loserID
       loser {
         id
         userGUID
@@ -335,6 +338,7 @@ export const onUpdateMatch = /* GraphQL */ `
       gamesLost
       tiebreaksWon
       tiebreaksLost
+      ladderID
       ladder {
         id
         name
@@ -359,7 +363,7 @@ export const onDeleteMatch = /* GraphQL */ `
     onDeleteMatch(filter: $filter) {
       id
       playedOn
-      reportedOn
+      winnerID
       winner {
         id
         userGUID
@@ -373,6 +377,7 @@ export const onDeleteMatch = /* GraphQL */ `
         createdOn
         updatedOn
       }
+      loserID
       loser {
         id
         userGUID
@@ -393,6 +398,7 @@ export const onDeleteMatch = /* GraphQL */ `
       gamesLost
       tiebreaksWon
       tiebreaksLost
+      ladderID
       ladder {
         id
         name
@@ -416,11 +422,12 @@ export const onCreateComment = /* GraphQL */ `
   subscription OnCreateComment($filter: ModelSubscriptionCommentFilterInput) {
     onCreateComment(filter: $filter) {
       id
-      createdOn
+      matchID
       match {
         id
         playedOn
-        reportedOn
+        winnerID
+        loserID
         score
         setsWon
         setsLost
@@ -428,14 +435,15 @@ export const onCreateComment = /* GraphQL */ `
         gamesLost
         tiebreaksWon
         tiebreaksLost
+        ladderID
         createdOn
         updatedOn
         playerMatchesId
         ladderMatchesId
       }
       content
+      createdOn
       updatedOn
-      matchCommentsId
     }
   }
 `;
@@ -443,11 +451,12 @@ export const onUpdateComment = /* GraphQL */ `
   subscription OnUpdateComment($filter: ModelSubscriptionCommentFilterInput) {
     onUpdateComment(filter: $filter) {
       id
-      createdOn
+      matchID
       match {
         id
         playedOn
-        reportedOn
+        winnerID
+        loserID
         score
         setsWon
         setsLost
@@ -455,14 +464,15 @@ export const onUpdateComment = /* GraphQL */ `
         gamesLost
         tiebreaksWon
         tiebreaksLost
+        ladderID
         createdOn
         updatedOn
         playerMatchesId
         ladderMatchesId
       }
       content
+      createdOn
       updatedOn
-      matchCommentsId
     }
   }
 `;
@@ -470,11 +480,12 @@ export const onDeleteComment = /* GraphQL */ `
   subscription OnDeleteComment($filter: ModelSubscriptionCommentFilterInput) {
     onDeleteComment(filter: $filter) {
       id
-      createdOn
+      matchID
       match {
         id
         playedOn
-        reportedOn
+        winnerID
+        loserID
         score
         setsWon
         setsLost
@@ -482,14 +493,15 @@ export const onDeleteComment = /* GraphQL */ `
         gamesLost
         tiebreaksWon
         tiebreaksLost
+        ladderID
         createdOn
         updatedOn
         playerMatchesId
         ladderMatchesId
       }
       content
+      createdOn
       updatedOn
-      matchCommentsId
     }
   }
 `;

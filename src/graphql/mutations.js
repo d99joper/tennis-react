@@ -267,7 +267,7 @@ export const createMatch = /* GraphQL */ `
     createMatch(input: $input, condition: $condition) {
       id
       playedOn
-      reportedOn
+      winnerID
       winner {
         id
         userGUID
@@ -281,6 +281,7 @@ export const createMatch = /* GraphQL */ `
         createdOn
         updatedOn
       }
+      loserID
       loser {
         id
         userGUID
@@ -301,6 +302,7 @@ export const createMatch = /* GraphQL */ `
       gamesLost
       tiebreaksWon
       tiebreaksLost
+      ladderID
       ladder {
         id
         name
@@ -328,7 +330,7 @@ export const updateMatch = /* GraphQL */ `
     updateMatch(input: $input, condition: $condition) {
       id
       playedOn
-      reportedOn
+      winnerID
       winner {
         id
         userGUID
@@ -342,6 +344,7 @@ export const updateMatch = /* GraphQL */ `
         createdOn
         updatedOn
       }
+      loserID
       loser {
         id
         userGUID
@@ -362,6 +365,7 @@ export const updateMatch = /* GraphQL */ `
       gamesLost
       tiebreaksWon
       tiebreaksLost
+      ladderID
       ladder {
         id
         name
@@ -389,7 +393,7 @@ export const deleteMatch = /* GraphQL */ `
     deleteMatch(input: $input, condition: $condition) {
       id
       playedOn
-      reportedOn
+      winnerID
       winner {
         id
         userGUID
@@ -403,6 +407,7 @@ export const deleteMatch = /* GraphQL */ `
         createdOn
         updatedOn
       }
+      loserID
       loser {
         id
         userGUID
@@ -423,6 +428,7 @@ export const deleteMatch = /* GraphQL */ `
       gamesLost
       tiebreaksWon
       tiebreaksLost
+      ladderID
       ladder {
         id
         name
@@ -449,11 +455,12 @@ export const createComment = /* GraphQL */ `
   ) {
     createComment(input: $input, condition: $condition) {
       id
-      createdOn
+      matchID
       match {
         id
         playedOn
-        reportedOn
+        winnerID
+        loserID
         score
         setsWon
         setsLost
@@ -461,14 +468,15 @@ export const createComment = /* GraphQL */ `
         gamesLost
         tiebreaksWon
         tiebreaksLost
+        ladderID
         createdOn
         updatedOn
         playerMatchesId
         ladderMatchesId
       }
       content
+      createdOn
       updatedOn
-      matchCommentsId
     }
   }
 `;
@@ -479,11 +487,12 @@ export const updateComment = /* GraphQL */ `
   ) {
     updateComment(input: $input, condition: $condition) {
       id
-      createdOn
+      matchID
       match {
         id
         playedOn
-        reportedOn
+        winnerID
+        loserID
         score
         setsWon
         setsLost
@@ -491,14 +500,15 @@ export const updateComment = /* GraphQL */ `
         gamesLost
         tiebreaksWon
         tiebreaksLost
+        ladderID
         createdOn
         updatedOn
         playerMatchesId
         ladderMatchesId
       }
       content
+      createdOn
       updatedOn
-      matchCommentsId
     }
   }
 `;
@@ -509,11 +519,12 @@ export const deleteComment = /* GraphQL */ `
   ) {
     deleteComment(input: $input, condition: $condition) {
       id
-      createdOn
+      matchID
       match {
         id
         playedOn
-        reportedOn
+        winnerID
+        loserID
         score
         setsWon
         setsLost
@@ -521,14 +532,15 @@ export const deleteComment = /* GraphQL */ `
         gamesLost
         tiebreaksWon
         tiebreaksLost
+        ladderID
         createdOn
         updatedOn
         playerMatchesId
         ladderMatchesId
       }
       content
+      createdOn
       updatedOn
-      matchCommentsId
     }
   }
 `;

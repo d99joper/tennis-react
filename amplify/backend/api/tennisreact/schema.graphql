@@ -29,7 +29,7 @@ type Ladder @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" 
   players: [Player!] @manyToMany(relationName: "ladderPlayer")
 }
 
-type Standings@model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) {
+type Standings @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) {
   id: ID!
   player: Player! @hasOne
   ladder: Ladder! @hasOne
@@ -37,12 +37,13 @@ type Standings@model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn
   position: Int! @default(value: "0")
 }
 
-type Match @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) {
+type Match @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) @searchable {
   id: ID!
   playedOn: AWSDate!
-  reportedOn: AWSDateTime!
-  winner: Player!
-  loser: Player! 
+  winnerID: ID
+  winner: Player! @hasOne(fields: ["winnerID"])
+  loserID: ID
+  loser: Player!  @hasOne(fields: ["loserID"])
   score: String!
   setsWon: Int! 
   setsLost: Int!
@@ -50,13 +51,14 @@ type Match @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }
   gamesLost: Int!
   tiebreaksWon: Int! @default(value: "0")
   tiebreaksLost: Int! @default(value: "0")
-  ladder: Ladder @belongsTo
-  comments: [Comment!] @hasMany
+  ladderID: ID
+  ladder: Ladder @hasOne(fields: ["ladderID"])
+  comments: [Comment!] @hasMany(indexName: "byMatch", fields: ["id"])
 }
 
 type Comment @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) {
   id: ID!
-  createdOn: String!
-  match: Match @belongsTo
+  matchID: ID! @index(name: "byMatch", sortKeyFields: ["content"])
+  match: Match @belongsTo(fields: ["matchID"])
   content: String!
 }

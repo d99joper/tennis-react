@@ -1,0 +1,142 @@
+import { API } from 'aws-amplify';
+import { listMatches, getMatch } from "../graphql/queries";
+import {
+    createMatch as createMatchMutation,
+    updateMatch as updateMatchMutation,
+    deleteMatch as deleteMatchMutation
+} from "../graphql/mutations";
+
+function parseScore(score) {
+
+    let breakdown = {
+        setsWon: 0,
+        setsLost: 0,
+        gamesWon: 0,
+        gamesLost: 0,
+        tiebreaksWon: 0,
+        tiebreaksLost: 0
+    }
+
+    score.forEach((setScore) => {
+        if (setScore) {
+            const games = setScore.match(/\d+/g).map(Number);
+            if (games[0] > games[1]) {
+                breakdown.setsWon++
+                if (games[0] > games[1] && Math.abs(games[0] - games[1]) === 1) 
+                    breakdown.tiebreaksWon++
+            }
+            if (games[1] > games[0]) {
+                breakdown.setsLost++
+                if (games[0] > games[1] && Math.abs(games[0] - games[1]) === 1) 
+                    breakdown.tiebreaksLost++
+            }
+
+            breakdown.gamesWon += games[0]
+            breakdown.gamesLost += games[1]
+        }
+    })
+    return breakdown
+}
+
+const MatchFunctions = {
+
+    
+    CreateMatch: async function (match) {
+        console.log('createMatch');
+        
+        const scoreBreakdown = parseScore(match.score)
+        
+        const loadData = {
+            winnerID: match.winner.id,
+            loserID: match.loser.id,
+            playedOn: match.playedOn,
+            ...scoreBreakdown
+        };
+        
+        console.log(loadData);
+        
+        try {
+            API.graphql({
+                query: createMatchMutation,
+                variables: { input: loadData },
+            }).then((result) => {
+                console.log('New Match created', result);
+                return result;
+            }).catch((e) => { console.log(e) });
+        }
+        catch (e) {
+            console.error("failed to create a Match", e);
+        }
+    },
+    
+    UpdateMatch: async function (match) {
+        try {
+
+            let inputData = {
+                name: match.name
+            };
+
+            const result = await API.graphql({
+                query: updateMatchMutation,
+                variables: {
+                    input: inputData,
+                    conditions: { id: match.id } // required
+                }
+            })
+
+            console.log('Match updated', result.data.updateMatch)
+
+            return result.data.updateMatch
+        }
+        catch (e) {
+            console.log("failed to update Match", e);
+            return null
+        }
+    },
+
+    GetMatch: async function (id) {
+        try {
+            const apiData = await API.graphql({
+                query: getMatch,
+                variables: { id: id },
+            });
+
+            const MatchFromAPI = apiData.data.getMatch;
+
+            return MatchFromAPI;
+        }
+        catch (e) {
+            console.log("failed to get Match", e);
+            return;
+        }
+    },
+
+    deleteMatch: async function (id) {
+        try {
+            await API.graphql({
+                query: deleteMatchMutation,
+                variables: { input: { id } },
+            });
+            return true
+        }
+        catch (e) {
+            console.log("failed to delete Match", e);
+            return false;
+        }
+    },
+
+    fetchMatchs: async function (filter) {
+        // let filter = {
+        //     name: {
+        //         eq: name // filter priority = 1
+        //     }
+        // };
+        const apiData = await API.graphql({ query: listMatches, variables: { filter: filter } });
+
+        const MatchsFromAPI = apiData.data.listMatches.items;
+
+        return MatchsFromAPI;
+    }
+}
+
+export default MatchFunctions;

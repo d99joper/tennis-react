@@ -1,6 +1,62 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
+import "./customQueries"
+
+export const searchMatches = /* GraphQL */ `
+  query SearchMatches(
+    $filter: SearchableMatchFilterInput
+    $sort: [SearchableMatchSortInput]
+    $limit: Int
+    $nextToken: String
+    $from: Int
+    $aggregates: [SearchableMatchAggregationInput]
+  ) {
+    searchMatches(
+      filter: $filter
+      sort: $sort
+      limit: $limit
+      nextToken: $nextToken
+      from: $from
+      aggregates: $aggregates
+    ) {
+      items {
+        id
+        playedOn
+        winnerID
+        loserID
+        score
+        setsWon
+        setsLost
+        gamesWon
+        gamesLost
+        tiebreaksWon
+        tiebreaksLost
+        ladderID
+        createdOn
+        updatedOn
+        playerMatchesId
+        ladderMatchesId
+      }
+      nextToken
+      total
+      aggregateItems {
+        name
+        result {
+          ... on SearchableAggregateScalarResult {
+            value
+          }
+          ... on SearchableAggregateBucketResult {
+            buckets {
+              key
+              doc_count
+            }
+          }
+        }
+      }
+    }
+  }
+`;
 export const getPlayer = /* GraphQL */ `
   query GetPlayer($id: ID!) {
     getPlayer(id: $id) {
@@ -147,7 +203,7 @@ export const getMatch = /* GraphQL */ `
     getMatch(id: $id) {
       id
       playedOn
-      reportedOn
+      winnerID
       winner {
         id
         userGUID
@@ -161,6 +217,7 @@ export const getMatch = /* GraphQL */ `
         createdOn
         updatedOn
       }
+      loserID
       loser {
         id
         userGUID
@@ -181,6 +238,7 @@ export const getMatch = /* GraphQL */ `
       gamesLost
       tiebreaksWon
       tiebreaksLost
+      ladderID
       ladder {
         id
         name
@@ -210,7 +268,8 @@ export const listMatches = /* GraphQL */ `
       items {
         id
         playedOn
-        reportedOn
+        winnerID
+        loserID
         score
         setsWon
         setsLost
@@ -218,6 +277,7 @@ export const listMatches = /* GraphQL */ `
         gamesLost
         tiebreaksWon
         tiebreaksLost
+        ladderID
         createdOn
         updatedOn
         playerMatchesId
@@ -231,11 +291,12 @@ export const getComment = /* GraphQL */ `
   query GetComment($id: ID!) {
     getComment(id: $id) {
       id
-      createdOn
+      matchID
       match {
         id
         playedOn
-        reportedOn
+        winnerID
+        loserID
         score
         setsWon
         setsLost
@@ -243,14 +304,15 @@ export const getComment = /* GraphQL */ `
         gamesLost
         tiebreaksWon
         tiebreaksLost
+        ladderID
         createdOn
         updatedOn
         playerMatchesId
         ladderMatchesId
       }
       content
+      createdOn
       updatedOn
-      matchCommentsId
     }
   }
 `;
@@ -263,10 +325,10 @@ export const listComments = /* GraphQL */ `
     listComments(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        createdOn
+        matchID
         content
+        createdOn
         updatedOn
-        matchCommentsId
       }
       nextToken
     }
@@ -314,10 +376,6 @@ export const listLadderPlayers = /* GraphQL */ `
     listLadderPlayers(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        player {
-          name
-          id
-        }
         playerID
         ladderID
         createdAt

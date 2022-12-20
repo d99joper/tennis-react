@@ -1,7 +1,7 @@
 import { Flex, Radio, RadioGroupField, TextAreaField } from '@aws-amplify/ui-react';
 import { Autocomplete, Select, TextField, MenuItem, InputLabel, FormControl, Checkbox, FormControlLabel, Button } from '@mui/material'; //https://mui.com/material-ui/react-autocomplete/
 import React, { useState } from 'react';
-import { enums, ladderFunctions as lf, userFunctions } from '../../../helpers/index';
+import { enums, ladderFunctions as lf, matchFunctions as mf } from '../../../helpers/index';
 import SetInput from './SetInput'
 import './MatchEditor.css';
 
@@ -36,12 +36,17 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
     const handleSubmit = (event) => {
         event.preventDefault();
         // Create an object with the match result data
-        const result = {
+        const playedOn= new Date
+
+        const match = {
             winner,
             loser,
-            score
+            score,
+            playedOn: playedOn,
+            reportedOn: new Date
         };
-        console.log(result)
+        //console.log(match)
+        mf.CreateMatch(match)
         // Call the onSubmit prop and pass the result object
         //onSubmit(result);
     }
@@ -220,7 +225,7 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
                     className='comment'
                     placeholder='Any comments about the match?'
                 />
-                <label class="summary">
+                <label className="summary">
                     {(winner.name && loser.name) && winner.name + " beats " + loser.name + " with " + score.filter(Boolean).join(', ')}
                 </label>
                 <Button type="submit">Add result</Button>
