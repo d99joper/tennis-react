@@ -47,7 +47,8 @@ const SetInput = (props) => {
             required={!!props.required}
             error={error}
             helperText={error && "please enter a valid set score"}
-            placeholder="X-X">
+            placeholder="X-X"
+            inputMode="numeric">
         </TextField>
     )
 }

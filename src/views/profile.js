@@ -149,7 +149,7 @@ function Profile() {
         return (
             <>
                 <Flex direction="column" gap="1rem">
-                    <Flex direction="row" gap="1rem" as="form" onSubmit={updateProfileData}>
+                    <Flex direction="row" gap="1rem" as="form" onSubmit={updateProfileData} className="mediaFlex">
                         <Card className='card' variation="elevated">
                             <View className={"profileImageContainer"}>
                                 {player.image ?

@@ -4,45 +4,45 @@ import {
     createLadder as createLadderMutation,
     updateLadder as updateLadderMutation,
     deleteLadder as deleteLadderMutation,
-    createLadderPlayer    
+    createLadderPlayer
 } from "../graphql/mutations";
 import { useEffect, useState } from 'react';
 
 const ladderFunctions = {
 
-    
-// export const listLadderPlayers = /* GraphQL */ `
-// query ListLadderPlayers(
-//   $filter: ModelLadderPlayerFilterInput
-//   $limit: Int
-//   $nextToken: String
-// ) {
-//   listLadderPlayers(filter: $filter, limit: $limit, nextToken: $nextToken) {
-//     items {
-//       id
-//       player {
-//         name
-//         id
-//       }
-//       playerID
-//       ladderID
-//       createdAt
-//       updatedAt
-//     }
-//     nextToken
-//   }
-// }
 
-    useLadderPlayersData:  function(ladderId) {
-        const [data,setData] = useState([]);
+    // export const listLadderPlayers = /* GraphQL */ `
+    // query ListLadderPlayers(
+    //   $filter: ModelLadderPlayerFilterInput
+    //   $limit: Int
+    //   $nextToken: String
+    // ) {
+    //   listLadderPlayers(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    //     items {
+    //       id
+    //       player {
+    //         name
+    //         id
+    //       }
+    //       playerID
+    //       ladderID
+    //       createdAt
+    //       updatedAt
+    //     }
+    //     nextToken
+    //   }
+    // }
+
+    useLadderPlayersData: function (ladderId) {
+        const [data, setData] = useState([]);
         useEffect(() => {
             const fetchData = async () => {
                 const ladderPlayers = await ladderFunctions.GetLadderPlayers(ladderId)
                 setData(ladderPlayers)
             }
             fetchData()
-        },[ladderId])
-        
+        }, [ladderId])
+
         return data
     },
 
@@ -105,8 +105,8 @@ const ladderFunctions = {
 
             API.graphql({
                 query: createLadderPlayer,
-                variables: {input: inputData}
-            }).then((result) => {console.log(result)})
+                variables: { input: inputData }
+            }).then((result) => { console.log(result) })
         }
         catch (e) { console.log(e); }
     },
@@ -128,9 +128,9 @@ const ladderFunctions = {
         }
     },
 
-    GetLadderPlayers: async function(ladderId) {
+    GetLadderPlayers: async function (ladderId) {
         try {
-            const filter = {ladderID: {eq: ladderId}}
+            const filter = { ladderID: { eq: ladderId } }
             console.log(filter)
             const apiData = await API.graphql({
                 query: listLadderPlayers
@@ -139,14 +139,13 @@ const ladderFunctions = {
             const result = apiData.data.listLadderPlayers.items
             let players = new Array(result.length)
             console.log("GetLadderPlayers", result)
-            result.forEach((p,i) => {
+            result.forEach((p, i) => {
                 players[i] = p.player
             })
-            console.log(players)
             return players
         }
         catch (e) {
-            console.log("GetLadderPlayers",e)
+            console.log("GetLadderPlayers", e)
             return
         }
     },

@@ -48,7 +48,7 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
 
     const handleWinnerRadio = (e) => {
         const didPlayerWin = (e.target.value === 'true')
-        
+
         // set and switch the winner/loser
         if (didPlayerWin) {
             setLoser(winner)
@@ -62,14 +62,13 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
     }
 
     const handleSetChange = (e, set) => {
-        console.log('HandleSetChange')
         let s = e.target.value
         let newScore = [...score]
-        newScore[set-1] = s
+        newScore[set - 1] = s
         setScore(newScore)
-        console.log(newScore)
+        //console.log('HandleSetChange',newScore)
         switch (set) {
-            case 1: 
+            case 1:
                 setSet1(s)
                 break;
             case 2: setSet2(s)
@@ -93,17 +92,18 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
                 value={isWinner}
                 onChange={handleWinnerRadio}>
                 <Radio value={true} checked={isWinner}>Yes</Radio>
-                <Radio value={false}>No</Radio> 
+                <Radio value={false}>No</Radio>
             </RadioGroupField>
-            {!isWinner && 
-                <div className="error" style={{display: 'block', width: '300px',overflowX: 'visible'}}>
-                    Warning: Winner is supposed to report the score. 
-                    You can report it, but make sure your opponent isn't planning on reporting it as well, 
-                    to prevent duplicate scores.  
+            {!isWinner &&
+                <div className="error" style={{ display: 'block', width: '300px', overflowX: 'visible' }}>
+                    Warning: Winner is supposed to report the score.
+                    You can report it, but make sure your opponent isn't planning on reporting it as well,
+                    to prevent duplicate scores.
                 </div>
             }
 
-                <Flex direction={'column'} gap="1" marginTop={'1em'}>
+            <Flex direction={'column'} gap="1" marginTop={'1em'}>
+                <Flex direction={'row'} className={'mediaFlex'}>
                     <Autocomplete
                         id="winner-search"
                         required
@@ -132,6 +132,8 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
                         sx={{ width: 300 }}
                         renderInput={(params) => <TextField {...params} label="Defeated" />}
                     />
+                </Flex>
+                <Flex className='mediaFlex' direction={'row'}>
                     {/* Match format */}
                     <FormControl sx={{ minWidth: 120, width: 300 }}>
                         <InputLabel id="select-match-format-label">Match format</InputLabel>
@@ -182,46 +184,47 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
                                 </>
                             }
                         </Flex>
-                        {enums.MATCH_FORMATS.FAST4_5.val === matchFormat &&
-                            <Flex gap={'1rem'} direction={'row'}>
-                                <SetInput
-                                    label="set 4"
-                                    matchFormat={matchFormat}
-                                    value={set4}
-                                    handleBlur={(e) => { handleSetChange(e, 4) }}
-                                    key="4"
-                                />
-                                <SetInput
-                                    label="set 5"
-                                    matchFormat={matchFormat}
-                                    value={set5}
-                                    handleBlur={(e) => { handleSetChange(e, 5) }}
-                                    key="5"
-                                />
-                            </Flex>
-                        }
                     </Flex>
-
-                    <FormControlLabel
-                        label="Opponent retired"
-                        control={
-                            <Checkbox
-                                checked={retired}
-                                onChange={(e, val) => { setRetired(val) }}
+                    {enums.MATCH_FORMATS.FAST4_5.val === matchFormat &&
+                        <Flex gap={'1rem'} direction={'row'}>
+                            <SetInput
+                                label="set 4"
+                                matchFormat={matchFormat}
+                                value={set4}
+                                handleBlur={(e) => { handleSetChange(e, 4) }}
+                                key="4"
                             />
-                        }
-                    />
-                    {/* comment */}
-                    <TextAreaField 
-                        label="comment"
-                        placeholder='Any comments about the match?'
-                        width={'300px'}
-                    />
-                    <label> 
-                        {(winner.name && loser.name) && winner.name + " beats " + loser.name + " with " + score.filter(Boolean).join(', ')}
-                    </label>
-                    <Button type="submit">Add result</Button>
+                            <SetInput
+                                label="set 5"
+                                matchFormat={matchFormat}
+                                value={set5}
+                                handleBlur={(e) => { handleSetChange(e, 5) }}
+                                key="5"
+                            />
+                        </Flex>
+                    }
                 </Flex>
+
+                <FormControlLabel
+                    label="Opponent retired"
+                    control={
+                        <Checkbox
+                            checked={retired}
+                            onChange={(e, val) => { setRetired(val) }}
+                        />
+                    }
+                />
+                {/* comment */}
+                <TextAreaField
+                    label="comment"
+                    className='comment'
+                    placeholder='Any comments about the match?'
+                />
+                <label class="summary">
+                    {(winner.name && loser.name) && winner.name + " beats " + loser.name + " with " + score.filter(Boolean).join(', ')}
+                </label>
+                <Button type="submit">Add result</Button>
+            </Flex>
         </form>
     );
 };
