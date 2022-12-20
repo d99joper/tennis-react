@@ -1,5 +1,4 @@
 .App {
-  text-align: center;
   margin-inline: auto;
   max-width: 60rem;
   padding: 0 1em;
@@ -11,7 +10,6 @@
 }
 
 .Content {
-  text-align: center;
   width: 60rem;
 }
 

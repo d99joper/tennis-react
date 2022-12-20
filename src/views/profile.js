@@ -249,15 +249,15 @@ function Profile() {
                         <Card className='card' variation="elevated">
                             Latest matches
                             <Matches player={player}></Matches>
-                            <Button label="Add new match" 
+                            {/* <Button label="Add new match" 
                                     onClick={(e) => { openMatchEditor(e) }}
                             />
                             <Modal
                                 title="Add a match"
                                 onClose={() => setShowMatchEditor(false)} show={showMatchEditor}
-                            >
+                            > */}
                                 <MatchEditor player={player} onSubmit={updateProfileData} />
-                            </Modal>
+                            {/* </Modal> */}
                         </Card>
                     </Flex>
                 </Flex>

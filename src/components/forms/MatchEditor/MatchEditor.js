@@ -1,21 +1,20 @@
-import { Flex, Radio, RadioGroupField } from '@aws-amplify/ui-react';
+import { Flex, Radio, RadioGroupField, TextAreaField } from '@aws-amplify/ui-react';
 import { Autocomplete, Select, TextField, MenuItem, InputLabel, FormControl, Checkbox, FormControlLabel, Button } from '@mui/material'; //https://mui.com/material-ui/react-autocomplete/
 import React, { useState } from 'react';
-import { enums, ladderFunctions as lf } from '../../../helpers/index';
+import { enums, ladderFunctions as lf, userFunctions } from '../../../helpers/index';
 import SetInput from './SetInput'
 import './MatchEditor.css';
 
-// todo: 1. Add more players to database. 
-//       2. List players from db in select 
+// todo: 1. Add more players to database. X
+//       2. List players from db in select X
 //       3. Save match on submit
 //       4. Update list of matches pull from actual matches
 //       5. After adding match, add the latest match to list
-//       6. Put matcheditor in Modal from Profile page?
 
 
 const MatchEditor = ({ player, onSubmit, ...props }) => {
     // Initialize the state for the player names and the selected match format
-    const [winner, setWinner] = useState({ name: '' })
+    const [winner, setWinner] = useState(player)
     const [loser, setLoser] = useState({ name: '' })
     const [isWinner, setIsWinner] = useState(true)
     const [matchFormat, setMatchFormat] = useState(0)
@@ -31,7 +30,9 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
     // Initialize the state for the score
     const [score, setScore] = useState([set1, set2, set3, set4, set5])
 
-    const ladderPlayers = lf.GetLadderPlayers(ladderId);
+    //const ladderPlayers = lf.GetLadderPlayers(ladderId)
+    const ladderPlayers = lf.useLadderPlayersData(ladderId)
+
     const handleSubmit = (event) => {
         event.preventDefault();
         // Create an object with the match result data
@@ -132,7 +133,7 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
                         renderInput={(params) => <TextField {...params} label="Defeated" />}
                     />
                     {/* Match format */}
-                    <FormControl sx={{ minWidth: 120 }}>
+                    <FormControl sx={{ minWidth: 120, width: 300 }}>
                         <InputLabel id="select-match-format-label">Match format</InputLabel>
                         <Select
                             labelId='select-match-format-label'
@@ -210,8 +211,14 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
                             />
                         }
                     />
+                    {/* comment */}
+                    <TextAreaField 
+                        label="comment"
+                        placeholder='Any comments about the match?'
+                        width={'300px'}
+                    />
                     <label> 
-                        {winner.name + " beats " + loser.name + " with " + score.filter(Boolean).join(', ')}
+                        {(winner.name && loser.name) && winner.name + " beats " + loser.name + " with " + score.filter(Boolean).join(', ')}
                     </label>
                     <Button type="submit">Add result</Button>
                 </Flex>
