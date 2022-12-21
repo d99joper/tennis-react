@@ -15,6 +15,18 @@ const helpers = {
         return 'not a date'
     },
 
+    formatAWSDate: (date) => {
+        date = new Date(date)
+        if(Object.prototype.toString.call(date) === '[object Date]')
+            return [date.getFullYear(), 
+                    String(date.getMonth()+1).padStart(2,'0'), 
+                    String(date.getDate()).padStart(2,'0')]
+                    .join('-')
+
+        return 'not a date'
+
+    }
+
     // lazyLoad: (path, namedExport) => {
     //     return lazy(() => {
     //         const promise = import(path)

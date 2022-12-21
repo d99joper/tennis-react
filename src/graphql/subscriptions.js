@@ -278,6 +278,7 @@ export const onCreateMatch = /* GraphQL */ `
       gamesLost
       tiebreaksWon
       tiebreaksLost
+      retired
       ladderID
       ladder {
         id
@@ -338,6 +339,7 @@ export const onUpdateMatch = /* GraphQL */ `
       gamesLost
       tiebreaksWon
       tiebreaksLost
+      retired
       ladderID
       ladder {
         id
@@ -398,6 +400,7 @@ export const onDeleteMatch = /* GraphQL */ `
       gamesLost
       tiebreaksWon
       tiebreaksLost
+      retired
       ladderID
       ladder {
         id
@@ -435,6 +438,7 @@ export const onCreateComment = /* GraphQL */ `
         gamesLost
         tiebreaksWon
         tiebreaksLost
+        retired
         ladderID
         createdOn
         updatedOn
@@ -464,6 +468,7 @@ export const onUpdateComment = /* GraphQL */ `
         gamesLost
         tiebreaksWon
         tiebreaksLost
+        retired
         ladderID
         createdOn
         updatedOn
@@ -493,6 +498,7 @@ export const onDeleteComment = /* GraphQL */ `
         gamesLost
         tiebreaksWon
         tiebreaksLost
+        retired
         ladderID
         createdOn
         updatedOn

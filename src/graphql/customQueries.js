@@ -8,15 +8,62 @@ export const listLadderPlayersAsObjects = /* GraphQL */ `
         items {
           id
           player {
-            name
             id
+            name
           }
           playerID
           ladderID
+          ladder {
+            id
+            name
+          }
           createdAt
           updatedAt
         }
         nextToken
       }
     }  
+`;
+
+export const listMatches = /* GraphQL */ `
+  query ListMatches(
+    $filter: ModelMatchFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listMatches(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        playedOn
+        winnerID
+        loserID
+        score
+        setsWon
+        setsLost
+        gamesWon
+        gamesLost
+        tiebreaksWon
+        tiebreaksLost
+        retired
+        ladderID
+        createdOn
+        updatedOn
+        playerMatchesId
+        ladderMatchesId
+        winner {
+          id
+          name
+        }
+        loser {
+          id
+          name
+        }
+        ladder {
+          id 
+          name
+        }
+      }
+      nextToken
+    }
+  }
 `;

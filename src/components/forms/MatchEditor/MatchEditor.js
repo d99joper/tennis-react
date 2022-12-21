@@ -1,19 +1,27 @@
 import { Flex, Radio, RadioGroupField, TextAreaField } from '@aws-amplify/ui-react';
-import { Autocomplete, Select, TextField, MenuItem, InputLabel, FormControl, Checkbox, FormControlLabel, Button } from '@mui/material'; //https://mui.com/material-ui/react-autocomplete/
+import {
+    Autocomplete, Select, TextField,
+    MenuItem, InputLabel, FormControl,
+    Checkbox, FormControlLabel, Button
+} from '@mui/material'; //https://mui.com/material-ui/react-autocomplete/
 import React, { useState } from 'react';
 import { enums, ladderFunctions as lf, matchFunctions as mf } from '../../../helpers/index';
 import SetInput from './SetInput'
 import './MatchEditor.css';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { Dayjs } from 'dayjs';
 
-// todo: 1. Add more players to database. X
-//       2. List players from db in select X
-//       3. Save match on submit
-//       4. Update list of matches pull from actual matches
-//       5. After adding match, add the latest match to list
+// todo: 1. Save match on submit
+//       2. Update list of matches pull from actual matches
+//       3. After adding match, add the latest match to list
+//       4. Required fields for winner/loser
+//       5. Double-check match values before submit
 
 
 const MatchEditor = ({ player, onSubmit, ...props }) => {
     // Initialize the state for the player names and the selected match format
+    const [playedOn, setPlayedOn] = useState(null);
     const [winner, setWinner] = useState(player)
     const [loser, setLoser] = useState({ name: '' })
     const [isWinner, setIsWinner] = useState(true)
@@ -25,28 +33,34 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
     const [set3, setSet3] = useState('')
     const [set4, setSet4] = useState('')
     const [set5, setSet5] = useState('')
+    const [comment, setComment] = useState('')
     const [ladderId, setLadderId] = useState(props.ladderId || 0)
+    const showLadderSelect = typeof (props.ladderId) === 'undefined'
 
     // Initialize the state for the score
     const [score, setScore] = useState([set1, set2, set3, set4, set5])
 
     //const ladderPlayers = lf.GetLadderPlayers(ladderId)
+
+    const playerLadders = lf.usePlayerLadders(player.id)
     const ladderPlayers = lf.useLadderPlayersData(ladderId)
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        // Create an object with the match result data
-        const playedOn= new Date
 
+        // Create an object with the match result data
         const match = {
             winner,
             loser,
             score,
             playedOn: playedOn,
-            reportedOn: new Date
-        };
-        //console.log(match)
+            comment: comment,
+            ladderID: ladderId,
+            retired: retired
+        }
+
         mf.CreateMatch(match)
+
         // Call the onSubmit prop and pass the result object
         //onSubmit(result);
     }
@@ -71,7 +85,7 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
         let newScore = [...score]
         newScore[set - 1] = s
         setScore(newScore)
-        //console.log('HandleSetChange',newScore)
+        
         switch (set) {
             case 1:
                 setSet1(s)
@@ -106,13 +120,48 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
                     to prevent duplicate scores.
                 </div>
             }
-
             <Flex direction={'column'} gap="1" marginTop={'1em'}>
+                <Flex direction={'row'} className={'mediaFlex'}>
+                    {/* Set or display ladder */}
+                    {showLadderSelect ?
+                        <FormControl sx={{ minWidth: 120, width: 300 }}>
+                            <InputLabel id="select-ladders-label">My ladders</InputLabel>
+                            <Select
+                                labelId='select-ladders-label'
+                                label="My Ladders"
+                                id="ladder-select"
+                                value={ladderId}
+                                onChange={(e) => { setLadderId(e.target.value) }}>
+                                {playerLadders?.map(option => {
+                                    return (
+                                        <MenuItem key={option.id} value={option.id}>{option.name}</MenuItem>
+                                    )
+                                })}
+                            </Select>
+                        </FormControl>
+                        :
+                        <label>ladderPlayers.ladder.name</label>
+                    }
+                    {/* Date match was played */}
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                            label="Match played date"
+                            required
+                            value={playedOn}
+                            onChange={(newValue) => {
+                                setPlayedOn(newValue);
+                            }}
+                            renderInput={(params) => <TextField {...params} sx={{ width: 200 }} />}
+                        />
+                    </LocalizationProvider>
+                </Flex>
+
+                {/* Display the players by autocomplete */}
                 <Flex direction={'row'} className={'mediaFlex'}>
                     <Autocomplete
                         id="winner-search"
                         required
-                        options={!ladderPlayers ? [{ name: 'Loading...', id: 0 }] : ladderPlayers}
+                        options={!ladderPlayers ? [{ name: 'Loading...', id: 0 }] : ladderPlayers.players}
                         disableClearable={isWinner}
                         disabled={isWinner}
                         getOptionDisabled={(option) => option.name == loser.name}
@@ -126,7 +175,7 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
                     <Autocomplete
                         id="loser-search"
                         required
-                        options={!ladderPlayers ? [{ label: 'Loading...', id: 0 }] : ladderPlayers}
+                        options={!ladderPlayers ? [{ label: 'Loading...', id: 0 }] : ladderPlayers.players}
                         disableClearable={!isWinner}
                         disabled={!isWinner}
                         getOptionDisabled={(option) => option.name == winner.name}
@@ -222,7 +271,9 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
                 {/* comment */}
                 <TextAreaField
                     label="comment"
+                    id="match-comment"
                     className='comment'
+                    onBlur={(e) => setComment(e.currentTarget.value)}
                     placeholder='Any comments about the match?'
                 />
                 <label className="summary">

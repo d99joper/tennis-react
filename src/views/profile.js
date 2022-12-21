@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { SlUser } from 'react-icons/sl';
 import { useParams } from 'react-router-dom';
 import {
@@ -16,14 +16,15 @@ import {
     SwitchField
 } from "@aws-amplify/ui-react";
 import { userFunctions } from 'helpers'
-import { Editable, Matches, Ladders, PhoneNumber, MatchEditor } from '../components/forms/index.js'
+import { Editable, Matches, Ladders, PhoneNumber } from '../components/forms/index.js'
 import Modal from '../components/layout/Modal/modal';
 import './profile.css';
 
 
 function Profile() {
-
-    //var options = { year: 'numeric', month: 'long', day: 'numeric' };
+    
+    const MatchEditor = lazy(() => import("../components/forms/MatchEditor/MatchEditor").then(module => { return { default: module.MatchEditor } }))
+    
     const NTRPItems = ["-", "1.5", "2.0", "2.5", "3.0", "3.5", "4.0", "4.5", "5.0", "5.5"];
 
     const params = useParams();
@@ -128,11 +129,10 @@ function Profile() {
         e.preventDefault()
         if (canEdit) setShowImagePicker(true);
     }
-    function openMatchEditor(e) {
+    function toggleMatchEditor(e) {
         e.preventDefault()
-        if (canEdit) setShowMatchEditor(true);
+        if (canEdit) setShowMatchEditor(!showMatchEditor);
     }
-
 
     useEffect(() => {
         console.log("profile page got new userId", params)
@@ -249,14 +249,19 @@ function Profile() {
                         <Card className='card' variation="elevated">
                             Latest matches
                             <Matches player={player}></Matches>
-                            {/* <Button label="Add new match" 
-                                    onClick={(e) => { openMatchEditor(e) }}
-                            />
+                            <Button label="Add new match" 
+                                    onClick={(e) => { toggleMatchEditor(e) }}
+                            >{showMatchEditor ? 'Cancel' : 'Add'}</Button>
+                            {/* 
                             <Modal
                                 title="Add a match"
                                 onClose={() => setShowMatchEditor(false)} show={showMatchEditor}
                             > */}
+                            <Suspense fallback={<h2>loading...</h2>}>
+                                {showMatchEditor ?
                                 <MatchEditor player={player} onSubmit={updateProfileData} />
+                                : null}
+                            </Suspense>
                             {/* </Modal> */}
                         </Card>
                     </Flex>

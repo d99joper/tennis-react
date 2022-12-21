@@ -1,10 +1,13 @@
 import { API } from 'aws-amplify';
-import { listMatches, getMatch } from "../graphql/queries";
+import { getMatch } from "../graphql/queries";
+import { listMatches } from 'graphql/customQueries';
 import {
     createMatch as createMatchMutation,
     updateMatch as updateMatchMutation,
-    deleteMatch as deleteMatchMutation
+    deleteMatch as deleteMatchMutation,
+    createComment
 } from "../graphql/mutations";
+import { helpers } from './helpers';
 
 function parseScore(score) {
 
@@ -22,12 +25,12 @@ function parseScore(score) {
             const games = setScore.match(/\d+/g).map(Number);
             if (games[0] > games[1]) {
                 breakdown.setsWon++
-                if (games[0] > games[1] && Math.abs(games[0] - games[1]) === 1) 
+                if (games[0] > games[1] && Math.abs(games[0] - games[1]) === 1)
                     breakdown.tiebreaksWon++
             }
             if (games[1] > games[0]) {
                 breakdown.setsLost++
-                if (games[0] > games[1] && Math.abs(games[0] - games[1]) === 1) 
+                if (games[0] > games[1] && Math.abs(games[0] - games[1]) === 1)
                     breakdown.tiebreaksLost++
             }
 
@@ -40,27 +43,41 @@ function parseScore(score) {
 
 const MatchFunctions = {
 
-    
+
     CreateMatch: async function (match) {
         console.log('createMatch');
-        
+
         const scoreBreakdown = parseScore(match.score)
-        
+
+        const playedOn = helpers.formatAWSDate(match.playedOn)
+
         const loadData = {
             winnerID: match.winner.id,
             loserID: match.loser.id,
-            playedOn: match.playedOn,
+            playedOn: playedOn,
+            ladderID: match.ladderID,
+            score: match.score.filter(Boolean).join(', '),
             ...scoreBreakdown
         };
-        
+
         console.log(loadData);
-        
+
         try {
             API.graphql({
                 query: createMatchMutation,
                 variables: { input: loadData },
             }).then((result) => {
                 console.log('New Match created', result);
+                // add comment
+                if (match.comment) {
+                    API.graphql({
+                        query: createComment,
+                        variables: { input: { matchID: result.data.createMatch.id, content: match.comment } }
+                    }).then((commentResult) => {
+
+                    }).catch((e) => { console.log("failed to create match comment", e) })
+                }
+
                 return result;
             }).catch((e) => { console.log(e) });
         }
@@ -68,7 +85,7 @@ const MatchFunctions = {
             console.error("failed to create a Match", e);
         }
     },
-    
+
     UpdateMatch: async function (match) {
         try {
 
@@ -125,16 +142,26 @@ const MatchFunctions = {
         }
     },
 
-    fetchMatchs: async function (filter) {
-        // let filter = {
-        //     name: {
-        //         eq: name // filter priority = 1
-        //     }
-        // };
-        const apiData = await API.graphql({ query: listMatches, variables: { filter: filter } });
+    listMatches: async function (player, ladder, startDate, endDate) {
+        let filter = {
+            playedOn: { lt: helpers.formatAWSDate(endDate) },
+            ...(startDate && { playedOn: { gt: helpers.formatAWSDate(startDate) } }),
+            ...(player && {
+                or: [
+                    { winnerID: { eq: player.id } },
+                    { loserID: { eq: player.id } }
+                ]
+            }),
+            ...(ladder && { ladderID: { eq: ladder.id } })
+        }
+
+        const apiData = await API.graphql({
+            query: listMatches,
+            variables: { filter: filter, orderBy: [{ field: "playedOn", direction: "DESC" }] }
+        })
 
         const MatchsFromAPI = apiData.data.listMatches.items;
-
+        console.info(MatchsFromAPI)
         return MatchsFromAPI;
     }
 }

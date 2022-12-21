@@ -39,7 +39,7 @@ type Standings @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedO
 
 type Match @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) @searchable {
   id: ID!
-  playedOn: AWSDate!
+  playedOn: AWSDate! 
   winnerID: ID
   winner: Player! @hasOne(fields: ["winnerID"])
   loserID: ID
@@ -51,6 +51,7 @@ type Match @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }
   gamesLost: Int!
   tiebreaksWon: Int! @default(value: "0")
   tiebreaksLost: Int! @default(value: "0")
+  retired: Boolean @default(value: "false")
   ladderID: ID
   ladder: Ladder @hasOne(fields: ["ladderID"])
   comments: [Comment!] @hasMany(indexName: "byMatch", fields: ["id"])

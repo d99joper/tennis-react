@@ -1,8 +1,6 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-import "./customQueries"
-
 export const searchMatches = /* GraphQL */ `
   query SearchMatches(
     $filter: SearchableMatchFilterInput
@@ -32,6 +30,7 @@ export const searchMatches = /* GraphQL */ `
         gamesLost
         tiebreaksWon
         tiebreaksLost
+        retired
         ladderID
         createdOn
         updatedOn
@@ -238,6 +237,7 @@ export const getMatch = /* GraphQL */ `
       gamesLost
       tiebreaksWon
       tiebreaksLost
+      retired
       ladderID
       ladder {
         id
@@ -277,6 +277,7 @@ export const listMatches = /* GraphQL */ `
         gamesLost
         tiebreaksWon
         tiebreaksLost
+        retired
         ladderID
         createdOn
         updatedOn
@@ -304,6 +305,7 @@ export const getComment = /* GraphQL */ `
         gamesLost
         tiebreaksWon
         tiebreaksLost
+        retired
         ladderID
         createdOn
         updatedOn
