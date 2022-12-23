@@ -1,3 +1,4 @@
+import { Comments } from './Comments/Comments'
 import { Editable } from './Editable/Editable'
 import { Ladder } from './Ladder/Ladder'
 import { Ladders } from './Ladders/Ladders'
@@ -6,4 +7,4 @@ import { MatchEditor } from './MatchEditor/MatchEditor'
 import { Matches } from './Matches/Matches'
 import PhoneNumber from './PhoneNumber/PhoneNumber'
 
-export { Editable, Ladder, Ladders, Match, displayMode, MatchEditor, Matches, PhoneNumber}
+export { Comments, Editable, Ladder, Ladders, Match, displayMode, MatchEditor, Matches, PhoneNumber}

@@ -25,34 +25,7 @@ const Matches = ({
             setMatches(data)
         })
     },[])
-    // [
-    //     {
-    //         id: 1, playedOn: '2018-05-17',
-    //         winner: { id: '433460c9-1f09-426d-935b-343e121237d8', name: 'Jonas P' },
-    //         loser: { id: 2, name: 'Gurra B' },
-    //         score: '6-0, 6-0',
-    //         ladder: { id: 1, name: 'Davis 4.0' },
-    //         comments: [{ id: 1, content: 'nice' }, { id: 2, content: 'good game' }]
-    //     },
-    //     {
-    //         id: 2, playedOn: '2018-05-18',
-    //         winner: { id: 2, name: 'Gurra B' },
-    //         loser: { id: '433460c9-1f09-426d-935b-343e121237d8', name: 'Jonas P' },
-    //         score: '6-4, 2-6, 6-3',
-    //         ladder: { id: 1, name: 'Davis 4.0' },
-    //         comments: [{ id: 1, content: 'nice' }, { id: 2, content: 'good game' }]
-    //     },
-    //     {
-    //         id: 3, playedOn: '2018-09-19',
-    //         winner: { id: '433460c9-1f09-426d-935b-343e121237d8', name: 'Jonas P' },
-    //         loser: { id: 2, name: 'Gurra Benndorfius III' },
-    //         score: '6-7(2), 7-6(0), 1-0(11)',
-    //         ladder: { id: 1, name: 'Davis 4.0' },
-    //         comments: [{ id: 1, content: 'nice' }, { id: 2, content: 'good game' }]
-    //     },
-    // ]
-    //);
-
+    
 
 
     const setColor = ((match, index) => {
@@ -66,7 +39,6 @@ const Matches = ({
 
     return (
         <section {...props}>
-            {matches.length>0 ? 'hello':'nope 0 '}
             <Collection className="matchCollection"
                 items={matches}
                 direction="column"

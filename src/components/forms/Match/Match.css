@@ -53,6 +53,21 @@ a:hover {
     min-width: min-content;
 }
 
+.hoverText-container {
+    position: relative;
+}
+.hoverText {
+    position: absolute;
+    width: 300px;
+    left: -300px;
+    top:10px;
+    max-width: 300px;
+    background-color: white;
+    border: 1px solid black;
+    padding: 1rem;
+    z-index: 2;
+}
+
 .ladderName {
     width: 10rem;
     min-width: min-content;

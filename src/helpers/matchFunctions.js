@@ -1,5 +1,5 @@
 import { API } from 'aws-amplify';
-import { getMatch } from "../graphql/queries";
+import { getMatch, listComments } from "../graphql/queries";
 import { listMatches } from 'graphql/customQueries';
 import {
     createMatch as createMatchMutation,
@@ -160,9 +160,18 @@ const MatchFunctions = {
             variables: { filter: filter, orderBy: [{ field: "playedOn", direction: "DESC" }] }
         })
 
-        const MatchsFromAPI = apiData.data.listMatches.items;
-        console.info(MatchsFromAPI)
+        const MatchsFromAPI = apiData.data.listMatches.items
+        
         return MatchsFromAPI;
+    },
+
+    GetComments: async function(matchId) {
+        const apiData = await API.graphql({
+            query: listComments, 
+            variables: {filter: {matchID: {eq: matchId}}}
+        })
+        console.log(apiData.data.listComments.items)
+        return apiData.data.listComments.items
     }
 }
 

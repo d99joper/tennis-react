@@ -12,7 +12,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Dayjs } from 'dayjs';
 
-// todo: 1. Save match on submit
+// todo: 1. Add show on mouse over for comments
 //       2. Update list of matches pull from actual matches
 //       3. After adding match, add the latest match to list
 //       4. Required fields for winner/loser
