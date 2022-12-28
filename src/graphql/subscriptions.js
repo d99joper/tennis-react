@@ -242,6 +242,7 @@ export const onCreateMatch = /* GraphQL */ `
   subscription OnCreateMatch($filter: ModelSubscriptionMatchFilterInput) {
     onCreateMatch(filter: $filter) {
       id
+      type
       playedOn
       winnerID
       winner {
@@ -303,6 +304,7 @@ export const onUpdateMatch = /* GraphQL */ `
   subscription OnUpdateMatch($filter: ModelSubscriptionMatchFilterInput) {
     onUpdateMatch(filter: $filter) {
       id
+      type
       playedOn
       winnerID
       winner {
@@ -364,6 +366,7 @@ export const onDeleteMatch = /* GraphQL */ `
   subscription OnDeleteMatch($filter: ModelSubscriptionMatchFilterInput) {
     onDeleteMatch(filter: $filter) {
       id
+      type
       playedOn
       winnerID
       winner {
@@ -428,6 +431,7 @@ export const onCreateComment = /* GraphQL */ `
       matchID
       match {
         id
+        type
         playedOn
         winnerID
         loserID
@@ -458,6 +462,7 @@ export const onUpdateComment = /* GraphQL */ `
       matchID
       match {
         id
+        type
         playedOn
         winnerID
         loserID
@@ -488,6 +493,7 @@ export const onDeleteComment = /* GraphQL */ `
       matchID
       match {
         id
+        type
         playedOn
         winnerID
         loserID

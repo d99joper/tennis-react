@@ -3,7 +3,7 @@
 # all models in this schema. Learn more about authorization rules here: https://docs.amplify.aws/cli/graphql/authorization-rules
 input AMPLIFY { globalAuthRule: AuthRule = { allow: public } } # FOR TESTING ONLY!
 
-type Player @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) 
+type Player @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) @searchable
   # @auth(rules: [{ allow: public, operations: [read]}]) 
 {
   id: ID!
@@ -19,7 +19,7 @@ type Player @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" 
   ladders: [Ladder!] @manyToMany(relationName: "ladderPlayer")
 }
 
-type Ladder @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) {
+type Ladder @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) @searchable {
   id: ID!
   name: String!
   location: String!
@@ -39,6 +39,7 @@ type Standings @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedO
 
 type Match @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) @searchable {
   id: ID!
+  type: String @default(value: "singles")
   playedOn: AWSDate! 
   winnerID: ID
   winner: Player! @hasOne(fields: ["winnerID"])

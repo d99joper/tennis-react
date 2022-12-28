@@ -1,4 +1,4 @@
-import { API } from 'aws-amplify';
+import { API,SortDirection,sort } from 'aws-amplify';
 import { getMatch, listComments } from "../graphql/queries";
 import { listMatches } from 'graphql/customQueries';
 import {
@@ -157,7 +157,7 @@ const MatchFunctions = {
 
         const apiData = await API.graphql({
             query: listMatches,
-            variables: { filter: filter, orderBy: [{ field: "playedOn", direction: "DESC" }] }
+            variables: { filter: filter, sort: [{ field: "playedOn", direction: SortDirection.DESCENDING }] }
         })
 
         const MatchsFromAPI = apiData.data.listMatches.items

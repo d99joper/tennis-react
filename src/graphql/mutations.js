@@ -266,6 +266,7 @@ export const createMatch = /* GraphQL */ `
   ) {
     createMatch(input: $input, condition: $condition) {
       id
+      type
       playedOn
       winnerID
       winner {
@@ -330,6 +331,7 @@ export const updateMatch = /* GraphQL */ `
   ) {
     updateMatch(input: $input, condition: $condition) {
       id
+      type
       playedOn
       winnerID
       winner {
@@ -394,6 +396,7 @@ export const deleteMatch = /* GraphQL */ `
   ) {
     deleteMatch(input: $input, condition: $condition) {
       id
+      type
       playedOn
       winnerID
       winner {
@@ -461,6 +464,7 @@ export const createComment = /* GraphQL */ `
       matchID
       match {
         id
+        type
         playedOn
         winnerID
         loserID
@@ -494,6 +498,7 @@ export const updateComment = /* GraphQL */ `
       matchID
       match {
         id
+        type
         playedOn
         winnerID
         loserID
@@ -527,6 +532,7 @@ export const deleteComment = /* GraphQL */ `
       matchID
       match {
         id
+        type
         playedOn
         winnerID
         loserID

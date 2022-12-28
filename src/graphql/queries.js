@@ -1,6 +1,100 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
+export const searchPlayers = /* GraphQL */ `
+  query SearchPlayers(
+    $filter: SearchablePlayerFilterInput
+    $sort: [SearchablePlayerSortInput]
+    $limit: Int
+    $nextToken: String
+    $from: Int
+    $aggregates: [SearchablePlayerAggregationInput]
+  ) {
+    searchPlayers(
+      filter: $filter
+      sort: $sort
+      limit: $limit
+      nextToken: $nextToken
+      from: $from
+      aggregates: $aggregates
+    ) {
+      items {
+        id
+        userGUID
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        createdOn
+        updatedOn
+      }
+      nextToken
+      total
+      aggregateItems {
+        name
+        result {
+          ... on SearchableAggregateScalarResult {
+            value
+          }
+          ... on SearchableAggregateBucketResult {
+            buckets {
+              key
+              doc_count
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+export const searchLadders = /* GraphQL */ `
+  query SearchLadders(
+    $filter: SearchableLadderFilterInput
+    $sort: [SearchableLadderSortInput]
+    $limit: Int
+    $nextToken: String
+    $from: Int
+    $aggregates: [SearchableLadderAggregationInput]
+  ) {
+    searchLadders(
+      filter: $filter
+      sort: $sort
+      limit: $limit
+      nextToken: $nextToken
+      from: $from
+      aggregates: $aggregates
+    ) {
+      items {
+        id
+        name
+        location
+        city
+        zip
+        createdOn
+        updatedOn
+      }
+      nextToken
+      total
+      aggregateItems {
+        name
+        result {
+          ... on SearchableAggregateScalarResult {
+            value
+          }
+          ... on SearchableAggregateBucketResult {
+            buckets {
+              key
+              doc_count
+            }
+          }
+        }
+      }
+    }
+  }
+`;
 export const searchMatches = /* GraphQL */ `
   query SearchMatches(
     $filter: SearchableMatchFilterInput
@@ -20,6 +114,7 @@ export const searchMatches = /* GraphQL */ `
     ) {
       items {
         id
+        type
         playedOn
         winnerID
         loserID
@@ -201,6 +296,7 @@ export const getMatch = /* GraphQL */ `
   query GetMatch($id: ID!) {
     getMatch(id: $id) {
       id
+      type
       playedOn
       winnerID
       winner {
@@ -267,6 +363,7 @@ export const listMatches = /* GraphQL */ `
     listMatches(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
+        type
         playedOn
         winnerID
         loserID
@@ -295,6 +392,7 @@ export const getComment = /* GraphQL */ `
       matchID
       match {
         id
+        type
         playedOn
         winnerID
         loserID

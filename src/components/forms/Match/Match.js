@@ -1,10 +1,11 @@
-import React, { lazy, Suspense, useState } from "react";
+import React, { useState } from "react";
 import { Flex, View } from "@aws-amplify/ui-react";
 import { GiCrossedSwords } from 'react-icons/gi';
 import { GoCommentDiscussion } from 'react-icons/go';
 import { helpers } from "../../../helpers/helpers";
 import { Link } from "react-router-dom";
 import "./Match.css"
+import {Comments} from "../index"
 
 const Match = ({
     index,
@@ -18,22 +19,6 @@ const Match = ({
 }) => {
 
     const [isShowComments, setIsShowComments] = useState(false)
-
-    // const Comments = lazy(() => import("../index").then(module => { return { default: module.Comments } }))
-    // const MemoizedComments = React.memo(Comments)
-    
-    function memoCompare(prev, next){
-        console.log("prev", prev)
-        console.log("next", next)
-        return true
-    }
-
-    const MemoizedComments = lazy(() =>
-        import("../index").then(module => {
-            const Comments = module.Comments
-            return { default: React.memo(Comments, memoCompare) }
-        })
-    )
 
     if (displayAs === displayMode.Inline) {
         return (
@@ -58,18 +43,16 @@ const Match = ({
                     <View className="iconSet">
                         {showComments ?
                             <>
-                                {isShowComments &&
-                                    <div className="hoverText-container">
-                                        <div className="hoverText">
-                                            <Suspense fallback={<h3>Loading...</h3>}>
-                                                <MemoizedComments matchId={match.id} />
-                                            </Suspense>
-                                        </div>
+                                <div className={"hoverText-container" + (!isShowComments ? " hide" : "")}>
+                                    <div className="hoverText">
+                                        <Comments key={match.id} matchId={match.id} showComments={showComments} />
                                     </div>
-                                }
+                                </div>
                                 <GoCommentDiscussion
-                                    onMouseOut={() => { setIsShowComments(false) }}
-                                    onMouseOver={() => { setIsShowComments(true) }}
+                                    aria-label="Comments"
+                                    title="Comments"
+                                    onClick={() => { setIsShowComments(!isShowComments) }}
+                                    // onMouseOver={() => { setIsShowComments(true) }}
                                     className="middleIcon"
                                     color="#3e3333"
                                 />
@@ -77,7 +60,7 @@ const Match = ({
                             : ""
                         }
                         {showH2H ?
-                            <GiCrossedSwords className="middleIcon" color="#3e3333" />
+                            <GiCrossedSwords title="H2H" className="middleIcon" color="#3e3333" />
                             : ""
                         }
                     </View>

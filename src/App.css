@@ -100,6 +100,10 @@ a:hover {
     cursor: pointer;
 }
 
+.hide {
+  display: none;
+}
+
 .MuiOutlinedInput-root {
   background-color: #ccff0022;
 }
