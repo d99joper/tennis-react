@@ -16,7 +16,7 @@ import {
     SwitchField
 } from "@aws-amplify/ui-react";
 import { userFunctions } from 'helpers'
-import { Editable, Matches, Ladders, PhoneNumber } from '../components/forms/index.js'
+import { Editable, Matches, Ladders, PhoneNumber, UserStats } from '../components/forms/index.js'
 import Modal from '../components/layout/Modal/modal';
 import './profile.css';
 
@@ -91,9 +91,9 @@ function Profile() {
             document.title = 'My Tennis Space - ' + p.name;
 
         return p;
-
+        
     }
-
+    
     async function updateProfilePic(e) {
 
         const profilePic = Array.from(e.target.files)[0]
@@ -151,6 +151,8 @@ function Profile() {
                 <Flex direction="column" gap="1rem">
                     <Flex direction="row" gap="1rem" as="form" onSubmit={updateProfileData} className="mediaFlex">
                         <Card className='card' variation="elevated">
+                            
+                            {/************ PROFILE PICTURE   *************/}
                             <View className={"profileImageContainer"}>
                                 {player.image ?
                                     <Image
@@ -182,11 +184,18 @@ function Profile() {
                                     </label>
                                 </Button>
                             </Modal>
+                            {/************ NAME   *************/}
                             <Text fontSize='x-large'>{player.name}</Text>
+                            {/************ EMAIL   *************/}
                             <Text fontSize='small'>{isLoggedIn ? <a href={`mailto:${player.email}`}>{player.email}</a> : 'Email only visible to other players'}</Text>
+                            {/************ PHONE   *************/}
                             <PhoneNumber name="name" onNewNumber={handleUpdatedPhoneNumber} number={player.phone} editable={isEdit} />
                         </Card>
+                        
+                        {/************ RIGHT CONTENT   *************/}
                         <Card className='card' variation="elevated" flex="1">
+                            
+                            {/************ EDIT TOOGLE   *************/}
                             <div style={{ float: 'right' }}>
                                 {canEdit &&
                                     <SwitchField
@@ -200,10 +209,13 @@ function Profile() {
                                     />
                                 }
                             </div>
+                            
                             <Grid
                                 templateColumns="1fr 3fr"
-                                templateRows="1fr 1fr 1fr 3fr"
+                                templateRows="1fr 1fr 1fr 1fr 3fr"
                             >
+
+                                {/************ NTRP   *************/}
                                 <View><Text>NTRP rating:</Text></View>
                                 <Flex direction={'row'} flex='1'>
                                     <Editable
@@ -222,6 +234,8 @@ function Profile() {
                                     </Editable>
                                     <span>View the USTA NTPR <a href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf' target='blank'>guidelines</a>.</span>
                                 </Flex>
+                                
+                                {/************ UTR   *************/}
                                 <View>UTR rating:</View>
                                 <Editable
                                     text={player.UTR ?? '-'}
@@ -229,8 +243,16 @@ function Profile() {
                                 >
                                     <TextField name="UTR" size='small' defaultValue={player.UTR}></TextField>
                                 </Editable>
+                                
+                                {/************ LADDERS   *************/}
                                 <View>Ladders:</View>
-                                <Ladders></Ladders>
+                                <Ladders player={player}/>
+
+                                {/************ STATS   *************/}
+                                <View>Stats:</View>
+                                <UserStats player={player} />
+                                
+                                {/************ ABOUT   *************/}
                                 <View><Text fontSize={'large'}>About:</Text></View>
                                 <Editable
                                     text={player.about}
@@ -245,6 +267,8 @@ function Profile() {
                             </Grid>
                         </Card>
                     </Flex>
+
+                    {/************ MATCHES   *************/}
                     <Flex direction="row" gap="1rem">
                         <Card className='card' variation="elevated">
                             Latest matches

@@ -6,5 +6,19 @@ import { Match, displayMode } from './Match/Match'
 import { MatchEditor } from './MatchEditor/MatchEditor'
 import { Matches } from './Matches/Matches'
 import PhoneNumber from './PhoneNumber/PhoneNumber'
+import UserStats from './Stats/UserStats'
+import LadderStats from './Stats/LadderStats'
 
-export { Comments, Editable, Ladder, Ladders, Match, displayMode, MatchEditor, Matches, PhoneNumber}
+export {
+    Comments, 
+    displayMode, 
+    Editable, 
+    Ladder, 
+    Ladders, 
+    LadderStats,
+    Match, 
+    MatchEditor, 
+    Matches, 
+    PhoneNumber,
+    UserStats 
+}
