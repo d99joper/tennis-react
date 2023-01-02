@@ -44,3 +44,39 @@ Matches
 
 
 
+query GetUserStats {
+  searchMatches(filter: {
+    or: [
+          { winnerID: { eq: "2" } },
+          { loserID: { eq: "2" } }
+        ]      
+    }, 
+    aggregates: 
+    [
+      {field: winnerID, name: "matchesWon", type: terms},
+      {field: loserID, name: "matchesLost", type: terms},
+      {field: setsLost, name: "setsLost", type: sum},
+      {field: setsWon, name: "setsWon", type: sum},
+      {field: tiebreaksLost, name: "tiebreaksLost", type: sum},
+      {field: tiebreaksWon, name: "tiebreaksWon", type: sum},
+      {field: gamesLost, name: "gamesLost", type: sum},
+      {field: gamesWon, name: "gamesWon", type: sum}
+    ]) {
+    aggregateItems {
+      result {
+        ... on SearchableAggregateScalarResult {
+          __typename
+          value
+        }
+      }
+        ... on SearchableAggregateBucketResult {
+          __typename
+          buckets {
+            key
+            doc_count
+          }
+        }
+      name
+    }
+  }
+}
