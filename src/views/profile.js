@@ -149,8 +149,13 @@ function Profile() {
         return (
             <>
                 <Flex direction="column" gap="1rem">
-                    <Flex direction="row" gap="1rem" as="form" onSubmit={updateProfileData} className="mediaFlex">
-                        <Card className='card' variation="elevated">
+                    <Flex as="form" 
+                        direction="row" 
+                        //gap="1rem" 
+                        onSubmit={updateProfileData} 
+                        className="mediaFlex"
+                    >
+                        <Card className='card profilePic' variation="elevated">
                             
                             {/************ PROFILE PICTURE   *************/}
                             <View className={"profileImageContainer"}>
@@ -212,9 +217,9 @@ function Profile() {
                             
                             <Grid
                                 templateColumns="1fr 3fr"
-                                templateRows="1fr 1fr 1fr 1fr 3fr"
+                                templateRows="1fr 1fr 1fr 3fr 3fr"
                             >
-
+                                
                                 {/************ NTRP   *************/}
                                 <View><Text>NTRP rating:</Text></View>
                                 <Flex direction={'row'} flex='1'>

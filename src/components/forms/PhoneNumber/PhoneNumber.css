@@ -1,3 +1,7 @@
 .error {
     color: red;
 }
+
+.phoneInput {
+    width: 9rem;
+}

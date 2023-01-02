@@ -24,6 +24,7 @@
 
 .profilePic {
     grid-area: profilePic;
+    max-height: 300px;
 }
 
 .stats {

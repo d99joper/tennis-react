@@ -49,6 +49,7 @@ function PhoneNumber(props) {
                 <input
                     placeholder='(123) 456-7890'
                     type="text"
+                    className='phoneInput'
                     value={formattedNumber}
                     onChange={handleChange}
                     onBlur={handleBlur}
