@@ -1,24 +1,40 @@
-import { matchFunctions, userFunctions } from "helpers";
-import React, { useState } from "react";
+import { Grid, Loader, Table, TableBody, TableCell, TableHead, TableRow, Text } from "@aws-amplify/ui-react";
+import React from "react";
 
-const UserStats = ({player}) => {
+const UserStats = ({ stats, ...props }) => {
 
-    // match win/loss: 34/23 (60%) (i) = sets w/l, games w/l / year
-    // Sets W/L
-    // Tiebreak W/L
-    // Games W/L
-    //const {allStats, setAllStats} = useState({wins: 10, losses: 6, setWins: 23, setLosses: 18})
-    //const [stats, setStats] = useState(userFunctions.usePlayerStats(player.id, 'singles'))
-    const stats = userFunctions.usePlayerStats(player.id, 'singles')
- 
     return (
         <>
-            <div>
-                Matches W/L: {stats.totalWins}/{stats.totalLosses} ({stats.winPercentage}%)<br/>
-                Sets W/L: {stats.setsWon}/{stats.setsLost} ({stats.setsWonPercentage}%)<br/>
-                Games W/L: {stats.gamesWon}/{stats.gamesLost} ({stats.gamesWonPercentage}%)<br/>
-                Tiebreaks W/L: {stats.tiebreaksWon}/{stats.tiebreaksLost} ({stats.tiebreakPercentage}%)
-            </div>
+            {props.statsFetched ?
+            <>
+                <Table caption="match stats" highlightOnHover={true} marginTop="1em" variation="striped">
+                    <TableHead backgroundColor={'#ABC'}>
+                        <TableRow>
+                            <TableCell as="th">Year</TableCell>
+                            <TableCell as="th">Matches</TableCell>
+                            <TableCell as="th">Sets</TableCell>
+                            <TableCell as="th">Tie-breaks</TableCell>
+                            <TableCell as="th">Games</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        <TableRow>
+                            <TableCell>2022</TableCell>
+                            <TableCell color={stats.winPercentage >=50 ? 'green' : 'red'}>
+                                {stats.totalWins}/{stats.totalLosses} ({stats.winPercentage}%)</TableCell>
+                            <TableCell color={stats.setsWonPercentage >=50 ? 'green' : 'red'}>
+                                {stats.setsWon}/{stats.setsLost} ({stats.setsWonPercentage}%)</TableCell>
+                            <TableCell color={stats.tiebreakPercentage >=50 ? 'green' : 'red'}>
+                                {stats.tiebreaksWon}/{stats.tiebreaksLost} ({stats.tiebreakPercentage}%)</TableCell>
+                            <TableCell color={stats.gamesWonPercentage >=50 ? 'green' : 'red'}>
+                                {stats.gamesWon}/{stats.gamesLost} ({stats.gamesWonPercentage}%)</TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+                </>
+                :
+                <h5><Loader /> Loading ...</h5>
+            }
         </>
     )
 }

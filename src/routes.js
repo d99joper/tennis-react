@@ -3,7 +3,7 @@ import {
   Routes,
   Route
 } from 'react-router-dom';
-import { Heading } from '@aws-amplify/ui-react';
+import { Heading, Loader } from '@aws-amplify/ui-react';
 import Login from './views/login'
 import Navbar from './components/layout/navbar';
 import MyMenu from './components/layout/menu';
@@ -29,7 +29,7 @@ const MyRouter = (props) => {
         <Navbar useMenu={MyMenu} isLoggedIn={props.isLoggedIn} testing={props.testing} key="myNavbar" />
       </header>
       <div className='Content'>
-        <Suspense fallback={<h2>Loading...</h2>}>
+        <Suspense fallback={<h2><Loader/>Loading...</h2>}>
           <Routes key="MyMainRoutes">
             <Route exact path="/" element={<Home />} />
             <Route exact path="/about" element={<About />} />

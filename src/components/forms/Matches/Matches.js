@@ -1,5 +1,5 @@
 // Matches.js
-import { Button, Collection, Flex } from "@aws-amplify/ui-react";
+import { Button, Collection, Flex, Loader } from "@aws-amplify/ui-react";
 import { matchFunctions as mf } from "helpers/index.js";
 import { React, Suspense, useState, lazy, useEffect } from "react";
 import { Match, displayMode } from "../index.js"
@@ -59,7 +59,7 @@ const Matches = ({
                 false && allowAdd && displayAs === displayMode.Inline &&
                 <Flex >
                     <Button>Add New</Button>
-                    <Suspense fallback={<h2>loading...</h2>}>
+                    <Suspense fallback={<h2><Loader/>Loading...</h2>}>
                         <MatchEditor player={player} onSubmit={(m) => { setMatches(...matches, m) }} />
                     </Suspense>
                 </Flex>

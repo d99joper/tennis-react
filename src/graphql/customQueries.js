@@ -27,11 +27,12 @@ export const listLadderPlayersAsObjects = /* GraphQL */ `
 
 export const listMatches = /* GraphQL */ `
   query ListMatches(
-    $filter: ModelMatchFilterInput
+    $filter: SearchableMatchFilterInput #ModelMatchFilterInput
+    $sort: [SearchableMatchSortInput]
     $limit: Int
     $nextToken: String
   ) {
-    listMatches(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    searchMatches(filter: $filter, sort: $sort, limit: $limit, nextToken: $nextToken) {
       items {
         id
         playedOn
@@ -100,17 +101,21 @@ query GetUserStatsOnWin($playerId: ID!, $type: String) {
 }
 `;
 
-export const GetUserStatsOnLoss = /* GraphQL */ ` 
-query GetUserStatsOnLoss($playerId: ID!, $type: String) {
+export const GetUserStatsOnLoss =   /* GraphQL */ ` 
+query GetUserStatsOnLoss($playerId: ID!, $type: String, $startDate: String, $endDate: String) {
   searchMatches(filter: {
     # or: [
     #       { winnerID: { eq: $playerId } },
     #       { loserID: { eq: $playerId } }
     #     ],
     or: [
-        {type: { eq: $type}},
-        {type: { exists: false}}
+        { type: { eq: $type}},
+        { type: { exists: false}}
       ],
+    and: [
+      { playedOn: { gte: $startDate }},
+      { playedOn: { lte: $endDate }}
+    ],
       loserID: { eq: $playerId}    
     }, 
     aggregates: 

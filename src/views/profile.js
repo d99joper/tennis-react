@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { SlUser } from 'react-icons/sl';
 import { useParams } from 'react-router-dom';
 import {
@@ -13,7 +13,10 @@ import {
     Image,
     TextAreaField,
     Divider,
-    SwitchField
+    SwitchField,
+    Loader,
+    TabItem,
+    Tabs
 } from "@aws-amplify/ui-react";
 import { userFunctions } from 'helpers'
 import { Editable, Matches, Ladders, PhoneNumber, UserStats } from '../components/forms/index.js'
@@ -22,9 +25,12 @@ import './profile.css';
 
 
 function Profile() {
-    
-    const MatchEditor = lazy(() => import("../components/forms/MatchEditor/MatchEditor").then(module => { return { default: module.MatchEditor } }))
-    
+
+    const MatchEditor = lazy(() => import("../components/forms/index") //MatchEditor/MatchEditor")
+        .then(module => { return { default: module.MatchEditor } }))
+    //const UserStats = lazy(() => import("../components/forms/index")
+    //    .then(module => { return { default: module.UserStats } }))
+
     const NTRPItems = ["-", "1.5", "2.0", "2.5", "3.0", "3.5", "4.0", "4.5", "5.0", "5.5"];
 
     const params = useParams();
@@ -34,66 +40,26 @@ function Profile() {
     const [isEdit, setIsEdit] = useState(false);
     //const [profileChange, setProfileChange] = useState(0)
     const [canEdit, setCanEdit] = useState(false);
-    const [showImagePicker, setShowImagePicker] = useState(false); 
-    const [showMatchEditor, setShowMatchEditor] = useState(false); 
+    const [showImagePicker, setShowImagePicker] = useState(false);
+    const [showMatchEditor, setShowMatchEditor] = useState(false);
     const [player, setPlayer] = useState()
+    const [stats, setStats] = useState({})
 
     const handleUpdatedPhoneNumber = newNumber => {
         setPlayer({ ...player, phone: newNumber })
     }
 
-    async function getProfile() {
-
-        const loggedIn = async () => {
-            return await userFunctions.CheckIfSignedIn()
+    const handleStatsClick = () => {
+        if(!statsFetched){
+            userFunctions.getPlayerStats(player.id, 'singles')
+                .then((data) => {
+                    setStats(data)
+                })
         }
-        setIsLoggedIn(loggedIn);
-
-        let p = null;
-
-        const sessionPlayer = await userFunctions.getCurrentlyLoggedInPlayer()
-        // Check if userid param was provided
-        
-        if (params.userid) {
-            console.log('userid provided');
-            // Get the user from the userid -> paramPlayer
-            p = await userFunctions.getPlayer(params.userid)
-            p = p ?? sessionPlayer
-
-            if (sessionPlayer) {
-                if (sessionPlayer.email === p.email) {
-                    console.log('This is your page, so you can edit it');
-                    setCanEdit(true);
-                }
-            }
-            else {
-                setError({ status: true, message: 'This user does not exist.' });
-            }
-            setIsLoaded(true);
-        }
-        else {
-            console.log('no userid provided, use sessionPlayer', sessionPlayer);
-            if (sessionPlayer) {
-                p = sessionPlayer;
-                console.log(p)
-                document.title = 'My Tennis Space - ' + p.name;
-                //setPlayer(prevState => ({...prevState, p})) 
-                console.log('This is your page, so you can edit it');
-                setCanEdit(true);
-            }
-            else {
-                setError({ status: true, message: 'This user does not exist.' });
-            }
-            setIsLoaded(true);
-        }
-
-        if (p)
-            document.title = 'My Tennis Space - ' + p.name;
-
-        return p;
-        
+        setStatsFetched(true)
     }
-    
+
+    const [statsFetched, setStatsFetched] = useState(false);
     async function updateProfilePic(e) {
 
         const profilePic = Array.from(e.target.files)[0]
@@ -109,16 +75,16 @@ function Profile() {
         e.preventDefault();
 
         const form = new FormData(e.target);
-        
+
         const data = {
             about: form.get("about"),
             NTRP: form.get("NTPR"),
             UTR: form.get("UTR"),
             phone: player.phone || '',
         };
-        
+
         let p = await userFunctions.UpdatePlayer(data, player.id)
-        
+
         // setPlayer(prevState => ({...prevState, p}))
         setPlayer(p)
 
@@ -135,7 +101,59 @@ function Profile() {
     }
 
     useEffect(() => {
-        console.log("profile page got new userId", params)
+        console.log("profile page got new userId", params.userid)
+
+        async function getProfile() {
+
+            const loggedIn = async () => {
+                return await userFunctions.CheckIfSignedIn()
+            }
+            setIsLoggedIn(loggedIn);
+
+            let p = null;
+
+            const sessionPlayer = await userFunctions.getCurrentlyLoggedInPlayer()
+            // Check if userid param was provided
+
+            if (params.userid) {
+                console.log('userid provided');
+                // Get the user from the userid -> paramPlayer
+                p = await userFunctions.getPlayer(params.userid)
+                p = p ?? sessionPlayer
+
+                if (sessionPlayer) {
+                    if (sessionPlayer.email === p.email) {
+                        console.log('This is your page, so you can edit it');
+                        setCanEdit(true);
+                    }
+                }
+                else {
+                    setError({ status: true, message: 'This user does not exist.' });
+                }
+                setIsLoaded(true);
+            }
+            else {
+                console.log('no userid provided, use sessionPlayer', sessionPlayer);
+                if (sessionPlayer) {
+                    p = sessionPlayer;
+                    console.log(p)
+                    document.title = 'My Tennis Space - ' + p.name;
+                    //setPlayer(prevState => ({...prevState, p})) 
+                    console.log('This is your page, so you can edit it');
+                    setCanEdit(true);
+                }
+                else {
+                    setError({ status: true, message: 'This user does not exist.' });
+                }
+                setIsLoaded(true);
+            }
+
+            if (p)
+                document.title = 'My Tennis Space - ' + p.name;
+
+            return p;
+
+        }
 
         getProfile().then(p => setPlayer(p))
         //}, []);  
@@ -144,19 +162,19 @@ function Profile() {
     if (error.status) {
         return <div>Error: {error.message}</div>;
     } else if (!isLoaded) {
-        return <h2>Loading...</h2>;
+        return <h2><Loader />Loading...</h2>;
     } else {
         return (
             <>
                 <Flex direction="column" gap="1rem">
-                    <Flex as="form" 
-                        direction="row" 
+                    <Flex as="form"
+                        direction="row"
                         //gap="1rem" 
-                        onSubmit={updateProfileData} 
+                        onSubmit={updateProfileData}
                         className="mediaFlex"
                     >
                         <Card className='card profilePic' variation="elevated">
-                            
+
                             {/************ PROFILE PICTURE   *************/}
                             <View className={"profileImageContainer"}>
                                 {player.image ?
@@ -196,80 +214,83 @@ function Profile() {
                             {/************ PHONE   *************/}
                             <PhoneNumber name="name" onNewNumber={handleUpdatedPhoneNumber} number={player.phone} editable={isEdit} />
                         </Card>
-                        
+
                         {/************ RIGHT CONTENT   *************/}
                         <Card className='card' variation="elevated" flex="1">
-                            
-                            {/************ EDIT TOOGLE   *************/}
-                            <div style={{ float: 'right' }}>
-                                {canEdit &&
-                                    <SwitchField
-                                        key={"editModeSwitch"}
-                                        isDisabled={false}
-                                        defaultChecked={false}
-                                        label="Edit Mode"
-                                        labelPosition="start"
-                                        isChecked={isEdit}
-                                        onChange={(e) => { setIsEdit(e.target.checked) }}
-                                    />
-                                }
-                            </div>
-                            
-                            <Grid
-                                templateColumns="1fr 3fr"
-                                templateRows="1fr 1fr 1fr 3fr 3fr"
-                            >
-                                
-                                {/************ NTRP   *************/}
-                                <View><Text>NTRP rating:</Text></View>
-                                <Flex direction={'row'} flex='1'>
-                                    <Editable
-                                        text={player.NTRP ?? '-'}
-                                        isEditing={isEdit}
-                                        direction="row"
-                                        gap="1rem"
+                            <Tabs defaultIndex={0}
+                                justifyContent="flex-start">
+                                <TabItem title="General">
+                                    {/************ EDIT TOOGLE   *************/}
+                                    <div style={{ float: 'right' }}>
+                                        {canEdit &&
+                                            <SwitchField
+                                                key={"editModeSwitch"}
+                                                isDisabled={false}
+                                                defaultChecked={false}
+                                                label="Edit Mode"
+                                                labelPosition="start"
+                                                isChecked={isEdit}
+                                                onChange={(e) => { setIsEdit(e.target.checked) }}
+                                            />
+                                        }
+                                    </div>
+                                    <Grid
+                                        templateColumns="1fr 3fr"
+                                        templateRows="1fr 1fr 1fr 3fr"
+                                        paddingTop={"10px"}
                                     >
-                                        <SelectField
-                                            name="NTPR"
-                                            size='small'
-                                            defaultValue={player.NTRP ? player.NTRP : '2.0'}
-                                            options={NTRPItems}
-                                        ></SelectField>
+                                        {/************ NTRP   *************/}
+                                        <View><Text>NTRP rating:</Text></View>
+                                        <Flex direction={'row'} flex='1'>
+                                            <Editable
+                                                text={player.NTRP ?? '-'}
+                                                isEditing={isEdit}
+                                                direction="row"
+                                                gap="0.5rem"
+                                            >
+                                                <SelectField
+                                                    name="NTPR"
+                                                    size='small'
+                                                    defaultValue={player.NTRP ? player.NTRP : '2.0'}
+                                                    options={NTRPItems}
+                                                ></SelectField>
 
-                                    </Editable>
-                                    <span>View the USTA NTPR <a href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf' target='blank'>guidelines</a>.</span>
-                                </Flex>
-                                
-                                {/************ UTR   *************/}
-                                <View>UTR rating:</View>
-                                <Editable
-                                    text={player.UTR ?? '-'}
-                                    isEditing={isEdit}
-                                >
-                                    <TextField name="UTR" size='small' defaultValue={player.UTR}></TextField>
-                                </Editable>
-                                
-                                {/************ LADDERS   *************/}
-                                <View>Ladders:</View>
-                                <Ladders player={player}/>
+                                            </Editable>
+                                            <span>View the USTA NTPR <a href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf' target='blank'>guidelines</a>.</span>
+                                        </Flex>
 
-                                {/************ STATS   *************/}
-                                <View>Stats:</View>
-                                <UserStats player={player} />
-                                
-                                {/************ ABOUT   *************/}
-                                <View><Text fontSize={'large'}>About:</Text></View>
-                                <Editable
-                                    text={player.about}
-                                    isEditing={isEdit}>
-                                    <TextAreaField name="about" defaultValue={player.about}></TextAreaField>
-                                </Editable>
-                                {isEdit &&
-                                    <Button type="submit" variation="primary">
-                                        Update
-                                    </Button>
-                                }
-                            </Grid>
+                                        {/************ UTR   *************/}
+                                        <View>UTR rating:</View>
+                                        <Editable
+                                            text={player.UTR ?? '-'}
+                                            isEditing={isEdit}
+                                        >
+                                            <TextField name="UTR" size='small' defaultValue={player.UTR}></TextField>
+                                        </Editable>
+
+                                        {/************ LADDERS   *************/}
+                                        <View>Ladders:</View>
+                                        <Ladders player={player} />
+
+                                        {/************ ABOUT   *************/}
+                                        <View><Text fontSize={'large'}>About:</Text></View>
+                                        <Editable
+                                            text={player.about}
+                                            isEditing={isEdit}>
+                                            <TextAreaField name="about" defaultValue={player.about}></TextAreaField>
+                                        </Editable>
+                                        {isEdit &&
+                                            <Button type="submit" variation="primary">
+                                                Update
+                                            </Button>
+                                        }
+                                    </Grid>
+                                </TabItem>
+                                <TabItem title="Stats" onClick={handleStatsClick} >
+                                    {/************ STATS   *************/}
+                                    <UserStats stats={stats} statsFetched={statsFetched} paddingTop={10} />
+                                </TabItem>
+                            </Tabs>
                         </Card>
                     </Flex>
 
@@ -278,18 +299,18 @@ function Profile() {
                         <Card className='card' variation="elevated">
                             Latest matches
                             <Matches player={player}></Matches>
-                            <Button label="Add new match" 
-                                    onClick={(e) => { toggleMatchEditor(e) }}
+                            <Button label="Add new match"
+                                onClick={(e) => { toggleMatchEditor(e) }}
                             >{showMatchEditor ? 'Cancel' : 'Add'}</Button>
                             {/* 
                             <Modal
                                 title="Add a match"
                                 onClose={() => setShowMatchEditor(false)} show={showMatchEditor}
                             > */}
-                            <Suspense fallback={<h2>loading...</h2>}>
+                            <Suspense fallback={<h2><Loader />Loading...</h2>}>
                                 {showMatchEditor ?
-                                <MatchEditor player={player} onSubmit={updateProfileData} />
-                                : null}
+                                    <MatchEditor player={player} onSubmit={updateProfileData} />
+                                    : null}
                             </Suspense>
                             {/* </Modal> */}
                         </Card>

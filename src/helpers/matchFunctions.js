@@ -157,10 +157,10 @@ const MatchFunctions = {
 
         const apiData = await API.graphql({
             query: listMatches,
-            variables: { filter: filter, sort: [{ field: "playedOn", direction: SortDirection.DESCENDING }] }
+            variables: { filter: filter, sort: [{ field: "playedOn", direction: "desc" }] }
         })
-
-        const MatchsFromAPI = apiData.data.listMatches.items
+        console.log(apiData.data)
+        const MatchsFromAPI = apiData.data.searchMatches.items
         
         return MatchsFromAPI;
     },
