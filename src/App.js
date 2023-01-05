@@ -11,14 +11,14 @@ import { green } from '@mui/material/colors';
 function App() {
   const PrimaryMainTheme = createTheme({
     palette: {
-            // palette values for dark mode
-            primary: green,
-            divider: green[300],
-            background: {
-              default: green[10],
-              paper: green[100],
-            }
-     
+      // palette values for dark mode
+      primary: green,
+      divider: green[300],
+      background: {
+        default: green[10],
+        paper: green[100],
+      }
+
     }
   });
   const testing = useRef(false);
@@ -70,6 +70,9 @@ function App() {
           break;
         case 'configured':
           console.log('the Auth module is configured');
+          break;
+        default: 
+          break;
       }
     });
 
@@ -105,8 +108,8 @@ function App() {
     <div className="App">
       <ThemeProvider theme={PrimaryMainTheme}>
 
-      <MyRouter isLoggedIn={isLoggedIn} testing={testing} />
-      <Footer></Footer>
+        <MyRouter isLoggedIn={isLoggedIn} testing={testing} />
+        <Footer></Footer>
       </ThemeProvider>
     </div>
   );

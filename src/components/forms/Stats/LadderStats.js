@@ -1,6 +1,6 @@
 import React from "react";
 
-const LadderStats = ({}) => {
+const LadderStats = () => {
 
 
     return (

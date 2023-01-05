@@ -1,5 +1,5 @@
 import { API } from 'aws-amplify';
-import { listLadders, getLadder, listLadderPlayers } from "../graphql/queries";
+import { listLadders, getLadder } from "../graphql/queries";
 import { listLadderPlayersAsObjects } from "../graphql/customQueries";
 import {
     createLadder as createLadderMutation,

@@ -77,6 +77,7 @@ query GetUserStatsOnWin($playerId: ID!, $type: String) {
         {type: { exists: false}}
       ],
       winnerID: { eq: $playerId},
+      # playedOn_year: { eq: 2022}
     }, 
     aggregates: 
     [
@@ -149,3 +150,4 @@ query GetUserStatsOnLoss($playerId: ID!, $type: String, $startDate: String, $end
   }
 }
 `;
+

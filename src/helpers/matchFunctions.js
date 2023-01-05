@@ -1,4 +1,4 @@
-import { API,SortDirection,sort } from 'aws-amplify';
+import { API } from 'aws-amplify';
 import { getMatch, listComments } from "../graphql/queries";
 import { listMatches } from 'graphql/customQueries';
 import {

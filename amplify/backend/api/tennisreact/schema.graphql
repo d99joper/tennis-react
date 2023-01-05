@@ -41,6 +41,7 @@ type Match @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }
   id: ID!
   type: String @default(value: "singles")
   playedOn: AWSDate! 
+  year: Int! @default(value: "2022")
   winnerID: ID
   winner: Player! @hasOne(fields: ["winnerID"])
   loserID: ID

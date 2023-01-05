@@ -1,4 +1,4 @@
-import { Grid, Loader, Table, TableBody, TableCell, TableHead, TableRow, Text } from "@aws-amplify/ui-react";
+import { Loader, Table, TableBody, TableCell, TableHead, TableRow } from "@aws-amplify/ui-react";
 import React from "react";
 
 const UserStats = ({ stats, ...props }) => {

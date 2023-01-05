@@ -6,7 +6,6 @@ import {
     deletePlayer as deletePlayerMutation,
 } from "../graphql/mutations";
 import ladderFunctions from './ladderFunctions';
-import { useEffect, useState } from 'react';
 import { GetUserStatsOnLoss, GetUserStatsOnWin } from 'graphql/customQueries';
 
 const userFunctions = {
@@ -18,7 +17,7 @@ const userFunctions = {
         if (typeof user != 'undefined') {
             const player = await this.getPlayerByEmail(user.attributes.email);
             console.log("createPlayerIfNotExist", player);
-            if (player === 'undefined' || player.length == 0) {
+            if (player === 'undefined' || player.length === 0) {
                 // user doesn't create, so create it
                 this.createPlayer(user.attributes.name, user.attributes.email, user.attributes.sub, user.attributes.sub);
             }
@@ -195,7 +194,7 @@ const userFunctions = {
             if (!user) {
                 return false;
             }
-            if (user == 'The user is not authenticated') {
+            if (user === 'The user is not authenticated') {
                 return false;
             }
             else return true;
@@ -254,61 +253,13 @@ const userFunctions = {
         return playersFromAPI;
     },
 
-    // usePlayerStats: function (playerId, singlesOrDoubles) {
-
-    //     //if(dontRender) return stats
-    //     //const [winStats, setWinStats] = useState({})
-    //     //const [lossStats, setLossStats] = useState({})
-    //     const [stats, setStats] = useState({})
-
-    //     useEffect(() => {
-    //         const fetchData = async () => {
-    //             // Get win stats
-    //             const winData = await PrivateFunc.GetStats(playerId, singlesOrDoubles, 'W')
-    //             // Get loss stats
-    //             const lossData = await PrivateFunc.GetStats(playerId, singlesOrDoubles, 'L')
-    //             // Set the data
-    //             const data = {
-    //                 wins: {
-    //                     total: winData.searchMatches.total,
-    //                     agg: winData.searchMatches.aggregateItems
-    //                 },
-    //                 losses: {
-    //                     total: lossData.searchMatches.total,
-    //                     agg: lossData.searchMatches.aggregateItems
-    //                 }
-    //             }
-    //             // massage data
-    //             const gamesWon = PrivateFunc.GetTotalValue(data.wins.agg, "gamesWon", data.losses.agg, "gamesLost")
-    //             const gamesLost = PrivateFunc.GetTotalValue(data.wins.agg, "gamesLost", data.losses.agg, "gamesWon")
-    //             const setsWon = PrivateFunc.GetTotalValue(data.wins.agg, "setsWon", data.losses.agg, "setsLost")
-    //             const setsLost = PrivateFunc.GetTotalValue(data.wins.agg, "setsLost", data.losses.agg, "setsWon")
-    //             const tBWon = PrivateFunc.GetTotalValue(data.wins.agg, "tiebreaksWon", data.losses.agg, "tiebreaksLost")
-    //             const tBLost = PrivateFunc.GetTotalValue(data.wins.agg, "tiebreaksLost", data.losses.agg, "tiebreaksWon")
-
-    //             setStats({ 
-    //                 totalWins: data.wins.total, 
-    //                 totalLosses: data.losses.total,
-    //                 winPercentage: data.wins.total === 0 ? 0 : Math.round(100*data.wins.total / (data.wins.total + data.losses.total), 2),
-    //                 gamesWon: gamesWon,
-    //                 gamesLost: gamesLost,
-    //                 gamesWonPercentage: gamesWon === 0 ? 0 : Math.round(100*gamesWon / (gamesWon + gamesLost),2),
-    //                 setsWon: setsWon,
-    //                 setsLost: setsLost,
-    //                 setsWonPercentage: setsWon === 0 ? 0 : Math.round(100*setsWon / (setsWon + setsLost),2),
-    //                 tiebreaksWon: tBWon,
-    //                 tiebreaksLost: tBLost,
-    //                 tiebreakPercentage: tBWon === 0 ? 0 : Math.round(100*tBWon / (tBWon + tBLost),2),
-    //             })
-    //         }
-
-    //         fetchData()
-    //     }, [playerId])
-
-    //     console.log(stats)
-    //     return stats
-    // }
     getPlayerStats: async function (playerId, singlesOrDoubles) {
+
+        // get all active years
+        
+        // loop active years
+
+        // add year and data to array, and add a total
 
         let stats = {}
 

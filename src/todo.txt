@@ -3,6 +3,7 @@ Overall design
     b. Style and clean up
     c. Search for players
     d. Add location library for ladder locations
+    e. npx amplify-app -> npm run amplify-modelgen
 
 Search page
     a. Searches for different categories (ladder, players, locations?)

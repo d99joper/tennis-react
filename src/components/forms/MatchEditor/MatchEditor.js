@@ -10,14 +10,7 @@ import SetInput from './SetInput'
 import './MatchEditor.css';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { Dayjs } from 'dayjs';
-
-// todo: 1. Add show on mouse over for comments
-//       2. Update list of matches pull from actual matches
-//       3. After adding match, add the latest match to list
-//       4. Required fields for winner/loser
-//       5. Double-check match values before submit
-
+//import { Dayjs } from 'dayjs';
 
 const MatchEditor = ({ player, onSubmit, ...props }) => {
     // Initialize the state for the player names and the selected match format
@@ -164,7 +157,7 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
                         options={!ladderPlayers ? [{ name: 'Loading...', id: 0 }] : ladderPlayers.players}
                         disableClearable={isWinner}
                         disabled={isWinner}
-                        getOptionDisabled={(option) => option.name == loser.name}
+                        getOptionDisabled={(option) => option.name === loser.name}
                         autoSelect={true}
                         onChange={(e, value) => { setWinner(value) }}
                         getOptionLabel={options => options.name}
@@ -178,7 +171,7 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
                         options={!ladderPlayers ? [{ label: 'Loading...', id: 0 }] : ladderPlayers.players}
                         disableClearable={!isWinner}
                         disabled={!isWinner}
-                        getOptionDisabled={(option) => option.name == winner.name}
+                        getOptionDisabled={(option) => option.name === winner.name}
                         autoSelect={true}
                         onChange={(e, value) => { setLoser(value) }}
                         value={loser}

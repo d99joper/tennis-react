@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Flex, View } from "@aws-amplify/ui-react";
 import { GiCrossedSwords } from 'react-icons/gi';
 import { GoCommentDiscussion } from 'react-icons/go';
-import { helpers } from "../../../helpers/helpers";
+import { helpers, enums } from "../../../helpers";
 import { Link } from "react-router-dom";
 import "./Match.css"
 import {Comments} from "../index"
@@ -14,13 +14,13 @@ const Match = ({
     showH2H = true,
     showComments = true,
     showHeader = true,
-    displayAs = displayMode.Card, // default to card
+    displayAs = enums.DISPLAY_MODE.Card, // default to card
     ...props
 }) => {
 
     const [isShowComments, setIsShowComments] = useState(false)
 
-    if (displayAs === displayMode.Inline) {
+    if (displayAs === enums.DISPLAY_MODE.Inline) {
         return (
             <section {...props}>
                 {(showHeader && index === 0) ?
@@ -68,14 +68,14 @@ const Match = ({
             </section>
         )
     }
-    else if (displayAs === displayMode.Card) {
+    else if (displayAs === enums.DISPLAY_MODE.Card) {
         return (<>This is a card</>)
     }
 }
 
-const displayMode = {
-    Inline: 'inline',
-    Card: 'card'
-}
+// const displayMode = {
+//     Inline: 'inline',
+//     Card: 'card'
+// }
 
-export { Match, displayMode }
+export { Match }
