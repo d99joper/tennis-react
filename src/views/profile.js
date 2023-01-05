@@ -44,6 +44,7 @@ function Profile() {
     const [showMatchEditor, setShowMatchEditor] = useState(false);
     const [player, setPlayer] = useState()
     const [stats, setStats] = useState({})
+    const [statsFetched, setStatsFetched] = useState(false);
 
     const handleUpdatedPhoneNumber = newNumber => {
         setPlayer({ ...player, phone: newNumber })
@@ -59,7 +60,6 @@ function Profile() {
         setStatsFetched(true)
     }
 
-    const [statsFetched, setStatsFetched] = useState(false);
     async function updateProfilePic(e) {
 
         const profilePic = Array.from(e.target.files)[0]
