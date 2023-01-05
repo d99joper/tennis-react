@@ -1,12 +1,12 @@
-import { API, Auth, Storage } from 'aws-amplify';
+import { API, Auth, DataStore, Storage } from 'aws-amplify';
 import { listPlayers, getPlayer } from "../graphql/queries";
 import {
     createPlayer as createPlayerMutation,
     updatePlayer as updatePlayerMutation,
     deletePlayer as deletePlayerMutation,
 } from "../graphql/mutations";
-import ladderFunctions from './ladderFunctions';
 import { GetUserStatsOnLoss, GetUserStatsOnWin } from 'graphql/customQueries';
+import { Match, Player } from 'models';
 
 const userFunctions = {
 
@@ -24,12 +24,12 @@ const userFunctions = {
         }
     },
 
-    getPlayersForLadder: async function (ladderId) {
-        const ladder = await ladderFunctions.GetLadder(ladderId)
+    // getPlayersForLadder: async function (ladderId) {
+    //     const ladder = await ladderFunctions.GetLadder(ladderId)
 
-        console.log("ladder and ladder.players", ladder, ladder.players)
-        return [{ name: 'Jonas', id: 1 }, { name: 'Gurra B', id: 2 }]
-    },
+    //     console.log("ladder and ladder.players", ladder, ladder.players)
+    //     return [{ name: 'Jonas', id: 1 }, { name: 'Gurra B', id: 2 }]
+    // },
 
     UpdatePlayer: async function (player, userId, image) {
 
@@ -152,6 +152,33 @@ const userFunctions = {
         }
     },
 
+    GetMatches: async function() {
+        try {
+            const matches = await DataStore.query(Match);
+            console.log("matches retrieved successfully!", JSON.stringify(matches, null, 2));
+          } catch (error) {
+            console.log("Error retrieving matches", error);
+          }
+    },
+
+    getPlayers: async function() {
+        try {
+            const players = await DataStore.query(Player);
+            console.log("Players retrieved successfully!", JSON.stringify(players, null, 2));
+          } catch (error) {
+            console.log("Error retrieving players", error);
+          }
+    },
+
+    createPlayer_DataStore: async function(Player) {
+        try {
+            await DataStore.save(Player);
+            console.log("Player saved successfully!");
+          } catch (error) {
+            console.log("Error saving player", error);
+          }
+    },
+
     getPlayerByEmail: async function (email, includeImage = false) {
 
         try {
@@ -164,6 +191,7 @@ const userFunctions = {
             };
             console.log(emailFilter)
             console.log('getPlayerByEmail');
+
             const apiData = await API.graphql({ query: listPlayers, variables: { filter: emailFilter } });
 
             const playersFromAPI = apiData.data.listPlayers.items;

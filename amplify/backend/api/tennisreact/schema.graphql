@@ -43,9 +43,9 @@ type Match @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }
   playedOn: AWSDate! 
   year: Int! @default(value: "2022")
   winnerID: ID
-  winner: Player! @hasOne(fields: ["winnerID"])
+  winner: Player! @belongsTo(fields: ["winnerID"])
   loserID: ID
-  loser: Player!  @hasOne(fields: ["loserID"])
+  loser: Player!  @belongsTo(fields: ["loserID"])
   score: String!
   setsWon: Int! 
   setsLost: Int!
@@ -55,7 +55,7 @@ type Match @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }
   tiebreaksLost: Int! @default(value: "0")
   retired: Boolean @default(value: "false")
   ladderID: ID
-  ladder: Ladder @hasOne(fields: ["ladderID"])
+  ladder: Ladder @belongsTo(fields: ["ladderID"])
   comments: [Comment!] @hasMany(indexName: "byMatch", fields: ["id"])
 }
 

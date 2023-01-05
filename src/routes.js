@@ -9,12 +9,22 @@ import Navbar from './components/layout/navbar';
 import MyMenu from './components/layout/menu';
 import { lazy } from 'react';
 import { Suspense } from 'react';
+import { userFunctions } from 'helpers';
+import { Player } from 'models';
+import { DataStore } from 'aws-amplify';
 
 function Home() {
   return <Heading level={2}>Home</Heading>;
 };
 
 function About() {
+
+  //console.log('about')
+  //let p = new Player({name: 'Test DataStore', email: 'nope@test.com', userGuid: '123'})
+  //userFunctions.createPlayer_DataStore(p)
+  //userFunctions.getPlayers()
+  const matches = userFunctions.GetMatches()
+
   return <Heading level={2}>About</Heading>;
 };
 

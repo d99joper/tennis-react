@@ -160,13 +160,6 @@ export const schema = {
                     "isRequired": true,
                     "attributes": []
                 },
-                "winnerID": {
-                    "name": "winnerID",
-                    "isArray": false,
-                    "type": "ID",
-                    "isRequired": false,
-                    "attributes": []
-                },
                 "winner": {
                     "name": "winner",
                     "isArray": false,
@@ -176,17 +169,9 @@ export const schema = {
                     "isRequired": true,
                     "attributes": [],
                     "association": {
-                        "connectionType": "HAS_ONE",
-                        "associatedWith": "id",
+                        "connectionType": "BELONGS_TO",
                         "targetName": "winnerID"
                     }
-                },
-                "loserID": {
-                    "name": "loserID",
-                    "isArray": false,
-                    "type": "ID",
-                    "isRequired": false,
-                    "attributes": []
                 },
                 "loser": {
                     "name": "loser",
@@ -197,8 +182,7 @@ export const schema = {
                     "isRequired": true,
                     "attributes": [],
                     "association": {
-                        "connectionType": "HAS_ONE",
-                        "associatedWith": "id",
+                        "connectionType": "BELONGS_TO",
                         "targetName": "loserID"
                     }
                 },
@@ -258,13 +242,6 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
-                "ladderID": {
-                    "name": "ladderID",
-                    "isArray": false,
-                    "type": "ID",
-                    "isRequired": false,
-                    "attributes": []
-                },
                 "ladder": {
                     "name": "ladder",
                     "isArray": false,
@@ -274,8 +251,7 @@ export const schema = {
                     "isRequired": false,
                     "attributes": [],
                     "association": {
-                        "connectionType": "HAS_ONE",
-                        "associatedWith": "id",
+                        "connectionType": "BELONGS_TO",
                         "targetName": "ladderID"
                     }
                 },
@@ -694,6 +670,6 @@ export const schema = {
     },
     "enums": {},
     "nonModels": {},
-    "codegenVersion": "3.2.0",
-    "version": "1d75de546ba2b071c264140b0542cdd6"
+    "codegenVersion": "3.3.2",
+    "version": "03274d2d7c131cdc8854dc86e7107e16"
 };

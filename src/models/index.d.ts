@@ -69,9 +69,7 @@ type EagerMatch = {
   readonly type?: string | null;
   readonly playedOn: string;
   readonly year: number;
-  readonly winnerID?: string | null;
   readonly winner: Player;
-  readonly loserID?: string | null;
   readonly loser: Player;
   readonly score: string;
   readonly setsWon: number;
@@ -81,7 +79,6 @@ type EagerMatch = {
   readonly tiebreaksWon: number;
   readonly tiebreaksLost: number;
   readonly retired?: boolean | null;
-  readonly ladderID?: string | null;
   readonly ladder?: Ladder | null;
   readonly comments?: Comment[] | null;
   readonly createdOn?: string | null;
@@ -95,9 +92,7 @@ type LazyMatch = {
   readonly type?: string | null;
   readonly playedOn: string;
   readonly year: number;
-  readonly winnerID?: string | null;
   readonly winner: AsyncItem<Player>;
-  readonly loserID?: string | null;
   readonly loser: AsyncItem<Player>;
   readonly score: string;
   readonly setsWon: number;
@@ -107,7 +102,6 @@ type LazyMatch = {
   readonly tiebreaksWon: number;
   readonly tiebreaksLost: number;
   readonly retired?: boolean | null;
-  readonly ladderID?: string | null;
   readonly ladder: AsyncItem<Ladder | undefined>;
   readonly comments: AsyncCollection<Comment>;
   readonly createdOn?: string | null;

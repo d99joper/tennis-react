@@ -95,6 +95,7 @@ export const searchLadders = /* GraphQL */ `
     }
   }
 `;
+
 export const searchMatches = /* GraphQL */ `
   query SearchMatches(
     $filter: SearchableMatchFilterInput
@@ -116,6 +117,7 @@ export const searchMatches = /* GraphQL */ `
         id
         type
         playedOn
+        year
         winnerID
         loserID
         score
@@ -298,6 +300,7 @@ export const getMatch = /* GraphQL */ `
       id
       type
       playedOn
+      year
       winnerID
       winner {
         id
@@ -365,6 +368,7 @@ export const listMatches = /* GraphQL */ `
         id
         type
         playedOn
+        year
         winnerID
         loserID
         score
@@ -394,6 +398,7 @@ export const getComment = /* GraphQL */ `
         id
         type
         playedOn
+        year
         winnerID
         loserID
         score

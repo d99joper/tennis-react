@@ -244,6 +244,7 @@ export const onCreateMatch = /* GraphQL */ `
       id
       type
       playedOn
+      year
       winnerID
       winner {
         id
@@ -306,6 +307,7 @@ export const onUpdateMatch = /* GraphQL */ `
       id
       type
       playedOn
+      year
       winnerID
       winner {
         id
@@ -368,6 +370,7 @@ export const onDeleteMatch = /* GraphQL */ `
       id
       type
       playedOn
+      year
       winnerID
       winner {
         id
@@ -433,6 +436,7 @@ export const onCreateComment = /* GraphQL */ `
         id
         type
         playedOn
+        year
         winnerID
         loserID
         score
@@ -464,6 +468,7 @@ export const onUpdateComment = /* GraphQL */ `
         id
         type
         playedOn
+        year
         winnerID
         loserID
         score
@@ -495,6 +500,7 @@ export const onDeleteComment = /* GraphQL */ `
         id
         type
         playedOn
+        year
         winnerID
         loserID
         score
