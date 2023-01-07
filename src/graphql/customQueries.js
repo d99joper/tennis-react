@@ -69,16 +69,54 @@ export const listMatches = /* GraphQL */ `
   }
 `;
 
+export const GetYearsPlayed = /* GraphQL */ `
+  query GetYearsPlayed($playerId: ID!, $type: String) {
+    searchMatches(filter: {
+       and: [
+        {or: [
+          { winnerID: { eq: $playerId } },
+          { loserID: { eq: $playerId } }
+        ]},
+        {or: [
+          { type: { eq: $type}},
+          { type: { exists: false}}
+        ]}
+      ]
+    },
+    sort: {field: year, direction: desc},
+    aggregates: {field: year, name: "year", type: terms}) {
+    total
+    aggregateItems {
+      result {
+        ... on SearchableAggregateBucketResult {
+          __typename
+          buckets {
+            key
+            doc_count
+          }
+        }
+      }
+    }
+    } 
+  }
+`;
+
 export const GetUserStatsOnWin = /* GraphQL */ ` 
-query GetUserStatsOnWin($playerId: ID!, $type: String) {
+query GetUserStatsOnWin($playerId: ID!, $type: String, $year: Int!) {
   searchMatches(filter: {
-      or: [
-        {type: { eq: $type}},
-        {type: { exists: false}}
-      ],
-      winnerID: { eq: $playerId},
-      # playedOn_year: { eq: 2022}
-    }, 
+      and: 
+      [
+        { or: 
+          [
+            {type: { eq: $type}},
+            {type: { exists: false}}
+          ]
+        }
+        ,
+        { winnerID: { eq: $playerId }},
+        { year: { eq: $year }}
+      ]
+    },
     aggregates: 
     [
       {field: setsLost, name: "setsLost", type: sum},
@@ -103,22 +141,21 @@ query GetUserStatsOnWin($playerId: ID!, $type: String) {
 `;
 
 export const GetUserStatsOnLoss =   /* GraphQL */ ` 
-query GetUserStatsOnLoss($playerId: ID!, $type: String, $startDate: String, $endDate: String) {
+query GetUserStatsOnLoss($playerId: ID!, $type: String, $year: Int) {
   searchMatches(filter: {
-    # or: [
-    #       { winnerID: { eq: $playerId } },
-    #       { loserID: { eq: $playerId } }
-    #     ],
-    or: [
-        { type: { eq: $type}},
-        { type: { exists: false}}
-      ],
-    and: [
-      { playedOn: { gte: $startDate }},
-      { playedOn: { lte: $endDate }}
-    ],
-      loserID: { eq: $playerId}    
-    }, 
+      and: 
+      [
+        { or: 
+          [
+            {type: { eq: $type}},
+            {type: { exists: false}}
+          ]
+        }
+        ,
+        { loserID: { eq: $playerId }},
+        { year: { eq: $year }}
+      ]
+    },
     aggregates: 
     [
       # {field: winnerID, name: "matchesWon", type: terms},
@@ -137,13 +174,6 @@ query GetUserStatsOnLoss($playerId: ID!, $type: String, $startDate: String, $end
           __typename
           value
         }
-        # ... on SearchableAggregateBucketResult {
-        #   __typename
-        #   buckets {
-        #     key
-        #     doc_count
-        #   }
-        # }
       }
       name
     }

@@ -52,10 +52,12 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
             retired: retired
         }
 
-        mf.CreateMatch(match)
+        mf.CreateMatch(match).then((result) => {
+            // Call the onSubmit prop and pass the result object
+            console.log(result)
+            onSubmit(result);
+        })
 
-        // Call the onSubmit prop and pass the result object
-        //onSubmit(result);
     }
 
     const handleWinnerRadio = (e) => {

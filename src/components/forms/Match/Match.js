@@ -12,7 +12,7 @@ const Match = ({
     match,
     color,
     showH2H = true,
-    showComments = true,
+    showComments = false,
     showHeader = true,
     displayAs = enums.DISPLAY_MODE.Card, // default to card
     ...props
@@ -41,7 +41,7 @@ const Match = ({
                     <View className="score">{match.score}</View>
                     <View className="ladderName"><Link to={"/ladders/" + match.ladder.id}>{match.ladder.name}</Link></View>
                     <View className="iconSet">
-                        {showComments ?
+                        {showComments === true ?
                             <>
                                 <div className={"hoverText-container" + (!isShowComments ? " hide" : "")}>
                                     <div className="hoverText">

@@ -3,7 +3,7 @@ Overall design
     b. Style and clean up
     c. Search for players
     d. Add location library for ladder locations
-    e. npx amplify-app -> npm run amplify-modelgen
+    e. npx amplify-app -> npm run amplify-modelgen for DataStore. Then run npm amplify update api if you want to add merge features (_version and _lastupdatedAt gets added)
 
 Search page
     a. Searches for different categories (ladder, players, locations?)
@@ -42,4 +42,6 @@ Matches
     c. Post result to UTR
     d. Add comments
     e. Calculate standings / ranking points
-    x f. Sort
+    f. Dynamic Sort
+    g. Reset forms
+    h. Update match list on profile

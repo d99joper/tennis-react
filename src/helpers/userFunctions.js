@@ -5,7 +5,7 @@ import {
     updatePlayer as updatePlayerMutation,
     deletePlayer as deletePlayerMutation,
 } from "../graphql/mutations";
-import { GetUserStatsOnLoss, GetUserStatsOnWin } from 'graphql/customQueries';
+import { GetUserStatsOnLoss, GetUserStatsOnWin, GetYearsPlayed } from 'graphql/customQueries';
 import { Match, Player } from 'models';
 
 const userFunctions = {
@@ -152,31 +152,31 @@ const userFunctions = {
         }
     },
 
-    GetMatches: async function() {
+    GetMatches: async function () {
         try {
             const matches = await DataStore.query(Match);
             console.log("matches retrieved successfully!", JSON.stringify(matches, null, 2));
-          } catch (error) {
+        } catch (error) {
             console.log("Error retrieving matches", error);
-          }
+        }
     },
 
-    getPlayers: async function() {
+    getPlayers: async function () {
         try {
             const players = await DataStore.query(Player);
             console.log("Players retrieved successfully!", JSON.stringify(players, null, 2));
-          } catch (error) {
+        } catch (error) {
             console.log("Error retrieving players", error);
-          }
+        }
     },
 
-    createPlayer_DataStore: async function(Player) {
+    createPlayer_DataStore: async function (Player) {
         try {
             await DataStore.save(Player);
             console.log("Player saved successfully!");
-          } catch (error) {
+        } catch (error) {
             console.log("Error saving player", error);
-          }
+        }
     },
 
     getPlayerByEmail: async function (email, includeImage = false) {
@@ -281,22 +281,16 @@ const userFunctions = {
         return playersFromAPI;
     },
 
-    getPlayerStats: async function (playerId, singlesOrDoubles) {
-
-        // get all active years
+    getPlayerStats: async function(playerId, singlesOrDoubles, year) {
         
-        // loop active years
-
-        // add year and data to array, and add a total
-
         let stats = {}
-
+    
         const fetchData = async () => {
             let stats = {}
             // Get win stats
-            const winData = await PrivateFunc.GetStats(playerId, singlesOrDoubles, 'W')
+            const winData = await PrivateFunc.GetStats(playerId, singlesOrDoubles, 'W', year)
             // Get loss stats
-            const lossData = await PrivateFunc.GetStats(playerId, singlesOrDoubles, 'L', 2022)
+            const lossData = await PrivateFunc.GetStats(playerId, singlesOrDoubles, 'L', year)
             // Set the data
             const data = {
                 wins: {
@@ -315,7 +309,7 @@ const userFunctions = {
             const setsLost = PrivateFunc.GetTotalValue(data.wins.agg, "setsLost", data.losses.agg, "setsWon")
             const tBWon = PrivateFunc.GetTotalValue(data.wins.agg, "tiebreaksWon", data.losses.agg, "tiebreaksLost")
             const tBLost = PrivateFunc.GetTotalValue(data.wins.agg, "tiebreaksLost", data.losses.agg, "tiebreaksWon")
-
+    
             stats = {
                 totalWins: data.wins.total,
                 totalLosses: data.losses.total,
@@ -332,11 +326,34 @@ const userFunctions = {
             }
             return stats
         }
-
+    
         stats = await fetchData()
-
+    
         console.log(stats)
         return stats
+    },
+
+    getPlayerStatsByYear: async function (playerId, singlesOrDoubles) {
+
+        // get all active years
+        let years = []
+        const result = await API.graphql({
+            query: GetYearsPlayed,
+            variables: {playerId: playerId, type: singlesOrDoubles}
+        })
+        
+        // loop active years
+        if (result.data.searchMatches) {
+            years = await Promise.all(result.data.searchMatches.aggregateItems[0].result.buckets.map(async (y) => {
+                const year = y.key
+                const stats = await this.getPlayerStats(playerId, singlesOrDoubles, year)
+                // add year and data to array, and add a total
+                return {year: y.key, count: y.doc_count, stats: stats}
+            }))
+        }
+        
+        console.log("getPlayerStatsByYear", years)
+        return years.sort((a,b) => (b.year - a.year ))
     }
 }
 
@@ -353,24 +370,23 @@ const PrivateFunc = {
     GetStats: async function (playerId, singlesOrDoubles, WinLoss, year) {
 
         let apiData
-        
+        const vars = {
+            playerId: playerId,
+            type: singlesOrDoubles,
+            year: year
+            // startDate: year + "-01-01",
+            // endDate: year + "-12-31"
+        }
+
         if (WinLoss === 'L')
             apiData = await API.graphql({
                 query: GetUserStatsOnLoss,
-                variables: {
-                    playerId: playerId,
-                    type: singlesOrDoubles,
-                    startDate: year+"-01-01",
-                    endDate: year+"-12-31"
-                }
+                variables: vars
             })
         else if (WinLoss === 'W')
             apiData = await API.graphql({
                 query: GetUserStatsOnWin,
-                variables: {
-                    playerId: playerId,
-                    type: singlesOrDoubles
-                }
+                variables: vars
             })
 
         return apiData.data

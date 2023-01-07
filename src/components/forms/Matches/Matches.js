@@ -25,8 +25,6 @@ const Matches = ({
             setMatches(data)
         })
     },[])
-    
-
 
     const setColor = ((match, index) => {
         //console.log('setColor winnerId', match.winner)
@@ -51,7 +49,7 @@ const Matches = ({
                         index={index}
                         match={item}
                         color={setColor(item, index)}
-                        showComments={true}
+                        showComments={false}
                     ></Match>
                 )}
             </Collection>

@@ -55,6 +55,7 @@ const MatchFunctions = {
             winnerID: match.winner.id,
             loserID: match.loser.id,
             playedOn: playedOn,
+            year: new Date(playedOn).getFullYear(),
             ladderID: match.ladderID,
             score: match.score.filter(Boolean).join(', '),
             ...scoreBreakdown
@@ -67,14 +68,14 @@ const MatchFunctions = {
                 query: createMatchMutation,
                 variables: { input: loadData },
             }).then((result) => {
-                console.log('New Match created', result);
                 // add comment
                 if (match.comment) {
                     API.graphql({
                         query: createComment,
                         variables: { input: { matchID: result.data.createMatch.id, content: match.comment } }
                     }).then((commentResult) => {
-
+                        result.data.comment = commentResult.data.createComment;
+                        console.log('New Match created', result);
                     }).catch((e) => { console.log("failed to create match comment", e) })
                 }
 

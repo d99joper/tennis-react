@@ -52,7 +52,7 @@ function Profile() {
 
     const handleStatsClick = () => {
         if(!statsFetched){
-            userFunctions.getPlayerStats(player.id, 'singles')
+            userFunctions.getPlayerStatsByYear(player.id, 'singles')
                 .then((data) => {
                     setStats(data)
                 })
