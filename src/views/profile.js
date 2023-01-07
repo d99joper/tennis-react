@@ -55,9 +55,10 @@ function Profile() {
             userFunctions.getPlayerStatsByYear(player.id, 'singles')
                 .then((data) => {
                     setStats(data)
+                    setStatsFetched(true)
+                    console.log("statsFetched")
                 })
         }
-        setStatsFetched(true)
     }
 
     async function updateProfilePic(e) {

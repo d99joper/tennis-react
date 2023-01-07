@@ -1,47 +1,47 @@
 Overall design
-    a. Mobile vs computer menu
-    b. Style and clean up
-    c. Search for players
-    d. Add location library for ladder locations
-    e. npx amplify-app -> npm run amplify-modelgen for DataStore. Then run npm amplify update api if you want to add merge features (_version and _lastupdatedAt gets added)
+    [ ] Mobile vs computer menu
+    [ ] Style and clean up
+    [ ] Search for players
+    [ ] Add location library for ladder locations
+    [x] npx amplify-app -> npm run amplify-modelgen for DataStore. Then run npm amplify update api if you want to add merge features (_version and _lastupdatedAt gets added)
 
 Search page
-    a. Searches for different categories (ladder, players, locations?)
+    [ ] Searches for different categories (ladder, players, locations?)
 
 Profile page
-    a. Style and clean up
-    b. List ladders
-    c. Get UTR results from UTR profile
-    d. Link USTA profile
-    e. Add statistics
-      i) Table per year -> get all years with data -> loop getStats and aggregate results
-    f. H2H information / greatest rivals 
+    [ ] Style and clean up
+    [ ] List ladders
+    [ ] Get UTR results from UTR profile
+    [ ] Link USTA profile
+    [x] Add statistics
+      [x] Table per year -> get all years with data -> loop getStats and aggregate results
+    [ ] H2H information / greatest rivals 
 
 Ladders page
-    a. Display (5) ladders near you 
-    b. Search available ladders
-    c. Create a ladder 
-        1. Check if already exists and give suggestion
-        2. Doubles or singels
-    d. Add to menu
+    [ ] Display (5) ladders near you 
+    [ ] Search available ladders
+    [ ] Create a ladder 
+        [ ] Check if already exists and give suggestion
+        [ ] Doubles or singels
+    [ ] Add to menu
 
 Ladder page
-    a. Join ladder
-    b. View ladder players
-    c. Add match
-    d. See standing at particular date
-    e. If doubles, search for partner
-        sign-up with partner (one partner for each ladder)
-        if no partner, sign up as available / reserved (for a player yet to sign up)
-        split up from partner (leave ladder)
-    f. Leave ladder (double-check, since you lose all your ranking points)
+    [ ] Join ladder
+    [ ] View ladder players
+    [ ] Add match
+    [ ] See standing at particular date
+    [ ] If doubles, search for partner
+        [ ] sign-up with partner (one partner for each ladder)
+        [ ] if no partner, sign up as available / reserved (for a player yet to sign up)
+        [ ] split up from partner (leave ladder)
+    [ ] Leave ladder (double-check, since you lose all your ranking points)
 
 Matches
-    a. Separate doubles from singels
-    b. Allow practice matches outside of a ladder
-    c. Post result to UTR
-    d. Add comments
-    e. Calculate standings / ranking points
-    f. Dynamic Sort
-    g. Reset forms
-    h. Update match list on profile
+    [ ] Separate doubles from singels
+    [ ] Allow practice matches outside of a ladder ('Other' ladder option?)
+    [ ] Post result to UTR
+    [ ] Add comments
+    [ ] Calculate standings / ranking points
+    [ ] Dynamic Sort
+    [ ] Reset forms
+    [ ] Update match list on profile
