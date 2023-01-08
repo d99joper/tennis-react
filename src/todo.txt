@@ -15,6 +15,7 @@ Profile page
     [ ] Link USTA profile
     [x] Add statistics
       [x] Table per year -> get all years with data -> loop getStats and aggregate results
+      [x] Add totals
     [ ] H2H information / greatest rivals 
 
 Ladders page

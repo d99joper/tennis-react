@@ -21,6 +21,12 @@ const Navbar = ({useMenu: MyMenu, isLoggedIn, testing}) => {
           </NavLink>
         </li>
         <li className="nav-list-item">
+          <NavLink to="/ladders" style={({isActive}) => ({
+            color: isActive ? '#000000' : '#aaaaaa'})}>
+            Ladders
+          </NavLink>
+        </li>
+        <li className="nav-list-item">
           <NavLink to="/profile" style={({isActive}) => ({
             color: isActive ? '#000000' : '#aaaaaa'})}>
             Profile

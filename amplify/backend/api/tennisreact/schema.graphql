@@ -64,4 +64,5 @@ type Comment @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn"
   matchID: ID! @index(name: "byMatch", sortKeyFields: ["content"])
   match: Match @belongsTo(fields: ["matchID"])
   content: String!
+  postedBy: Player! @belongsTo(fields: ["postedByID"]) 
 }

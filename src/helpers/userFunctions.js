@@ -5,7 +5,7 @@ import {
     updatePlayer as updatePlayerMutation,
     deletePlayer as deletePlayerMutation,
 } from "../graphql/mutations";
-import { GetUserStatsOnLoss, GetUserStatsOnWin, GetYearsPlayed } from 'graphql/customQueries';
+import { GetUserStats_All, GetYearsPlayed, H2HStats } from 'graphql/customQueries';
 import { Match, Player } from 'models';
 
 const userFunctions = {
@@ -114,13 +114,12 @@ const userFunctions = {
     getCurrentlyLoggedInPlayer: async function () {
         try {
             let user = await Auth.currentAuthenticatedUser();
-            console.log("getCurrentlyLoggedInPlayer", user);
-            //console.log(typeof user !== 'undefined');
-
+            //console.log("getCurrentlyLoggedInPlayer", user);
+            
             if (typeof user !== 'undefined') {
                 const player_array = await this.getPlayerByEmail(user.attributes.email);
                 let player = player_array[0];
-                console.log(player)
+                //console.log(player)
                 if (player.image)
                     player.imageUrl = await Storage.get(player.image)
 
@@ -184,22 +183,15 @@ const userFunctions = {
         try {
             if (!email) return [];
 
-            const emailFilter = {
-                email: {
-                    eq: email
-                }
-            };
-            console.log(emailFilter)
-            console.log('getPlayerByEmail');
+            const emailFilter = { email: { eq: email }};
 
             const apiData = await API.graphql({ query: listPlayers, variables: { filter: emailFilter } });
 
             const playersFromAPI = apiData.data.listPlayers.items;
-            console.log(playersFromAPI)
+            
             if (includeImage)
                 await Promise.all(
                     playersFromAPI.map(async (player) => {
-                        console.log(player);
                         if (player.image) {
                             const url = await Storage.get(player.image);
                             player.imageUrl = url;
@@ -208,6 +200,7 @@ const userFunctions = {
                     })
                 );
 
+            console.log("getPlayerByEmail", playersFromAPI)
             return playersFromAPI;
         }
         catch (e) {
@@ -258,11 +251,6 @@ const userFunctions = {
     },
 
     fetchPlayers: async function (email, filter) {
-        // let filter = {
-        //     email: {
-        //         eq: email // filter priority = 1
-        //     }
-        // };
         const apiData = await API.graphql({ query: listPlayers, variables: { filter: filter } });
 
         const playersFromAPI = apiData.data.listPlayers.items;
@@ -281,118 +269,269 @@ const userFunctions = {
         return playersFromAPI;
     },
 
-    getPlayerStats: async function(playerId, singlesOrDoubles, year) {
-        
-        let stats = {}
-    
-        const fetchData = async () => {
-            let stats = {}
-            // Get win stats
-            const winData = await PrivateFunc.GetStats(playerId, singlesOrDoubles, 'W', year)
-            // Get loss stats
-            const lossData = await PrivateFunc.GetStats(playerId, singlesOrDoubles, 'L', year)
-            // Set the data
-            const data = {
-                wins: {
-                    total: winData.searchMatches.total,
-                    agg: winData.searchMatches.aggregateItems
-                },
-                losses: {
-                    total: lossData.searchMatches.total,
-                    agg: lossData.searchMatches.aggregateItems
-                }
-            }
-            // massage data
-            const gamesWon = PrivateFunc.GetTotalValue(data.wins.agg, "gamesWon", data.losses.agg, "gamesLost")
-            const gamesLost = PrivateFunc.GetTotalValue(data.wins.agg, "gamesLost", data.losses.agg, "gamesWon")
-            const setsWon = PrivateFunc.GetTotalValue(data.wins.agg, "setsWon", data.losses.agg, "setsLost")
-            const setsLost = PrivateFunc.GetTotalValue(data.wins.agg, "setsLost", data.losses.agg, "setsWon")
-            const tBWon = PrivateFunc.GetTotalValue(data.wins.agg, "tiebreaksWon", data.losses.agg, "tiebreaksLost")
-            const tBLost = PrivateFunc.GetTotalValue(data.wins.agg, "tiebreaksLost", data.losses.agg, "tiebreaksWon")
-    
-            stats = {
-                totalWins: data.wins.total,
-                totalLosses: data.losses.total,
-                winPercentage: data.wins.total === 0 ? 0 : Math.round(100 * data.wins.total / (data.wins.total + data.losses.total), 2),
-                gamesWon: gamesWon,
-                gamesLost: gamesLost,
-                gamesWonPercentage: gamesWon === 0 ? 0 : Math.round(100 * gamesWon / (gamesWon + gamesLost), 2),
-                setsWon: setsWon,
-                setsLost: setsLost,
-                setsWonPercentage: setsWon === 0 ? 0 : Math.round(100 * setsWon / (setsWon + setsLost), 2),
-                tiebreaksWon: tBWon,
-                tiebreaksLost: tBLost,
-                tiebreakPercentage: tBWon === 0 ? 0 : Math.round(100 * tBWon / (tBWon + tBLost), 2),
-            }
-            return stats
+    getPlayerH2H: async function(player1, player2){
+        const filter_winner = {
+            and: [
+                { winnerID: { eq: player1 }},
+                { loserID: { eq: player2 }}
+            ]
         }
+        const filter_loser = {
+            and: [
+                { winnerID: { eq: player2 }},
+                { loserID: { eq: player1 }}
+            ]
+        }
+        
+        const apiData = await API.graphql({
+            query: H2HStats,
+            variables: {filter_winner: filter_winner, filter_loser: filter_loser}
+        })
+
+        let matches = [...apiData.data.wins.items, ...apiData.data.losses.items]
+        matches.sort((a,b) => a.playedOn > b.playedOn)
+        //console.log(apiData)
+        let data = {
+            matches: matches,
+            stats: PrivateFunc.MassageStats(apiData.data)
+        }
+        //console.log(data)
+
+        return data
+    },
+
     
-        stats = await fetchData()
-    
-        console.log(stats)
-        return stats
+    GetUserStatsAllByYear: async function (playerId, singlesOrDoubles, year) {
+        const apiData = await API.graphql({
+            query: GetUserStats_All,
+            variables: { playerId: playerId, type: singlesOrDoubles, year: year }
+        })
+        
+        // massage the data
+        let data = PrivateFunc.MassageStats(apiData.data)
+            
+        console.log(data)
+        return data
     },
 
     getPlayerStatsByYear: async function (playerId, singlesOrDoubles) {
-
+        
         // get all active years
         let years = []
         const result = await API.graphql({
             query: GetYearsPlayed,
-            variables: {playerId: playerId, type: singlesOrDoubles}
+            variables: { playerId: playerId, type: singlesOrDoubles }
         })
         
         // loop active years
         if (result.data.searchMatches) {
             years = await Promise.all(result.data.searchMatches.aggregateItems[0].result.buckets.map(async (y) => {
                 const year = y.key
-                const stats = await this.getPlayerStats(playerId, singlesOrDoubles, year)
+                //const stats = await this.getPlayerStats(playerId, singlesOrDoubles, year)
+                const stats = await this.GetUserStatsAllByYear(playerId, singlesOrDoubles, year)
                 // add year and data to array, and add a total
-                return {year: y.key, count: y.doc_count, stats: stats}
+                return { year: y.key, count: y.doc_count, stats: stats }
             }))
         }
+        const clone = structuredClone(years[0].stats)//JSON.parse(JSON.stringify(years[0].stats))
         
+        let totals = { year: 'all', count: years[0].stats.matches.total, stats: clone} 
+                
+        totals.stats.raw = null
+        //console.log("totals init", totals)
+        years.forEach((item,i) => {
+            if(i !== 0) {
+                console.log("index",i)
+                totals.count += item.count              
+                PrivateFunc.MergeStats(totals.stats, item.stats)                
+            }
+        })
+        years.totals = totals
         console.log("getPlayerStatsByYear", years)
-        return years.sort((a,b) => (b.year - a.year ))
+        return years.sort((a, b) => (b.year - a.year))
     }
 }
 
 const PrivateFunc = {
-
+    
+    MergeStats: function(stats1, stats2) {
+        //console.log(stats1,stats2)
+        for(const prop in stats2) {
+            if(prop !== 'raw') {
+                console.log(prop)
+                stats1[prop].total += stats2[prop].total
+                stats1[prop].losses += stats2[prop].losses
+                stats1[prop].wins += stats2[prop].wins
+                stats1[prop].percentage = this.CalcPercentage(stats1[prop].wins, stats1[prop].losses)
+            }
+        }
+        //return stats1
+    },
+    
+    MassageStats: function(rawData) {
+        //console.log(rawData)
+        const totals = {
+             gamesWon: PrivateFunc.GetTotalValue2(rawData.wins.stats, rawData.losses.stats, "gamesWon"),
+             gamesLost: PrivateFunc.GetTotalValue2(rawData.wins.stats, rawData.losses.stats, "gamesLost"),
+             setsWon: PrivateFunc.GetTotalValue2(rawData.wins.stats, rawData.losses.stats, "setsWon"),
+             setsLost: PrivateFunc.GetTotalValue2(rawData.wins.stats, rawData.losses.stats, "setsLost"),
+             tiebreaksWon: PrivateFunc.GetTotalValue2(rawData.wins.stats, rawData.losses.stats, "tiebreaksWon"),
+             tiebreaksLost: PrivateFunc.GetTotalValue2(rawData.wins.stats, rawData.losses.stats, "tiebreaksLost")
+        }
+        //console.log("totals",totals)
+        let data = {
+            raw: {
+                // total matches
+                total: rawData.wins.total + rawData.losses.total,
+                // create a combined category with all the data
+                aggregates: this.GetCombinedAggregates(rawData.wins, rawData.losses),
+                losses: rawData.losses,
+                wins: rawData.wins
+            },
+            matches: {
+                wins: rawData.wins.total,
+                losses: rawData.losses.total,
+                percentage: this.CalcPercentage(rawData.wins.total, rawData.losses.total),
+                total: rawData.losses.total + rawData.wins.total
+            },
+            sets: {
+                wins: totals.setsWon,
+                losses: totals.setsLost,
+                percentage: PrivateFunc.CalcPercentage(totals.setsWon, totals.setsLost),
+                total: totals.setsLost + totals.setsWon
+            },
+            games: {
+                wins: totals.gamesWon,
+                losses: totals.gamesLost,
+                percentage: PrivateFunc.CalcPercentage(totals.gamesWon, totals.gamesLost),
+                total: totals.gamesLost + totals.gamesWon
+            },
+            tiebreaks: {
+                wins: totals.tiebreaksWon,
+                losses: totals.tiebreaksLost,
+                percentage: PrivateFunc.CalcPercentage(totals.tiebreaksWon, totals.tiebreaksLost),
+                total: totals.tiebreaksLost + totals.tiebreaksWon
+            }
+        }
+        
+        return data
+    },
+    
+    GetCombinedAggregates: function(wins, losses) {
+        //console.log(wins, losses)
+        const combined = wins.stats.map((item, i) => {
+            // copy the wins child object
+            let copy = { result: { value: 0 }, name: item.name }
+            // find the equivalent losses child object
+            const lossChildOject = losses.stats.find(x => x.name === item.name)
+            // Calculate and set the new value 
+            copy.result.value = 
+                lossChildOject ? lossChildOject.result.value :0 
+                + item ? item.result.value:0 
+            // return the new item
+            return copy
+        })
+        return combined
+    }, 
+    
     GetTotalValue: function (array1, name1, array2, name2) {
-
+        
         const item1 = array1.find(x => x.name === name1)
         const item2 = array2.find(x => x.name === name2)
-
+        
         return item1.result.value + item2.result.value
     },
-
-    GetStats: async function (playerId, singlesOrDoubles, WinLoss, year) {
-
-        let apiData
-        const vars = {
-            playerId: playerId,
-            type: singlesOrDoubles,
-            year: year
-            // startDate: year + "-01-01",
-            // endDate: year + "-12-31"
-        }
-
-        if (WinLoss === 'L')
-            apiData = await API.graphql({
-                query: GetUserStatsOnLoss,
-                variables: vars
-            })
-        else if (WinLoss === 'W')
-            apiData = await API.graphql({
-                query: GetUserStatsOnWin,
-                variables: vars
-            })
-
-        return apiData.data
+    
+    GetTotalValue2: function (array1, array2, name) {
+        const item1 = array1.find(x => x.name === name)
+        const item2 = array2.find(x => x.name === name)
+        
+        const val1 = (item1 ? item1.result.value :0)
+        const val2 = (item2 ? item2.result.value :0)
+        //console.log(`val1:${val1}, val2:${val2}, result:${val1+val2}`)
+        return val1+val2
     },
-
-
+    
+    CalcPercentage: function (val1, val2) {
+        return val1 === 0 ? 0 : Math.round(100 * val1 / (val1 + val2), 2)
+    },    
 }
 
 export default userFunctions;
+
+// getPlayerStats: async function (playerId, singlesOrDoubles, year) {
+
+//     let stats = {}
+
+//     const fetchData = async () => {
+//         let stats = {}
+//         // Get win stats
+//         const winData = await PrivateFunc.GetStats(playerId, singlesOrDoubles, 'W', year)
+//         // Get loss stats
+//         const lossData = await PrivateFunc.GetStats(playerId, singlesOrDoubles, 'L', year)
+//         // Set the data
+//         const data = {
+//             wins: {
+    //                 total: winData.searchMatches.total,
+    //                 agg: winData.searchMatches.aggregateItems
+    //             },
+    //             losses: {
+        //                 total: lossData.searchMatches.total,
+        //                 agg: lossData.searchMatches.aggregateItems
+        //             }
+        //         }
+        //         // massage data
+        //         const gamesWon = PrivateFunc.GetTotalValue(data.wins.agg, "gamesWon", data.losses.agg, "gamesLost")
+        //         const gamesLost = PrivateFunc.GetTotalValue(data.wins.agg, "gamesLost", data.losses.agg, "gamesWon")
+//         const setsWon = PrivateFunc.GetTotalValue(data.wins.agg, "setsWon", data.losses.agg, "setsLost")
+//         const setsLost = PrivateFunc.GetTotalValue(data.wins.agg, "setsLost", data.losses.agg, "setsWon")
+//         const tBWon = PrivateFunc.GetTotalValue(data.wins.agg, "tiebreaksWon", data.losses.agg, "tiebreaksLost")
+//         const tBLost = PrivateFunc.GetTotalValue(data.wins.agg, "tiebreaksLost", data.losses.agg, "tiebreaksWon")
+
+//         stats = {
+//             totalWins: data.wins.total,
+//             totalLosses: data.losses.total,
+//             winPercentage: data.wins.total === 0 ? 0 : Math.round(100 * data.wins.total / (data.wins.total + data.losses.total), 2),
+//             gamesWon: gamesWon,
+//             gamesLost: gamesLost,
+//             gamesWonPercentage: gamesWon === 0 ? 0 : Math.round(100 * gamesWon / (gamesWon + gamesLost), 2),
+//             setsWon: setsWon,
+//             setsLost: setsLost,
+//             setsWonPercentage: setsWon === 0 ? 0 : Math.round(100 * setsWon / (setsWon + setsLost), 2),
+//             tiebreaksWon: tBWon,
+//             tiebreaksLost: tBLost,
+//             tiebreakPercentage: tBWon === 0 ? 0 : Math.round(100 * tBWon / (tBWon + tBLost), 2),
+//         }
+//         return stats
+//     }
+
+//     stats = await fetchData()
+
+//     console.log(stats)
+//     return stats
+// },
+// GetStats: async function (playerId, singlesOrDoubles, WinLoss, year) {
+    
+    //     let apiData
+    //     const vars = {
+        //         playerId: playerId,
+        //         type: singlesOrDoubles,
+        //         year: year
+        //         // startDate: year + "-01-01",
+        //         // endDate: year + "-12-31"
+        //     }
+        
+        //     if (WinLoss === 'L')
+        //         apiData = await API.graphql({
+            //             query: GetUserStatsOnLoss,
+            //             variables: vars
+            //         })
+            //     else if (WinLoss === 'W')
+            //         apiData = await API.graphql({
+                //             query: GetUserStatsOnWin,
+                //             variables: vars
+                //         })
+                
+                //     return apiData.data
+                // },
+                

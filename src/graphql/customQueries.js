@@ -101,9 +101,45 @@ export const GetYearsPlayed = /* GraphQL */ `
   }
 `;
 
-export const GetUserStatsOnWin = /* GraphQL */ ` 
-query GetUserStatsOnWin($playerId: ID!, $type: String, $year: Int!) {
-  searchMatches(filter: {
+
+export const GetUserStats_All =   /* GraphQL */ ` 
+query GetUserStats_All($playerId: ID!, $type: String, $year: Int) {
+  losses: searchMatches(filter: 
+  {
+      and: 
+      [
+        { or: 
+          [
+            {type: { eq: $type}},
+            {type: { exists: false}}
+          ]
+        }
+        ,
+        { loserID: { eq: $playerId }},
+        { year: { eq: $year }}
+      ]
+    },
+    aggregates: 
+    [
+      {field: setsLost, name: "setsWon", type: sum},
+      {field: setsWon, name: "setsLost", type: sum},
+      {field: tiebreaksLost, name: "tiebreaksWon", type: sum},
+      {field: tiebreaksWon, name: "tiebreaksLost", type: sum},
+      {field: gamesLost, name: "gamesWon", type: sum},
+      {field: gamesWon, name: "gamesLost", type: sum}
+    ]) {
+    total
+    stats: aggregateItems {
+      result {
+        ... on SearchableAggregateScalarResult {
+          __typename
+          value
+        }
+      }
+      name
+    }
+  }
+  wins: searchMatches(filter: {
       and: 
       [
         { or: 
@@ -127,7 +163,7 @@ query GetUserStatsOnWin($playerId: ID!, $type: String, $year: Int!) {
       {field: gamesWon, name: "gamesWon", type: sum}
     ]) {
     total
-    aggregateItems {
+    stats: aggregateItems {
       result {
         ... on SearchableAggregateScalarResult {
           __typename
@@ -140,26 +176,11 @@ query GetUserStatsOnWin($playerId: ID!, $type: String, $year: Int!) {
 }
 `;
 
-export const GetUserStatsOnLoss =   /* GraphQL */ ` 
-query GetUserStatsOnLoss($playerId: ID!, $type: String, $year: Int) {
-  searchMatches(filter: {
-      and: 
-      [
-        { or: 
-          [
-            {type: { eq: $type}},
-            {type: { exists: false}}
-          ]
-        }
-        ,
-        { loserID: { eq: $playerId }},
-        { year: { eq: $year }}
-      ]
-    },
+export const H2HStats =   /* GraphQL */ ` 
+query H2HStats($filter_winner: SearchableMatchFilterInput, $filter_loser: SearchableMatchFilterInput) {
+  wins: searchMatches(filter: $filter_winner,
     aggregates: 
     [
-      # {field: winnerID, name: "matchesWon", type: terms},
-      # {field: loserID, name: "matchesLost", type: terms},
       {field: setsLost, name: "setsLost", type: sum},
       {field: setsWon, name: "setsWon", type: sum},
       {field: tiebreaksLost, name: "tiebreaksLost", type: sum},
@@ -168,7 +189,80 @@ query GetUserStatsOnLoss($playerId: ID!, $type: String, $year: Int) {
       {field: gamesWon, name: "gamesWon", type: sum}
     ]) {
     total
-    aggregateItems {
+    items {
+      id
+      score
+      retired
+      playedOn
+      winner {
+        name
+        id
+      }
+      loser {
+        name
+        id
+      }
+      ladder {
+        id 
+        name
+      }
+      # comments {
+      #   content
+      #   createdAt
+      #   postedBy {
+      #     name
+      #     id
+      #   }
+      # }
+    }
+    stats: aggregateItems {
+      result {
+        ... on SearchableAggregateScalarResult {
+          __typename
+          value
+        }
+      }
+      name
+    }
+  },
+  losses: searchMatches(filter: $filter_loser,
+    aggregates: 
+    [
+      {field: setsLost, name: "setsWon", type: sum},
+      {field: setsWon, name: "setsLost", type: sum},
+      {field: tiebreaksLost, name: "tiebreaksWon", type: sum},
+      {field: tiebreaksWon, name: "tiebreaksLost", type: sum},
+      {field: gamesLost, name: "gamesWon", type: sum},
+      {field: gamesWon, name: "gamesLost", type: sum}
+    ]) {
+    total
+    items {
+      id
+      score
+      retired
+      playedOn
+      winner {
+        name
+        id
+      }
+      loser {
+        name
+        id
+      }
+      ladder {
+        id 
+        name
+      }
+      # comments {
+      #   content
+      #   createdAt
+      #   postedBy {
+      #     name
+      #     id
+      #   }
+      # }
+    }
+    stats: aggregateItems {
       result {
         ... on SearchableAggregateScalarResult {
           __typename
@@ -181,3 +275,82 @@ query GetUserStatsOnLoss($playerId: ID!, $type: String, $year: Int) {
 }
 `;
 
+// export const GetUserStatsOnWin = /* GraphQL */ ` 
+// query GetUserStatsOnWin($playerId: ID!, $type: String, $year: Int!) {
+//   searchMatches(filter: {
+//       and: 
+//       [
+//         { or: 
+//           [
+//             {type: { eq: $type}},
+//             {type: { exists: false}}
+//           ]
+//         }
+//         ,
+//         { winnerID: { eq: $playerId }},
+//         { year: { eq: $year }}
+//       ]
+//     },
+//     aggregates: 
+//     [
+//       {field: setsLost, name: "setsLost", type: sum},
+//       {field: setsWon, name: "setsWon", type: sum},
+//       {field: tiebreaksLost, name: "tiebreaksLost", type: sum},
+//       {field: tiebreaksWon, name: "tiebreaksWon", type: sum},
+//       {field: gamesLost, name: "gamesLost", type: sum},
+//       {field: gamesWon, name: "gamesWon", type: sum}
+//     ]) {
+//     total
+//     aggregateItems {
+//       result {
+//         ... on SearchableAggregateScalarResult {
+//           __typename
+//           value
+//         }
+//       }
+//       name
+//     }
+//   }
+// }
+// `;
+
+// export const GetUserStatsOnLoss =   /* GraphQL */ ` 
+// query GetUserStatsOnLoss($playerId: ID!, $type: String, $year: Int) {
+//   searchMatches(filter: {
+//       and: 
+//       [
+//         { or: 
+//           [
+//             {type: { eq: $type}},
+//             {type: { exists: false}}
+//           ]
+//         }
+//         ,
+//         { loserID: { eq: $playerId }},
+//         { year: { eq: $year }}
+//       ]
+//     },
+//     aggregates: 
+//     [
+//       # {field: winnerID, name: "matchesWon", type: terms},
+//       # {field: loserID, name: "matchesLost", type: terms},
+//       {field: setsLost, name: "setsLost", type: sum},
+//       {field: setsWon, name: "setsWon", type: sum},
+//       {field: tiebreaksLost, name: "tiebreaksLost", type: sum},
+//       {field: tiebreaksWon, name: "tiebreaksWon", type: sum},
+//       {field: gamesLost, name: "gamesLost", type: sum},
+//       {field: gamesWon, name: "gamesWon", type: sum}
+//     ]) {
+//     total
+//     aggregateItems {
+//       result {
+//         ... on SearchableAggregateScalarResult {
+//           __typename
+//           value
+//         }
+//       }
+//       name
+//     }
+//   }
+// }
+// `;

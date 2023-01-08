@@ -160,7 +160,7 @@ const MatchFunctions = {
             query: listMatches,
             variables: { filter: filter, sort: [{ field: "playedOn", direction: "desc" }] }
         })
-        console.log(apiData.data)
+        //console.log(apiData.data)
         const MatchsFromAPI = apiData.data.searchMatches.items
         
         return MatchsFromAPI;

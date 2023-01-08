@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import { Flex, View } from "@aws-amplify/ui-react";
 import { GiCrossedSwords } from 'react-icons/gi';
 import { GoCommentDiscussion } from 'react-icons/go';
-import { helpers, enums } from "../../../helpers";
+import { helpers, enums, userFunctions } from "../../../helpers";
 import { Link } from "react-router-dom";
 import "./Match.css"
-import {Comments} from "../index"
+import { Comments } from "../index"
+import Modal from "components/layout/Modal/modal";
 
 const Match = ({
     index,
@@ -19,6 +20,21 @@ const Match = ({
 }) => {
 
     const [isShowComments, setIsShowComments] = useState(false)
+    const [isShowH2H, setIsShowH2H] = useState(false)
+    const [isH2HDataFetched, setIsH2HDataFetched] = useState(false)
+    const [h2HData, setH2HData] = useState()
+
+    function openH2HModal() {
+        if (!isH2HDataFetched) {
+            console.log("openH2H", match.winner.id)
+            userFunctions.getPlayerH2H(match.winner.id, match.loser.id).then((data) => {
+                setH2HData(data)
+                console.log(data)
+            })
+            setIsH2HDataFetched(true)
+        }
+        setIsShowH2H(true)
+    }
 
     if (displayAs === enums.DISPLAY_MODE.Inline) {
         return (
@@ -60,7 +76,21 @@ const Match = ({
                             : ""
                         }
                         {showH2H ?
-                            <GiCrossedSwords title="H2H" className="middleIcon" color="#3e3333" />
+                            <>
+                                <GiCrossedSwords
+                                    title="H2H"
+                                    className="middleIcon"
+                                    color="#3e3333"
+                                    onClick={openH2HModal} />
+                                <Modal
+                                    title="H2H"
+                                    onClose={() => setIsShowH2H(false)} show={isShowH2H}
+                                >
+                                    {h2HData ? h2HData.matches.map(m =>
+                                        <div key={m.id}>{m.score}</div>
+                                    ):null}
+                                </Modal>
+                            </>
                             : ""
                         }
                     </View>

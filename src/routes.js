@@ -22,8 +22,9 @@ function About() {
   //console.log('about')
   //let p = new Player({name: 'Test DataStore', email: 'nope@test.com', userGuid: '123'})
   //userFunctions.createPlayer_DataStore(p)
-  //userFunctions.getPlayers()
-  const matches = userFunctions.GetMatches()
+  //userFunctions.getPlayerStatsByYear('5eb69653-8f4b-42f7-a322-1075b5700f94', 'singles,')
+  //userFunctions.getPlayerH2H('5eb69653-8f4b-42f7-a322-1075b5700f94', '2')
+  //const matches = userFunctions.GetMatches()
 
   return <Heading level={2}>About</Heading>;
 };

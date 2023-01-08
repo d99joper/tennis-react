@@ -56,7 +56,7 @@ function Profile() {
                 .then((data) => {
                     setStats(data)
                     setStatsFetched(true)
-                    console.log("statsFetched")
+                    console.log("statsFetched", data)
                 })
         }
     }
@@ -137,7 +137,6 @@ function Profile() {
                 console.log('no userid provided, use sessionPlayer', sessionPlayer);
                 if (sessionPlayer) {
                     p = sessionPlayer;
-                    console.log(p)
                     document.title = 'My Tennis Space - ' + p.name;
                     //setPlayer(prevState => ({...prevState, p})) 
                     console.log('This is your page, so you can edit it');
