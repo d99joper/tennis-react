@@ -1,15 +1,17 @@
-import { Flex, Radio, RadioGroupField, TextAreaField } from '@aws-amplify/ui-react';
+import { Flex, Radio, RadioGroupField, TextAreaField, Text } from '@aws-amplify/ui-react';
 import {
     Autocomplete, Select, TextField,
     MenuItem, InputLabel, FormControl,
     Checkbox, FormControlLabel, Button
 } from '@mui/material'; //https://mui.com/material-ui/react-autocomplete/
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { enums, ladderFunctions as lf, matchFunctions as mf } from '../../../helpers/index';
 import SetInput from './SetInput'
 import './MatchEditor.css';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { GrCircleInformation } from 'react-icons/gr'
+
 //import { Dayjs } from 'dayjs';
 
 const MatchEditor = ({ player, onSubmit, ...props }) => {
@@ -28,6 +30,7 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
     const [set5, setSet5] = useState('')
     const [comment, setComment] = useState('')
     const [ladderId, setLadderId] = useState(props.ladderId || 0)
+    const [searchInput, setSearchInput] = useState('')
     const showLadderSelect = typeof (props.ladderId) === 'undefined'
 
     // Initialize the state for the score
@@ -36,8 +39,9 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
     //const ladderPlayers = lf.GetLadderPlayers(ladderId)
 
     const playerLadders = lf.usePlayerLadders(player.id)
-    const ladderPlayers = lf.useLadderPlayersData(ladderId)
-
+    //https://stackoverflow.com/questions/40811535/delay-suggestion-time-in-mui-autocomplete
+    const ladderPlayers = lf.useLadderPlayersData(ladderId, searchInput)
+    
     const handleSubmit = (event) => {
         event.preventDefault();
 
@@ -80,7 +84,7 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
         let newScore = [...score]
         newScore[set - 1] = s
         setScore(newScore)
-        
+
         switch (set) {
             case 1:
                 setSet1(s)
@@ -132,7 +136,16 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
                                         <MenuItem key={option.id} value={option.id}>{option.name}</MenuItem>
                                     )
                                 })}
+                                <MenuItem key="other_ladder" value="-1">Other *</MenuItem>
                             </Select>
+                            {ladderId === '-1' ?
+                                <Text fontSize=".75em" variation="info" fontWeight={'100'}>
+                                    <GrCircleInformation /> 
+                                    Use 'Other' for matches you want to track, 
+                                    but that are not part of a Tennis Space ladder.
+                                </Text>
+                                : null
+                            }
                         </FormControl>
                         :
                         <label>ladderPlayers.ladder.name</label>
@@ -156,28 +169,30 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
                     <Autocomplete
                         id="winner-search"
                         required
-                        options={!ladderPlayers ? [{ name: 'Loading...', id: 0 }] : ladderPlayers.players}
+                        options={!ladderPlayers ? [{ name: 'Loading...', id: -1 }] : ladderPlayers.players}
                         disableClearable={isWinner}
                         disabled={isWinner}
-                        getOptionDisabled={(option) => option.name === loser.name}
+                        getOptionDisabled={(option) => option.id === loser.id}
                         autoSelect={true}
                         onChange={(e, value) => { setWinner(value) }}
-                        getOptionLabel={options => options.name}
+                        getOptionLabel={option => option.name}
                         value={winner}
                         sx={{ width: 300 }}
                         renderInput={(params) => <TextField {...params} label="Winner" />}
                     />
+                    {/* 'A last option, for instance: Add "YOUR SEARCH".'      
+                        https://mui.com/material-ui/react-autocomplete/ */}
                     <Autocomplete
                         id="loser-search"
                         required
-                        options={!ladderPlayers ? [{ label: 'Loading...', id: 0 }] : ladderPlayers.players}
+                        options={!ladderPlayers ? [{ label: 'Loading...', id: -1 }] : ladderPlayers.players}
                         disableClearable={!isWinner}
                         disabled={!isWinner}
-                        getOptionDisabled={(option) => option.name === winner.name}
+                        getOptionDisabled={(option) => option.id === winner.id}
                         autoSelect={true}
                         onChange={(e, value) => { setLoser(value) }}
                         value={loser}
-                        getOptionLabel={options => options.name}
+                        getOptionLabel={option => option.name}
                         sx={{ width: 300 }}
                         renderInput={(params) => <TextField {...params} label="Defeated" />}
                     />
@@ -269,7 +284,7 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
                     id="match-comment"
                     className='comment'
                     onBlur={(e) => setComment(e.currentTarget.value)}
-                    placeholder='Any comments about the match?'
+                    placeholder={`Any comments about the match? You can also add tiebreak scores here.`}
                 />
                 <label className="summary">
                     {(winner.name && loser.name) && winner.name + " beats " + loser.name + " with " + score.filter(Boolean).join(', ')}
