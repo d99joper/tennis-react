@@ -7,7 +7,7 @@ type Player @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" 
   # @auth(rules: [{ allow: public, operations: [read]}]) 
 {
   id: ID!
-  userGUID: ID!
+  # userGUID: ID!
   name: String!
   email: AWSEmail!
   phone: AWSPhone
@@ -15,8 +15,10 @@ type Player @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" 
   image: String
   NTRP: String
   UTR: String
+  verified: Boolean! @default(value: "false")
   matches: [Match!] @hasMany  
   ladders: [Ladder!] @manyToMany(relationName: "ladderPlayer")
+  comments: [Comment!] @hasMany(indexName: "byPlayer", fields: ["id"])
 }
 
 type Ladder @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) @searchable {
@@ -47,10 +49,10 @@ type Match @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }
   loserID: ID
   loser: Player!  @belongsTo(fields: ["loserID"])
   score: String!
-  setsWon: Int! 
-  setsLost: Int!
-  gamesWon: Int!
-  gamesLost: Int!
+  setsWon: Int! @default(value: "0")
+  setsLost: Int! @default(value: "0")
+  gamesWon: Int! @default(value: "0")
+  gamesLost: Int! @default(value: "0")
   tiebreaksWon: Int! @default(value: "0")
   tiebreaksLost: Int! @default(value: "0")
   retired: Boolean @default(value: "false")
@@ -64,5 +66,6 @@ type Comment @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn"
   matchID: ID! @index(name: "byMatch", sortKeyFields: ["content"])
   match: Match @belongsTo(fields: ["matchID"])
   content: String!
-  postedBy: Player! @belongsTo(fields: ["postedByID"]) 
+  postedByID: ID! @index(name: "byPlayer", sortKeyFields: ["content"])
+  postedBy: Player @belongsTo(fields: ["postedByID"]) 
 }

@@ -20,7 +20,6 @@ export const searchPlayers = /* GraphQL */ `
     ) {
       items {
         id
-        userGUID
         name
         email
         phone
@@ -28,6 +27,7 @@ export const searchPlayers = /* GraphQL */ `
         image
         NTRP
         UTR
+        verified
         createdOn
         updatedOn
       }
@@ -95,7 +95,6 @@ export const searchLadders = /* GraphQL */ `
     }
   }
 `;
-
 export const searchMatches = /* GraphQL */ `
   query SearchMatches(
     $filter: SearchableMatchFilterInput
@@ -157,7 +156,6 @@ export const getPlayer = /* GraphQL */ `
   query GetPlayer($id: ID!) {
     getPlayer(id: $id) {
       id
-      userGUID
       name
       email
       phone
@@ -165,10 +163,14 @@ export const getPlayer = /* GraphQL */ `
       image
       NTRP
       UTR
+      verified
       matches {
         nextToken
       }
       ladders {
+        nextToken
+      }
+      comments {
         nextToken
       }
       createdOn
@@ -185,7 +187,6 @@ export const listPlayers = /* GraphQL */ `
     listPlayers(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        userGUID
         name
         email
         phone
@@ -193,6 +194,7 @@ export const listPlayers = /* GraphQL */ `
         image
         NTRP
         UTR
+        verified
         createdOn
         updatedOn
       }
@@ -245,7 +247,6 @@ export const getStandings = /* GraphQL */ `
       id
       player {
         id
-        userGUID
         name
         email
         phone
@@ -253,6 +254,7 @@ export const getStandings = /* GraphQL */ `
         image
         NTRP
         UTR
+        verified
         createdOn
         updatedOn
       }
@@ -304,7 +306,6 @@ export const getMatch = /* GraphQL */ `
       winnerID
       winner {
         id
-        userGUID
         name
         email
         phone
@@ -312,13 +313,13 @@ export const getMatch = /* GraphQL */ `
         image
         NTRP
         UTR
+        verified
         createdOn
         updatedOn
       }
       loserID
       loser {
         id
-        userGUID
         name
         email
         phone
@@ -326,6 +327,7 @@ export const getMatch = /* GraphQL */ `
         image
         NTRP
         UTR
+        verified
         createdOn
         updatedOn
       }
@@ -416,6 +418,20 @@ export const getComment = /* GraphQL */ `
         ladderMatchesId
       }
       content
+      postedByID
+      postedBy {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        createdOn
+        updatedOn
+      }
       createdOn
       updatedOn
     }
@@ -432,6 +448,7 @@ export const listComments = /* GraphQL */ `
         id
         matchID
         content
+        postedByID
         createdOn
         updatedOn
       }
@@ -447,7 +464,6 @@ export const getLadderPlayer = /* GraphQL */ `
       ladderID
       player {
         id
-        userGUID
         name
         email
         phone
@@ -455,6 +471,7 @@ export const getLadderPlayer = /* GraphQL */ `
         image
         NTRP
         UTR
+        verified
         createdOn
         updatedOn
       }

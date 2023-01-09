@@ -5,7 +5,6 @@ export const onCreatePlayer = /* GraphQL */ `
   subscription OnCreatePlayer($filter: ModelSubscriptionPlayerFilterInput) {
     onCreatePlayer(filter: $filter) {
       id
-      userGUID
       name
       email
       phone
@@ -13,10 +12,14 @@ export const onCreatePlayer = /* GraphQL */ `
       image
       NTRP
       UTR
+      verified
       matches {
         nextToken
       }
       ladders {
+        nextToken
+      }
+      comments {
         nextToken
       }
       createdOn
@@ -28,7 +31,6 @@ export const onUpdatePlayer = /* GraphQL */ `
   subscription OnUpdatePlayer($filter: ModelSubscriptionPlayerFilterInput) {
     onUpdatePlayer(filter: $filter) {
       id
-      userGUID
       name
       email
       phone
@@ -36,10 +38,14 @@ export const onUpdatePlayer = /* GraphQL */ `
       image
       NTRP
       UTR
+      verified
       matches {
         nextToken
       }
       ladders {
+        nextToken
+      }
+      comments {
         nextToken
       }
       createdOn
@@ -51,7 +57,6 @@ export const onDeletePlayer = /* GraphQL */ `
   subscription OnDeletePlayer($filter: ModelSubscriptionPlayerFilterInput) {
     onDeletePlayer(filter: $filter) {
       id
-      userGUID
       name
       email
       phone
@@ -59,10 +64,14 @@ export const onDeletePlayer = /* GraphQL */ `
       image
       NTRP
       UTR
+      verified
       matches {
         nextToken
       }
       ladders {
+        nextToken
+      }
+      comments {
         nextToken
       }
       createdOn
@@ -135,7 +144,6 @@ export const onCreateStandings = /* GraphQL */ `
       id
       player {
         id
-        userGUID
         name
         email
         phone
@@ -143,6 +151,7 @@ export const onCreateStandings = /* GraphQL */ `
         image
         NTRP
         UTR
+        verified
         createdOn
         updatedOn
       }
@@ -172,7 +181,6 @@ export const onUpdateStandings = /* GraphQL */ `
       id
       player {
         id
-        userGUID
         name
         email
         phone
@@ -180,6 +188,7 @@ export const onUpdateStandings = /* GraphQL */ `
         image
         NTRP
         UTR
+        verified
         createdOn
         updatedOn
       }
@@ -209,7 +218,6 @@ export const onDeleteStandings = /* GraphQL */ `
       id
       player {
         id
-        userGUID
         name
         email
         phone
@@ -217,6 +225,7 @@ export const onDeleteStandings = /* GraphQL */ `
         image
         NTRP
         UTR
+        verified
         createdOn
         updatedOn
       }
@@ -248,7 +257,6 @@ export const onCreateMatch = /* GraphQL */ `
       winnerID
       winner {
         id
-        userGUID
         name
         email
         phone
@@ -256,13 +264,13 @@ export const onCreateMatch = /* GraphQL */ `
         image
         NTRP
         UTR
+        verified
         createdOn
         updatedOn
       }
       loserID
       loser {
         id
-        userGUID
         name
         email
         phone
@@ -270,6 +278,7 @@ export const onCreateMatch = /* GraphQL */ `
         image
         NTRP
         UTR
+        verified
         createdOn
         updatedOn
       }
@@ -311,7 +320,6 @@ export const onUpdateMatch = /* GraphQL */ `
       winnerID
       winner {
         id
-        userGUID
         name
         email
         phone
@@ -319,13 +327,13 @@ export const onUpdateMatch = /* GraphQL */ `
         image
         NTRP
         UTR
+        verified
         createdOn
         updatedOn
       }
       loserID
       loser {
         id
-        userGUID
         name
         email
         phone
@@ -333,6 +341,7 @@ export const onUpdateMatch = /* GraphQL */ `
         image
         NTRP
         UTR
+        verified
         createdOn
         updatedOn
       }
@@ -374,7 +383,6 @@ export const onDeleteMatch = /* GraphQL */ `
       winnerID
       winner {
         id
-        userGUID
         name
         email
         phone
@@ -382,13 +390,13 @@ export const onDeleteMatch = /* GraphQL */ `
         image
         NTRP
         UTR
+        verified
         createdOn
         updatedOn
       }
       loserID
       loser {
         id
-        userGUID
         name
         email
         phone
@@ -396,6 +404,7 @@ export const onDeleteMatch = /* GraphQL */ `
         image
         NTRP
         UTR
+        verified
         createdOn
         updatedOn
       }
@@ -454,6 +463,20 @@ export const onCreateComment = /* GraphQL */ `
         ladderMatchesId
       }
       content
+      postedByID
+      postedBy {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        createdOn
+        updatedOn
+      }
       createdOn
       updatedOn
     }
@@ -486,6 +509,20 @@ export const onUpdateComment = /* GraphQL */ `
         ladderMatchesId
       }
       content
+      postedByID
+      postedBy {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        createdOn
+        updatedOn
+      }
       createdOn
       updatedOn
     }
@@ -518,6 +555,20 @@ export const onDeleteComment = /* GraphQL */ `
         ladderMatchesId
       }
       content
+      postedByID
+      postedBy {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        createdOn
+        updatedOn
+      }
       createdOn
       updatedOn
     }
@@ -533,7 +584,6 @@ export const onCreateLadderPlayer = /* GraphQL */ `
       ladderID
       player {
         id
-        userGUID
         name
         email
         phone
@@ -541,6 +591,7 @@ export const onCreateLadderPlayer = /* GraphQL */ `
         image
         NTRP
         UTR
+        verified
         createdOn
         updatedOn
       }
@@ -568,7 +619,6 @@ export const onUpdateLadderPlayer = /* GraphQL */ `
       ladderID
       player {
         id
-        userGUID
         name
         email
         phone
@@ -576,6 +626,7 @@ export const onUpdateLadderPlayer = /* GraphQL */ `
         image
         NTRP
         UTR
+        verified
         createdOn
         updatedOn
       }
@@ -603,7 +654,6 @@ export const onDeleteLadderPlayer = /* GraphQL */ `
       ladderID
       player {
         id
-        userGUID
         name
         email
         phone
@@ -611,6 +661,7 @@ export const onDeleteLadderPlayer = /* GraphQL */ `
         image
         NTRP
         UTR
+        verified
         createdOn
         updatedOn
       }

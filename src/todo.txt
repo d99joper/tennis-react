@@ -40,6 +40,10 @@ Ladder page
 Matches
     [ ] Separate doubles from singels
     [ ] Allow practice matches outside of a ladder ('Other' ladder option?)
+        [x] Add verified/unverified flag for players
+        [ ] Add new players as 'Unverified' (only available for 'Other' matches)
+        [ ] Autocomplete search for all players
+            [ ] Add option to add player if no match on name
     [ ] Post result to UTR
     [ ] Add comments
     [ ] Calculate standings / ranking points

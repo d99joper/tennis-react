@@ -1,28 +1,13 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { SlUser } from 'react-icons/sl';
 import { useParams } from 'react-router-dom';
-import {
-    Button,
-    Card,
-    Flex,
-    Grid,
-    Text,
-    TextField,
-    SelectField,
-    View,
-    Image,
-    TextAreaField,
-    Divider,
-    SwitchField,
-    Loader,
-    TabItem,
-    Tabs
+import { Button, Card, Flex, Grid, Text, TextField, SelectField, View,
+    Image, TextAreaField, Divider, SwitchField, Loader, TabItem, Tabs
 } from "@aws-amplify/ui-react";
 import { userFunctions } from 'helpers'
 import { Editable, Matches, Ladders, PhoneNumber, UserStats } from '../components/forms/index.js'
 import Modal from '../components/layout/Modal/modal';
 import './profile.css';
-
 
 function Profile() {
 

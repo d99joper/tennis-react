@@ -56,7 +56,8 @@ const MatchFunctions = {
             loserID: match.loser.id,
             playedOn: playedOn,
             year: new Date(playedOn).getFullYear(),
-            ladderID: match.ladderID,
+            // don't add ladder if the type is 'Other'
+            ...(match.ladderID != '-1' ? {ladderID: match.ladderID} :null),
             score: match.score.filter(Boolean).join(', '),
             ...scoreBreakdown
         };

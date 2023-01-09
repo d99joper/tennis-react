@@ -19,17 +19,10 @@ const userFunctions = {
             console.log("createPlayerIfNotExist", player);
             if (player === 'undefined' || player.length === 0) {
                 // user doesn't create, so create it
-                this.createPlayer(user.attributes.name, user.attributes.email, user.attributes.sub, user.attributes.sub);
+                this.createPlayer(user.attributes.name, user.attributes.email, user.attributes.sub);
             }
         }
     },
-
-    // getPlayersForLadder: async function (ladderId) {
-    //     const ladder = await ladderFunctions.GetLadder(ladderId)
-
-    //     console.log("ladder and ladder.players", ladder, ladder.players)
-    //     return [{ name: 'Jonas', id: 1 }, { name: 'Gurra B', id: 2 }]
-    // },
 
     UpdatePlayer: async function (player, userId, image) {
 
@@ -85,14 +78,13 @@ const userFunctions = {
         //   }
     },
 
-    createPlayer: async function (name, email, id, userGUID) {
+    createPlayer: async function (name, email, id) {
         console.log('createPlayer');
 
         const loadData = {
             name: name,
             email: email,
-            id: id,
-            userGUID: userGUID
+            id: id
         };
 
         console.log(loadData);

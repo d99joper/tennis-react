@@ -23,6 +23,24 @@ export const listLadderPlayersAsObjects = /* GraphQL */ `
         nextToken
       }
     }  
+`; 
+
+export const listOtherPlayersAsObjects = /* GraphQL */ `
+    query listOtherPlayersAsObjects(
+      $filter: SearchablePlayerFilterInput
+      $limit: Int
+      $nextToken: String
+    ) {
+      searchPlayers(filter: $filter, limit: $limit, nextToken: $nextToken) {
+        items {
+          id
+          name
+          createdOn
+          updatedOn
+        }
+        nextToken
+      }
+    }  
 `;
 
 export const listMatches = /* GraphQL */ `
