@@ -1,5 +1,6 @@
 import { Comments } from './Comments/Comments'
 import { Editable } from './Editable/Editable'
+import H2H from './H2H/H2H'
 import { Ladder } from './Ladder/Ladder'
 import { Ladders } from './Ladders/Ladders'
 import { Match } from './Match/Match'
@@ -12,6 +13,7 @@ import LadderStats from './Stats/LadderStats'
 export {
     Comments, 
     Editable, 
+    H2H,
     Ladder, 
     Ladders, 
     LadderStats,

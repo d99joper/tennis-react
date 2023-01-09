@@ -5,7 +5,7 @@ import { GoCommentDiscussion } from 'react-icons/go';
 import { helpers, enums, userFunctions } from "../../../helpers";
 import { Link } from "react-router-dom";
 import "./Match.css"
-import { Comments } from "../index"
+import { Comments, H2H } from "../index"
 import Modal from "components/layout/Modal/modal";
 
 const Match = ({
@@ -86,9 +86,8 @@ const Match = ({
                                     title="H2H"
                                     onClose={() => setIsShowH2H(false)} show={isShowH2H}
                                 >
-                                    {h2HData ? h2HData.matches.map(m =>
-                                        <div key={m.id}>{m.score}</div>
-                                    ):null}
+                                    <H2H data={h2HData} />
+                                    
                                 </Modal>
                             </>
                             : ""
