@@ -10,6 +10,7 @@ export const listLadderPlayersAsObjects = /* GraphQL */ `
           player {
             id
             name
+            image
           }
           playerID
           ladderID
@@ -23,7 +24,11 @@ export const listLadderPlayersAsObjects = /* GraphQL */ `
         nextToken
       }
     }  
-`; 
+`;
+
+const test = /* GraphQL */ `
+
+`
 
 export const listOtherPlayersAsObjects = /* GraphQL */ `
     query listOtherPlayersAsObjects(
@@ -72,10 +77,12 @@ export const listMatches = /* GraphQL */ `
         winner {
           id
           name
+          image
         }
         loser {
           id
           name
+          image
         }
         ladder {
           id 
@@ -194,7 +201,28 @@ query GetUserStats_All($playerId: ID!, $type: String, $year: Int) {
 }
 `;
 
+
 export const H2HStats =   /* GraphQL */ ` 
+fragment matchFrag on Match {
+  id
+      score
+      retired
+      playedOn
+      winner {
+        name
+        id
+        image
+      }
+      loser {
+        name
+        id
+        image
+      }
+      ladder {
+        id 
+        name
+      }
+}
 query H2HStats($filter_winner: SearchableMatchFilterInput, $filter_loser: SearchableMatchFilterInput) {
   wins: searchMatches(filter: $filter_winner,
     aggregates: 
@@ -208,30 +236,7 @@ query H2HStats($filter_winner: SearchableMatchFilterInput, $filter_loser: Search
     ]) {
     total
     items {
-      id
-      score
-      retired
-      playedOn
-      winner {
-        name
-        id
-      }
-      loser {
-        name
-        id
-      }
-      ladder {
-        id 
-        name
-      }
-      # comments {
-      #   content
-      #   createdAt
-      #   postedBy {
-      #     name
-      #     id
-      #   }
-      # }
+      ... matchFrag
     }
     stats: aggregateItems {
       result {
@@ -255,30 +260,7 @@ query H2HStats($filter_winner: SearchableMatchFilterInput, $filter_loser: Search
     ]) {
     total
     items {
-      id
-      score
-      retired
-      playedOn
-      winner {
-        name
-        id
-      }
-      loser {
-        name
-        id
-      }
-      ladder {
-        id 
-        name
-      }
-      # comments {
-      #   content
-      #   createdAt
-      #   postedBy {
-      #     name
-      #     id
-      #   }
-      # }
+      ... matchFrag
     }
     stats: aggregateItems {
       result {
@@ -293,12 +275,12 @@ query H2HStats($filter_winner: SearchableMatchFilterInput, $filter_loser: Search
 }
 `;
 
-// export const GetUserStatsOnWin = /* GraphQL */ ` 
+// export const GetUserStatsOnWin = /* GraphQL */ `
 // query GetUserStatsOnWin($playerId: ID!, $type: String, $year: Int!) {
 //   searchMatches(filter: {
-//       and: 
+//       and:
 //       [
-//         { or: 
+//         { or:
 //           [
 //             {type: { eq: $type}},
 //             {type: { exists: false}}
@@ -309,7 +291,7 @@ query H2HStats($filter_winner: SearchableMatchFilterInput, $filter_loser: Search
 //         { year: { eq: $year }}
 //       ]
 //     },
-//     aggregates: 
+//     aggregates:
 //     [
 //       {field: setsLost, name: "setsLost", type: sum},
 //       {field: setsWon, name: "setsWon", type: sum},
@@ -332,12 +314,12 @@ query H2HStats($filter_winner: SearchableMatchFilterInput, $filter_loser: Search
 // }
 // `;
 
-// export const GetUserStatsOnLoss =   /* GraphQL */ ` 
+// export const GetUserStatsOnLoss =   /* GraphQL */ `
 // query GetUserStatsOnLoss($playerId: ID!, $type: String, $year: Int) {
 //   searchMatches(filter: {
-//       and: 
+//       and:
 //       [
-//         { or: 
+//         { or:
 //           [
 //             {type: { eq: $type}},
 //             {type: { exists: false}}
@@ -348,7 +330,7 @@ query H2HStats($filter_winner: SearchableMatchFilterInput, $filter_loser: Search
 //         { year: { eq: $year }}
 //       ]
 //     },
-//     aggregates: 
+//     aggregates:
 //     [
 //       # {field: winnerID, name: "matchesWon", type: terms},
 //       # {field: loserID, name: "matchesLost", type: terms},

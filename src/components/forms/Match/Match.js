@@ -27,7 +27,7 @@ const Match = ({
     function openH2HModal() {
         if (!isH2HDataFetched) {
             console.log("openH2H", match.winner.id)
-            userFunctions.getPlayerH2H(match.winner.id, match.loser.id).then((data) => {
+            userFunctions.getPlayerH2H(match.winner, match.loser).then((data) => {
                 setH2HData(data)
                 console.log(data)
             })
@@ -83,7 +83,7 @@ const Match = ({
                                     color="#3e3333"
                                     onClick={openH2HModal} />
                                 <Modal
-                                    title="H2H"
+                                    title={`${match.winner.name} vs ${match.loser.name}`}
                                     onClose={() => setIsShowH2H(false)} show={isShowH2H}
                                 >
                                     <H2H data={h2HData} />

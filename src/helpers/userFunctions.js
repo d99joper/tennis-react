@@ -184,10 +184,7 @@ const userFunctions = {
             if (includeImage)
                 await Promise.all(
                     playersFromAPI.map(async (player) => {
-                        if (player.image) {
-                            const url = await Storage.get(player.image);
-                            player.imageUrl = url;
-                        }
+                        PrivateFunc.SetPlayerImage(player)
                         return player;
                     })
                 );
@@ -250,10 +247,7 @@ const userFunctions = {
         await Promise.all(
             playersFromAPI.map(async (player) => {
                 console.log(player);
-                if (player.image) {
-                    const url = await Storage.get(player.name);
-                    player.image.url = url;
-                }
+                PrivateFunc.SetPlayerImage(player)
                 return player;
             })
         );
@@ -264,14 +258,14 @@ const userFunctions = {
     getPlayerH2H: async function(player1, player2){
         const filter_winner = {
             and: [
-                { winnerID: { eq: player1 }},
-                { loserID: { eq: player2 }}
+                { winnerID: { eq: player1.id }},
+                { loserID: { eq: player2.id }}
             ]
         }
         const filter_loser = {
             and: [
-                { winnerID: { eq: player2 }},
-                { loserID: { eq: player1 }}
+                { winnerID: { eq: player2.id }},
+                { loserID: { eq: player1.id }}
             ]
         }
         
@@ -279,11 +273,17 @@ const userFunctions = {
             query: H2HStats,
             variables: {filter_winner: filter_winner, filter_loser: filter_loser}
         })
+        // add potential player images
+        await PrivateFunc.SetPlayerImage(player1)
+        await PrivateFunc.SetPlayerImage(player2)
+        
+        let matches = apiData.data.wins.items.concat(apiData.data.losses.items) 
+            .sort((a,b) => new Date(b.playedOn).getTime() - new Date(a.playedOn).getTime())
 
-        let matches = [...apiData.data.wins.items, ...apiData.data.losses.items]
-        matches.sort((a,b) => a.playedOn > b.playedOn)
         //console.log(apiData)
         let data = {
+            player1: player1,
+            player2: player2,
             matches: matches,
             stats: PrivateFunc.MassageStats(apiData.data)
         }
@@ -346,6 +346,15 @@ const userFunctions = {
 
 const PrivateFunc = {
     
+    SetPlayerImage: async function(player: Player) {
+        if (player.image) {
+            if(!player.imageUrl) {
+            const url = await Storage.get(player.image);
+            player.imageUrl = url;
+            }   
+        }
+    },
+
     MergeStats: function(stats1, stats2) {
         //console.log(stats1,stats2)
         for(const prop in stats2) {

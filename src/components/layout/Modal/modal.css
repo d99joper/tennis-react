@@ -29,6 +29,7 @@
     background-color: #fff;
     transition: all 0.3s ease-in-out;
     transform: translateY(-200px);
+    z-index: 9999;
   }
   
   .modal.enter-done .modal-content {
