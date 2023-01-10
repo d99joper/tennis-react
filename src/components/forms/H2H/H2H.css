@@ -21,9 +21,22 @@
   }
 
   .player1 {
-    background-color: var(--amplify-colors-blue-20);
+    background-color: var(--amplify-colors-blue-10);
   }
 
   .player2 {
-    background-color: var(--amplify-colors-orange-20);
+    background-color: var(--amplify-colors-orange-10);
+  }
+
+  .center {text-align: center;}
+
+  .statsCard {
+    text-align: center;
+    margin: 0;
+    padding: 0 0 10px 0;
+    background-color: var(--amplify-colors-neutral-10);
+  }
+
+  .statsName {
+    background-color: var(--amplify-colors-neutral-20);
   }

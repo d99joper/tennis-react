@@ -11,6 +11,7 @@
     opacity: 0;
     transition: all 0.3s ease-in-out;
     pointer-events: none;
+    flex-direction: column;
   }
   
   .modal.enter-done {
@@ -23,8 +24,10 @@
   }
   
   .modal-content {
-    max-height: 550px;
-    overflow-y: auto;
+    display: grid;
+    grid-template-rows: 40px auto 40px;
+    max-height: 600px;
+    /* overflow-y: auto; */
     border: 1px solid black;
     background-color: #fff;
     transition: all 0.3s ease-in-out;
@@ -39,12 +42,10 @@
   .modal.exit .modal-content {
     transform: translateY(-200px);
   }
-  
   .modal-header,
   .modal-footer {
-    padding: 10px;
-    background-color: #ccff0022;
-    /* text-align: center; */
+    padding: 0.35rem 2rem 0.35rem 2rem;
+    background-color: #ccff0022;    
   }
   
   .modal-title {
@@ -55,7 +56,14 @@
     padding: 10px;
     border-top: 1px solid #eee;
     border-bottom: 1px solid #eee;
+    overflow-y: auto;
   }
+  
+    .closeX {
+      cursor: pointer;
+      float: right;
+    }
+    
 
   .button {
     cursor: pointer;
@@ -64,7 +72,6 @@
 
   .button.close {
     float: right;
-    margin-bottom: 10px;
   }
 
   .button.submit {
