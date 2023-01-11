@@ -1,0 +1,9 @@
+.profileImageContainer_small {
+    background-color: var(--amplify-colors-purple-10);
+    border-radius: 50%;
+    max-width: 30px;
+    max-height: 30px;
+    display: inline-block;
+    overflow: hidden;
+    border: solid 1px var(--amplify-colors-purple-100);
+}

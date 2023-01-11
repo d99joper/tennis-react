@@ -9,6 +9,7 @@ import { Matches } from './Matches/Matches'
 import PhoneNumber from './PhoneNumber/PhoneNumber'
 import UserStats from './Stats/UserStats'
 import LadderStats from './Stats/LadderStats'
+import TopRivals from './Rivals/TopRivals'
 
 export {
     Comments, 
@@ -21,5 +22,6 @@ export {
     MatchEditor, 
     Matches, 
     PhoneNumber,
-    UserStats 
+    UserStats,
+    TopRivals
 }

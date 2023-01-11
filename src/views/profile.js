@@ -5,7 +5,7 @@ import { Button, Card, Flex, Grid, Text, TextField, SelectField, View,
     Image, TextAreaField, Divider, SwitchField, Loader, TabItem, Tabs
 } from "@aws-amplify/ui-react";
 import { userFunctions } from 'helpers'
-import { Editable, Matches, Ladders, PhoneNumber, UserStats } from '../components/forms/index.js'
+import { Editable, Matches, Ladders, PhoneNumber, UserStats, TopRivals } from '../components/forms/index.js'
 import Modal from '../components/layout/Modal/modal';
 import './profile.css';
 
@@ -30,6 +30,8 @@ function Profile() {
     const [player, setPlayer] = useState()
     const [stats, setStats] = useState({})
     const [statsFetched, setStatsFetched] = useState(false);
+    const [rivals, setRivals] = useState({})
+    const [rivalsFetched, setRivalsFetched] = useState(false);
 
     const handleUpdatedPhoneNumber = newNumber => {
         setPlayer({ ...player, phone: newNumber })
@@ -42,6 +44,15 @@ function Profile() {
                     setStats(data)
                     setStatsFetched(true)
                     console.log("statsFetched", data)
+                })
+        }
+    }
+    const handleRivalsClick = () => {
+        if(!rivalsFetched){
+            userFunctions.getGreatestRivals(player.id)
+                .then((data) => {
+                    setRivals(data)
+                    setRivalsFetched(true)
                 })
         }
     }
@@ -201,7 +212,7 @@ function Profile() {
                         </Card>
 
                         {/************ RIGHT CONTENT   *************/}
-                        <Card className='card' variation="elevated" flex="1">
+                        <Card className='card rightProfileContent' variation="elevated" flex="1">
                             <Tabs defaultIndex={0}
                                 justifyContent="flex-start">
                                 <TabItem title="General">
@@ -274,6 +285,10 @@ function Profile() {
                                 <TabItem title="Stats" onClick={handleStatsClick} >
                                     {/************ STATS   *************/}
                                     <UserStats stats={stats} statsFetched={statsFetched} paddingTop={10} />
+                                </TabItem>
+                                <TabItem title="Greatest Rivals" onClick={handleRivalsClick} >
+                                    {/************ STATS   *************/}
+                                    <TopRivals data={rivals} rivalsFetched={rivalsFetched} paddingTop={10} />
                                 </TabItem>
                             </Tabs>
                         </Card>

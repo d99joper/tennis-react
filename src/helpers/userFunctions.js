@@ -136,7 +136,7 @@ const userFunctions = {
             variables: {
                 filter_winner: { winnerID: { eq: id }}, 
                 filter_loser: { loserID: { eq: id }},
-                limit: 10
+                limit: 5
             }
         })
 
@@ -144,14 +144,13 @@ const userFunctions = {
         // start with the wins
         if(apiResult.data.wins)  {
             for(const rival of apiResult.data.wins.players[0].result.buckets) {
-                const player = await this.getPlayerFromAPI(null, rival.key, false)
+                const player = await this.getPlayerFromAPI(null, rival.key, true)
 
                 const lossItem = apiResult.data.losses.players[0].result.buckets.find(a => a.key === rival.key)
                 const lossCount = lossItem ? lossItem.doc_count : 0
             
                 const newRival = {
-                    id: rival.key,
-                    name: player.name,
+                    player: player,
                     wins: rival.doc_count,
                     losses: lossCount,
                     totalMatches: lossCount + rival.doc_count
@@ -163,12 +162,11 @@ const userFunctions = {
         if(apiResult.data.losses) 
         for(const rival of apiResult.data.losses.players[0].result.buckets) {
             // check if the rival is already in the array
-            const rivalExists = rivals.find(x => x.id === rival.key)
+            const rivalExists = rivals ? rivals.find(x => x.player.id === rival.key) : false
             if(!rivalExists) { // if the rival exists, we've already taken care of the losses 
-                const player = await this.getPlayerFromAPI(null, rival.key, false)
+                const player = await this.getPlayerFromAPI(null, rival.key, true)
                 const newRival = {
-                    id: rival.key,
-                    name: player.name,
+                    player: player,
                     wins: 0,
                     losses: rival.doc_count,
                     totalMatches: rival.doc_count
@@ -177,7 +175,7 @@ const userFunctions = {
             }
         }
         // sort the most matches first in the list
-        return rivals.sort((a,b) => b.totalMatches - a.totalMatches)
+        return rivals.filter(a => a.totalMatches > 1).sort((a,b) => b.totalMatches - a.totalMatches)
     },
 
     GetMatches: async function () {
@@ -315,14 +313,13 @@ const userFunctions = {
         let matches = apiData.data.wins.items.concat(apiData.data.losses.items) 
             .sort((a,b) => new Date(b.playedOn).getTime() - new Date(a.playedOn).getTime())
 
-        //console.log(apiData)
         let data = {
             player1: player1,
             player2: player2,
             matches: matches,
             stats: PrivateFunc.MassageStats(apiData.data)
         }
-        //console.log(data)
+        //console.log("getPlayerH2H",data)
 
         return data
     },

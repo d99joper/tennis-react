@@ -13,6 +13,10 @@
         templateRows="1fr" */
 }
 
+.rightProfileContent {
+    max-width: 710px;
+}
+
 .hiddenImageInput {
     display: none;
     align-self: "end"
