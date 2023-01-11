@@ -26,10 +26,6 @@ export const listLadderPlayersAsObjects = /* GraphQL */ `
     }  
 `;
 
-const test = /* GraphQL */ `
-
-`
-
 export const listOtherPlayersAsObjects = /* GraphQL */ `
     query listOtherPlayersAsObjects(
       $filter: SearchablePlayerFilterInput
@@ -125,7 +121,6 @@ export const GetYearsPlayed = /* GraphQL */ `
     } 
   }
 `;
-
 
 export const GetUserStats_All =   /* GraphQL */ ` 
 query GetUserStats_All($playerId: ID!, $type: String, $year: Int) {
@@ -275,82 +270,46 @@ query H2HStats($filter_winner: SearchableMatchFilterInput, $filter_loser: Search
 }
 `;
 
-// export const GetUserStatsOnWin = /* GraphQL */ `
-// query GetUserStatsOnWin($playerId: ID!, $type: String, $year: Int!) {
-//   searchMatches(filter: {
-//       and:
-//       [
-//         { or:
-//           [
-//             {type: { eq: $type}},
-//             {type: { exists: false}}
-//           ]
-//         }
-//         ,
-//         { winnerID: { eq: $playerId }},
-//         { year: { eq: $year }}
-//       ]
-//     },
-//     aggregates:
-//     [
-//       {field: setsLost, name: "setsLost", type: sum},
-//       {field: setsWon, name: "setsWon", type: sum},
-//       {field: tiebreaksLost, name: "tiebreaksLost", type: sum},
-//       {field: tiebreaksWon, name: "tiebreaksWon", type: sum},
-//       {field: gamesLost, name: "gamesLost", type: sum},
-//       {field: gamesWon, name: "gamesWon", type: sum}
-//     ]) {
-//     total
-//     aggregateItems {
-//       result {
-//         ... on SearchableAggregateScalarResult {
-//           __typename
-//           value
-//         }
-//       }
-//       name
-//     }
-//   }
-// }
-// `;
-
-// export const GetUserStatsOnLoss =   /* GraphQL */ `
-// query GetUserStatsOnLoss($playerId: ID!, $type: String, $year: Int) {
-//   searchMatches(filter: {
-//       and:
-//       [
-//         { or:
-//           [
-//             {type: { eq: $type}},
-//             {type: { exists: false}}
-//           ]
-//         }
-//         ,
-//         { loserID: { eq: $playerId }},
-//         { year: { eq: $year }}
-//       ]
-//     },
-//     aggregates:
-//     [
-//       # {field: winnerID, name: "matchesWon", type: terms},
-//       # {field: loserID, name: "matchesLost", type: terms},
-//       {field: setsLost, name: "setsLost", type: sum},
-//       {field: setsWon, name: "setsWon", type: sum},
-//       {field: tiebreaksLost, name: "tiebreaksLost", type: sum},
-//       {field: tiebreaksWon, name: "tiebreaksWon", type: sum},
-//       {field: gamesLost, name: "gamesLost", type: sum},
-//       {field: gamesWon, name: "gamesWon", type: sum}
-//     ]) {
-//     total
-//     aggregateItems {
-//       result {
-//         ... on SearchableAggregateScalarResult {
-//           __typename
-//           value
-//         }
-//       }
-//       name
-//     }
-//   }
-// }
-// `;
+// Try ALL rivaleries using terms and buckets for winners, losers. Then merge and sort
+export const GetGreatestRivals =   /* GraphQL */ ` 
+query GetGreatestRivals(
+        $filter_winner: SearchableMatchFilterInput
+        $filter_loser: SearchableMatchFilterInput
+        $limit: Int          
+        $nextToken: String) {
+  wins: searchMatches(filter: $filter_winner, limit: $limit, nextToken: $nextToken
+    aggregates: 
+    [
+      {field: loserID, name: "wonOver", type: terms}
+    ]) {
+    players: aggregateItems {
+      result {
+        ... on SearchableAggregateBucketResult {
+          __typename
+          buckets {
+            doc_count
+            key
+          }
+        }
+      }
+    }
+  },
+  losses: searchMatches(filter: $filter_loser, limit: $limit, nextToken: $nextToken
+    aggregates: 
+    [
+      {field: winnerID, name: "lostTo", type: terms}
+    ]) {
+    players: aggregateItems {
+      result {
+        ... on SearchableAggregateBucketResult {
+          __typename
+          buckets {
+            doc_count
+            key
+          }
+        }
+      }
+    }
+  }
+}
+`;

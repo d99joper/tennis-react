@@ -23,7 +23,10 @@ function About() {
   //let p = new Player({name: 'Test DataStore', email: 'nope@test.com', userGuid: '123'})
   //userFunctions.createPlayer_DataStore(p)
   //userFunctions.getPlayerStatsByYear('5eb69653-8f4b-42f7-a322-1075b5700f94', 'singles,')
-  //userFunctions.getPlayerH2H('5eb69653-8f4b-42f7-a322-1075b5700f94', '2')
+  // userFunctions.getGreatestRivals('5eb69653-8f4b-42f7-a322-1075b5700f94').then((x) => {console.log(x)})
+  // userFunctions.getGreatestRivals('1').then((x) => {console.log(x)})
+  // userFunctions.getGreatestRivals('2').then((x) => {console.log(x)})
+  // userFunctions.getGreatestRivals('3').then((x) => {console.log(x)})
   //const matches = userFunctions.GetMatches()
 
   return <Heading level={2}>About</Heading>;

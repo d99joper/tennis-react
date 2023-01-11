@@ -2,29 +2,38 @@ Overall design
     [ ] Mobile vs computer menu
     [ ] Style and clean up
     [ ] Search for players
-    [ ] Add location library for ladder locations
+    [ ] Nicer menu
+    [ ] Add location library (geo) for ladder locations
     [x] npx amplify-app -> npm run amplify-modelgen for DataStore. Then run npm amplify update api if you want to add merge features (_version and _lastupdatedAt gets added)
 
 Search page
+    [ ] Add to menu
     [ ] Searches for different categories (ladder, players, locations?)
 
 Profile page
     [ ] Style and clean up
+    [ ] Cannot access profile when not logged in (you get error)
+        [ ] Remove from menu when not logged in
+        [ ] Fix profile link to other players to work when not logged in
     [ ] List ladders
     [ ] Get UTR results from UTR profile
     [ ] Link USTA profile
     [x] Add statistics
       [x] Table per year -> get all years with data -> loop getStats and aggregate results
       [x] Add totals
-    [ ] H2H information / greatest rivals 
+    [*] H2H information 
+        [x] H2H component
+        [ ] Greatest rivals 
 
 Ladders page
     [ ] Display (5) ladders near you 
     [ ] Search available ladders
     [ ] Create a ladder 
+        [ ] Create
         [ ] Check if already exists and give suggestion
+        [ ] Invite players (suggest close by by geo)
         [ ] Doubles or singels
-    [ ] Add to menu
+    [x] Add to menu
 
 Ladder page
     [ ] Join ladder
@@ -39,10 +48,11 @@ Ladder page
 
 Matches
     [ ] Separate doubles from singels
-    [ ] Allow practice matches outside of a ladder ('Other' ladder option?)
+    [*] Allow practice matches outside of a ladder ('Other' ladder option?)
         [x] Add verified/unverified flag for players
         [ ] Add new players as 'Unverified' (only available for 'Other' matches)
-        [ ] Autocomplete search for all players
+        [*] Autocomplete search for all players
+            [*] All players (limit to 20)
             [ ] Add option to add player if no match on name
     [ ] Post result to UTR
     [ ] Add comments
@@ -50,3 +60,6 @@ Matches
     [ ] Dynamic Sort
     [ ] Reset forms
     [ ] Update match list on profile
+
+Player
+    [ ] Make sure email is unique when creating new player

@@ -1,11 +1,11 @@
 import { API, Auth, DataStore, Storage } from 'aws-amplify';
-import { listPlayers, getPlayer } from "../graphql/queries";
+import { getPlayer, listPlayers } from "../graphql/queries";
 import {
     createPlayer as createPlayerMutation,
     updatePlayer as updatePlayerMutation,
     deletePlayer as deletePlayerMutation,
 } from "../graphql/mutations";
-import { GetUserStats_All, GetYearsPlayed, H2HStats } from 'graphql/customQueries';
+import { GetUserStats_All, GetYearsPlayed, H2HStats, GetGreatestRivals } from 'graphql/customQueries';
 import { Match, Player } from 'models';
 
 const userFunctions = {
@@ -15,7 +15,7 @@ const userFunctions = {
 
         console.log(user);
         if (typeof user != 'undefined') {
-            const player = await this.getPlayerByEmail(user.attributes.email);
+            const player = await this.getPlayerFromAPI(user.attributes.email, null, null);
             console.log("createPlayerIfNotExist", player);
             if (player === 'undefined' || player.length === 0) {
                 // user doesn't create, so create it
@@ -86,7 +86,6 @@ const userFunctions = {
             email: email,
             id: id
         };
-
         console.log(loadData);
 
         try {
@@ -109,11 +108,7 @@ const userFunctions = {
             //console.log("getCurrentlyLoggedInPlayer", user);
             
             if (typeof user !== 'undefined') {
-                const player_array = await this.getPlayerByEmail(user.attributes.email);
-                let player = player_array[0];
-                //console.log(player)
-                if (player.image)
-                    player.imageUrl = await Storage.get(player.image)
+                const player = await this.getPlayerFromAPI(user.attributes.email, null, true);
 
                 return player;
             }
@@ -125,15 +120,7 @@ const userFunctions = {
 
     getPlayer: async function (id) {
         try {
-            const apiData = await API.graphql({
-                query: getPlayer,
-                variables: { id: id },
-            });
-
-            const playerFromAPI = apiData.data.getPlayer;
-
-            if (playerFromAPI.image)
-                playerFromAPI.imageUrl = await Storage.get(playerFromAPI.image)
+            const playerFromAPI = await this.getPlayerFromAPI(null, id, true)
 
             return playerFromAPI;
         }
@@ -141,6 +128,56 @@ const userFunctions = {
             console.log("failed to get player", e);
             return;
         }
+    },
+
+    getGreatestRivals: async function(id) {
+        const apiResult = await API.graphql({
+            query: GetGreatestRivals,
+            variables: {
+                filter_winner: { winnerID: { eq: id }}, 
+                filter_loser: { loserID: { eq: id }},
+                limit: 10
+            }
+        })
+
+        let rivals = []
+        // start with the wins
+        if(apiResult.data.wins)  {
+            for(const rival of apiResult.data.wins.players[0].result.buckets) {
+                const player = await this.getPlayerFromAPI(null, rival.key, false)
+
+                const lossItem = apiResult.data.losses.players[0].result.buckets.find(a => a.key === rival.key)
+                const lossCount = lossItem ? lossItem.doc_count : 0
+            
+                const newRival = {
+                    id: rival.key,
+                    name: player.name,
+                    wins: rival.doc_count,
+                    losses: lossCount,
+                    totalMatches: lossCount + rival.doc_count
+                }
+                rivals.push(newRival)
+            }
+        }
+        // now the loss bucket (to catch any players there are only losses against)
+        if(apiResult.data.losses) 
+        for(const rival of apiResult.data.losses.players[0].result.buckets) {
+            // check if the rival is already in the array
+            const rivalExists = rivals.find(x => x.id === rival.key)
+            if(!rivalExists) { // if the rival exists, we've already taken care of the losses 
+                const player = await this.getPlayerFromAPI(null, rival.key, false)
+                const newRival = {
+                    id: rival.key,
+                    name: player.name,
+                    wins: 0,
+                    losses: rival.doc_count,
+                    totalMatches: rival.doc_count
+                }
+                rivals.push(newRival)
+            }
+        }
+        // sort the most matches first in the list
+        return rivals.sort((a,b) => b.totalMatches - a.totalMatches)
     },
 
     GetMatches: async function () {
@@ -170,30 +207,28 @@ const userFunctions = {
         }
     },
 
-    getPlayerByEmail: async function (email, includeImage = false) {
+    getPlayerFromAPI: async function (email=null, id = null, includeImage = false) {
 
         try {
-            if (!email) return [];
 
-            const emailFilter = { email: { eq: email }};
+            const filter = { 
+                ... email ? {email: { eq: email }} :null,
+                ... id ? {id: {eq: id }} :null
+            }
+            
+            const apiData = await API.graphql({ query: listPlayers, variables: { filter: filter } });
 
-            const apiData = await API.graphql({ query: listPlayers, variables: { filter: emailFilter } });
-
-            const playersFromAPI = apiData.data.listPlayers.items;
+            // only grab the first one (if many)
+            const playerFromAPI = apiData.data.listPlayers.items[0];
             
             if (includeImage)
-                await Promise.all(
-                    playersFromAPI.map(async (player) => {
-                        PrivateFunc.SetPlayerImage(player)
-                        return player;
-                    })
-                );
+                PrivateFunc.SetPlayerImage(playerFromAPI)
 
-            console.log("getPlayerByEmail", playersFromAPI)
-            return playersFromAPI;
+            //console.log("getPlayerFromAPI", playerFromAPI)
+            return playerFromAPI;
         }
         catch (e) {
-            console.log("failed to getPlayerByEmail", e);
+            console.log("failed to getPlayerFromAPI", e);
             return;
         }
     },
@@ -346,7 +381,7 @@ const userFunctions = {
 
 const PrivateFunc = {
     
-    SetPlayerImage: async function(player: Player) {
+    SetPlayerImage: async function(player) {
         if (player.image) {
             if(!player.imageUrl) {
             const url = await Storage.get(player.image);
