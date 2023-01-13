@@ -287,8 +287,8 @@ function Profile() {
                                     <UserStats stats={stats} statsFetched={statsFetched} paddingTop={10} />
                                 </TabItem>
                                 <TabItem title="Greatest Rivals" onClick={handleRivalsClick} >
-                                    {/************ STATS   *************/}
-                                    <TopRivals data={rivals} rivalsFetched={rivalsFetched} paddingTop={10} />
+                                    {/************ RIVALS   *************/}
+                                    <TopRivals data={rivals} rivalsFetched={rivalsFetched} player={player} paddingTop={10} />
                                 </TabItem>
                             </Tabs>
                         </Card>
@@ -298,7 +298,7 @@ function Profile() {
                     <Flex direction="row" gap="1rem">
                         <Card className='card' variation="elevated">
                             Latest matches
-                            <Matches player={player}></Matches>
+                            <Matches player={player} limit="5"></Matches>
                             <Button label="Add new match"
                                 onClick={(e) => { toggleMatchEditor(e) }}
                             >{showMatchEditor ? 'Cancel' : 'Add'}</Button>

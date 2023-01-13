@@ -4,7 +4,7 @@ import { SlUser } from "react-icons/sl";
 import './H2H.css'
 
 const H2H = ({ data, ...props }) => {
-    
+    console.log("H2H", data)
     return (
         data ?
             <Grid gap="0.1rem"

@@ -1,4 +1,5 @@
 import { Comments } from './Comments/Comments'
+import DynamicTable from './DynamicTable/DynamicTable'
 import { Editable } from './Editable/Editable'
 import H2H from './H2H/H2H'
 import { Ladder } from './Ladder/Ladder'
@@ -13,6 +14,7 @@ import TopRivals from './Rivals/TopRivals'
 
 export {
     Comments, 
+    DynamicTable,
     Editable, 
     H2H,
     Ladder, 

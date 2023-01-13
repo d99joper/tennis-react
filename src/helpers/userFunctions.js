@@ -220,7 +220,7 @@ const userFunctions = {
             const playerFromAPI = apiData.data.listPlayers.items[0];
             
             if (includeImage)
-                PrivateFunc.SetPlayerImage(playerFromAPI)
+                await PrivateFunc.SetPlayerImage(playerFromAPI)
 
             //console.log("getPlayerFromAPI", playerFromAPI)
             return playerFromAPI;

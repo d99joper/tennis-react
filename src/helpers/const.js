@@ -9,6 +9,7 @@ export const enums = {
 
     DISPLAY_MODE: {
         Inline: 'inline',
-        Card: 'card'
+        Card: 'card',
+        Table: 'table'
     }
 }

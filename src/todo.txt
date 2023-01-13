@@ -4,6 +4,7 @@ Overall design
     [ ] Search for players
     [ ] Nicer menu
     [ ] Add location library (geo) for ladder locations
+    [*] Create a dynamic table 
     [x] npx amplify-app -> npm run amplify-modelgen for DataStore. Then run npm amplify update api if you want to add merge features (_version and _lastupdatedAt gets added)
 
 Search page
@@ -23,7 +24,7 @@ Profile page
       [x] Add totals
     [*] H2H information 
         [x] H2H component
-        [ ] Greatest rivals 
+        [x] Greatest rivals 
 
 Ladders page
     [ ] Display (5) ladders near you 

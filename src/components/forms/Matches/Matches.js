@@ -1,8 +1,11 @@
 // Matches.js
-import { Button, Collection, Flex, Loader } from "@aws-amplify/ui-react";
+import { Button, Collection, Flex, Loader, Table, TableCell, TableHead, TableRow, View } from "@aws-amplify/ui-react";
 import { matchFunctions as mf, enums } from "helpers";
 import { React, Suspense, useState, lazy, useEffect } from "react";
-import { Match } from "../index.js"
+import { DynamicTable, H2H, Match } from "../index.js"
+// import { Modal } from "../../layout/Modal/Modal"
+import { GiCrossedSwords } from 'react-icons/gi';
+import { GoCommentDiscussion } from 'react-icons/go';
 import "./Matches.css"
 
 const Matches = ({
@@ -11,7 +14,7 @@ const Matches = ({
     endDate = new Date(),
     ladder,
     showHeader = true,
-    displayAs = enums.DISPLAY_MODE.Inline,
+    displayAs = enums.DISPLAY_MODE.Table,
     allowAdd = true,
     ...props
 }) => {
@@ -19,12 +22,27 @@ const Matches = ({
     const MatchEditor = lazy(() => import("../MatchEditor/MatchEditor").then(module => { return { default: module.MatchEditor } }))
 
     const [matches, setMatches] = useState([])
+    const [sortField, setSortField] = useState("playedOn");
+    const [direction, setDirection] = useState("desc");
+    const [dataIsFetched, setDataIsFetched] = useState(false);
 
-    useEffect(()=>{
-        mf.listMatches(player, ladder, startDate, endDate).then((data) => {
-            setMatches(data)
-        })
-    },[])
+    const tableHeaders = [
+        { label: "Date", accessor: "playedOn", sortable: true, parts:1, link: 'Match/id' },
+        { label: "Ladder", accessor: "ladder.name", sortable: true, parts:2, link: 'Ladders/id' },
+        { label: "Winner", accessor: "winner.name", sortable: true, parts:2, link: 'Profile/id' },
+        { label: "Loser", accessor: "loser.name", sortable: true, parts:2, link: 'Profile/id' },
+        { label: "Score", accessor: "score", sortable: false, parts:1, link: 'Match/id' },
+        { label: "", accessor: "games", sortable: false, parts:0 }
+    ]
+
+    useEffect(() => {
+        if(!dataIsFetched)
+            mf.listMatches(player, ladder, startDate, endDate).then((data) => {
+                setMatches(data)
+                setDataIsFetched(true)
+            })
+
+    }, [sortField, direction])
 
     const setColor = ((match, index) => {
         //console.log('setColor winnerId', match.winner)
@@ -37,31 +55,47 @@ const Matches = ({
 
     return (
         <section {...props}>
-            <Collection className="matchCollection"
-                items={matches}
-                direction="column"
-                gap={"3px"}
-            >
-                {(item, index) => (
-                    <Match props={props}
-                        key={index}
-                        displayAs={displayAs}
-                        index={index}
-                        match={item}
-                        color={setColor(item, index)}
-                        showComments={false}
-                    ></Match>
-                )}
-            </Collection>
-            {( // keep false for now (it's moved into the profile)
-                false && allowAdd && displayAs === enums.DISPLAY_MODE.Inline &&
-                <Flex >
-                    <Button>Add New</Button>
-                    <Suspense fallback={<h2><Loader/>Loading...</h2>}>
-                        <MatchEditor player={player} onSubmit={(m) => { setMatches(...matches, m) }} />
-                    </Suspense>
-                </Flex>
-            )}
+            {displayAs === enums.DISPLAY_MODE.Inline ?
+                <>
+                    <Collection className="matchCollection"
+                        items={matches}
+                        direction="column"
+                        gap={"3px"}
+                    >
+                        {(item, index) => (
+                            <Match props={props}
+                                key={index}
+                                displayAs={displayAs}
+                                index={index}
+                                match={item}
+                                color={setColor(item, index)}
+                                showComments={false}
+                            ></Match>
+                        )}
+                    </Collection>
+                    {( // keep false for now (it's moved into the profile)
+                        false && allowAdd && displayAs === enums.DISPLAY_MODE.Inline &&
+                        <Flex >
+                            <Button>Add New</Button>
+                            <Suspense fallback={<h2><Loader />Loading...</h2>}>
+                                <MatchEditor player={player} onSubmit={(m) => { setMatches(...matches, m) }} />
+                            </Suspense>
+                        </Flex>
+                    )}
+                </>
+                : null
+            }
+            {displayAs === enums.DISPLAY_MODE.Table ?
+                <DynamicTable 
+                    key={"1"}
+                    columns={tableHeaders}
+                    sortField={sortField}
+                    direction={direction}
+                    data={matches}
+                    iconSet={[{name: 'H2H'}, {name: 'Comments'}]}
+                />
+                : null
+            }
         </section>
     )
 

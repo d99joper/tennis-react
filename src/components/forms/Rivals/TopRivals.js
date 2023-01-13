@@ -12,7 +12,7 @@ const TopRivals = ({ data, ...props }) => {
                 data.length > 1 ?
                 <>
                     <Grid 
-                        templateColumns={"3fr 6fr"}
+                        templateColumns={"3fr 5fr"}
                         rowGap='.5rem'
                         marginTop="1rem"
                     >
@@ -23,7 +23,7 @@ const TopRivals = ({ data, ...props }) => {
                                     variation="outlined"
                                     borderRadius={'medium'}>
                                     <Flex direction={'row'}>
-
+                                        <Text>vs. </Text>
                                         <View className={"profileImageContainer_small"}>
                                             {rival.player.image ?
                                                 <Image
@@ -33,7 +33,7 @@ const TopRivals = ({ data, ...props }) => {
                                                 />
                                                 : <SlUser size='30' />}
                                         </View>
-                                        <Text>Vs. {rival.player.name}</Text>
+                                        <Text>{rival.player.name}</Text>
                                         </Flex>
                                 </Card>
                                 <Card>

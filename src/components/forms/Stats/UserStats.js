@@ -1,5 +1,4 @@
 import { Loader, Table, TableBody, TableCell, TableFoot, TableHead, TableRow } from "@aws-amplify/ui-react";
-import { Icon } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { GoTriangleDown, GoTriangleUp } from 'react-icons/go';
 
