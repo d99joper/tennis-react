@@ -56,5 +56,18 @@ export type AmplifyDependentResourcesAttributes = {
             "GraphQLAPIIdOutput": "string",
             "GraphQLAPIEndpointOutput": "string"
         }
+    },
+    "geo": {
+        "TSPlaceIndex": {
+            "Name": "string",
+            "Region": "string",
+            "Arn": "string"
+        },
+        "TSMap": {
+            "Name": "string",
+            "Style": "string",
+            "Region": "string",
+            "Arn": "string"
+        }
     }
 }
