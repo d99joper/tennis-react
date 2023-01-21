@@ -9,18 +9,25 @@ import { GetUserStats_All, GetYearsPlayed, H2HStats, GetGreatestRivals } from 'g
 import { Match, Player } from 'models';
 
 const userFunctions = {
-
-    createPlayerIfNotExist: async function () {
+    
+    createPlayerIfNotExist: async function (name) {
         const user = await Auth.currentAuthenticatedUser();
 
-        console.log(user);
+        //console.log(user);
         if (typeof user != 'undefined') {
-            const player = await this.getPlayerFromAPI(user.attributes.email, null, null);
-            console.log("createPlayerIfNotExist", player);
-            if (player === 'undefined' || player.length === 0) {
-                // user doesn't create, so create it
-                this.createPlayer(user.attributes.name, user.attributes.email, user.attributes.sub);
+            let player
+            if(name) player = await this.getPlayerFromAPI(null, null, null, name);
+            else player = await this.getPlayerFromAPI(user.attributes.email, null, null, null);
+            //console.log("createPlayerIfNotExist", player);
+            if (player === 'undefined' || !player) {
+                // user doesn't exist, so create it
+                // by name
+                if(name) player = await this.createPlayer(name, 'noEmail@otherTable.mytennis', null)
+                else player = await this.createPlayer(user.attributes.name, user.attributes.email, user.attributes.sub)
+
+                return player
             }
+            else return player
         }
     },
 
@@ -84,18 +91,19 @@ const userFunctions = {
         const loadData = {
             name: name,
             email: email,
-            id: id
+            ... id ? {id: id}: null,
+            verified: (id ? true : false)
         };
         console.log(loadData);
 
         try {
-            API.graphql({
+            const result = await API.graphql({
                 query: createPlayerMutation,
                 variables: { input: loadData },
-            }).then((result) => {
-                console.log('New player created', result);
-                return result;
-            }).catch((e) => { console.log(e) });
+            }) //.then((result) => {
+            console.log('New player created', result);
+            return result.data.createPlayer;
+            //}).catch((e) => { console.log(e) });
         }
         catch (e) {
             console.error("failed to create a player", e);
@@ -142,7 +150,8 @@ const userFunctions = {
 
         let rivals = []
         // start with the wins
-        if(apiResult.data.wins)  {
+        console.log(apiResult.data)
+        if(apiResult.data.wins.players.length > 0)  {
             for(const rival of apiResult.data.wins.players[0].result.buckets) {
                 const player = await this.getPlayerFromAPI(null, rival.key, true)
 
@@ -159,7 +168,7 @@ const userFunctions = {
             }
         }
         // now the loss bucket (to catch any players there are only losses against)
-        if(apiResult.data.losses) 
+        if(apiResult.data.losses.players.length > 0) 
         for(const rival of apiResult.data.losses.players[0].result.buckets) {
             // check if the rival is already in the array
             const rivalExists = rivals ? rivals.find(x => x.player.id === rival.key) : false
@@ -205,13 +214,14 @@ const userFunctions = {
         }
     },
 
-    getPlayerFromAPI: async function (email=null, id = null, includeImage = false) {
+    getPlayerFromAPI: async function (email=null, id = null, includeImage = false, name = null) {
 
         try {
 
             const filter = { 
                 ... email ? {email: { eq: email }} :null,
-                ... id ? {id: {eq: id }} :null
+                ... id ? {id: {eq: id }} :null,
+                ... name ? {name: {eq: name}} :null
             }
             
             const apiData = await API.graphql({ query: listPlayers, variables: { filter: filter } });
@@ -346,9 +356,9 @@ const userFunctions = {
             query: GetYearsPlayed,
             variables: { playerId: playerId, type: singlesOrDoubles }
         })
-        
+        console.log(result)
         // loop active years
-        if (result.data.searchMatches) {
+        if (result.data.searchMatches.total) {
             years = await Promise.all(result.data.searchMatches.aggregateItems[0].result.buckets.map(async (y) => {
                 const year = y.key
                 //const stats = await this.getPlayerStats(playerId, singlesOrDoubles, year)
@@ -357,6 +367,8 @@ const userFunctions = {
                 return { year: y.key, count: y.doc_count, stats: stats }
             }))
         }
+        else return years
+
         const clone = structuredClone(years[0].stats)//JSON.parse(JSON.stringify(years[0].stats))
         
         let totals = { year: 'all', count: years[0].stats.matches.total, stats: clone} 

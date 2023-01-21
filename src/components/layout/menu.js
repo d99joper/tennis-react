@@ -36,9 +36,11 @@ const MyMenu = (props) => {
                     :null
                 }
                 {props.testing === true ? 
+                    <>
                     <MenuItem >
-                        <Link to='/authTest'>Auth Test</Link>
+                        <Link to='/adminTasks'>Admin</Link>
                     </MenuItem>
+                    </>
                     :null
                 }
             </Menu>

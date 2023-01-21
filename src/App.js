@@ -108,7 +108,7 @@ function App() {
     <div className="App">
       <ThemeProvider theme={PrimaryMainTheme}>
 
-        <MyRouter isLoggedIn={isLoggedIn} testing={testing} />
+        <MyRouter isLoggedIn={isLoggedIn} testing={true} />
         <Footer></Footer>
       </ThemeProvider>
     </div>

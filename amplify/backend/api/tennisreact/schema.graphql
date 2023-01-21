@@ -3,13 +3,14 @@
 # all models in this schema. Learn more about authorization rules here: https://docs.amplify.aws/cli/graphql/authorization-rules
 input AMPLIFY { globalAuthRule: AuthRule = { allow: public } } # FOR TESTING ONLY!
 
-type Player @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) @searchable
+type Player @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) 
+            @searchable
   # @auth(rules: [{ allow: public, operations: [read]}]) 
 {
   id: ID!
   # userGUID: ID!
-  name: String!
-  email: AWSEmail!
+  name: String! @index
+  email: AWSEmail! @index
   phone: AWSPhone
   about: String
   image: String
@@ -24,9 +25,10 @@ type Player @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" 
 type Ladder @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }) @searchable {
   id: ID!
   name: String!
-  location: Location!
-  city: String
-  zip: String
+  location: String
+  geoData: Location
+  city: String @index(name: "byCity", queryField: "ladderByCity")
+  zip: String @index
   matches: [Match!] @hasMany  
   players: [Player!] @manyToMany(relationName: "ladderPlayer")
 }
@@ -48,7 +50,7 @@ type Match @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn" }
   id: ID!
   type: String @default(value: "singles")
   playedOn: AWSDate! 
-  year: Int! @default(value: "2022")
+  year: Int! @index
   winnerID: ID
   winner: Player! @belongsTo(fields: ["winnerID"])
   loserID: ID
@@ -73,4 +75,6 @@ type Comment @model(timestamps: { createdAt: "createdOn", updatedAt: "updatedOn"
   content: String!
   postedByID: ID! @index(name: "byPlayer", sortKeyFields: ["content"])
   postedBy: Player @belongsTo(fields: ["postedByID"]) 
+  postedOn: AWSDate 
+  private: Boolean @default(value: "true")
 }

@@ -5,7 +5,7 @@ import {
     Checkbox, FormControlLabel, Button
 } from '@mui/material'; //https://mui.com/material-ui/react-autocomplete/
 import React, { useEffect, useState } from 'react';
-import { enums, ladderFunctions as lf, matchFunctions as mf } from '../../../helpers/index';
+import { enums, helpers, ladderFunctions as lf, matchFunctions as mf } from '../../../helpers/index';
 import SetInput from './SetInput'
 import './MatchEditor.css';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -51,12 +51,17 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
             loser,
             score,
             playedOn: playedOn,
-            comment: comment,
+            comment: {
+                content: comment,
+                postedByID: player.id,
+                private: true,
+                postedOn: helpers.formatAWSDate(Date.now) 
+            },
             ladderID: ladderId,
             retired: retired
         }
 
-        mf.CreateMatch(match).then((result) => {
+        mf.createMatch(match).then((result) => {
             // Call the onSubmit prop and pass the result object
             console.log(result)
             onSubmit(result);

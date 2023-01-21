@@ -87,7 +87,10 @@ const ladderFunctions = {
 
         const loadData = {
             name: ladder.name,
-            location: ladder.location
+            ... ladder.location ? {location: ladder.location} :null,
+            ... ladder.geoData ? {geoData: ladder.geoData} :null,
+            ... ladder.city ? {city: ladder.city} :null,
+            ... ladder.zip ? {zip: ladder.zip} :null
         };
 
         console.log(loadData);

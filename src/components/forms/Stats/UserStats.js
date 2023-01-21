@@ -93,9 +93,10 @@ const UserStats = ({ stats: data, ...props }) => {
                         </TableFoot>
                     </Table>
                 </div>
-                :
-                <h5><Loader /> Loading ...</h5>
-            }
+                : data.length === 0 ? 
+                    <div>'No matches found'</div> 
+                    : <h5><Loader /> Loading ...</h5>
+                }
         </>
     )
 }
