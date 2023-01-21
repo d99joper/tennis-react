@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableFoot, TableHead, TableRow } from "@aw
 import { userFunctions } from "helpers";
 import React, { useEffect, useState } from "react";
 import { GoTriangleDown, GoTriangleUp, GoCommentDiscussion } from 'react-icons/go';
-import { GiCrossedSwords } from 'react-icons/gi';
+import { GiCrossedSwords, GiPropellerBeanie } from 'react-icons/gi';
 import { Link } from "react-router-dom";
 import H2H from "../H2H/H2H";
 import Modal from "components/layout/Modal/modal";
@@ -49,7 +49,7 @@ const DynamicTable = ({
             switch (element.name) {
                 case 'H2H':
                     sets.push(
-                        <>
+                        <React.Fragment key={`Fragment_${i}`}>
                             <GiCrossedSwords
                                 title="H2H"
                                 className="middleIcon"
@@ -57,7 +57,6 @@ const DynamicTable = ({
                                 onClick={() => openH2HModal(item,i)}
                             />
                             <Modal 
-                                key={`Modal_${i}`}
                                 title={`${item.winner.name} vs ${item.loser.name}`}
                                 onClose={() => setIsShowH2H(prevState => {return {...prevState, [i]:false}})} 
                                 show={isShowH2H[i]}
@@ -65,12 +64,12 @@ const DynamicTable = ({
                                 <H2H key={`H2H_${i}`} data={h2HData} />
 
                             </Modal>
-                        </>
+                        </React.Fragment>
                     )
                     break;
                 case 'Comments':
                     sets.push(
-                        <GoCommentDiscussion
+                        <GoCommentDiscussion key={`icon_${i}`}
                             color="#3e3333"
                         />
                     )
@@ -146,14 +145,14 @@ const DynamicTable = ({
         handleSorting(col, sortOrder)
     }
 
-    return (<>
+    return (<div  key={"dynamicTable"+props.key}>
         {data.length > 0 ?
-            <Table highlightOnHover={true} marginTop="1em" variation="striped" backgroundColor={'white'}>
-                <TableHead backgroundColor={'blue.20'} >
+            <Table highlightOnHover={true} marginTop="1em" variation="striped" backgroundColor={props.backgroundColor ?? 'white'}>
+                <TableHead backgroundColor={props.headerBackgroundColor ?? 'blue.20'} >
                     <TableRow>
-                        {columns.map(col =>
+                        {columns.map((col,i) =>
                             <TableCell as="th"
-                                key={col.accessor}
+                                key={col.accessor+'_'+i}
                                 className={col.sortable ? "cursorHand" : null}
                                 onClick={col.sortable ? (e) => handleSortingChange(e, col) : null}
                             >
@@ -163,13 +162,13 @@ const DynamicTable = ({
                                         ? <GoTriangleUp />
                                         // asc -> arrow down
                                         : sortField === col.accessor && direction === "asc")
-                                        ? <GoTriangleDown />
+                                        ? <GoTriangleDown  />
                                         // desc -> arrow up
                                         : (sortField === col.accessor && direction === "desc")
                                             ? <GoTriangleUp />
                                             // grey with 100 opacity to act as space filler 
                                             : (col.sortable)
-                                                ? <GoTriangleDown color="#aaaaaa00" />
+                                                ? <GoTriangleDown />
                                                 // otherwise nothing
                                                 : null
                                 }
@@ -179,11 +178,11 @@ const DynamicTable = ({
                 </TableHead>
                 <TableBody>
                     {data.map((m, i) =>
-                        <TableRow key={`RowBody_${i}`}>
+                        <TableRow key={`BodyRow_${i}_${m.id}`}>
                             {columns.map(c => {
                                 const content = setContent(m, c, i)
                                 return (
-                                    <TableCell>{content}</TableCell>
+                                    <TableCell key={`BodyCell_${i}_${c.accessor}`}>{content}</TableCell>
                                 )
                             })}
                         </TableRow>
@@ -198,7 +197,7 @@ const DynamicTable = ({
             </Table>
             : 'no matches'
         }
-    </>)
+    </div>)
 }
 
 export default DynamicTable

@@ -208,6 +208,10 @@ export const getLadder = /* GraphQL */ `
       id
       name
       location
+      geoData {
+        lat
+        lon
+      }
       city
       zip
       matches {
@@ -432,6 +436,8 @@ export const getComment = /* GraphQL */ `
         createdOn
         updatedOn
       }
+      postedOn
+      private
       createdOn
       updatedOn
     }
@@ -449,6 +455,8 @@ export const listComments = /* GraphQL */ `
         matchID
         content
         postedByID
+        postedOn
+        private
         createdOn
         updatedOn
       }
@@ -502,6 +510,34 @@ export const listLadderPlayers = /* GraphQL */ `
         ladderID
         createdAt
         updatedAt
+      }
+      nextToken
+    }
+  }
+`;
+export const ladderByCity = /* GraphQL */ `
+  query LadderByCity(
+    $city: String!
+    $sortDirection: ModelSortDirection
+    $filter: ModelLadderFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    ladderByCity(
+      city: $city
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        name
+        location
+        city
+        zip
+        createdOn
+        updatedOn
       }
       nextToken
     }

@@ -87,7 +87,7 @@ const Matches = ({
             }
             {displayAs === enums.DISPLAY_MODE.Table ?
                 <DynamicTable 
-                    key={"1"}
+                    key={"matches"}
                     columns={tableHeaders}
                     sortField={sortField}
                     direction={direction}

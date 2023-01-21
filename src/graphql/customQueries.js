@@ -49,7 +49,7 @@ export const listMatches = /* GraphQL */ `
     $filter: SearchableMatchFilterInput #ModelMatchFilterInput
     $sort: [SearchableMatchSortInput]
     $limit: Int
-    $nextToken: String
+    $nextToken: String 
   ) {
     searchMatches(filter: $filter, sort: $sort, limit: $limit, nextToken: $nextToken) {
       items {

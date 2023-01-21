@@ -97,6 +97,10 @@ export const createLadder = /* GraphQL */ `
       id
       name
       location
+      geoData {
+        lat
+        lon
+      }
       city
       zip
       matches {
@@ -119,6 +123,10 @@ export const updateLadder = /* GraphQL */ `
       id
       name
       location
+      geoData {
+        lat
+        lon
+      }
       city
       zip
       matches {
@@ -141,6 +149,10 @@ export const deleteLadder = /* GraphQL */ `
       id
       name
       location
+      geoData {
+        lat
+        lon
+      }
       city
       zip
       matches {
@@ -510,6 +522,8 @@ export const createComment = /* GraphQL */ `
         createdOn
         updatedOn
       }
+      postedOn
+      private
       createdOn
       updatedOn
     }
@@ -559,6 +573,8 @@ export const updateComment = /* GraphQL */ `
         createdOn
         updatedOn
       }
+      postedOn
+      private
       createdOn
       updatedOn
     }
@@ -608,6 +624,8 @@ export const deleteComment = /* GraphQL */ `
         createdOn
         updatedOn
       }
+      postedOn
+      private
       createdOn
       updatedOn
     }
