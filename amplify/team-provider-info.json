@@ -9,85 +9,18 @@
       "UnauthRoleName": "amplify-tennisreact-master-224847-unauthRole",
       "StackName": "amplify-tennisreact-master-224847",
       "StackId": "arn:aws:cloudformation:us-west-1:781466862382:stack/amplify-tennisreact-master-224847/63b75590-3936-11ed-8edf-028f248a41f5",
-      "AmplifyAppId": "d3b40aa52kf7sa",
-      "AuthTriggerTemplateURL": "https://s3.amazonaws.com/amplify-tennisreact-master-224847-deployment/amplify-cfn-templates/auth/auth-trigger-cloudformation-template.json"
+      "AmplifyAppId": "d3b40aa52kf7sa"
     },
     "categories": {
-      "function": {
-        "tennisreact9ea7bf97DefineAuthChallenge": {
-          "deploymentBucketName": "amplify-tennisreact-master-224847-deployment",
-          "s3Key": "amplify-builds/tennisreact9ea7bf97DefineAuthChallenge-77594d73497734394633-build.zip"
-        },
-        "tennisreact9ea7bf97CreateAuthChallenge": {
-          "deploymentBucketName": "amplify-tennisreact-master-224847-deployment",
-          "s3Key": "amplify-builds/tennisreact9ea7bf97CreateAuthChallenge-386237755a773671706d-build.zip"
-        },
-        "tennisreact9ea7bf97VerifyAuthChallengeResponse": {
-          "RECAPTCHASECRET": "6LeYIzUiAAAAAEcdqyYNPk-8NA068nYpOY0hXN9f",
-          "deploymentBucketName": "amplify-tennisreact-master-224847-deployment",
-          "s3Key": "amplify-builds/tennisreact9ea7bf97VerifyAuthChallengeResponse-79763132486a6f79394d-build.zip"
-        },
-        "tennisreact9ea7bf97CustomMessage": {
-          "REDIRECTURL": "http://mytennis.space/",
-          "EMAILSUBJECT": "",
-          "EMAILMESSAGE": "body",
-          "deploymentBucketName": "amplify-tennisreact-master-224847-deployment",
-          "s3Key": "amplify-builds/tennisreact9ea7bf97CustomMessage-6d48484335786e577458-build.zip"
-        },
-        "tennisreact9ea7bf97PostConfirmation": {
-          "GROUP": "players",
-          "deploymentBucketName": "amplify-tennisreact-master-224847-deployment",
-          "s3Key": "amplify-builds/tennisreact9ea7bf97PostConfirmation-4d586947746d53425932-build.zip"
-        }
-      },
       "auth": {
         "tennisreact": {}
-      }
-    }
-  },
-  "staging": {
-    "awscloudformation": {
-      "AuthRoleName": "amplify-amplifya6ae2877bc9f4-staging-221854-authRole",
-      "UnauthRoleArn": "arn:aws:iam::781466862382:role/amplify-amplifya6ae2877bc9f4-staging-221854-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::781466862382:role/amplify-amplifya6ae2877bc9f4-staging-221854-authRole",
-      "Region": "us-west-1",
-      "DeploymentBucketName": "amplify-amplifya6ae2877bc9f4-staging-221854-deployment",
-      "UnauthRoleName": "amplify-amplifya6ae2877bc9f4-staging-221854-unauthRole",
-      "StackName": "amplify-amplifya6ae2877bc9f4-staging-221854",
-      "StackId": "arn:aws:cloudformation:us-west-1:781466862382:stack/amplify-amplifya6ae2877bc9f4-staging-221854/36b9d5d0-3932-11ed-a63f-02b997fb1809",
-      "AmplifyAppId": "d3b40aa52kf7sa",
-      "AuthTriggerTemplateURL": "https://s3.amazonaws.com/amplify-amplifya6ae2877bc9f4-staging-221854-deployment/amplify-cfn-templates/auth/auth-trigger-cloudformation-template.json"
-    },
-    "categories": {
-      "auth": {
-        "tennisreact": {},
-        "true": {}
       },
-      "function": {
-        "tennisreact9ea7bf97DefineAuthChallenge": {
-          "deploymentBucketName": "amplify-amplifya6ae2877bc9f4-staging-221854-deployment",
-          "s3Key": "amplify-builds/tennisreact9ea7bf97DefineAuthChallenge-77594d73497734394633-build.zip"
-        },
-        "tennisreact9ea7bf97CreateAuthChallenge": {
-          "deploymentBucketName": "amplify-amplifya6ae2877bc9f4-staging-221854-deployment",
-          "s3Key": "amplify-builds/tennisreact9ea7bf97CreateAuthChallenge-386237755a773671706d-build.zip"
-        },
-        "tennisreact9ea7bf97VerifyAuthChallengeResponse": {
-          "deploymentBucketName": "amplify-amplifya6ae2877bc9f4-staging-221854-deployment",
-          "s3Key": "amplify-builds/tennisreact9ea7bf97VerifyAuthChallengeResponse-79763132486a6f79394d-build.zip",
-          "RECAPTCHASECRET": "6LeYIzUiAAAAAEcdqyYNPk-8NA068nYpOY0hXN9f"
-        },
-        "tennisreact9ea7bf97CustomMessage": {
-          "deploymentBucketName": "amplify-amplifya6ae2877bc9f4-staging-221854-deployment",
-          "s3Key": "amplify-builds/tennisreact9ea7bf97CustomMessage-6d48484335786e577458-build.zip",
-          "REDIRECTURL": "http://mytennis.space",
-          "EMAILSUBJECT": "hi",
-          "EMAILMESSAGE": "no"
-        },
-        "tennisreact9ea7bf97PostConfirmation": {
-          "deploymentBucketName": "amplify-amplifya6ae2877bc9f4-staging-221854-deployment",
-          "s3Key": "amplify-builds/tennisreact9ea7bf97PostConfirmation-4d586947746d53425932-build.zip",
-          "GROUP": "players"
+      "storage": {
+        "profilePics": {}
+      },
+      "api": {
+        "MTSApiProd": {
+          "OpenSearchInstanceType": "t3.small.search"
         }
       }
     }

@@ -1,88 +1,1801 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const createTodo = /* GraphQL */ `
-  mutation CreateTodo(
-    $input: CreateTodoInput!
-    $condition: ModelTodoConditionInput
+export const createPlayer = /* GraphQL */ `
+  mutation CreatePlayer(
+    $input: CreatePlayerInput!
+    $condition: ModelPlayerConditionInput
   ) {
-    createTodo(input: $input, condition: $condition) {
+    createPlayer(input: $input, condition: $condition) {
       id
       name
-      description
-      createdAt
-      updatedAt
-    }
-  }
-`;
-export const updateTodo = /* GraphQL */ `
-  mutation UpdateTodo(
-    $input: UpdateTodoInput!
-    $condition: ModelTodoConditionInput
-  ) {
-    updateTodo(input: $input, condition: $condition) {
-      id
-      name
-      description
-      createdAt
-      updatedAt
-    }
-  }
-`;
-export const deleteTodo = /* GraphQL */ `
-  mutation DeleteTodo(
-    $input: DeleteTodoInput!
-    $condition: ModelTodoConditionInput
-  ) {
-    deleteTodo(input: $input, condition: $condition) {
-      id
-      name
-      description
-      createdAt
-      updatedAt
-    }
-  }
-`;
-export const createNote = /* GraphQL */ `
-  mutation CreateNote(
-    $input: CreateNoteInput!
-    $condition: ModelNoteConditionInput
-  ) {
-    createNote(input: $input, condition: $condition) {
-      id
-      name
-      description
+      email
+      phone
+      about
       image
+      NTRP
+      UTR
+      verified
+      playerMatches {
+        items {
+          playerID
+          partnerID
+          opponentID
+          opponentPartnerID
+          matchID
+          matchType
+          ladderID
+          win
+          setsWon
+          setsLost
+          gamesWon
+          gamesLost
+          tiebreaksWon
+          tiebreaksLost
+          retired
+          createdAt
+          updatedAt
+          playerPlayerMatchesId
+        }
+        nextToken
+      }
+      ladders {
+        items {
+          id
+          playerID
+          ladderID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      comments {
+        items {
+          id
+          matchID
+          content
+          postedByID
+          postedOn
+          private
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
       createdAt
       updatedAt
     }
   }
 `;
-export const updateNote = /* GraphQL */ `
-  mutation UpdateNote(
-    $input: UpdateNoteInput!
-    $condition: ModelNoteConditionInput
+export const updatePlayer = /* GraphQL */ `
+  mutation UpdatePlayer(
+    $input: UpdatePlayerInput!
+    $condition: ModelPlayerConditionInput
   ) {
-    updateNote(input: $input, condition: $condition) {
+    updatePlayer(input: $input, condition: $condition) {
       id
       name
-      description
+      email
+      phone
+      about
       image
+      NTRP
+      UTR
+      verified
+      playerMatches {
+        items {
+          playerID
+          partnerID
+          opponentID
+          opponentPartnerID
+          matchID
+          matchType
+          ladderID
+          win
+          setsWon
+          setsLost
+          gamesWon
+          gamesLost
+          tiebreaksWon
+          tiebreaksLost
+          retired
+          createdAt
+          updatedAt
+          playerPlayerMatchesId
+        }
+        nextToken
+      }
+      ladders {
+        items {
+          id
+          playerID
+          ladderID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      comments {
+        items {
+          id
+          matchID
+          content
+          postedByID
+          postedOn
+          private
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
       createdAt
       updatedAt
     }
   }
 `;
-export const deleteNote = /* GraphQL */ `
-  mutation DeleteNote(
-    $input: DeleteNoteInput!
-    $condition: ModelNoteConditionInput
+export const deletePlayer = /* GraphQL */ `
+  mutation DeletePlayer(
+    $input: DeletePlayerInput!
+    $condition: ModelPlayerConditionInput
   ) {
-    deleteNote(input: $input, condition: $condition) {
+    deletePlayer(input: $input, condition: $condition) {
       id
       name
-      description
+      email
+      phone
+      about
       image
+      NTRP
+      UTR
+      verified
+      playerMatches {
+        items {
+          playerID
+          partnerID
+          opponentID
+          opponentPartnerID
+          matchID
+          matchType
+          ladderID
+          win
+          setsWon
+          setsLost
+          gamesWon
+          gamesLost
+          tiebreaksWon
+          tiebreaksLost
+          retired
+          createdAt
+          updatedAt
+          playerPlayerMatchesId
+        }
+        nextToken
+      }
+      ladders {
+        items {
+          id
+          playerID
+          ladderID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      comments {
+        items {
+          id
+          matchID
+          content
+          postedByID
+          postedOn
+          private
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const createPlayerMatch = /* GraphQL */ `
+  mutation CreatePlayerMatch(
+    $input: CreatePlayerMatchInput!
+    $condition: ModelPlayerMatchConditionInput
+  ) {
+    createPlayerMatch(input: $input, condition: $condition) {
+      player {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      playerID
+      partner {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      partnerID
+      opponent {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      opponentID
+      opponentPartner {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      opponentPartnerID
+      match {
+        id
+        type
+        playedOn
+        year
+        winnerID
+        winner {
+          id
+          name
+          email
+          phone
+          about
+          image
+          NTRP
+          UTR
+          verified
+          createdAt
+          updatedAt
+        }
+        loserID
+        loser {
+          id
+          name
+          email
+          phone
+          about
+          image
+          NTRP
+          UTR
+          verified
+          createdAt
+          updatedAt
+        }
+        score
+        ladderID
+        ladder {
+          id
+          matchType
+          name
+          city
+          zip
+          createdAt
+          updatedAt
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+        ladderMatchesId
+      }
+      matchID
+      matchType
+      ladder {
+        id
+        matchType
+        name
+        geoData {
+          lat
+          lon
+        }
+        city
+        zip
+        matches {
+          nextToken
+        }
+        players {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      ladderID
+      win
+      setsWon
+      setsLost
+      gamesWon
+      gamesLost
+      tiebreaksWon
+      tiebreaksLost
+      retired
+      createdAt
+      updatedAt
+      playerPlayerMatchesId
+    }
+  }
+`;
+export const updatePlayerMatch = /* GraphQL */ `
+  mutation UpdatePlayerMatch(
+    $input: UpdatePlayerMatchInput!
+    $condition: ModelPlayerMatchConditionInput
+  ) {
+    updatePlayerMatch(input: $input, condition: $condition) {
+      player {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      playerID
+      partner {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      partnerID
+      opponent {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      opponentID
+      opponentPartner {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      opponentPartnerID
+      match {
+        id
+        type
+        playedOn
+        year
+        winnerID
+        winner {
+          id
+          name
+          email
+          phone
+          about
+          image
+          NTRP
+          UTR
+          verified
+          createdAt
+          updatedAt
+        }
+        loserID
+        loser {
+          id
+          name
+          email
+          phone
+          about
+          image
+          NTRP
+          UTR
+          verified
+          createdAt
+          updatedAt
+        }
+        score
+        ladderID
+        ladder {
+          id
+          matchType
+          name
+          city
+          zip
+          createdAt
+          updatedAt
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+        ladderMatchesId
+      }
+      matchID
+      matchType
+      ladder {
+        id
+        matchType
+        name
+        geoData {
+          lat
+          lon
+        }
+        city
+        zip
+        matches {
+          nextToken
+        }
+        players {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      ladderID
+      win
+      setsWon
+      setsLost
+      gamesWon
+      gamesLost
+      tiebreaksWon
+      tiebreaksLost
+      retired
+      createdAt
+      updatedAt
+      playerPlayerMatchesId
+    }
+  }
+`;
+export const deletePlayerMatch = /* GraphQL */ `
+  mutation DeletePlayerMatch(
+    $input: DeletePlayerMatchInput!
+    $condition: ModelPlayerMatchConditionInput
+  ) {
+    deletePlayerMatch(input: $input, condition: $condition) {
+      player {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      playerID
+      partner {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      partnerID
+      opponent {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      opponentID
+      opponentPartner {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      opponentPartnerID
+      match {
+        id
+        type
+        playedOn
+        year
+        winnerID
+        winner {
+          id
+          name
+          email
+          phone
+          about
+          image
+          NTRP
+          UTR
+          verified
+          createdAt
+          updatedAt
+        }
+        loserID
+        loser {
+          id
+          name
+          email
+          phone
+          about
+          image
+          NTRP
+          UTR
+          verified
+          createdAt
+          updatedAt
+        }
+        score
+        ladderID
+        ladder {
+          id
+          matchType
+          name
+          city
+          zip
+          createdAt
+          updatedAt
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+        ladderMatchesId
+      }
+      matchID
+      matchType
+      ladder {
+        id
+        matchType
+        name
+        geoData {
+          lat
+          lon
+        }
+        city
+        zip
+        matches {
+          nextToken
+        }
+        players {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      ladderID
+      win
+      setsWon
+      setsLost
+      gamesWon
+      gamesLost
+      tiebreaksWon
+      tiebreaksLost
+      retired
+      createdAt
+      updatedAt
+      playerPlayerMatchesId
+    }
+  }
+`;
+export const createMatch = /* GraphQL */ `
+  mutation CreateMatch(
+    $input: CreateMatchInput!
+    $condition: ModelMatchConditionInput
+  ) {
+    createMatch(input: $input, condition: $condition) {
+      id
+      type
+      playedOn
+      year
+      winnerID
+      winner {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      loserID
+      loser {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      score
+      ladderID
+      ladder {
+        id
+        matchType
+        name
+        geoData {
+          lat
+          lon
+        }
+        city
+        zip
+        matches {
+          nextToken
+        }
+        players {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      comments {
+        items {
+          id
+          matchID
+          content
+          postedByID
+          postedOn
+          private
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      createdAt
+      updatedAt
+      ladderMatchesId
+    }
+  }
+`;
+export const updateMatch = /* GraphQL */ `
+  mutation UpdateMatch(
+    $input: UpdateMatchInput!
+    $condition: ModelMatchConditionInput
+  ) {
+    updateMatch(input: $input, condition: $condition) {
+      id
+      type
+      playedOn
+      year
+      winnerID
+      winner {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      loserID
+      loser {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      score
+      ladderID
+      ladder {
+        id
+        matchType
+        name
+        geoData {
+          lat
+          lon
+        }
+        city
+        zip
+        matches {
+          nextToken
+        }
+        players {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      comments {
+        items {
+          id
+          matchID
+          content
+          postedByID
+          postedOn
+          private
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      createdAt
+      updatedAt
+      ladderMatchesId
+    }
+  }
+`;
+export const deleteMatch = /* GraphQL */ `
+  mutation DeleteMatch(
+    $input: DeleteMatchInput!
+    $condition: ModelMatchConditionInput
+  ) {
+    deleteMatch(input: $input, condition: $condition) {
+      id
+      type
+      playedOn
+      year
+      winnerID
+      winner {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      loserID
+      loser {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      score
+      ladderID
+      ladder {
+        id
+        matchType
+        name
+        geoData {
+          lat
+          lon
+        }
+        city
+        zip
+        matches {
+          nextToken
+        }
+        players {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      comments {
+        items {
+          id
+          matchID
+          content
+          postedByID
+          postedOn
+          private
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      createdAt
+      updatedAt
+      ladderMatchesId
+    }
+  }
+`;
+export const createLadder = /* GraphQL */ `
+  mutation CreateLadder(
+    $input: CreateLadderInput!
+    $condition: ModelLadderConditionInput
+  ) {
+    createLadder(input: $input, condition: $condition) {
+      id
+      matchType
+      name
+      geoData {
+        lat
+        lon
+      }
+      city
+      zip
+      matches {
+        items {
+          id
+          type
+          playedOn
+          year
+          winnerID
+          loserID
+          score
+          ladderID
+          createdAt
+          updatedAt
+          ladderMatchesId
+        }
+        nextToken
+      }
+      players {
+        items {
+          id
+          playerID
+          ladderID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const updateLadder = /* GraphQL */ `
+  mutation UpdateLadder(
+    $input: UpdateLadderInput!
+    $condition: ModelLadderConditionInput
+  ) {
+    updateLadder(input: $input, condition: $condition) {
+      id
+      matchType
+      name
+      geoData {
+        lat
+        lon
+      }
+      city
+      zip
+      matches {
+        items {
+          id
+          type
+          playedOn
+          year
+          winnerID
+          loserID
+          score
+          ladderID
+          createdAt
+          updatedAt
+          ladderMatchesId
+        }
+        nextToken
+      }
+      players {
+        items {
+          id
+          playerID
+          ladderID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const deleteLadder = /* GraphQL */ `
+  mutation DeleteLadder(
+    $input: DeleteLadderInput!
+    $condition: ModelLadderConditionInput
+  ) {
+    deleteLadder(input: $input, condition: $condition) {
+      id
+      matchType
+      name
+      geoData {
+        lat
+        lon
+      }
+      city
+      zip
+      matches {
+        items {
+          id
+          type
+          playedOn
+          year
+          winnerID
+          loserID
+          score
+          ladderID
+          createdAt
+          updatedAt
+          ladderMatchesId
+        }
+        nextToken
+      }
+      players {
+        items {
+          id
+          playerID
+          ladderID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const createComment = /* GraphQL */ `
+  mutation CreateComment(
+    $input: CreateCommentInput!
+    $condition: ModelCommentConditionInput
+  ) {
+    createComment(input: $input, condition: $condition) {
+      id
+      matchID
+      match {
+        id
+        type
+        playedOn
+        year
+        winnerID
+        winner {
+          id
+          name
+          email
+          phone
+          about
+          image
+          NTRP
+          UTR
+          verified
+          createdAt
+          updatedAt
+        }
+        loserID
+        loser {
+          id
+          name
+          email
+          phone
+          about
+          image
+          NTRP
+          UTR
+          verified
+          createdAt
+          updatedAt
+        }
+        score
+        ladderID
+        ladder {
+          id
+          matchType
+          name
+          city
+          zip
+          createdAt
+          updatedAt
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+        ladderMatchesId
+      }
+      content
+      postedByID
+      postedBy {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      postedOn
+      private
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const updateComment = /* GraphQL */ `
+  mutation UpdateComment(
+    $input: UpdateCommentInput!
+    $condition: ModelCommentConditionInput
+  ) {
+    updateComment(input: $input, condition: $condition) {
+      id
+      matchID
+      match {
+        id
+        type
+        playedOn
+        year
+        winnerID
+        winner {
+          id
+          name
+          email
+          phone
+          about
+          image
+          NTRP
+          UTR
+          verified
+          createdAt
+          updatedAt
+        }
+        loserID
+        loser {
+          id
+          name
+          email
+          phone
+          about
+          image
+          NTRP
+          UTR
+          verified
+          createdAt
+          updatedAt
+        }
+        score
+        ladderID
+        ladder {
+          id
+          matchType
+          name
+          city
+          zip
+          createdAt
+          updatedAt
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+        ladderMatchesId
+      }
+      content
+      postedByID
+      postedBy {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      postedOn
+      private
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const deleteComment = /* GraphQL */ `
+  mutation DeleteComment(
+    $input: DeleteCommentInput!
+    $condition: ModelCommentConditionInput
+  ) {
+    deleteComment(input: $input, condition: $condition) {
+      id
+      matchID
+      match {
+        id
+        type
+        playedOn
+        year
+        winnerID
+        winner {
+          id
+          name
+          email
+          phone
+          about
+          image
+          NTRP
+          UTR
+          verified
+          createdAt
+          updatedAt
+        }
+        loserID
+        loser {
+          id
+          name
+          email
+          phone
+          about
+          image
+          NTRP
+          UTR
+          verified
+          createdAt
+          updatedAt
+        }
+        score
+        ladderID
+        ladder {
+          id
+          matchType
+          name
+          city
+          zip
+          createdAt
+          updatedAt
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+        ladderMatchesId
+      }
+      content
+      postedByID
+      postedBy {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      postedOn
+      private
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const createStandings = /* GraphQL */ `
+  mutation CreateStandings(
+    $input: CreateStandingsInput!
+    $condition: ModelStandingsConditionInput
+  ) {
+    createStandings(input: $input, condition: $condition) {
+      id
+      playerID
+      player {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      ladderID
+      ladder {
+        id
+        matchType
+        name
+        geoData {
+          lat
+          lon
+        }
+        city
+        zip
+        matches {
+          nextToken
+        }
+        players {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      wins
+      losses
+      points
+      position
+      isCurrent
+      createdAt
+      updatedAt
+      standingsPlayerId
+      standingsLadderId
+    }
+  }
+`;
+export const updateStandings = /* GraphQL */ `
+  mutation UpdateStandings(
+    $input: UpdateStandingsInput!
+    $condition: ModelStandingsConditionInput
+  ) {
+    updateStandings(input: $input, condition: $condition) {
+      id
+      playerID
+      player {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      ladderID
+      ladder {
+        id
+        matchType
+        name
+        geoData {
+          lat
+          lon
+        }
+        city
+        zip
+        matches {
+          nextToken
+        }
+        players {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      wins
+      losses
+      points
+      position
+      isCurrent
+      createdAt
+      updatedAt
+      standingsPlayerId
+      standingsLadderId
+    }
+  }
+`;
+export const deleteStandings = /* GraphQL */ `
+  mutation DeleteStandings(
+    $input: DeleteStandingsInput!
+    $condition: ModelStandingsConditionInput
+  ) {
+    deleteStandings(input: $input, condition: $condition) {
+      id
+      playerID
+      player {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      ladderID
+      ladder {
+        id
+        matchType
+        name
+        geoData {
+          lat
+          lon
+        }
+        city
+        zip
+        matches {
+          nextToken
+        }
+        players {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      wins
+      losses
+      points
+      position
+      isCurrent
+      createdAt
+      updatedAt
+      standingsPlayerId
+      standingsLadderId
+    }
+  }
+`;
+export const createLadderPlayer = /* GraphQL */ `
+  mutation CreateLadderPlayer(
+    $input: CreateLadderPlayerInput!
+    $condition: ModelLadderPlayerConditionInput
+  ) {
+    createLadderPlayer(input: $input, condition: $condition) {
+      id
+      playerID
+      ladderID
+      player {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      ladder {
+        id
+        matchType
+        name
+        geoData {
+          lat
+          lon
+        }
+        city
+        zip
+        matches {
+          nextToken
+        }
+        players {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const updateLadderPlayer = /* GraphQL */ `
+  mutation UpdateLadderPlayer(
+    $input: UpdateLadderPlayerInput!
+    $condition: ModelLadderPlayerConditionInput
+  ) {
+    updateLadderPlayer(input: $input, condition: $condition) {
+      id
+      playerID
+      ladderID
+      player {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      ladder {
+        id
+        matchType
+        name
+        geoData {
+          lat
+          lon
+        }
+        city
+        zip
+        matches {
+          nextToken
+        }
+        players {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const deleteLadderPlayer = /* GraphQL */ `
+  mutation DeleteLadderPlayer(
+    $input: DeleteLadderPlayerInput!
+    $condition: ModelLadderPlayerConditionInput
+  ) {
+    deleteLadderPlayer(input: $input, condition: $condition) {
+      id
+      playerID
+      ladderID
+      player {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        playerMatches {
+          nextToken
+        }
+        ladders {
+          nextToken
+        }
+        comments {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      ladder {
+        id
+        matchType
+        name
+        geoData {
+          lat
+          lon
+        }
+        city
+        zip
+        matches {
+          nextToken
+        }
+        players {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
       createdAt
       updatedAt
     }
