@@ -16,6 +16,7 @@ export const createPlayer = /* GraphQL */ `
       NTRP
       UTR
       verified
+<<<<<<< HEAD
       playerMatches {
         items {
           playerID
@@ -64,6 +65,19 @@ export const createPlayer = /* GraphQL */ `
       }
       createdAt
       updatedAt
+=======
+      matches {
+        nextToken
+      }
+      ladders {
+        nextToken
+      }
+      comments {
+        nextToken
+      }
+      createdOn
+      updatedOn
+>>>>>>> origin/staging
     }
   }
 `;
@@ -82,6 +96,7 @@ export const updatePlayer = /* GraphQL */ `
       NTRP
       UTR
       verified
+<<<<<<< HEAD
       playerMatches {
         items {
           playerID
@@ -130,6 +145,19 @@ export const updatePlayer = /* GraphQL */ `
       }
       createdAt
       updatedAt
+=======
+      matches {
+        nextToken
+      }
+      ladders {
+        nextToken
+      }
+      comments {
+        nextToken
+      }
+      createdOn
+      updatedOn
+>>>>>>> origin/staging
     }
   }
 `;
@@ -148,6 +176,7 @@ export const deletePlayer = /* GraphQL */ `
       NTRP
       UTR
       verified
+<<<<<<< HEAD
       playerMatches {
         items {
           playerID
@@ -205,6 +234,107 @@ export const createPlayerMatch = /* GraphQL */ `
     $condition: ModelPlayerMatchConditionInput
   ) {
     createPlayerMatch(input: $input, condition: $condition) {
+=======
+      matches {
+        nextToken
+      }
+      ladders {
+        nextToken
+      }
+      comments {
+        nextToken
+      }
+      createdOn
+      updatedOn
+    }
+  }
+`;
+export const createLadder = /* GraphQL */ `
+  mutation CreateLadder(
+    $input: CreateLadderInput!
+    $condition: ModelLadderConditionInput
+  ) {
+    createLadder(input: $input, condition: $condition) {
+      id
+      name
+      location
+      geoData {
+        lat
+        lon
+      }
+      city
+      zip
+      matches {
+        nextToken
+      }
+      players {
+        nextToken
+      }
+      createdOn
+      updatedOn
+    }
+  }
+`;
+export const updateLadder = /* GraphQL */ `
+  mutation UpdateLadder(
+    $input: UpdateLadderInput!
+    $condition: ModelLadderConditionInput
+  ) {
+    updateLadder(input: $input, condition: $condition) {
+      id
+      name
+      location
+      geoData {
+        lat
+        lon
+      }
+      city
+      zip
+      matches {
+        nextToken
+      }
+      players {
+        nextToken
+      }
+      createdOn
+      updatedOn
+    }
+  }
+`;
+export const deleteLadder = /* GraphQL */ `
+  mutation DeleteLadder(
+    $input: DeleteLadderInput!
+    $condition: ModelLadderConditionInput
+  ) {
+    deleteLadder(input: $input, condition: $condition) {
+      id
+      name
+      location
+      geoData {
+        lat
+        lon
+      }
+      city
+      zip
+      matches {
+        nextToken
+      }
+      players {
+        nextToken
+      }
+      createdOn
+      updatedOn
+    }
+  }
+`;
+export const createStandings = /* GraphQL */ `
+  mutation CreateStandings(
+    $input: CreateStandingsInput!
+    $condition: ModelStandingsConditionInput
+  ) {
+    createStandings(input: $input, condition: $condition) {
+      id
+>>>>>>> origin/staging
       player {
         id
         name
@@ -215,6 +345,7 @@ export const createPlayerMatch = /* GraphQL */ `
         NTRP
         UTR
         verified
+<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -390,6 +521,36 @@ export const updatePlayerMatch = /* GraphQL */ `
     $condition: ModelPlayerMatchConditionInput
   ) {
     updatePlayerMatch(input: $input, condition: $condition) {
+=======
+        createdOn
+        updatedOn
+      }
+      ladder {
+        id
+        name
+        location
+        city
+        zip
+        createdOn
+        updatedOn
+      }
+      points
+      position
+      createdOn
+      updatedOn
+      standingsPlayerId
+      standingsLadderId
+    }
+  }
+`;
+export const updateStandings = /* GraphQL */ `
+  mutation UpdateStandings(
+    $input: UpdateStandingsInput!
+    $condition: ModelStandingsConditionInput
+  ) {
+    updateStandings(input: $input, condition: $condition) {
+      id
+>>>>>>> origin/staging
       player {
         id
         name
@@ -400,6 +561,7 @@ export const updatePlayerMatch = /* GraphQL */ `
         NTRP
         UTR
         verified
+<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -575,6 +737,36 @@ export const deletePlayerMatch = /* GraphQL */ `
     $condition: ModelPlayerMatchConditionInput
   ) {
     deletePlayerMatch(input: $input, condition: $condition) {
+=======
+        createdOn
+        updatedOn
+      }
+      ladder {
+        id
+        name
+        location
+        city
+        zip
+        createdOn
+        updatedOn
+      }
+      points
+      position
+      createdOn
+      updatedOn
+      standingsPlayerId
+      standingsLadderId
+    }
+  }
+`;
+export const deleteStandings = /* GraphQL */ `
+  mutation DeleteStandings(
+    $input: DeleteStandingsInput!
+    $condition: ModelStandingsConditionInput
+  ) {
+    deleteStandings(input: $input, condition: $condition) {
+      id
+>>>>>>> origin/staging
       player {
         id
         name
@@ -585,6 +777,7 @@ export const deletePlayerMatch = /* GraphQL */ `
         NTRP
         UTR
         verified
+<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -751,6 +944,26 @@ export const deletePlayerMatch = /* GraphQL */ `
       createdAt
       updatedAt
       playerPlayerMatchesId
+=======
+        createdOn
+        updatedOn
+      }
+      ladder {
+        id
+        name
+        location
+        city
+        zip
+        createdOn
+        updatedOn
+      }
+      points
+      position
+      createdOn
+      updatedOn
+      standingsPlayerId
+      standingsLadderId
+>>>>>>> origin/staging
     }
   }
 `;
@@ -775,6 +988,7 @@ export const createMatch = /* GraphQL */ `
         NTRP
         UTR
         verified
+<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -786,6 +1000,10 @@ export const createMatch = /* GraphQL */ `
         }
         createdAt
         updatedAt
+=======
+        createdOn
+        updatedOn
+>>>>>>> origin/staging
       }
       loserID
       loser {
@@ -798,6 +1016,7 @@ export const createMatch = /* GraphQL */ `
         NTRP
         UTR
         verified
+<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -846,6 +1065,35 @@ export const createMatch = /* GraphQL */ `
       }
       createdAt
       updatedAt
+=======
+        createdOn
+        updatedOn
+      }
+      score
+      setsWon
+      setsLost
+      gamesWon
+      gamesLost
+      tiebreaksWon
+      tiebreaksLost
+      retired
+      ladderID
+      ladder {
+        id
+        name
+        location
+        city
+        zip
+        createdOn
+        updatedOn
+      }
+      comments {
+        nextToken
+      }
+      createdOn
+      updatedOn
+      playerMatchesId
+>>>>>>> origin/staging
       ladderMatchesId
     }
   }
@@ -871,6 +1119,7 @@ export const updateMatch = /* GraphQL */ `
         NTRP
         UTR
         verified
+<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -882,6 +1131,10 @@ export const updateMatch = /* GraphQL */ `
         }
         createdAt
         updatedAt
+=======
+        createdOn
+        updatedOn
+>>>>>>> origin/staging
       }
       loserID
       loser {
@@ -894,6 +1147,7 @@ export const updateMatch = /* GraphQL */ `
         NTRP
         UTR
         verified
+<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -942,6 +1196,35 @@ export const updateMatch = /* GraphQL */ `
       }
       createdAt
       updatedAt
+=======
+        createdOn
+        updatedOn
+      }
+      score
+      setsWon
+      setsLost
+      gamesWon
+      gamesLost
+      tiebreaksWon
+      tiebreaksLost
+      retired
+      ladderID
+      ladder {
+        id
+        name
+        location
+        city
+        zip
+        createdOn
+        updatedOn
+      }
+      comments {
+        nextToken
+      }
+      createdOn
+      updatedOn
+      playerMatchesId
+>>>>>>> origin/staging
       ladderMatchesId
     }
   }
@@ -967,6 +1250,7 @@ export const deleteMatch = /* GraphQL */ `
         NTRP
         UTR
         verified
+<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -978,6 +1262,10 @@ export const deleteMatch = /* GraphQL */ `
         }
         createdAt
         updatedAt
+=======
+        createdOn
+        updatedOn
+>>>>>>> origin/staging
       }
       loserID
       loser {
@@ -990,6 +1278,7 @@ export const deleteMatch = /* GraphQL */ `
         NTRP
         UTR
         verified
+<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -1038,10 +1327,40 @@ export const deleteMatch = /* GraphQL */ `
       }
       createdAt
       updatedAt
+=======
+        createdOn
+        updatedOn
+      }
+      score
+      setsWon
+      setsLost
+      gamesWon
+      gamesLost
+      tiebreaksWon
+      tiebreaksLost
+      retired
+      ladderID
+      ladder {
+        id
+        name
+        location
+        city
+        zip
+        createdOn
+        updatedOn
+      }
+      comments {
+        nextToken
+      }
+      createdOn
+      updatedOn
+      playerMatchesId
+>>>>>>> origin/staging
       ladderMatchesId
     }
   }
 `;
+<<<<<<< HEAD
 export const createLadder = /* GraphQL */ `
   mutation CreateLadder(
     $input: CreateLadderInput!
@@ -1180,6 +1499,8 @@ export const deleteLadder = /* GraphQL */ `
     }
   }
 `;
+=======
+>>>>>>> origin/staging
 export const createComment = /* GraphQL */ `
   mutation CreateComment(
     $input: CreateCommentInput!
@@ -1194,6 +1515,7 @@ export const createComment = /* GraphQL */ `
         playedOn
         year
         winnerID
+<<<<<<< HEAD
         winner {
           id
           name
@@ -1237,6 +1559,21 @@ export const createComment = /* GraphQL */ `
         }
         createdAt
         updatedAt
+=======
+        loserID
+        score
+        setsWon
+        setsLost
+        gamesWon
+        gamesLost
+        tiebreaksWon
+        tiebreaksLost
+        retired
+        ladderID
+        createdOn
+        updatedOn
+        playerMatchesId
+>>>>>>> origin/staging
         ladderMatchesId
       }
       content
@@ -1251,6 +1588,7 @@ export const createComment = /* GraphQL */ `
         NTRP
         UTR
         verified
+<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -1267,6 +1605,15 @@ export const createComment = /* GraphQL */ `
       private
       createdAt
       updatedAt
+=======
+        createdOn
+        updatedOn
+      }
+      postedOn
+      private
+      createdOn
+      updatedOn
+>>>>>>> origin/staging
     }
   }
 `;
@@ -1284,6 +1631,7 @@ export const updateComment = /* GraphQL */ `
         playedOn
         year
         winnerID
+<<<<<<< HEAD
         winner {
           id
           name
@@ -1327,6 +1675,21 @@ export const updateComment = /* GraphQL */ `
         }
         createdAt
         updatedAt
+=======
+        loserID
+        score
+        setsWon
+        setsLost
+        gamesWon
+        gamesLost
+        tiebreaksWon
+        tiebreaksLost
+        retired
+        ladderID
+        createdOn
+        updatedOn
+        playerMatchesId
+>>>>>>> origin/staging
         ladderMatchesId
       }
       content
@@ -1341,6 +1704,7 @@ export const updateComment = /* GraphQL */ `
         NTRP
         UTR
         verified
+<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -1357,6 +1721,15 @@ export const updateComment = /* GraphQL */ `
       private
       createdAt
       updatedAt
+=======
+        createdOn
+        updatedOn
+      }
+      postedOn
+      private
+      createdOn
+      updatedOn
+>>>>>>> origin/staging
     }
   }
 `;
@@ -1374,6 +1747,7 @@ export const deleteComment = /* GraphQL */ `
         playedOn
         year
         winnerID
+<<<<<<< HEAD
         winner {
           id
           name
@@ -1417,6 +1791,21 @@ export const deleteComment = /* GraphQL */ `
         }
         createdAt
         updatedAt
+=======
+        loserID
+        score
+        setsWon
+        setsLost
+        gamesWon
+        gamesLost
+        tiebreaksWon
+        tiebreaksLost
+        retired
+        ladderID
+        createdOn
+        updatedOn
+        playerMatchesId
+>>>>>>> origin/staging
         ladderMatchesId
       }
       content
@@ -1431,6 +1820,7 @@ export const deleteComment = /* GraphQL */ `
         NTRP
         UTR
         verified
+<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -1633,6 +2023,15 @@ export const deleteStandings = /* GraphQL */ `
       updatedAt
       standingsPlayerId
       standingsLadderId
+=======
+        createdOn
+        updatedOn
+      }
+      postedOn
+      private
+      createdOn
+      updatedOn
+>>>>>>> origin/staging
     }
   }
 `;
@@ -1655,6 +2054,7 @@ export const createLadderPlayer = /* GraphQL */ `
         NTRP
         UTR
         verified
+<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -1685,6 +2085,19 @@ export const createLadderPlayer = /* GraphQL */ `
         }
         createdAt
         updatedAt
+=======
+        createdOn
+        updatedOn
+      }
+      ladder {
+        id
+        name
+        location
+        city
+        zip
+        createdOn
+        updatedOn
+>>>>>>> origin/staging
       }
       createdAt
       updatedAt
@@ -1710,6 +2123,7 @@ export const updateLadderPlayer = /* GraphQL */ `
         NTRP
         UTR
         verified
+<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -1740,6 +2154,19 @@ export const updateLadderPlayer = /* GraphQL */ `
         }
         createdAt
         updatedAt
+=======
+        createdOn
+        updatedOn
+      }
+      ladder {
+        id
+        name
+        location
+        city
+        zip
+        createdOn
+        updatedOn
+>>>>>>> origin/staging
       }
       createdAt
       updatedAt
@@ -1765,6 +2192,7 @@ export const deleteLadderPlayer = /* GraphQL */ `
         NTRP
         UTR
         verified
+<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -1795,6 +2223,19 @@ export const deleteLadderPlayer = /* GraphQL */ `
         }
         createdAt
         updatedAt
+=======
+        createdOn
+        updatedOn
+      }
+      ladder {
+        id
+        name
+        location
+        city
+        zip
+        createdOn
+        updatedOn
+>>>>>>> origin/staging
       }
       createdAt
       updatedAt

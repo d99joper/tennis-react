@@ -1,73 +1,118 @@
-import { withAuthenticator, Menu, MenuItem, View, Link, Flex, Heading } from '@aws-amplify/ui-react';
-import { Amplify, Auth } from 'aws-amplify';
-import {
-    BrowserRouter as Router,
-    Routes,
-    Route,
-  } from 'react-router-dom';
+import { Hub } from 'aws-amplify';
 import "@aws-amplify/ui-react/styles.css";
-import { API, Storage } from 'aws-amplify';
-import React, { useEffect, useState } from 'react';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
-import Profile from './views/profile'
-import NoPage from "./NoPage";
-import awsconfig from './aws-exports';
+import { userFunctions } from './helpers/index';
+import MyRouter from './routes';
+import Footer from './views/footer';
+import { green } from '@mui/material/colors';
 
-Amplify.configure(awsconfig);
+function App() {
+  const PrimaryMainTheme = createTheme({
+    palette: {
+      // palette values for dark mode
+      primary: green,
+      divider: green[300],
+      background: {
+        default: green[10],
+        paper: green[100],
+      }
 
-function Home() {
-    return <Heading level={2}>Home</Heading>;
+    }
+  });
+  const testing = useRef(false);
+  const newUser = useRef(false);
+
+  const [isLoading, setLoading] = useState(true); // Loading state
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => { // useEffect hook
+    Hub.listen('auth', (data) => {
+      console.log(data);
+      switch (data.payload.event) {
+        case 'signIn':
+          console.log('user signed in');
+          // set signed in status
+          setIsLoggedIn(true);
+
+          // check if a new user was just created
+          if (newUser.current) {
+            // create a new Player
+            userFunctions.createPlayerIfNotExist();
+            newUser.current = false;
+            window.location = '/Profile';
+          }
+          break;
+        case 'confirmSignUp':
+          console.log('user confirmed');
+          break;
+        case 'cognitoHostedUI':
+          console.log('cognitoHostedUI');
+          // check if external user exist as a 'Player'
+          // If not, create 'Player'
+          userFunctions.createPlayerIfNotExist().then(() => {
+            window.location = '/Profile';
+          });
+
+          break;
+        case 'signUp':
+          console.log('user signed up');
+          newUser.current = true;
+          break;
+        case 'signOut':
+          console.log('user signed out');
+          setIsLoggedIn(false);
+          break;
+        case 'signIn_failure':
+          console.log('user sign in failed');
+          setIsLoggedIn(false);
+          break;
+        case 'configured':
+          console.log('the Auth module is configured');
+          break;
+        default: 
+          break;
+      }
+    });
+
+    setLoading(false); //set loading state
+  }, []);
+
+  try {
+    userFunctions.CheckIfSignedIn()
+      .then((isSignedIn) => {
+        setIsLoggedIn(isSignedIn);
+      })
+      .catch((e) => { console.log(e) });
   }
-  
-  function About() {
-    return <Heading level={2}>About</Heading>;
+  catch (e) {
+    console.log(e);
   }
-  
-//   function Profile() {
-//     return <Heading level={2}>Profile</Heading>;
-//   }
 
-function App({ signOut, user }) {
-  
-  console.log(user);
+  if (isLoading) {
+    return (
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100vh",
+      }}>
+        Loading the data {console.log("loading state")}
+      </div>
+    );
+  }
+
   return (
     <div className="App">
-      
-      <h1>Hello {user.attributes.name} ({user.attributes.email}) on staging</h1>
-        <View width="4rem">
-            <Router>
-            
-                <Menu size="large">
-                    <MenuItem>
-                        <Link href="/">Home</Link>
-                    </MenuItem>
-                    <MenuItem>
-                        <Link href="/profile">My Profile</Link>
-                    </MenuItem>
-                    <MenuItem>
-                        <Link href="/about">About</Link>
-                    </MenuItem>
-                </Menu>
-                
-                {/* <Flex>
-                    <ReactRouterLink to="/" component={Link}>Home</ReactRouterLink>
-                    <ReactRouterLink to="/about" component={Link}>About</ReactRouterLink>
-                    <ReactRouterLink to="/users" component={Link}>Users</ReactRouterLink>
-                </Flex> */}
+      <ThemeProvider theme={PrimaryMainTheme}>
 
-                <Routes>
-                    <Route path="/about" element={<About />} />
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/" element={<Home />} />
-          <Route path="*" element={<NoPage />} />
-                </Routes>
-            </Router>
-        </View>
-
-    <button onClick={signOut}>Sign Out</button>
+        <MyRouter isLoggedIn={isLoggedIn} testing={true} />
+        <Footer></Footer>
+      </ThemeProvider>
     </div>
   );
 }
-  export default withAuthenticator(App, {
-    socialProviders: ['amazon','facebook','google']
-  });
+
+export default App;

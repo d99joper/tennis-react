@@ -1,11 +1,56 @@
 {
+  "api": {
+    "tennisreact": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "UserPoolId"
+          ],
+          "category": "auth",
+          "resourceName": "tennisreact"
+        }
+      ],
+      "output": {
+        "authConfig": {
+          "additionalAuthenticationProviders": [
+            {
+              "authenticationType": "AMAZON_COGNITO_USER_POOLS",
+              "userPoolConfig": {
+                "userPoolId": "authtennisreact"
+              }
+            }
+          ],
+          "defaultAuthentication": {
+            "apiKeyConfig": {
+              "apiKeyExpirationDate": "2023-11-28T02:39:51.556Z",
+              "apiKeyExpirationDays": 360,
+              "description": "dec 2023"
+            },
+            "authenticationType": "API_KEY"
+          }
+        }
+      },
+      "providerPlugin": "awscloudformation",
+      "service": "AppSync"
+    }
+  },
   "auth": {
     "tennisreact": {
-      "service": "Cognito",
-      "providerPlugin": "awscloudformation",
-      "dependsOn": [],
       "customAuth": false,
+      "dependsOn": [],
       "frontendAuthConfig": {
+        "mfaConfiguration": "OFF",
+        "mfaTypes": [
+          "SMS"
+        ],
+        "passwordProtectionSettings": {
+          "passwordPolicyCharacters": [],
+          "passwordPolicyMinLength": 8
+        },
+        "signupAttributes": [
+          "NAME",
+          "EMAIL"
+        ],
         "socialProviders": [
           "FACEBOOK",
           "GOOGLE",
@@ -14,35 +59,207 @@
         "usernameAttributes": [
           "EMAIL"
         ],
-        "signupAttributes": [
-          "NAME",
-          "EMAIL"
-        ],
-        "passwordProtectionSettings": {
-          "passwordPolicyMinLength": 8,
-          "passwordPolicyCharacters": [
-            "REQUIRES_LOWERCASE",
-            "REQUIRES_NUMBERS",
-            "REQUIRES_SYMBOLS",
-            "REQUIRES_UPPERCASE"
-          ]
-        },
-        "mfaConfiguration": "OFF",
-        "mfaTypes": [
-          "SMS"
-        ],
         "verificationMechanisms": [
           "EMAIL"
         ]
-      }
+      },
+      "providerPlugin": "awscloudformation",
+      "service": "Cognito"
     }
   },
+<<<<<<< HEAD
   "function": {},
+=======
+  "function": {
+    "tennisreact9ea7bf97CreateAuthChallenge": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "tennisreact9ea7bf97CustomMessage": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "tennisreact9ea7bf97DefineAuthChallenge": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "tennisreact9ea7bf97PostConfirmation": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "tennisreact9ea7bf97VerifyAuthChallengeResponse": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    }
+  },
+  "geo": {
+    "TSMap": {
+      "accessType": "AuthorizedAndGuestUsers",
+      "dependsOn": [
+        {
+          "attributes": [
+            "UserPoolId"
+          ],
+          "category": "auth",
+          "resourceName": "tennisreact"
+        }
+      ],
+      "isDefault": true,
+      "mapStyle": "VectorEsriStreets",
+      "providerPlugin": "awscloudformation",
+      "service": "Map"
+    },
+    "TSPlaceIndex": {
+      "accessType": "AuthorizedAndGuestUsers",
+      "dataProvider": "Here",
+      "dataSourceIntendedUse": "SingleUse",
+      "dependsOn": [
+        {
+          "attributes": [
+            "UserPoolId"
+          ],
+          "category": "auth",
+          "resourceName": "tennisreact"
+        }
+      ],
+      "isDefault": true,
+      "providerPlugin": "awscloudformation",
+      "service": "PlaceIndex"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_function_tennisreact9ea7bf97CreateAuthChallenge_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "tennisreact9ea7bf97CreateAuthChallenge"
+        }
+      ]
+    },
+    "AMPLIFY_function_tennisreact9ea7bf97CreateAuthChallenge_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "tennisreact9ea7bf97CreateAuthChallenge"
+        }
+      ]
+    },
+    "AMPLIFY_function_tennisreact9ea7bf97CustomMessage_EMAILMESSAGE": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "tennisreact9ea7bf97CustomMessage"
+        }
+      ]
+    },
+    "AMPLIFY_function_tennisreact9ea7bf97CustomMessage_EMAILSUBJECT": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "tennisreact9ea7bf97CustomMessage"
+        }
+      ]
+    },
+    "AMPLIFY_function_tennisreact9ea7bf97CustomMessage_REDIRECTURL": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "tennisreact9ea7bf97CustomMessage"
+        }
+      ]
+    },
+    "AMPLIFY_function_tennisreact9ea7bf97CustomMessage_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "tennisreact9ea7bf97CustomMessage"
+        }
+      ]
+    },
+    "AMPLIFY_function_tennisreact9ea7bf97CustomMessage_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "tennisreact9ea7bf97CustomMessage"
+        }
+      ]
+    },
+    "AMPLIFY_function_tennisreact9ea7bf97DefineAuthChallenge_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "tennisreact9ea7bf97DefineAuthChallenge"
+        }
+      ]
+    },
+    "AMPLIFY_function_tennisreact9ea7bf97DefineAuthChallenge_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "tennisreact9ea7bf97DefineAuthChallenge"
+        }
+      ]
+    },
+    "AMPLIFY_function_tennisreact9ea7bf97PostConfirmation_GROUP": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "tennisreact9ea7bf97PostConfirmation"
+        }
+      ]
+    },
+    "AMPLIFY_function_tennisreact9ea7bf97PostConfirmation_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "tennisreact9ea7bf97PostConfirmation"
+        }
+      ]
+    },
+    "AMPLIFY_function_tennisreact9ea7bf97PostConfirmation_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "tennisreact9ea7bf97PostConfirmation"
+        }
+      ]
+    },
+    "AMPLIFY_function_tennisreact9ea7bf97VerifyAuthChallengeResponse_RECAPTCHASECRET": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "tennisreact9ea7bf97VerifyAuthChallengeResponse"
+        }
+      ]
+    },
+    "AMPLIFY_function_tennisreact9ea7bf97VerifyAuthChallengeResponse_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "tennisreact9ea7bf97VerifyAuthChallengeResponse"
+        }
+      ]
+    },
+    "AMPLIFY_function_tennisreact9ea7bf97VerifyAuthChallengeResponse_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "tennisreact9ea7bf97VerifyAuthChallengeResponse"
+        }
+      ]
+    }
+  },
+>>>>>>> origin/staging
   "storage": {
     "profilePics": {
-      "service": "S3",
+      "dependsOn": [],
       "providerPlugin": "awscloudformation",
-      "dependsOn": []
+      "service": "S3"
     }
   },
   "api": {

@@ -1,6 +1,11 @@
 projects:
+<<<<<<< HEAD
   MTSApiProd:
     schemaPath: src/graphql/schema.json
+=======
+  tennisreact:
+    schemaPath: amplify/backend/api/tennisreact/build/schema.graphql
+>>>>>>> origin/staging
     includes:
       - src/graphql/**/*.js
     excludes:
@@ -10,3 +15,12 @@ projects:
         codeGenTarget: javascript
         generatedFileName: ''
         docsFilePath: src/graphql
+<<<<<<< HEAD
+=======
+        region: us-west-1
+        apiId: null
+        maxDepth: 2
+extensions:
+  amplify:
+    version: 3
+>>>>>>> origin/staging
