@@ -22,16 +22,6 @@
         "MTSApiProd": {
           "OpenSearchInstanceType": "t3.small.search"
         }
-      },
-      "storage": {
-        "profilePics": {}
-      },
-      "api": {
-        "tennisreact": {}
-      },
-      "geo": {
-        "TSPlaceIndex": {},
-        "TSMap": {}
       }
     }
   }
