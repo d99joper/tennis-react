@@ -13,7 +13,6 @@ export const onCreatePlayer = /* GraphQL */ `
       NTRP
       UTR
       verified
-<<<<<<< HEAD
       playerMatches {
         items {
           playerID
@@ -62,19 +61,6 @@ export const onCreatePlayer = /* GraphQL */ `
       }
       createdAt
       updatedAt
-=======
-      matches {
-        nextToken
-      }
-      ladders {
-        nextToken
-      }
-      comments {
-        nextToken
-      }
-      createdOn
-      updatedOn
->>>>>>> origin/staging
     }
   }
 `;
@@ -90,7 +76,6 @@ export const onUpdatePlayer = /* GraphQL */ `
       NTRP
       UTR
       verified
-<<<<<<< HEAD
       playerMatches {
         items {
           playerID
@@ -139,19 +124,6 @@ export const onUpdatePlayer = /* GraphQL */ `
       }
       createdAt
       updatedAt
-=======
-      matches {
-        nextToken
-      }
-      ladders {
-        nextToken
-      }
-      comments {
-        nextToken
-      }
-      createdOn
-      updatedOn
->>>>>>> origin/staging
     }
   }
 `;
@@ -167,7 +139,6 @@ export const onDeletePlayer = /* GraphQL */ `
       NTRP
       UTR
       verified
-<<<<<<< HEAD
       playerMatches {
         items {
           playerID
@@ -224,97 +195,6 @@ export const onCreatePlayerMatch = /* GraphQL */ `
     $filter: ModelSubscriptionPlayerMatchFilterInput
   ) {
     onCreatePlayerMatch(filter: $filter) {
-=======
-      matches {
-        nextToken
-      }
-      ladders {
-        nextToken
-      }
-      comments {
-        nextToken
-      }
-      createdOn
-      updatedOn
-    }
-  }
-`;
-export const onCreateLadder = /* GraphQL */ `
-  subscription OnCreateLadder($filter: ModelSubscriptionLadderFilterInput) {
-    onCreateLadder(filter: $filter) {
-      id
-      name
-      location
-      geoData {
-        lat
-        lon
-      }
-      city
-      zip
-      matches {
-        nextToken
-      }
-      players {
-        nextToken
-      }
-      createdOn
-      updatedOn
-    }
-  }
-`;
-export const onUpdateLadder = /* GraphQL */ `
-  subscription OnUpdateLadder($filter: ModelSubscriptionLadderFilterInput) {
-    onUpdateLadder(filter: $filter) {
-      id
-      name
-      location
-      geoData {
-        lat
-        lon
-      }
-      city
-      zip
-      matches {
-        nextToken
-      }
-      players {
-        nextToken
-      }
-      createdOn
-      updatedOn
-    }
-  }
-`;
-export const onDeleteLadder = /* GraphQL */ `
-  subscription OnDeleteLadder($filter: ModelSubscriptionLadderFilterInput) {
-    onDeleteLadder(filter: $filter) {
-      id
-      name
-      location
-      geoData {
-        lat
-        lon
-      }
-      city
-      zip
-      matches {
-        nextToken
-      }
-      players {
-        nextToken
-      }
-      createdOn
-      updatedOn
-    }
-  }
-`;
-export const onCreateStandings = /* GraphQL */ `
-  subscription OnCreateStandings(
-    $filter: ModelSubscriptionStandingsFilterInput
-  ) {
-    onCreateStandings(filter: $filter) {
-      id
->>>>>>> origin/staging
       player {
         id
         name
@@ -325,7 +205,6 @@ export const onCreateStandings = /* GraphQL */ `
         NTRP
         UTR
         verified
-<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -500,35 +379,6 @@ export const onUpdatePlayerMatch = /* GraphQL */ `
     $filter: ModelSubscriptionPlayerMatchFilterInput
   ) {
     onUpdatePlayerMatch(filter: $filter) {
-=======
-        createdOn
-        updatedOn
-      }
-      ladder {
-        id
-        name
-        location
-        city
-        zip
-        createdOn
-        updatedOn
-      }
-      points
-      position
-      createdOn
-      updatedOn
-      standingsPlayerId
-      standingsLadderId
-    }
-  }
-`;
-export const onUpdateStandings = /* GraphQL */ `
-  subscription OnUpdateStandings(
-    $filter: ModelSubscriptionStandingsFilterInput
-  ) {
-    onUpdateStandings(filter: $filter) {
-      id
->>>>>>> origin/staging
       player {
         id
         name
@@ -539,7 +389,6 @@ export const onUpdateStandings = /* GraphQL */ `
         NTRP
         UTR
         verified
-<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -714,35 +563,6 @@ export const onDeletePlayerMatch = /* GraphQL */ `
     $filter: ModelSubscriptionPlayerMatchFilterInput
   ) {
     onDeletePlayerMatch(filter: $filter) {
-=======
-        createdOn
-        updatedOn
-      }
-      ladder {
-        id
-        name
-        location
-        city
-        zip
-        createdOn
-        updatedOn
-      }
-      points
-      position
-      createdOn
-      updatedOn
-      standingsPlayerId
-      standingsLadderId
-    }
-  }
-`;
-export const onDeleteStandings = /* GraphQL */ `
-  subscription OnDeleteStandings(
-    $filter: ModelSubscriptionStandingsFilterInput
-  ) {
-    onDeleteStandings(filter: $filter) {
-      id
->>>>>>> origin/staging
       player {
         id
         name
@@ -753,7 +573,6 @@ export const onDeleteStandings = /* GraphQL */ `
         NTRP
         UTR
         verified
-<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -920,26 +739,6 @@ export const onDeleteStandings = /* GraphQL */ `
       createdAt
       updatedAt
       playerPlayerMatchesId
-=======
-        createdOn
-        updatedOn
-      }
-      ladder {
-        id
-        name
-        location
-        city
-        zip
-        createdOn
-        updatedOn
-      }
-      points
-      position
-      createdOn
-      updatedOn
-      standingsPlayerId
-      standingsLadderId
->>>>>>> origin/staging
     }
   }
 `;
@@ -961,7 +760,6 @@ export const onCreateMatch = /* GraphQL */ `
         NTRP
         UTR
         verified
-<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -973,10 +771,6 @@ export const onCreateMatch = /* GraphQL */ `
         }
         createdAt
         updatedAt
-=======
-        createdOn
-        updatedOn
->>>>>>> origin/staging
       }
       loserID
       loser {
@@ -989,7 +783,6 @@ export const onCreateMatch = /* GraphQL */ `
         NTRP
         UTR
         verified
-<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -1038,35 +831,6 @@ export const onCreateMatch = /* GraphQL */ `
       }
       createdAt
       updatedAt
-=======
-        createdOn
-        updatedOn
-      }
-      score
-      setsWon
-      setsLost
-      gamesWon
-      gamesLost
-      tiebreaksWon
-      tiebreaksLost
-      retired
-      ladderID
-      ladder {
-        id
-        name
-        location
-        city
-        zip
-        createdOn
-        updatedOn
-      }
-      comments {
-        nextToken
-      }
-      createdOn
-      updatedOn
-      playerMatchesId
->>>>>>> origin/staging
       ladderMatchesId
     }
   }
@@ -1089,7 +853,6 @@ export const onUpdateMatch = /* GraphQL */ `
         NTRP
         UTR
         verified
-<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -1101,10 +864,6 @@ export const onUpdateMatch = /* GraphQL */ `
         }
         createdAt
         updatedAt
-=======
-        createdOn
-        updatedOn
->>>>>>> origin/staging
       }
       loserID
       loser {
@@ -1117,7 +876,6 @@ export const onUpdateMatch = /* GraphQL */ `
         NTRP
         UTR
         verified
-<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -1166,35 +924,6 @@ export const onUpdateMatch = /* GraphQL */ `
       }
       createdAt
       updatedAt
-=======
-        createdOn
-        updatedOn
-      }
-      score
-      setsWon
-      setsLost
-      gamesWon
-      gamesLost
-      tiebreaksWon
-      tiebreaksLost
-      retired
-      ladderID
-      ladder {
-        id
-        name
-        location
-        city
-        zip
-        createdOn
-        updatedOn
-      }
-      comments {
-        nextToken
-      }
-      createdOn
-      updatedOn
-      playerMatchesId
->>>>>>> origin/staging
       ladderMatchesId
     }
   }
@@ -1217,7 +946,6 @@ export const onDeleteMatch = /* GraphQL */ `
         NTRP
         UTR
         verified
-<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -1229,10 +957,6 @@ export const onDeleteMatch = /* GraphQL */ `
         }
         createdAt
         updatedAt
-=======
-        createdOn
-        updatedOn
->>>>>>> origin/staging
       }
       loserID
       loser {
@@ -1245,7 +969,6 @@ export const onDeleteMatch = /* GraphQL */ `
         NTRP
         UTR
         verified
-<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -1294,40 +1017,10 @@ export const onDeleteMatch = /* GraphQL */ `
       }
       createdAt
       updatedAt
-=======
-        createdOn
-        updatedOn
-      }
-      score
-      setsWon
-      setsLost
-      gamesWon
-      gamesLost
-      tiebreaksWon
-      tiebreaksLost
-      retired
-      ladderID
-      ladder {
-        id
-        name
-        location
-        city
-        zip
-        createdOn
-        updatedOn
-      }
-      comments {
-        nextToken
-      }
-      createdOn
-      updatedOn
-      playerMatchesId
->>>>>>> origin/staging
       ladderMatchesId
     }
   }
 `;
-<<<<<<< HEAD
 export const onCreateLadder = /* GraphQL */ `
   subscription OnCreateLadder($filter: ModelSubscriptionLadderFilterInput) {
     onCreateLadder(filter: $filter) {
@@ -1457,8 +1150,6 @@ export const onDeleteLadder = /* GraphQL */ `
     }
   }
 `;
-=======
->>>>>>> origin/staging
 export const onCreateComment = /* GraphQL */ `
   subscription OnCreateComment($filter: ModelSubscriptionCommentFilterInput) {
     onCreateComment(filter: $filter) {
@@ -1470,7 +1161,6 @@ export const onCreateComment = /* GraphQL */ `
         playedOn
         year
         winnerID
-<<<<<<< HEAD
         winner {
           id
           name
@@ -1514,21 +1204,6 @@ export const onCreateComment = /* GraphQL */ `
         }
         createdAt
         updatedAt
-=======
-        loserID
-        score
-        setsWon
-        setsLost
-        gamesWon
-        gamesLost
-        tiebreaksWon
-        tiebreaksLost
-        retired
-        ladderID
-        createdOn
-        updatedOn
-        playerMatchesId
->>>>>>> origin/staging
         ladderMatchesId
       }
       content
@@ -1543,7 +1218,6 @@ export const onCreateComment = /* GraphQL */ `
         NTRP
         UTR
         verified
-<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -1560,15 +1234,6 @@ export const onCreateComment = /* GraphQL */ `
       private
       createdAt
       updatedAt
-=======
-        createdOn
-        updatedOn
-      }
-      postedOn
-      private
-      createdOn
-      updatedOn
->>>>>>> origin/staging
     }
   }
 `;
@@ -1583,7 +1248,6 @@ export const onUpdateComment = /* GraphQL */ `
         playedOn
         year
         winnerID
-<<<<<<< HEAD
         winner {
           id
           name
@@ -1627,21 +1291,6 @@ export const onUpdateComment = /* GraphQL */ `
         }
         createdAt
         updatedAt
-=======
-        loserID
-        score
-        setsWon
-        setsLost
-        gamesWon
-        gamesLost
-        tiebreaksWon
-        tiebreaksLost
-        retired
-        ladderID
-        createdOn
-        updatedOn
-        playerMatchesId
->>>>>>> origin/staging
         ladderMatchesId
       }
       content
@@ -1656,7 +1305,6 @@ export const onUpdateComment = /* GraphQL */ `
         NTRP
         UTR
         verified
-<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -1673,15 +1321,6 @@ export const onUpdateComment = /* GraphQL */ `
       private
       createdAt
       updatedAt
-=======
-        createdOn
-        updatedOn
-      }
-      postedOn
-      private
-      createdOn
-      updatedOn
->>>>>>> origin/staging
     }
   }
 `;
@@ -1696,7 +1335,6 @@ export const onDeleteComment = /* GraphQL */ `
         playedOn
         year
         winnerID
-<<<<<<< HEAD
         winner {
           id
           name
@@ -1740,21 +1378,6 @@ export const onDeleteComment = /* GraphQL */ `
         }
         createdAt
         updatedAt
-=======
-        loserID
-        score
-        setsWon
-        setsLost
-        gamesWon
-        gamesLost
-        tiebreaksWon
-        tiebreaksLost
-        retired
-        ladderID
-        createdOn
-        updatedOn
-        playerMatchesId
->>>>>>> origin/staging
         ladderMatchesId
       }
       content
@@ -1769,7 +1392,6 @@ export const onDeleteComment = /* GraphQL */ `
         NTRP
         UTR
         verified
-<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -1969,15 +1591,6 @@ export const onDeleteStandings = /* GraphQL */ `
       updatedAt
       standingsPlayerId
       standingsLadderId
-=======
-        createdOn
-        updatedOn
-      }
-      postedOn
-      private
-      createdOn
-      updatedOn
->>>>>>> origin/staging
     }
   }
 `;
@@ -1999,7 +1612,6 @@ export const onCreateLadderPlayer = /* GraphQL */ `
         NTRP
         UTR
         verified
-<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -2030,19 +1642,6 @@ export const onCreateLadderPlayer = /* GraphQL */ `
         }
         createdAt
         updatedAt
-=======
-        createdOn
-        updatedOn
-      }
-      ladder {
-        id
-        name
-        location
-        city
-        zip
-        createdOn
-        updatedOn
->>>>>>> origin/staging
       }
       createdAt
       updatedAt
@@ -2067,7 +1666,6 @@ export const onUpdateLadderPlayer = /* GraphQL */ `
         NTRP
         UTR
         verified
-<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -2098,19 +1696,6 @@ export const onUpdateLadderPlayer = /* GraphQL */ `
         }
         createdAt
         updatedAt
-=======
-        createdOn
-        updatedOn
-      }
-      ladder {
-        id
-        name
-        location
-        city
-        zip
-        createdOn
-        updatedOn
->>>>>>> origin/staging
       }
       createdAt
       updatedAt
@@ -2135,7 +1720,6 @@ export const onDeleteLadderPlayer = /* GraphQL */ `
         NTRP
         UTR
         verified
-<<<<<<< HEAD
         playerMatches {
           nextToken
         }
@@ -2166,19 +1750,6 @@ export const onDeleteLadderPlayer = /* GraphQL */ `
         }
         createdAt
         updatedAt
-=======
-        createdOn
-        updatedOn
-      }
-      ladder {
-        id
-        name
-        location
-        city
-        zip
-        createdOn
-        updatedOn
->>>>>>> origin/staging
       }
       createdAt
       updatedAt
