@@ -15,7 +15,6 @@
         "name" : "Query",
         "description" : null,
         "fields" : [ {
-<<<<<<< HEAD
           "name" : "searchPlayers",
           "description" : null,
           "args" : [ {
@@ -454,8 +453,6 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-=======
->>>>>>> origin/staging
           "name" : "getPlayer",
           "description" : null,
           "args" : [ {
@@ -483,7 +480,6 @@
           "name" : "listPlayers",
           "description" : null,
           "args" : [ {
-<<<<<<< HEAD
             "name" : "id",
             "description" : null,
             "type" : {
@@ -493,8 +489,6 @@
             },
             "defaultValue" : null
           }, {
-=======
->>>>>>> origin/staging
             "name" : "filter",
             "description" : null,
             "type" : {
@@ -521,7 +515,6 @@
               "ofType" : null
             },
             "defaultValue" : null
-<<<<<<< HEAD
           }, {
             "name" : "sortDirection",
             "description" : null,
@@ -531,8 +524,6 @@
               "ofType" : null
             },
             "defaultValue" : null
-=======
->>>>>>> origin/staging
           } ],
           "type" : {
             "kind" : "OBJECT",
@@ -542,7 +533,6 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "getPlayerMatch",
           "description" : null,
           "args" : [ {
@@ -725,8 +715,6 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-=======
->>>>>>> origin/staging
           "name" : "getLadder",
           "description" : null,
           "args" : [ {
@@ -754,7 +742,6 @@
           "name" : "listLadders",
           "description" : null,
           "args" : [ {
-<<<<<<< HEAD
             "name" : "id",
             "description" : null,
             "type" : {
@@ -764,8 +751,6 @@
             },
             "defaultValue" : null
           }, {
-=======
->>>>>>> origin/staging
             "name" : "filter",
             "description" : null,
             "type" : {
@@ -792,7 +777,6 @@
               "ofType" : null
             },
             "defaultValue" : null
-<<<<<<< HEAD
           }, {
             "name" : "sortDirection",
             "description" : null,
@@ -802,8 +786,6 @@
               "ofType" : null
             },
             "defaultValue" : null
-=======
->>>>>>> origin/staging
           } ],
           "type" : {
             "kind" : "OBJECT",
@@ -813,11 +795,7 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "getComment",
-=======
-          "name" : "getMatch",
->>>>>>> origin/staging
           "description" : null,
           "args" : [ {
             "name" : "id",
@@ -835,17 +813,12 @@
           } ],
           "type" : {
             "kind" : "OBJECT",
-<<<<<<< HEAD
             "name" : "Comment",
-=======
-            "name" : "Match",
->>>>>>> origin/staging
             "ofType" : null
           },
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "listComments",
           "description" : null,
           "args" : [ {
@@ -1636,11 +1609,6 @@
             },
             "defaultValue" : null
           }, {
-=======
-          "name" : "listMatches",
-          "description" : null,
-          "args" : [ {
->>>>>>> origin/staging
             "name" : "filter",
             "description" : null,
             "type" : {
@@ -1676,7 +1644,6 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "ladderByName",
           "description" : null,
           "args" : [ {
@@ -1810,12 +1777,6 @@
           "description" : null,
           "args" : [ {
             "name" : "playerID",
-=======
-          "name" : "getComment",
-          "description" : null,
-          "args" : [ {
-            "name" : "id",
->>>>>>> origin/staging
             "description" : null,
             "type" : {
               "kind" : "NON_NULL",
@@ -1827,7 +1788,6 @@
               }
             },
             "defaultValue" : null
-<<<<<<< HEAD
           }, {
             "name" : "ladderIDIsCurrent",
             "description" : null,
@@ -1877,18 +1837,11 @@
           "type" : {
             "kind" : "OBJECT",
             "name" : "ModelStandingsConnection",
-=======
-          } ],
-          "type" : {
-            "kind" : "OBJECT",
-            "name" : "Comment",
->>>>>>> origin/staging
             "ofType" : null
           },
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "standingsByLadderID",
           "description" : null,
           "args" : [ {
@@ -1923,20 +1876,11 @@
             },
             "defaultValue" : null
           }, {
-=======
-          "name" : "listComments",
-          "description" : null,
-          "args" : [ {
->>>>>>> origin/staging
             "name" : "filter",
             "description" : null,
             "type" : {
               "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
               "name" : "ModelStandingsFilterInput",
-=======
-              "name" : "ModelCommentFilterInput",
->>>>>>> origin/staging
               "ofType" : null
             },
             "defaultValue" : null
@@ -1961,11 +1905,7 @@
           } ],
           "type" : {
             "kind" : "OBJECT",
-<<<<<<< HEAD
             "name" : "ModelStandingsConnection",
-=======
-            "name" : "ModelCommentConnection",
->>>>>>> origin/staging
             "ofType" : null
           },
           "isDeprecated" : false,
@@ -1977,7 +1917,6 @@
         "possibleTypes" : null
       }, {
         "kind" : "OBJECT",
-<<<<<<< HEAD
         "name" : "SearchablePlayerConnection",
         "description" : null,
         "fields" : [ {
@@ -2047,8 +1986,6 @@
         "possibleTypes" : null
       }, {
         "kind" : "OBJECT",
-=======
->>>>>>> origin/staging
         "name" : "Player",
         "description" : null,
         "fields" : [ {
@@ -2067,24 +2004,6 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
-=======
-          "name" : "userGUID",
-          "description" : null,
-          "args" : [ ],
-          "type" : {
-            "kind" : "NON_NULL",
-            "name" : null,
-            "ofType" : {
-              "kind" : "SCALAR",
-              "name" : "ID",
-              "ofType" : null
-            }
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        }, {
->>>>>>> origin/staging
           "name" : "name",
           "description" : null,
           "args" : [ ],
@@ -2170,7 +2089,6 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "verified",
           "description" : null,
           "args" : [ ],
@@ -2198,20 +2116,11 @@
             },
             "defaultValue" : null
           }, {
-=======
-          "name" : "matches",
-          "description" : null,
-          "args" : [ {
->>>>>>> origin/staging
             "name" : "filter",
             "description" : null,
             "type" : {
               "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
               "name" : "ModelPlayerMatchFilterInput",
-=======
-              "name" : "ModelMatchFilterInput",
->>>>>>> origin/staging
               "ofType" : null
             },
             "defaultValue" : null
@@ -2245,11 +2154,7 @@
           } ],
           "type" : {
             "kind" : "OBJECT",
-<<<<<<< HEAD
             "name" : "ModelPlayerMatchConnection",
-=======
-            "name" : "ModelMatchConnection",
->>>>>>> origin/staging
             "ofType" : null
           },
           "isDeprecated" : false,
@@ -2262,11 +2167,7 @@
             "description" : null,
             "type" : {
               "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
               "name" : "ModelLadderPlayerFilterInput",
-=======
-              "name" : "ModelLadderFilterInput",
->>>>>>> origin/staging
               "ofType" : null
             },
             "defaultValue" : null
@@ -2300,17 +2201,12 @@
           } ],
           "type" : {
             "kind" : "OBJECT",
-<<<<<<< HEAD
             "name" : "ModelLadderPlayerConnection",
-=======
-            "name" : "ModelLadderConnection",
->>>>>>> origin/staging
             "ofType" : null
           },
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "comments",
           "description" : null,
           "args" : [ {
@@ -2368,9 +2264,6 @@
           "deprecationReason" : null
         }, {
           "name" : "createdAt",
-=======
-          "name" : "createdOn",
->>>>>>> origin/staging
           "description" : null,
           "args" : [ ],
           "type" : {
@@ -2385,11 +2278,7 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "updatedAt",
-=======
-          "name" : "updatedOn",
->>>>>>> origin/staging
           "description" : null,
           "args" : [ ],
           "type" : {
@@ -2403,20 +2292,6 @@
           },
           "isDeprecated" : false,
           "deprecationReason" : null
-<<<<<<< HEAD
-=======
-        }, {
-          "name" : "ladderPlayersId",
-          "description" : null,
-          "args" : [ ],
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "ID",
-            "ofType" : null
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
->>>>>>> origin/staging
         } ],
         "inputFields" : null,
         "interfaces" : [ ],
@@ -2459,7 +2334,6 @@
         "enumValues" : null,
         "possibleTypes" : null
       }, {
-<<<<<<< HEAD
         "kind" : "SCALAR",
         "name" : "Boolean",
         "description" : "Built-in Boolean",
@@ -2471,10 +2345,6 @@
       }, {
         "kind" : "OBJECT",
         "name" : "ModelPlayerMatchConnection",
-=======
-        "kind" : "OBJECT",
-        "name" : "ModelMatchConnection",
->>>>>>> origin/staging
         "description" : null,
         "fields" : [ {
           "name" : "items",
@@ -2488,11 +2358,7 @@
               "name" : null,
               "ofType" : {
                 "kind" : "OBJECT",
-<<<<<<< HEAD
                 "name" : "PlayerMatch",
-=======
-                "name" : "Match",
->>>>>>> origin/staging
                 "ofType" : null
               }
             }
@@ -2517,7 +2383,6 @@
         "possibleTypes" : null
       }, {
         "kind" : "OBJECT",
-<<<<<<< HEAD
         "name" : "PlayerMatch",
         "description" : null,
         "fields" : [ {
@@ -2863,8 +2728,6 @@
         "possibleTypes" : null
       }, {
         "kind" : "OBJECT",
-=======
->>>>>>> origin/staging
         "name" : "Match",
         "description" : null,
         "fields" : [ {
@@ -2883,7 +2746,6 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "type",
           "description" : null,
           "args" : [ ],
@@ -2899,8 +2761,6 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-=======
->>>>>>> origin/staging
           "name" : "playedOn",
           "description" : null,
           "args" : [ ],
@@ -2916,11 +2776,7 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "year",
-=======
-          "name" : "reportedOn",
->>>>>>> origin/staging
           "description" : null,
           "args" : [ ],
           "type" : {
@@ -2928,7 +2784,6 @@
             "name" : null,
             "ofType" : {
               "kind" : "SCALAR",
-<<<<<<< HEAD
               "name" : "Int",
               "ofType" : null
             }
@@ -2945,9 +2800,6 @@
             "ofType" : {
               "kind" : "SCALAR",
               "name" : "ID",
-=======
-              "name" : "AWSDateTime",
->>>>>>> origin/staging
               "ofType" : null
             }
           },
@@ -2969,7 +2821,6 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "loserID",
           "description" : null,
           "args" : [ ],
@@ -2985,8 +2836,6 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-=======
->>>>>>> origin/staging
           "name" : "loser",
           "description" : null,
           "args" : [ ],
@@ -3017,7 +2866,6 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "ladderID",
           "description" : null,
           "args" : [ ],
@@ -3033,8 +2881,6 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-=======
->>>>>>> origin/staging
           "name" : "ladder",
           "description" : null,
           "args" : [ ],
@@ -3049,7 +2895,6 @@
           "name" : "comments",
           "description" : null,
           "args" : [ {
-<<<<<<< HEAD
             "name" : "postedOn",
             "description" : null,
             "type" : {
@@ -3059,8 +2904,6 @@
             },
             "defaultValue" : null
           }, {
-=======
->>>>>>> origin/staging
             "name" : "filter",
             "description" : null,
             "type" : {
@@ -3105,11 +2948,7 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "createdAt",
-=======
-          "name" : "createdOn",
->>>>>>> origin/staging
           "description" : null,
           "args" : [ ],
           "type" : {
@@ -3124,11 +2963,7 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "updatedAt",
-=======
-          "name" : "updatedOn",
->>>>>>> origin/staging
           "description" : null,
           "args" : [ ],
           "type" : {
@@ -3143,20 +2978,6 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
-=======
-          "name" : "playerMatchesId",
-          "description" : null,
-          "args" : [ ],
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "ID",
-            "ofType" : null
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        }, {
->>>>>>> origin/staging
           "name" : "ladderMatchesId",
           "description" : null,
           "args" : [ ],
@@ -3173,7 +2994,6 @@
         "enumValues" : null,
         "possibleTypes" : null
       }, {
-<<<<<<< HEAD
         "kind" : "ENUM",
         "name" : "matchType",
         "description" : null,
@@ -3198,8 +3018,6 @@
         } ],
         "possibleTypes" : null
       }, {
-=======
->>>>>>> origin/staging
         "kind" : "SCALAR",
         "name" : "AWSDate",
         "description" : "The `AWSDate` scalar type provided by AWS AppSync, represents a valid ***extended*** [ISO 8601 Date](https://en.wikipedia.org/wiki/ISO_8601#Calendar_dates) string. In other words, this scalar type accepts date strings of the form `YYYY-MM-DD`.  The scalar can also accept \"negative years\" of the form `-YYYY` which correspond to years before `0000`. For example, \"**-2017-05-01**\" and \"**-9999-01-01**\" are both valid dates.  This scalar type can also accept an optional [time zone offset](https://en.wikipedia.org/wiki/ISO_8601#Time_zone_designators). For example, \"**1970-01-01**\", \"**1970-01-01Z**\", \"**1970-01-01-07:00**\" and \"**1970-01-01+05:30**\" are all valid dates. The time zone offset must either be `Z` (representing the UTC time zone) or be in the format `±hh:mm:ss`. The seconds field in the timezone offset will be considered valid even though it is not part of the ISO 8601 standard.",
@@ -3210,13 +3028,8 @@
         "possibleTypes" : null
       }, {
         "kind" : "SCALAR",
-<<<<<<< HEAD
         "name" : "Int",
         "description" : "Built-in Int",
-=======
-        "name" : "AWSDateTime",
-        "description" : "The `AWSDateTime` scalar type provided by AWS AppSync, represents a valid ***extended*** [ISO 8601 DateTime](https://en.wikipedia.org/wiki/ISO_8601#Combined_date_and_time_representations) string. In other words, this scalar type accepts datetime strings of the form `YYYY-MM-DDThh:mm:ss.SSSZ`.  The scalar can also accept \"negative years\" of the form `-YYYY` which correspond to years before `0000`. For example, \"**-2017-01-01T00:00Z**\" and \"**-9999-01-01T00:00Z**\" are both valid datetime strings.  The field after the two digit seconds field is a nanoseconds field. It can accept between 1 and 9 digits. So, for example, \"**1970-01-01T12:00:00.2Z**\", \"**1970-01-01T12:00:00.277Z**\" and \"**1970-01-01T12:00:00.123456789Z**\" are all valid datetime strings.  The seconds and nanoseconds fields are optional (the seconds field must be specified if the nanoseconds field is to be used).  The [time zone offset](https://en.wikipedia.org/wiki/ISO_8601#Time_zone_designators) is compulsory for this scalar. The time zone offset must either be `Z` (representing the UTC time zone) or be in the format `±hh:mm:ss`. The seconds field in the timezone offset will be considered valid even though it is not part of the ISO 8601 standard.",
->>>>>>> origin/staging
         "fields" : null,
         "inputFields" : null,
         "interfaces" : null,
@@ -3242,7 +3055,6 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "matchType",
           "description" : null,
           "args" : [ ],
@@ -3258,8 +3070,6 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-=======
->>>>>>> origin/staging
           "name" : "name",
           "description" : null,
           "args" : [ ],
@@ -3275,7 +3085,6 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "geoData",
           "description" : null,
           "args" : [ ],
@@ -3305,19 +3114,6 @@
             "kind" : "SCALAR",
             "name" : "String",
             "ofType" : null
-=======
-          "name" : "location",
-          "description" : null,
-          "args" : [ ],
-          "type" : {
-            "kind" : "NON_NULL",
-            "name" : null,
-            "ofType" : {
-              "kind" : "SCALAR",
-              "name" : "String",
-              "ofType" : null
-            }
->>>>>>> origin/staging
           },
           "isDeprecated" : false,
           "deprecationReason" : null
@@ -3376,11 +3172,7 @@
             "description" : null,
             "type" : {
               "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
               "name" : "ModelLadderPlayerFilterInput",
-=======
-              "name" : "ModelPlayerFilterInput",
->>>>>>> origin/staging
               "ofType" : null
             },
             "defaultValue" : null
@@ -3414,21 +3206,13 @@
           } ],
           "type" : {
             "kind" : "OBJECT",
-<<<<<<< HEAD
             "name" : "ModelLadderPlayerConnection",
-=======
-            "name" : "ModelPlayerConnection",
->>>>>>> origin/staging
             "ofType" : null
           },
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "createdAt",
-=======
-          "name" : "createdOn",
->>>>>>> origin/staging
           "description" : null,
           "args" : [ ],
           "type" : {
@@ -3443,11 +3227,7 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "updatedAt",
-=======
-          "name" : "updatedOn",
->>>>>>> origin/staging
           "description" : null,
           "args" : [ ],
           "type" : {
@@ -3461,7 +3241,6 @@
           },
           "isDeprecated" : false,
           "deprecationReason" : null
-<<<<<<< HEAD
         } ],
         "inputFields" : null,
         "interfaces" : [ ],
@@ -3540,19 +3319,11 @@
           "deprecationReason" : null
         }, {
           "name" : "nextToken",
-=======
-        }, {
-          "name" : "playerLaddersId",
->>>>>>> origin/staging
           "description" : null,
           "args" : [ ],
           "type" : {
             "kind" : "SCALAR",
-<<<<<<< HEAD
             "name" : "String",
-=======
-            "name" : "ID",
->>>>>>> origin/staging
             "ofType" : null
           },
           "isDeprecated" : false,
@@ -3577,7 +3348,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "type",
           "description" : null,
           "type" : {
@@ -3587,8 +3357,6 @@
           },
           "defaultValue" : null
         }, {
-=======
->>>>>>> origin/staging
           "name" : "playedOn",
           "description" : null,
           "type" : {
@@ -3598,7 +3366,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "year",
           "description" : null,
           "type" : {
@@ -3622,13 +3389,6 @@
           "type" : {
             "kind" : "INPUT_OBJECT",
             "name" : "ModelIDInput",
-=======
-          "name" : "reportedOn",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelStringInput",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
@@ -3642,7 +3402,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "ladderID",
           "description" : null,
           "type" : {
@@ -3652,8 +3411,6 @@
           },
           "defaultValue" : null
         }, {
-=======
->>>>>>> origin/staging
           "name" : "and",
           "description" : null,
           "type" : {
@@ -3689,18 +3446,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
-=======
-          "name" : "playerMatchesId",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelIDInput",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
->>>>>>> origin/staging
           "name" : "ladderMatchesId",
           "description" : null,
           "type" : {
@@ -3844,18 +3589,6 @@
         "enumValues" : null,
         "possibleTypes" : null
       }, {
-<<<<<<< HEAD
-=======
-        "kind" : "SCALAR",
-        "name" : "Boolean",
-        "description" : "Built-in Boolean",
-        "fields" : null,
-        "inputFields" : null,
-        "interfaces" : null,
-        "enumValues" : null,
-        "possibleTypes" : null
-      }, {
->>>>>>> origin/staging
         "kind" : "ENUM",
         "name" : "ModelAttributeTypes",
         "description" : null,
@@ -3991,7 +3724,6 @@
         "enumValues" : null,
         "possibleTypes" : null
       }, {
-<<<<<<< HEAD
         "kind" : "INPUT_OBJECT",
         "name" : "ModelmatchTypeInput",
         "description" : null,
@@ -4015,13 +3747,6 @@
           },
           "defaultValue" : null
         } ],
-=======
-        "kind" : "SCALAR",
-        "name" : "Int",
-        "description" : "Built-in Int",
-        "fields" : null,
-        "inputFields" : null,
->>>>>>> origin/staging
         "interfaces" : null,
         "enumValues" : null,
         "possibleTypes" : null
@@ -4156,7 +3881,6 @@
         "enumValues" : null,
         "possibleTypes" : null
       }, {
-<<<<<<< HEAD
         "kind" : "INPUT_OBJECT",
         "name" : "ModelIntInput",
         "description" : null,
@@ -4251,8 +3975,6 @@
         "enumValues" : null,
         "possibleTypes" : null
       }, {
-=======
->>>>>>> origin/staging
         "kind" : "ENUM",
         "name" : "ModelSortDirection",
         "description" : null,
@@ -4273,11 +3995,7 @@
         "possibleTypes" : null
       }, {
         "kind" : "OBJECT",
-<<<<<<< HEAD
         "name" : "ModelLadderPlayerConnection",
-=======
-        "name" : "ModelPlayerConnection",
->>>>>>> origin/staging
         "description" : null,
         "fields" : [ {
           "name" : "items",
@@ -4291,11 +4009,7 @@
               "name" : null,
               "ofType" : {
                 "kind" : "OBJECT",
-<<<<<<< HEAD
                 "name" : "LadderPlayer",
-=======
-                "name" : "Player",
->>>>>>> origin/staging
                 "ofType" : null
               }
             }
@@ -4319,7 +4033,6 @@
         "enumValues" : null,
         "possibleTypes" : null
       }, {
-<<<<<<< HEAD
         "kind" : "OBJECT",
         "name" : "LadderPlayer",
         "description" : null,
@@ -4445,10 +4158,6 @@
       }, {
         "kind" : "INPUT_OBJECT",
         "name" : "ModelLadderPlayerFilterInput",
-=======
-        "kind" : "INPUT_OBJECT",
-        "name" : "ModelPlayerFilterInput",
->>>>>>> origin/staging
         "description" : null,
         "fields" : null,
         "inputFields" : [ {
@@ -4461,11 +4170,7 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "playerID",
-=======
-          "name" : "userGUID",
->>>>>>> origin/staging
           "description" : null,
           "type" : {
             "kind" : "INPUT_OBJECT",
@@ -4474,73 +4179,11 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "ladderID",
           "description" : null,
           "type" : {
             "kind" : "INPUT_OBJECT",
             "name" : "ModelIDInput",
-=======
-          "name" : "name",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelStringInput",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "email",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelStringInput",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "phone",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelStringInput",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "about",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelStringInput",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "image",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelStringInput",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "NTRP",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelStringInput",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "UTR",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelStringInput",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
@@ -4552,11 +4195,7 @@
             "name" : null,
             "ofType" : {
               "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
               "name" : "ModelLadderPlayerFilterInput",
-=======
-              "name" : "ModelPlayerFilterInput",
->>>>>>> origin/staging
               "ofType" : null
             }
           },
@@ -4569,11 +4208,7 @@
             "name" : null,
             "ofType" : {
               "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
               "name" : "ModelLadderPlayerFilterInput",
-=======
-              "name" : "ModelPlayerFilterInput",
->>>>>>> origin/staging
               "ofType" : null
             }
           },
@@ -4583,20 +4218,7 @@
           "description" : null,
           "type" : {
             "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
             "name" : "ModelLadderPlayerFilterInput",
-=======
-            "name" : "ModelPlayerFilterInput",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "ladderPlayersId",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelIDInput",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
@@ -4663,11 +4285,7 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "matchID",
-=======
-          "name" : "createdOn",
->>>>>>> origin/staging
           "description" : null,
           "args" : [ ],
           "type" : {
@@ -4675,11 +4293,7 @@
             "name" : null,
             "ofType" : {
               "kind" : "SCALAR",
-<<<<<<< HEAD
               "name" : "ID",
-=======
-              "name" : "String",
->>>>>>> origin/staging
               "ofType" : null
             }
           },
@@ -4712,11 +4326,7 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "postedByID",
-=======
-          "name" : "updatedOn",
->>>>>>> origin/staging
           "description" : null,
           "args" : [ ],
           "type" : {
@@ -4724,18 +4334,13 @@
             "name" : null,
             "ofType" : {
               "kind" : "SCALAR",
-<<<<<<< HEAD
               "name" : "ID",
-=======
-              "name" : "AWSDateTime",
->>>>>>> origin/staging
               "ofType" : null
             }
           },
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "postedBy",
           "description" : null,
           "args" : [ ],
@@ -4763,23 +4368,15 @@
           "deprecationReason" : null
         }, {
           "name" : "private",
-=======
-          "name" : "matchCommentsId",
->>>>>>> origin/staging
           "description" : null,
           "args" : [ ],
           "type" : {
             "kind" : "SCALAR",
-<<<<<<< HEAD
             "name" : "Boolean",
-=======
-            "name" : "ID",
->>>>>>> origin/staging
             "ofType" : null
           },
           "isDeprecated" : false,
           "deprecationReason" : null
-<<<<<<< HEAD
         }, {
           "name" : "createdAt",
           "description" : null,
@@ -4810,8 +4407,6 @@
           },
           "isDeprecated" : false,
           "deprecationReason" : null
-=======
->>>>>>> origin/staging
         } ],
         "inputFields" : null,
         "interfaces" : [ ],
@@ -4819,7 +4414,6 @@
         "possibleTypes" : null
       }, {
         "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
         "name" : "ModelStringKeyConditionInput",
         "description" : null,
         "fields" : null,
@@ -4896,8 +4490,6 @@
         "possibleTypes" : null
       }, {
         "kind" : "INPUT_OBJECT",
-=======
->>>>>>> origin/staging
         "name" : "ModelCommentFilterInput",
         "description" : null,
         "fields" : null,
@@ -4911,19 +4503,11 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "matchID",
           "description" : null,
           "type" : {
             "kind" : "INPUT_OBJECT",
             "name" : "ModelIDInput",
-=======
-          "name" : "createdOn",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelStringInput",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
@@ -4937,7 +4521,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "postedByID",
           "description" : null,
           "type" : {
@@ -4965,8 +4548,6 @@
           },
           "defaultValue" : null
         }, {
-=======
->>>>>>> origin/staging
           "name" : "and",
           "description" : null,
           "type" : {
@@ -5001,7 +4582,6 @@
             "ofType" : null
           },
           "defaultValue" : null
-<<<<<<< HEAD
         } ],
         "interfaces" : null,
         "enumValues" : null,
@@ -5134,10 +4714,6 @@
         "fields" : null,
         "inputFields" : [ {
           "name" : "playerID",
-=======
-        }, {
-          "name" : "matchCommentsId",
->>>>>>> origin/staging
           "description" : null,
           "type" : {
             "kind" : "INPUT_OBJECT",
@@ -5145,7 +4721,6 @@
             "ofType" : null
           },
           "defaultValue" : null
-<<<<<<< HEAD
         }, {
           "name" : "partnerID",
           "description" : null,
@@ -8697,8 +8272,6 @@
             "ofType" : null
           },
           "defaultValue" : null
-=======
->>>>>>> origin/staging
         } ],
         "interfaces" : null,
         "enumValues" : null,
@@ -8757,7 +8330,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "matchType",
           "description" : null,
           "type" : {
@@ -8767,8 +8339,6 @@
           },
           "defaultValue" : null
         }, {
-=======
->>>>>>> origin/staging
           "name" : "name",
           "description" : null,
           "type" : {
@@ -8778,7 +8348,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "city",
           "description" : null,
           "type" : {
@@ -8789,9 +8358,6 @@
           "defaultValue" : null
         }, {
           "name" : "zip",
-=======
-          "name" : "location",
->>>>>>> origin/staging
           "description" : null,
           "type" : {
             "kind" : "INPUT_OBJECT",
@@ -8834,7 +8400,6 @@
             "ofType" : null
           },
           "defaultValue" : null
-<<<<<<< HEAD
         } ],
         "interfaces" : null,
         "enumValues" : null,
@@ -8885,10 +8450,6 @@
         "fields" : null,
         "inputFields" : [ {
           "name" : "id",
-=======
-        }, {
-          "name" : "playerLaddersId",
->>>>>>> origin/staging
           "description" : null,
           "type" : {
             "kind" : "INPUT_OBJECT",
@@ -8896,7 +8457,6 @@
             "ofType" : null
           },
           "defaultValue" : null
-<<<<<<< HEAD
         }, {
           "name" : "playerID",
           "description" : null,
@@ -9219,8 +8779,6 @@
             "ofType" : null
           },
           "defaultValue" : null
-=======
->>>>>>> origin/staging
         } ],
         "interfaces" : null,
         "enumValues" : null,
@@ -9329,11 +8887,7 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "createPlayerMatch",
-=======
-          "name" : "createLadder",
->>>>>>> origin/staging
           "description" : null,
           "args" : [ {
             "name" : "input",
@@ -9343,11 +8897,7 @@
               "name" : null,
               "ofType" : {
                 "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
                 "name" : "CreatePlayerMatchInput",
-=======
-                "name" : "CreateLadderInput",
->>>>>>> origin/staging
                 "ofType" : null
               }
             },
@@ -9357,32 +8907,20 @@
             "description" : null,
             "type" : {
               "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
               "name" : "ModelPlayerMatchConditionInput",
-=======
-              "name" : "ModelLadderConditionInput",
->>>>>>> origin/staging
               "ofType" : null
             },
             "defaultValue" : null
           } ],
           "type" : {
             "kind" : "OBJECT",
-<<<<<<< HEAD
             "name" : "PlayerMatch",
-=======
-            "name" : "Ladder",
->>>>>>> origin/staging
             "ofType" : null
           },
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "updatePlayerMatch",
-=======
-          "name" : "updateLadder",
->>>>>>> origin/staging
           "description" : null,
           "args" : [ {
             "name" : "input",
@@ -9392,11 +8930,7 @@
               "name" : null,
               "ofType" : {
                 "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
                 "name" : "UpdatePlayerMatchInput",
-=======
-                "name" : "UpdateLadderInput",
->>>>>>> origin/staging
                 "ofType" : null
               }
             },
@@ -9406,32 +8940,20 @@
             "description" : null,
             "type" : {
               "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
               "name" : "ModelPlayerMatchConditionInput",
-=======
-              "name" : "ModelLadderConditionInput",
->>>>>>> origin/staging
               "ofType" : null
             },
             "defaultValue" : null
           } ],
           "type" : {
             "kind" : "OBJECT",
-<<<<<<< HEAD
             "name" : "PlayerMatch",
-=======
-            "name" : "Ladder",
->>>>>>> origin/staging
             "ofType" : null
           },
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "deletePlayerMatch",
-=======
-          "name" : "deleteLadder",
->>>>>>> origin/staging
           "description" : null,
           "args" : [ {
             "name" : "input",
@@ -9441,11 +8963,7 @@
               "name" : null,
               "ofType" : {
                 "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
                 "name" : "DeletePlayerMatchInput",
-=======
-                "name" : "DeleteLadderInput",
->>>>>>> origin/staging
                 "ofType" : null
               }
             },
@@ -9455,22 +8973,14 @@
             "description" : null,
             "type" : {
               "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
               "name" : "ModelPlayerMatchConditionInput",
-=======
-              "name" : "ModelLadderConditionInput",
->>>>>>> origin/staging
               "ofType" : null
             },
             "defaultValue" : null
           } ],
           "type" : {
             "kind" : "OBJECT",
-<<<<<<< HEAD
             "name" : "PlayerMatch",
-=======
-            "name" : "Ladder",
->>>>>>> origin/staging
             "ofType" : null
           },
           "isDeprecated" : false,
@@ -9575,7 +9085,6 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "createLadder",
           "description" : null,
           "args" : [ {
@@ -9675,8 +9184,6 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-=======
->>>>>>> origin/staging
           "name" : "createComment",
           "description" : null,
           "args" : [ {
@@ -9775,7 +9282,6 @@
           },
           "isDeprecated" : false,
           "deprecationReason" : null
-<<<<<<< HEAD
         }, {
           "name" : "createStandings",
           "description" : null,
@@ -9974,8 +9480,6 @@
           },
           "isDeprecated" : false,
           "deprecationReason" : null
-=======
->>>>>>> origin/staging
         } ],
         "inputFields" : null,
         "interfaces" : [ ],
@@ -9996,22 +9500,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
-=======
-          "name" : "userGUID",
-          "description" : null,
-          "type" : {
-            "kind" : "NON_NULL",
-            "name" : null,
-            "ofType" : {
-              "kind" : "SCALAR",
-              "name" : "ID",
-              "ofType" : null
-            }
-          },
-          "defaultValue" : null
-        }, {
->>>>>>> origin/staging
           "name" : "name",
           "description" : null,
           "type" : {
@@ -10083,7 +9571,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "verified",
           "description" : null,
           "type" : {
@@ -10094,14 +9581,6 @@
               "name" : "Boolean",
               "ofType" : null
             }
-=======
-          "name" : "ladderPlayersId",
-          "description" : null,
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "ID",
-            "ofType" : null
->>>>>>> origin/staging
           },
           "defaultValue" : null
         } ],
@@ -10114,18 +9593,6 @@
         "description" : null,
         "fields" : null,
         "inputFields" : [ {
-<<<<<<< HEAD
-=======
-          "name" : "userGUID",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelIDInput",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
->>>>>>> origin/staging
           "name" : "name",
           "description" : null,
           "type" : {
@@ -10189,7 +9656,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "verified",
           "description" : null,
           "type" : {
@@ -10199,8 +9665,6 @@
           },
           "defaultValue" : null
         }, {
-=======
->>>>>>> origin/staging
           "name" : "and",
           "description" : null,
           "type" : {
@@ -10235,18 +9699,6 @@
             "ofType" : null
           },
           "defaultValue" : null
-<<<<<<< HEAD
-=======
-        }, {
-          "name" : "ladderPlayersId",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelIDInput",
-            "ofType" : null
-          },
-          "defaultValue" : null
->>>>>>> origin/staging
         } ],
         "interfaces" : null,
         "enumValues" : null,
@@ -10270,18 +9722,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
-=======
-          "name" : "userGUID",
-          "description" : null,
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "ID",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
->>>>>>> origin/staging
           "name" : "name",
           "description" : null,
           "type" : {
@@ -10345,19 +9785,11 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "verified",
           "description" : null,
           "type" : {
             "kind" : "SCALAR",
             "name" : "Boolean",
-=======
-          "name" : "ladderPlayersId",
-          "description" : null,
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "ID",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
@@ -10389,7 +9821,6 @@
         "possibleTypes" : null
       }, {
         "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
         "name" : "CreatePlayerMatchInput",
         "description" : null,
         "fields" : null,
@@ -10408,13 +9839,6 @@
           "defaultValue" : null
         }, {
           "name" : "partnerID",
-=======
-        "name" : "CreateLadderInput",
-        "description" : null,
-        "fields" : null,
-        "inputFields" : [ {
-          "name" : "id",
->>>>>>> origin/staging
           "description" : null,
           "type" : {
             "kind" : "SCALAR",
@@ -10423,28 +9847,19 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "opponentID",
-=======
-          "name" : "name",
->>>>>>> origin/staging
           "description" : null,
           "type" : {
             "kind" : "NON_NULL",
             "name" : null,
             "ofType" : {
               "kind" : "SCALAR",
-<<<<<<< HEAD
               "name" : "ID",
-=======
-              "name" : "String",
->>>>>>> origin/staging
               "ofType" : null
             }
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "opponentPartnerID",
           "description" : null,
           "type" : {
@@ -10455,26 +9870,18 @@
           "defaultValue" : null
         }, {
           "name" : "matchID",
-=======
-          "name" : "location",
->>>>>>> origin/staging
           "description" : null,
           "type" : {
             "kind" : "NON_NULL",
             "name" : null,
             "ofType" : {
               "kind" : "SCALAR",
-<<<<<<< HEAD
               "name" : "ID",
-=======
-              "name" : "String",
->>>>>>> origin/staging
               "ofType" : null
             }
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "matchType",
           "description" : null,
           "type" : {
@@ -10602,9 +10009,6 @@
           "defaultValue" : null
         }, {
           "name" : "playerPlayerMatchesId",
-=======
-          "name" : "playerLaddersId",
->>>>>>> origin/staging
           "description" : null,
           "type" : {
             "kind" : "SCALAR",
@@ -10618,7 +10022,6 @@
         "possibleTypes" : null
       }, {
         "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
         "name" : "ModelPlayerMatchConditionInput",
         "description" : null,
         "fields" : null,
@@ -10628,22 +10031,10 @@
           "type" : {
             "kind" : "INPUT_OBJECT",
             "name" : "ModelIDInput",
-=======
-        "name" : "ModelLadderConditionInput",
-        "description" : null,
-        "fields" : null,
-        "inputFields" : [ {
-          "name" : "name",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelStringInput",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "opponentID",
           "description" : null,
           "type" : {
@@ -10748,13 +10139,6 @@
           "type" : {
             "kind" : "INPUT_OBJECT",
             "name" : "ModelBooleanInput",
-=======
-          "name" : "location",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelStringInput",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
@@ -10766,11 +10150,7 @@
             "name" : null,
             "ofType" : {
               "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
               "name" : "ModelPlayerMatchConditionInput",
-=======
-              "name" : "ModelLadderConditionInput",
->>>>>>> origin/staging
               "ofType" : null
             }
           },
@@ -10783,11 +10163,7 @@
             "name" : null,
             "ofType" : {
               "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
               "name" : "ModelPlayerMatchConditionInput",
-=======
-              "name" : "ModelLadderConditionInput",
->>>>>>> origin/staging
               "ofType" : null
             }
           },
@@ -10797,20 +10173,12 @@
           "description" : null,
           "type" : {
             "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
             "name" : "ModelPlayerMatchConditionInput",
-=======
-            "name" : "ModelLadderConditionInput",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "playerPlayerMatchesId",
-=======
-          "name" : "playerLaddersId",
->>>>>>> origin/staging
           "description" : null,
           "type" : {
             "kind" : "INPUT_OBJECT",
@@ -10824,19 +10192,11 @@
         "possibleTypes" : null
       }, {
         "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
         "name" : "UpdatePlayerMatchInput",
         "description" : null,
         "fields" : null,
         "inputFields" : [ {
           "name" : "playerID",
-=======
-        "name" : "UpdateLadderInput",
-        "description" : null,
-        "fields" : null,
-        "inputFields" : [ {
-          "name" : "id",
->>>>>>> origin/staging
           "description" : null,
           "type" : {
             "kind" : "NON_NULL",
@@ -10849,29 +10209,7 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "partnerID",
-=======
-          "name" : "name",
-          "description" : null,
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "String",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "location",
-          "description" : null,
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "String",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "playerLaddersId",
->>>>>>> origin/staging
           "description" : null,
           "type" : {
             "kind" : "SCALAR",
@@ -10879,7 +10217,6 @@
             "ofType" : null
           },
           "defaultValue" : null
-<<<<<<< HEAD
         }, {
           "name" : "opponentID",
           "description" : null,
@@ -11011,32 +10348,11 @@
           },
           "defaultValue" : null
         } ],
-=======
-        } , {
-          "name" : "players",
-          "description" : null,
-          "type" : {
-            "kind" : "LIST",
-            "name" : null,
-            "ofType" : {
-              "kind" : "NON_NULL",
-              "name" : null,
-              "ofType" : {
-                "kind" : "INPUT_OBJECT",
-                "name" : "PlayerInput",
-                "ofType" : null
-              }
-            }
-          },
-          "defaultValue" : null
-      }],
->>>>>>> origin/staging
         "interfaces" : null,
         "enumValues" : null,
         "possibleTypes" : null
       }, {
         "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
         "name" : "DeletePlayerMatchInput",
         "description" : null,
         "fields" : null,
@@ -11055,13 +10371,6 @@
           "defaultValue" : null
         }, {
           "name" : "matchID",
-=======
-        "name" : "DeleteLadderInput",
-        "description" : null,
-        "fields" : null,
-        "inputFields" : [ {
-          "name" : "id",
->>>>>>> origin/staging
           "description" : null,
           "type" : {
             "kind" : "NON_NULL",
@@ -11092,7 +10401,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "type",
           "description" : null,
           "type" : {
@@ -11106,8 +10414,6 @@
           },
           "defaultValue" : null
         }, {
-=======
->>>>>>> origin/staging
           "name" : "playedOn",
           "description" : null,
           "type" : {
@@ -11121,18 +10427,13 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "year",
-=======
-          "name" : "reportedOn",
->>>>>>> origin/staging
           "description" : null,
           "type" : {
             "kind" : "NON_NULL",
             "name" : null,
             "ofType" : {
               "kind" : "SCALAR",
-<<<<<<< HEAD
               "name" : "Int",
               "ofType" : null
             }
@@ -11160,9 +10461,6 @@
             "ofType" : {
               "kind" : "SCALAR",
               "name" : "ID",
-=======
-              "name" : "AWSDateTime",
->>>>>>> origin/staging
               "ofType" : null
             }
           },
@@ -11181,7 +10479,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "ladderID",
           "description" : null,
           "type" : {
@@ -11192,14 +10489,6 @@
               "name" : "ID",
               "ofType" : null
             }
-=======
-          "name" : "playerMatchesId",
-          "description" : null,
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "ID",
-            "ofType" : null
->>>>>>> origin/staging
           },
           "defaultValue" : null
         }, {
@@ -11221,7 +10510,6 @@
         "description" : null,
         "fields" : null,
         "inputFields" : [ {
-<<<<<<< HEAD
           "name" : "type",
           "description" : null,
           "type" : {
@@ -11231,8 +10519,6 @@
           },
           "defaultValue" : null
         }, {
-=======
->>>>>>> origin/staging
           "name" : "playedOn",
           "description" : null,
           "type" : {
@@ -11242,7 +10528,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "year",
           "description" : null,
           "type" : {
@@ -11266,13 +10551,6 @@
           "type" : {
             "kind" : "INPUT_OBJECT",
             "name" : "ModelIDInput",
-=======
-          "name" : "reportedOn",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelStringInput",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
@@ -11286,7 +10564,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "ladderID",
           "description" : null,
           "type" : {
@@ -11296,8 +10573,6 @@
           },
           "defaultValue" : null
         }, {
-=======
->>>>>>> origin/staging
           "name" : "and",
           "description" : null,
           "type" : {
@@ -11333,18 +10608,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
-=======
-          "name" : "playerMatchesId",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelIDInput",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
->>>>>>> origin/staging
           "name" : "ladderMatchesId",
           "description" : null,
           "type" : {
@@ -11376,7 +10639,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "type",
           "description" : null,
           "type" : {
@@ -11386,8 +10648,6 @@
           },
           "defaultValue" : null
         }, {
-=======
->>>>>>> origin/staging
           "name" : "playedOn",
           "description" : null,
           "type" : {
@@ -11397,7 +10657,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "year",
           "description" : null,
           "type" : {
@@ -11421,13 +10680,6 @@
           "type" : {
             "kind" : "SCALAR",
             "name" : "ID",
-=======
-          "name" : "reportedOn",
-          "description" : null,
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "AWSDateTime",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
@@ -11441,11 +10693,7 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "ladderID",
-=======
-          "name" : "playerMatchesId",
->>>>>>> origin/staging
           "description" : null,
           "type" : {
             "kind" : "SCALAR",
@@ -11490,7 +10738,6 @@
         "possibleTypes" : null
       }, {
         "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
         "name" : "CreateLadderInput",
         "description" : null,
         "fields" : null,
@@ -11766,8 +11013,6 @@
         "possibleTypes" : null
       }, {
         "kind" : "INPUT_OBJECT",
-=======
->>>>>>> origin/staging
         "name" : "CreateCommentInput",
         "description" : null,
         "fields" : null,
@@ -11781,7 +11026,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "matchID",
           "description" : null,
           "type" : {
@@ -11792,14 +11036,6 @@
               "name" : "ID",
               "ofType" : null
             }
-=======
-          "name" : "createdOn",
-          "description" : null,
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "String",
-            "ofType" : null
->>>>>>> origin/staging
           },
           "defaultValue" : null
         }, {
@@ -11816,7 +11052,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "postedByID",
           "description" : null,
           "type" : {
@@ -11848,13 +11083,6 @@
           "type" : {
             "kind" : "SCALAR",
             "name" : "Boolean",
-=======
-          "name" : "matchCommentsId",
-          "description" : null,
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "ID",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
@@ -11868,19 +11096,11 @@
         "description" : null,
         "fields" : null,
         "inputFields" : [ {
-<<<<<<< HEAD
           "name" : "matchID",
           "description" : null,
           "type" : {
             "kind" : "INPUT_OBJECT",
             "name" : "ModelIDInput",
-=======
-          "name" : "createdOn",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelStringInput",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
@@ -11894,7 +11114,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "postedByID",
           "description" : null,
           "type" : {
@@ -11922,8 +11141,6 @@
           },
           "defaultValue" : null
         }, {
-=======
->>>>>>> origin/staging
           "name" : "and",
           "description" : null,
           "type" : {
@@ -11958,18 +11175,6 @@
             "ofType" : null
           },
           "defaultValue" : null
-<<<<<<< HEAD
-=======
-        }, {
-          "name" : "matchCommentsId",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelIDInput",
-            "ofType" : null
-          },
-          "defaultValue" : null
->>>>>>> origin/staging
         } ],
         "interfaces" : null,
         "enumValues" : null,
@@ -11993,19 +11198,11 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "matchID",
           "description" : null,
           "type" : {
             "kind" : "SCALAR",
             "name" : "ID",
-=======
-          "name" : "createdOn",
-          "description" : null,
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "String",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
@@ -12019,11 +11216,7 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "postedByID",
-=======
-          "name" : "matchCommentsId",
->>>>>>> origin/staging
           "description" : null,
           "type" : {
             "kind" : "SCALAR",
@@ -12031,7 +11224,6 @@
             "ofType" : null
           },
           "defaultValue" : null
-<<<<<<< HEAD
         }, {
           "name" : "postedOn",
           "description" : null,
@@ -12050,8 +11242,6 @@
             "ofType" : null
           },
           "defaultValue" : null
-=======
->>>>>>> origin/staging
         } ],
         "interfaces" : null,
         "enumValues" : null,
@@ -12079,7 +11269,6 @@
         "enumValues" : null,
         "possibleTypes" : null
       }, {
-<<<<<<< HEAD
         "kind" : "INPUT_OBJECT",
         "name" : "CreateStandingsInput",
         "description" : null,
@@ -12641,8 +11830,6 @@
         "enumValues" : null,
         "possibleTypes" : null
       }, {
-=======
->>>>>>> origin/staging
         "kind" : "OBJECT",
         "name" : "Subscription",
         "description" : null,
@@ -12707,97 +11894,61 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "onCreatePlayerMatch",
-=======
-          "name" : "onCreateLadder",
->>>>>>> origin/staging
           "description" : null,
           "args" : [ {
             "name" : "filter",
             "description" : null,
             "type" : {
               "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
               "name" : "ModelSubscriptionPlayerMatchFilterInput",
-=======
-              "name" : "ModelSubscriptionLadderFilterInput",
->>>>>>> origin/staging
               "ofType" : null
             },
             "defaultValue" : null
           } ],
           "type" : {
             "kind" : "OBJECT",
-<<<<<<< HEAD
             "name" : "PlayerMatch",
-=======
-            "name" : "Ladder",
->>>>>>> origin/staging
             "ofType" : null
           },
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "onUpdatePlayerMatch",
-=======
-          "name" : "onUpdateLadder",
->>>>>>> origin/staging
           "description" : null,
           "args" : [ {
             "name" : "filter",
             "description" : null,
             "type" : {
               "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
               "name" : "ModelSubscriptionPlayerMatchFilterInput",
-=======
-              "name" : "ModelSubscriptionLadderFilterInput",
->>>>>>> origin/staging
               "ofType" : null
             },
             "defaultValue" : null
           } ],
           "type" : {
             "kind" : "OBJECT",
-<<<<<<< HEAD
             "name" : "PlayerMatch",
-=======
-            "name" : "Ladder",
->>>>>>> origin/staging
             "ofType" : null
           },
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "onDeletePlayerMatch",
-=======
-          "name" : "onDeleteLadder",
->>>>>>> origin/staging
           "description" : null,
           "args" : [ {
             "name" : "filter",
             "description" : null,
             "type" : {
               "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
               "name" : "ModelSubscriptionPlayerMatchFilterInput",
-=======
-              "name" : "ModelSubscriptionLadderFilterInput",
->>>>>>> origin/staging
               "ofType" : null
             },
             "defaultValue" : null
           } ],
           "type" : {
             "kind" : "OBJECT",
-<<<<<<< HEAD
             "name" : "PlayerMatch",
-=======
-            "name" : "Ladder",
->>>>>>> origin/staging
             "ofType" : null
           },
           "isDeprecated" : false,
@@ -12863,7 +12014,6 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-<<<<<<< HEAD
           "name" : "onCreateLadder",
           "description" : null,
           "args" : [ {
@@ -12924,8 +12074,6 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-=======
->>>>>>> origin/staging
           "name" : "onCreateComment",
           "description" : null,
           "args" : [ {
@@ -12985,7 +12133,6 @@
           },
           "isDeprecated" : false,
           "deprecationReason" : null
-<<<<<<< HEAD
         }, {
           "name" : "onCreateStandings",
           "description" : null,
@@ -13106,8 +12253,6 @@
           },
           "isDeprecated" : false,
           "deprecationReason" : null
-=======
->>>>>>> origin/staging
         } ],
         "inputFields" : null,
         "interfaces" : [ ],
@@ -13128,18 +12273,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
-=======
-          "name" : "userGUID",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelSubscriptionIDInput",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
->>>>>>> origin/staging
           "name" : "name",
           "description" : null,
           "type" : {
@@ -13203,7 +12336,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "verified",
           "description" : null,
           "type" : {
@@ -13213,8 +12345,6 @@
           },
           "defaultValue" : null
         }, {
-=======
->>>>>>> origin/staging
           "name" : "and",
           "description" : null,
           "type" : {
@@ -13504,7 +12634,6 @@
         "possibleTypes" : null
       }, {
         "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
         "name" : "ModelSubscriptionBooleanInput",
         "description" : null,
         "fields" : null,
@@ -13537,13 +12666,6 @@
         "fields" : null,
         "inputFields" : [ {
           "name" : "playerID",
-=======
-        "name" : "ModelSubscriptionLadderFilterInput",
-        "description" : null,
-        "fields" : null,
-        "inputFields" : [ {
-          "name" : "id",
->>>>>>> origin/staging
           "description" : null,
           "type" : {
             "kind" : "INPUT_OBJECT",
@@ -13552,7 +12674,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "partnerID",
           "description" : null,
           "type" : {
@@ -13590,9 +12711,6 @@
           "defaultValue" : null
         }, {
           "name" : "matchType",
-=======
-          "name" : "name",
->>>>>>> origin/staging
           "description" : null,
           "type" : {
             "kind" : "INPUT_OBJECT",
@@ -13601,7 +12719,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "ladderID",
           "description" : null,
           "type" : {
@@ -13679,13 +12796,6 @@
           "type" : {
             "kind" : "INPUT_OBJECT",
             "name" : "ModelSubscriptionBooleanInput",
-=======
-          "name" : "location",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelSubscriptionStringInput",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
@@ -13697,11 +12807,7 @@
             "name" : null,
             "ofType" : {
               "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
               "name" : "ModelSubscriptionPlayerMatchFilterInput",
-=======
-              "name" : "ModelSubscriptionLadderFilterInput",
->>>>>>> origin/staging
               "ofType" : null
             }
           },
@@ -13714,11 +12820,7 @@
             "name" : null,
             "ofType" : {
               "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
               "name" : "ModelSubscriptionPlayerMatchFilterInput",
-=======
-              "name" : "ModelSubscriptionLadderFilterInput",
->>>>>>> origin/staging
               "ofType" : null
             }
           },
@@ -13729,144 +12831,7 @@
         "possibleTypes" : null
       }, {
         "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
         "name" : "ModelSubscriptionIntInput",
-=======
-        "name" : "ModelSubscriptionMatchFilterInput",
-        "description" : null,
-        "fields" : null,
-        "inputFields" : [ {
-          "name" : "id",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelSubscriptionIDInput",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "playedOn",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelSubscriptionStringInput",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "reportedOn",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelSubscriptionStringInput",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "score",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelSubscriptionStringInput",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "and",
-          "description" : null,
-          "type" : {
-            "kind" : "LIST",
-            "name" : null,
-            "ofType" : {
-              "kind" : "INPUT_OBJECT",
-              "name" : "ModelSubscriptionMatchFilterInput",
-              "ofType" : null
-            }
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "or",
-          "description" : null,
-          "type" : {
-            "kind" : "LIST",
-            "name" : null,
-            "ofType" : {
-              "kind" : "INPUT_OBJECT",
-              "name" : "ModelSubscriptionMatchFilterInput",
-              "ofType" : null
-            }
-          },
-          "defaultValue" : null
-        } ],
-        "interfaces" : null,
-        "enumValues" : null,
-        "possibleTypes" : null
-      }, {
-        "kind" : "INPUT_OBJECT",
-        "name" : "ModelSubscriptionCommentFilterInput",
-        "description" : null,
-        "fields" : null,
-        "inputFields" : [ {
-          "name" : "id",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelSubscriptionIDInput",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "createdOn",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelSubscriptionStringInput",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "content",
-          "description" : null,
-          "type" : {
-            "kind" : "INPUT_OBJECT",
-            "name" : "ModelSubscriptionStringInput",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "and",
-          "description" : null,
-          "type" : {
-            "kind" : "LIST",
-            "name" : null,
-            "ofType" : {
-              "kind" : "INPUT_OBJECT",
-              "name" : "ModelSubscriptionCommentFilterInput",
-              "ofType" : null
-            }
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "or",
-          "description" : null,
-          "type" : {
-            "kind" : "LIST",
-            "name" : null,
-            "ofType" : {
-              "kind" : "INPUT_OBJECT",
-              "name" : "ModelSubscriptionCommentFilterInput",
-              "ofType" : null
-            }
-          },
-          "defaultValue" : null
-        } ],
-        "interfaces" : null,
-        "enumValues" : null,
-        "possibleTypes" : null
-      }, {
-        "kind" : "INPUT_OBJECT",
-        "name" : "ModelIntInput",
->>>>>>> origin/staging
         "description" : null,
         "fields" : null,
         "inputFields" : [ {
@@ -13937,103 +12902,6 @@
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
-=======
-          "name" : "attributeExists",
-          "description" : null,
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "Boolean",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "attributeType",
-          "description" : null,
-          "type" : {
-            "kind" : "ENUM",
-            "name" : "ModelAttributeTypes",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        } ],
-        "interfaces" : null,
-        "enumValues" : null,
-        "possibleTypes" : null
-      }, {
-        "kind" : "INPUT_OBJECT",
-        "name" : "ModelSubscriptionFloatInput",
-        "description" : null,
-        "fields" : null,
-        "inputFields" : [ {
-          "name" : "ne",
-          "description" : null,
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "Float",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "eq",
-          "description" : null,
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "Float",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "le",
-          "description" : null,
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "Float",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "lt",
-          "description" : null,
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "Float",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "ge",
-          "description" : null,
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "Float",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "gt",
-          "description" : null,
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "Float",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "between",
-          "description" : null,
-          "type" : {
-            "kind" : "LIST",
-            "name" : null,
-            "ofType" : {
-              "kind" : "SCALAR",
-              "name" : "Float",
-              "ofType" : null
-            }
-          },
-          "defaultValue" : null
-        }, {
->>>>>>> origin/staging
           "name" : "in",
           "description" : null,
           "type" : {
@@ -14041,11 +12909,7 @@
             "name" : null,
             "ofType" : {
               "kind" : "SCALAR",
-<<<<<<< HEAD
               "name" : "Int",
-=======
-              "name" : "Float",
->>>>>>> origin/staging
               "ofType" : null
             }
           },
@@ -14058,11 +12922,7 @@
             "name" : null,
             "ofType" : {
               "kind" : "SCALAR",
-<<<<<<< HEAD
               "name" : "Int",
-=======
-              "name" : "Float",
->>>>>>> origin/staging
               "ofType" : null
             }
           },
@@ -14072,7 +12932,6 @@
         "enumValues" : null,
         "possibleTypes" : null
       }, {
-<<<<<<< HEAD
         "kind" : "INPUT_OBJECT",
         "name" : "ModelSubscriptionMatchFilterInput",
         "description" : null,
@@ -14176,19 +13035,11 @@
           },
           "defaultValue" : null
         } ],
-=======
-        "kind" : "SCALAR",
-        "name" : "Float",
-        "description" : "Built-in Float",
-        "fields" : null,
-        "inputFields" : null,
->>>>>>> origin/staging
         "interfaces" : null,
         "enumValues" : null,
         "possibleTypes" : null
       }, {
         "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
         "name" : "ModelSubscriptionLadderFilterInput",
         "description" : null,
         "fields" : null,
@@ -14198,22 +13049,10 @@
           "type" : {
             "kind" : "INPUT_OBJECT",
             "name" : "ModelSubscriptionIDInput",
-=======
-        "name" : "ModelSubscriptionBooleanInput",
-        "description" : null,
-        "fields" : null,
-        "inputFields" : [ {
-          "name" : "ne",
-          "description" : null,
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "Boolean",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "matchType",
           "description" : null,
           "type" : {
@@ -14533,16 +13372,6 @@
             }
           },
           "defaultValue" : null
-=======
-          "name" : "eq",
-          "description" : null,
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "Boolean",
-            "ofType" : null
-          },
-          "defaultValue" : null
->>>>>>> origin/staging
         } ],
         "interfaces" : null,
         "enumValues" : null,
@@ -14643,11 +13472,7 @@
         "possibleTypes" : null
       }, {
         "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
         "name" : "SearchableFloatFilterInput",
-=======
-        "name" : "ModelBooleanInput",
->>>>>>> origin/staging
         "description" : null,
         "fields" : null,
         "inputFields" : [ {
@@ -14655,7 +13480,6 @@
           "description" : null,
           "type" : {
             "kind" : "SCALAR",
-<<<<<<< HEAD
             "name" : "Float",
             "ofType" : null
           },
@@ -14693,9 +13517,6 @@
           "type" : {
             "kind" : "SCALAR",
             "name" : "Float",
-=======
-            "name" : "Boolean",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
@@ -14704,16 +13525,11 @@
           "description" : null,
           "type" : {
             "kind" : "SCALAR",
-<<<<<<< HEAD
             "name" : "Float",
-=======
-            "name" : "Boolean",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
         }, {
-<<<<<<< HEAD
           "name" : "range",
           "description" : null,
           "type" : {
@@ -14724,23 +13540,6 @@
               "name" : "Float",
               "ofType" : null
             }
-=======
-          "name" : "attributeExists",
-          "description" : null,
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "Boolean",
-            "ofType" : null
-          },
-          "defaultValue" : null
-        }, {
-          "name" : "attributeType",
-          "description" : null,
-          "type" : {
-            "kind" : "ENUM",
-            "name" : "ModelAttributeTypes",
-            "ofType" : null
->>>>>>> origin/staging
           },
           "defaultValue" : null
         } ],
@@ -14749,11 +13548,7 @@
         "possibleTypes" : null
       }, {
         "kind" : "INPUT_OBJECT",
-<<<<<<< HEAD
         "name" : "ModelSubscriptionFloatInput",
-=======
-        "name" : "ModelSubscriptionIntInput",
->>>>>>> origin/staging
         "description" : null,
         "fields" : null,
         "inputFields" : [ {
@@ -14761,11 +13556,7 @@
           "description" : null,
           "type" : {
             "kind" : "SCALAR",
-<<<<<<< HEAD
             "name" : "Float",
-=======
-            "name" : "Int",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
@@ -14774,11 +13565,7 @@
           "description" : null,
           "type" : {
             "kind" : "SCALAR",
-<<<<<<< HEAD
             "name" : "Float",
-=======
-            "name" : "Int",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
@@ -14787,11 +13574,7 @@
           "description" : null,
           "type" : {
             "kind" : "SCALAR",
-<<<<<<< HEAD
             "name" : "Float",
-=======
-            "name" : "Int",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
@@ -14800,11 +13583,7 @@
           "description" : null,
           "type" : {
             "kind" : "SCALAR",
-<<<<<<< HEAD
             "name" : "Float",
-=======
-            "name" : "Int",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
@@ -14813,11 +13592,7 @@
           "description" : null,
           "type" : {
             "kind" : "SCALAR",
-<<<<<<< HEAD
             "name" : "Float",
-=======
-            "name" : "Int",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
@@ -14826,11 +13601,7 @@
           "description" : null,
           "type" : {
             "kind" : "SCALAR",
-<<<<<<< HEAD
             "name" : "Float",
-=======
-            "name" : "Int",
->>>>>>> origin/staging
             "ofType" : null
           },
           "defaultValue" : null
@@ -14842,11 +13613,7 @@
             "name" : null,
             "ofType" : {
               "kind" : "SCALAR",
-<<<<<<< HEAD
               "name" : "Float",
-=======
-              "name" : "Int",
->>>>>>> origin/staging
               "ofType" : null
             }
           },
@@ -14859,11 +13626,7 @@
             "name" : null,
             "ofType" : {
               "kind" : "SCALAR",
-<<<<<<< HEAD
               "name" : "Float",
-=======
-              "name" : "Int",
->>>>>>> origin/staging
               "ofType" : null
             }
           },
@@ -14876,11 +13639,7 @@
             "name" : null,
             "ofType" : {
               "kind" : "SCALAR",
-<<<<<<< HEAD
               "name" : "Float",
-=======
-              "name" : "Int",
->>>>>>> origin/staging
               "ofType" : null
             }
           },
@@ -15673,17 +14432,6 @@
         "onFragment" : false,
         "onField" : true
       }, {
-<<<<<<< HEAD
-=======
-        "name" : "aws_lambda",
-        "description" : "Tells the service this field/object has access authorized by a Lambda Authorizer.",
-        "locations" : [ "OBJECT", "FIELD_DEFINITION" ],
-        "args" : [ ],
-        "onOperation" : false,
-        "onFragment" : false,
-        "onField" : false
-      }, {
->>>>>>> origin/staging
         "name" : "aws_publish",
         "description" : "Tells the service which subscriptions will be published to when this mutation is called. This directive is deprecated use @aws_susbscribe directive instead.",
         "locations" : [ "FIELD_DEFINITION" ],
@@ -15705,7 +14453,6 @@
         "onFragment" : false,
         "onField" : false
       }, {
-<<<<<<< HEAD
         "name" : "aws_api_key",
         "description" : "Tells the service this field/object has access authorized by an API key.",
         "locations" : [ "OBJECT", "FIELD_DEFINITION" ],
@@ -15722,8 +14469,6 @@
         "onFragment" : false,
         "onField" : false
       }, {
-=======
->>>>>>> origin/staging
         "name" : "aws_subscribe",
         "description" : "Tells the service which mutation triggers this subscription.",
         "locations" : [ "FIELD_DEFINITION" ],
@@ -15787,26 +14532,16 @@
         "onFragment" : false,
         "onField" : false
       }, {
-<<<<<<< HEAD
         "name" : "aws_lambda",
         "description" : "Tells the service this field/object has access authorized by a Lambda Authorizer.",
-=======
-        "name" : "aws_api_key",
-        "description" : "Tells the service this field/object has access authorized by an API key.",
->>>>>>> origin/staging
         "locations" : [ "OBJECT", "FIELD_DEFINITION" ],
         "args" : [ ],
         "onOperation" : false,
         "onFragment" : false,
         "onField" : false
       }, {
-<<<<<<< HEAD
         "name" : "aws_oidc",
         "description" : "Tells the service this field/object has access authorized by an OIDC token.",
-=======
-        "name" : "aws_iam",
-        "description" : "Tells the service this field/object has access authorized by sigv4 signing.",
->>>>>>> origin/staging
         "locations" : [ "OBJECT", "FIELD_DEFINITION" ],
         "args" : [ ],
         "onOperation" : false,
@@ -15829,17 +14564,6 @@
         "onOperation" : false,
         "onFragment" : false,
         "onField" : false
-<<<<<<< HEAD
-=======
-      }, {
-        "name" : "aws_oidc",
-        "description" : "Tells the service this field/object has access authorized by an OIDC token.",
-        "locations" : [ "OBJECT", "FIELD_DEFINITION" ],
-        "args" : [ ],
-        "onOperation" : false,
-        "onFragment" : false,
-        "onField" : false
->>>>>>> origin/staging
       } ]
     }
   }
