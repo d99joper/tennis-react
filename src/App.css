@@ -1,10 +1,42 @@
 .App {
-  text-align: center;
+  margin-inline: auto;
+  max-width: 60rem;
+  padding: 0 1em;
 }
 
 .App-logo {
   height: 40vmin;
   pointer-events: none;
+}
+
+.Content {
+  width: 60rem;
+}
+
+header {
+  min-height: 2rem;
+  display: grid;
+  place-items: center;
+}
+
+/* @media only screen and (max-width: 600px) { 
+  .flex {
+    flex-direction: column;
+  }
+} */
+@media  screen and (max-width: 700px) {    
+  .mediaFlex {
+    flex-direction: column !important;
+
+  }
+  .amplify-card {
+    max-width: 600px;
+  }
+}
+
+img {
+  /* display: block; */
+  max-width: 100%;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -48,4 +80,42 @@
     --amplify-colors-brand-secondary-90
   );
   --amplify-components-button-color: var(--amplify-colors-brand-secondary-90);
+}
+
+.card {
+  background-color: #fdfdc89c;
+  border-radius: 5px;
+}
+
+a {
+  color: #076b6e;
+}
+a:hover {
+  color: black;
+  background-color: beige;
+
+}
+
+.cursorHand {
+    cursor: pointer;
+}
+
+.hide {
+  display: none;
+}
+
+.MuiOutlinedInput-root {
+  background-color: #ccff0022;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
 }

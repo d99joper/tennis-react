@@ -1,0 +1,42 @@
+.profileImageContainer_100 {
+    background-color: var(--amplify-colors-purple-10);
+    border-radius: 50%;
+    max-width: 100px;
+    max-height: 100px;
+    display: inline-block;
+    overflow: hidden;
+    border: solid 1px var(--amplify-colors-purple-100);
+}
+
+.circle_60 {
+    
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    margin-top: 1rem;
+    display: inline-block;
+    vertical-align: middle;
+    
+    border: solid 1px var(--amplify-colors-purple-100);
+  }
+
+  .player1 {
+    background-color: var(--amplify-colors-blue-10);
+  }
+
+  .player2 {
+    background-color: var(--amplify-colors-orange-10);
+  }
+
+  .center {text-align: center;}
+
+  .statsCard {
+    text-align: center;
+    margin: 0;
+    padding: 0 0 10px 0;
+    background-color: var(--amplify-colors-neutral-10);
+  }
+
+  .statsName {
+    background-color: var(--amplify-colors-neutral-20);
+  }

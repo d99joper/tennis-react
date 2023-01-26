@@ -1,0 +1,79 @@
+.matchHeaderRow {
+    padding: 0.5rem 1rem;
+    background-color: black;
+    color: aliceblue;
+    font-weight: bold;
+    border-radius: 5px;
+    direction: row;
+    gap: 1rem;
+    white-space: nowrap;    
+    text-align: left;
+    margin-bottom: 2px;
+}
+
+a,a:active,a::after{
+    color: black;
+}
+a:hover {
+    color: lightgreen;
+    background-color: black;
+    border-radius: 5px;
+    padding: 2px;
+}
+
+.matchRow {
+    padding: 1px 1rem 1px 1rem;
+    border-radius: 5px;
+    direction: row;
+    gap: 1rem;
+    white-space: nowrap;    
+    text-align: left;
+}
+
+.iconSet {
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    margin-left: auto;
+}
+
+.middleIcon {
+    vertical-align: middle;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.date {
+    width: 6.5rem;
+    min-width: min-content;
+}
+
+.playerName {
+    width: 10rem;
+    min-width: min-content;
+}
+
+.hoverText-container {
+    position: relative;
+}
+.hoverText {
+    position: absolute;
+    width: 300px;
+    left: -300px;
+    top:10px;
+    max-width: 300px;
+    background-color: white;
+    border: 1px solid black;
+    padding: 1rem;
+    z-index: 2;
+}
+
+.ladderName {
+    width: 10rem;
+    min-width: min-content;
+}
+
+.score {
+    width: 10rem;
+    min-width: min-content;
+}

@@ -1,0 +1,21 @@
+
+.setBox {
+    width: 4.5rem;
+}
+
+.errorText {
+    min-width: 20rem;
+}
+
+.comment {
+    max-width: 600px;
+}
+
+.summary {
+    font-style: italic;
+}
+
+button {
+    max-width: 300px;
+}
+

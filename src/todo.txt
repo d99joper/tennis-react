@@ -1,0 +1,66 @@
+Overall design
+    [ ] Mobile vs computer menu
+    [ ] Style and clean up
+    [ ] Search for players
+    [ ] Nicer menu
+    [ ] Add location library (geo) for ladder locations
+    [*] Create a dynamic table 
+    [x] npx amplify-app -> npm run amplify-modelgen for DataStore. Then run npm amplify update api if you want to add merge features (_version and _lastupdatedAt gets added)
+
+Search page
+    [ ] Add to menu
+    [ ] Searches for different categories (ladder, players, locations?)
+
+Profile page
+    [ ] Style and clean up
+    [ ] Cannot access profile when not logged in (you get error)
+        [ ] Remove from menu when not logged in
+        [ ] Fix profile link to other players to work when not logged in
+    [ ] List ladders
+    [ ] Get UTR results from UTR profile
+    [ ] Link USTA profile
+    [x] Add statistics
+      [x] Table per year -> get all years with data -> loop getStats and aggregate results
+      [x] Add totals
+    [*] H2H information 
+        [x] H2H component
+        [x] Greatest rivals 
+
+Ladders page
+    [ ] Display (5) ladders near you 
+    [ ] Search available ladders
+    [ ] Create a ladder 
+        [ ] Create
+        [ ] Check if already exists and give suggestion
+        [ ] Invite players (suggest close by by geo)
+        [ ] Doubles or singels
+    [x] Add to menu
+
+Ladder page
+    [ ] Join ladder
+    [ ] View ladder players
+    [ ] Add match
+    [ ] See standing at particular date
+    [ ] If doubles, search for partner
+        [ ] sign-up with partner (one partner for each ladder)
+        [ ] if no partner, sign up as available / reserved (for a player yet to sign up)
+        [ ] split up from partner (leave ladder)
+    [ ] Leave ladder (double-check, since you lose all your ranking points)
+
+Matches
+    [ ] Separate doubles from singels
+    [*] Allow practice matches outside of a ladder ('Other' ladder option?)
+        [x] Add verified/unverified flag for players
+        [ ] Add new players as 'Unverified' (only available for 'Other' matches)
+        [*] Autocomplete search for all players
+            [*] All players (limit to 20)
+            [ ] Add option to add player if no match on name
+    [ ] Post result to UTR
+    [ ] Add comments
+    [ ] Calculate standings / ranking points
+    [ ] Dynamic Sort
+    [ ] Reset forms
+    [ ] Update match list on profile
+
+Player
+    [ ] Make sure email is unique when creating new player
