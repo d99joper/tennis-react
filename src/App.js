@@ -25,6 +25,7 @@ function App() {
   const newUser = useRef(false);
 
   const [isLoading, setLoading] = useState(true); // Loading state
+  const [doReload, setDoReload] = useState(false); // reload if new user is created
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => { // useEffect hook
@@ -39,9 +40,11 @@ function App() {
           // check if a new user was just created
           if (newUser.current) {
             // create a new Player
-            userFunctions.createPlayerIfNotExist();
-            newUser.current = false;
-            window.location = '/Profile';
+            userFunctions.createPlayerIfNotExist().then(() => {
+              newUser.current = false;
+              setDoReload(true)
+              //window.location = '/Profile';
+            })
           }
           break;
         case 'confirmSignUp':
@@ -52,7 +55,8 @@ function App() {
           // check if external user exist as a 'Player'
           // If not, create 'Player'
           userFunctions.createPlayerIfNotExist().then(() => {
-            window.location = '/Profile';
+            setDoReload(true)
+           //window.location = '/Profile';
           });
 
           break;
@@ -108,7 +112,7 @@ function App() {
     <div className="App">
       <ThemeProvider theme={PrimaryMainTheme}>
 
-        <MyRouter isLoggedIn={isLoggedIn} testing={true} />
+        <MyRouter isLoggedIn={isLoggedIn} testing={true} reload={doReload} />
         <Footer></Footer>
       </ThemeProvider>
     </div>

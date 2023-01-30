@@ -1,12 +1,12 @@
 {
   "version": 1,
   "serviceConfiguration": {
-    "apiName": "MTSApiProd",
+    "apiName": "MyTennisAPIProd",
     "serviceName": "AppSync",
     "defaultAuthType": {
       "mode": "API_KEY",
       "expirationTime": 365,
-      "apiKeyExpirationDate": "2024-01-25T18:57:18.009Z",
+      "apiKeyExpirationDate": "2024-01-30T06:08:54.205Z",
       "keyDescription": ""
     }
   }

@@ -1,150 +1,145 @@
 import { API } from 'aws-amplify';
-import { getMatch, listComments, listMatches as findMatches } from "../graphql/queries";
+import { getMatch, getMatchByDetails, getPlayerMatchByPlayer, getPlayerMatchByPlayerVs, listComments, listMatches as findMatches } from "../graphql/queries";
 import { listMatches } from 'graphql/customQueries';
 import {
     createMatch as createMatchMutation,
     updateMatch as updateMatchMutation,
     deleteMatch as deleteMatchMutation,
-    createComment
+    createComment,
+    createPlayerMatch
 } from "../graphql/mutations";
 import { helpers, userFunctions as uf } from 'helpers';
 //import userFunctions from './userFunctions';
 
-function parseScore(score) {
-
-    let breakdown = {
-        setsWon: 0,
-        setsLost: 0,
-        gamesWon: 0,
-        gamesLost: 0,
-        tiebreaksWon: 0,
-        tiebreaksLost: 0
-    }
-
-    score.forEach((setScore) => {
-        if (setScore) {
-            const games = setScore.match(/\d+/g).map(Number);
-            if (games[0] > games[1]) {
-                breakdown.setsWon++
-                if (games[0] > games[1] && Math.abs(games[0] - games[1]) === 1)
-                    breakdown.tiebreaksWon++
-            }
-            if (games[1] > games[0]) {
-                breakdown.setsLost++
-                if (games[0] > games[1] && Math.abs(games[0] - games[1]) === 1)
-                    breakdown.tiebreaksLost++
-            }
-
-            breakdown.gamesWon += games[0]
-            breakdown.gamesLost += games[1]
-        }
-    })
-    return breakdown
-}
 
 const MatchFunctions = {
 
-    createMatchesFromArray: async function(matches) {
+    createMatchesFromArray: async function (matches) {
         let counter = 0
         for (let m of matches) {
-            if(m.Date && m.Win && m.Result) {
+            if (m.Date && m.Win && m.Result) {
                 // use counter to limit the number of matches to import
-                // if(counter === 40) break
+                if (counter === 40) break
                 // Get or create opponent
                 const me = await uf.createPlayerIfNotExist()
                 const opponent = await uf.createPlayerIfNotExist(m.Opponent)
-                //console.log(m)
+                // create match
+                // create playermatch for player
+                // create playermatch for opponent
                 const match = {
-                    winner: {id: m.Win === 'W' ? me.id : opponent.id},
-                    loser: {id: m.Win === 'L' ? me.id : opponent.id},
+                    winner: { id: m.Win === 'W' ? me.id : opponent.id },
+                    loser: { id: m.Win === 'L' ? me.id : opponent.id },
                     playedOn: m.Date,
                     ladderID: '-1',
-                    score: m.Result.replace(/\s/g,'').split(','),
-                    ... m.Notes ? {comment: {
-                        content: m.Notes,
-                        postedByID: me.id,
-                        private: true,
-                        postedOn: helpers.formatAWSDate(m.Date)
-                    }} :null
+                    type: 'SINGLES',
+                    score: m.Result.replace(/\s/g, '').split(','),
+                    ...m.Notes ? {
+                        comment: {
+                            content: m.Notes,
+                            postedByID: me.id,
+                            private: true,
+                            postedOn: helpers.formatAWSDate(m.Date)
+                        }
+                    } : null
                 }
-                this.createMatch(match)
+                await this.createMatch(match, m.Win === 'L')
             }
             counter++
         }
 
     },
 
-    createMatch: async function (match) {
+    createMatch: async function (match, flipScoreOnLoss = false) {
 
-        const scoreBreakdown = parseScore(match.score)
+        const playedOn = helpers.formatAWSDate(match.playedOn, 0)
 
-        const playedOn = helpers.formatAWSDate(match.playedOn,0)
-       
         const loadData = {
             winnerID: match.winner.id,
             loserID: match.loser.id,
             playedOn: playedOn,
+            type: match.type,
             year: new Date(playedOn).getFullYear(),
-            // don't add ladder if the type is 'Other'
             ladderID: match.ladderID,
-            score: match.score.filter(Boolean).join(', '),
-            ...scoreBreakdown
+            score: scoreToString(match.score, flipScoreOnLoss)
         };
-
+        
         // check that the match hasn't already been added
         const matchCheck = await this.findMatch(loadData)
-        console.log(matchCheck)
-        if(matchCheck) return matchCheck 
+        console.log("find", matchCheck)
+        if (matchCheck) return matchCheck
 
         try {
-            API.graphql({
+            const apiData = await API.graphql({
                 query: createMatchMutation,
-                variables: { input: loadData },
-            }).then((result) => {
-                // add comment
-                console.log('New Match created', result, match.comment);
-                if (match.comment) {
-                    console.log("add comment", match.comment)
-                    API.graphql({
-                        query: createComment,
-                        variables: { input: { 
-                            matchID: result.data.createMatch.id, 
-                            content: match.comment.content,
-                            ... match.comment.postedByID ? {postedByID: match.comment.postedByID} :null,
-                            ... match.comment.private ? {private: match.comment.private} :null,
-                            ... match.comment.postedOn ? {postedOn: match.comment.postedOn} :null 
-                        }}
-                    }).then((commentResult) => {
-                        result.data.comment = commentResult.data.createComment;
-                    }).catch((e) => { console.log("failed to create match comment", e) })
-                }
+                variables: { input: loadData }
+            })
+            const matchID = apiData.data.createMatch.id
+            //.then((result) => {
+            console.log('New Match created', apiData)
 
-                return result;
-            }).catch((e) => { console.log("Failed to create Match", e) });
+            // create the playerMatches
+            
+            let playerMatchInput = setPlayerMatchInput(match, matchID, flipScoreOnLoss, true)
+            await API.graphql({
+                query: createPlayerMatch,
+                variables: { input: playerMatchInput }
+            })
+            playerMatchInput = setPlayerMatchInput(match, matchID, flipScoreOnLoss, false)
+            await API.graphql({
+                query: createPlayerMatch,
+                variables: { input: playerMatchInput}
+            })
+
+            if (match.comment) {
+                console.log("add comment", match.comment)
+                const comment = await API.graphql({
+                    query: createComment,
+                    variables: {
+                        input: {
+                            matchID: matchID,
+                            content: match.comment.content,
+                            ...match.comment.postedByID ? { postedByID: match.comment.postedByID } : null,
+                            ...match.comment.private ? { private: match.comment.private } : null,
+                            ...match.comment.postedOn ? { postedOn: match.comment.postedOn } : null
+                        }
+                    }
+                })
+                apiData.data.createMatch.comments = [{...comment.data.createComment}]
+            }
+
+            return apiData.data.createMatch
+            //}).catch((e) => { console.log("Failed to create Match", e) });
         }
         catch (e) {
             console.error("failed to create a Match", e);
         }
     },
 
-    findMatch: async function(loadData) {
+    findMatch: async function (loadData) {
         // check if there already is a match played on this exact day 
         // with the same players and outcome
-        
-        const filter = {
-            playedOn: { eq: loadData.playedOn },
-            score: { eq: loadData.score },
-            winnerID: { eq: loadData.winnerID },
-            loserID: { eq: loadData.loserID },
-            ladderID: { eq: loadData.ladderID }
+        const variables = {
+            winnerID: loadData.winnerID,
+            loserIDTypeLadderIDPlayedOnScore: {
+                eq: {
+                    loserID: loadData.loserID,
+                    type: 'SINGLES',
+                    ladderID: loadData.ladderID,
+                    playedOn: loadData.playedOn,
+                    score: loadData.score
+                }
+            }
         }
-        //console.log(filter)
-        const matches = await this.listMatches(null, null, null, null, filter)
-        //console.log(matches)
-        if(matches.length > 0) 
-            return matches[0]
         
-        return
+        const matches = await API.graphql({
+            query: getMatchByDetails,
+            variables: variables
+        })  //await this.listMatches(null, null, null, null, filter)
+        //console.log(matches)
+        if (matches.data.getMatchByDetails.items.length > 0)
+            return matches.data.getMatchByDetails.items[0] //matches[0]
+
+        return false
     },
 
     UpdateMatch: async function (match) {
@@ -203,6 +198,22 @@ const MatchFunctions = {
         }
     },
 
+    getMatchesForPlayer: async function (player, ladder, startDate, endDate, findFilter = null, limit = 10) {
+
+        const apiData = await API.graphql({
+            query: getPlayerMatchByPlayer,
+            variables: { 
+                playerID: player.id, 
+                limit: limit,
+                sortDirection: 'DESC' 
+            }
+        })
+
+        console.log(apiData.data)
+
+        return apiData.data.getPlayerMatchByPlayer.items
+    },
+
     listMatches: async function (player, ladder, startDate, endDate, findFilter = null) {
         let filter = findFilter ?? {
             playedOn: { lt: helpers.formatAWSDate(endDate) },
@@ -218,25 +229,96 @@ const MatchFunctions = {
         //console.log(filter)
         const apiData = await API.graphql({
             query: findFilter ? findMatches : listMatches,
-            variables: { 
-                filter: filter, 
-                sort: [{ field: "playedOn", direction: "desc" }] 
+            variables: {
+                filter: filter,
+                sort: [{ field: "playedOn", direction: "desc" }]
             }
         })
         //console.log(apiData.data)
         const MatchsFromAPI = findFilter ? apiData.data.listMatches.items : apiData.data.searchMatches.items
-        
+
         return MatchsFromAPI;
     },
 
-    GetComments: async function(matchId) {
+    GetComments: async function (matchId) {
         const apiData = await API.graphql({
-            query: listComments, 
-            variables: {filter: {matchID: {eq: matchId}}}
+            query: listComments,
+            variables: { filter: { matchID: { eq: matchId } } }
         })
         console.log(apiData.data.listComments.items)
         return apiData.data.listComments.items
     }
+}
+
+function scoreToString(score, flipScore) {
+
+    if (!flipScore) return score.filter(Boolean).join(', ')
+
+    let flippedScore = []
+    for (const set of score) {
+        const games = set.split('-')
+        flippedScore.push(games[1] + '-' + games[0])
+    }
+    return flippedScore.filter(Boolean).join(', ')
+}
+
+function setPlayerMatchInput(match, matchID, flipScoreOnLoss, winner) {
+    const scoreBreakdown = parseScore(match.score, winner ? flipScoreOnLoss : !flipScoreOnLoss) 
+    const playerMatchInput = 
+    {
+        matchID: matchID,
+        playerID: winner ? match.winner.id : match.loser.id,
+        opponentID: winner ? match.loser.id : match.winner.id,
+        ladderID: match.ladderID,
+        playedOn: helpers.formatAWSDate(match.playedOn, 0),
+        matchType: match.type,
+        win: winner,
+        ...scoreBreakdown
+    }
+    console.log(playerMatchInput)
+    return playerMatchInput
+}
+
+function parseScore(score, flipScore) {
+
+    let breakdown = {
+        setsWon: 0,
+        setsLost: 0,
+        gamesWon: 0,
+        gamesLost: 0,
+        tiebreaksWon: 0,
+        tiebreaksLost: 0
+    }
+
+    score.forEach((setScore) => {
+        if (setScore) {
+            const games = setScore.match(/\d+/g).map(Number);
+            if (games[0] > games[1]) {
+                breakdown.setsWon++
+                if (games[0] > games[1] && Math.abs(games[0] - games[1]) === 1)
+                    breakdown.tiebreaksWon++
+            }
+            if (games[1] > games[0]) {
+                breakdown.setsLost++
+                if (games[0] > games[1] && Math.abs(games[0] - games[1]) === 1)
+                    breakdown.tiebreaksLost++
+            }
+
+            breakdown.gamesWon += games[0]
+            breakdown.gamesLost += games[1]
+        }
+    })
+    if (flipScore)
+        breakdown = {
+            setsWon: breakdown.setsLost,
+            setsLost: breakdown.setsWon,
+            gamesWon: breakdown.gamesLost,
+            gamesLost: breakdown.gamesWon,
+            tiebreaksWon: breakdown.tiebreaksLost,
+            tiebreaksLost: breakdown.tiebreaksWon
+        }
+
+    return breakdown
 }
 
 export default MatchFunctions;

@@ -87,7 +87,7 @@ const ladderFunctions = {
 
         const loadData = {
             name: ladder.name,
-            ... ladder.location ? {location: ladder.location} :null,
+            matchType: ladder.matchType,
             ... ladder.geoData ? {geoData: ladder.geoData} :null,
             ... ladder.city ? {city: ladder.city} :null,
             ... ladder.zip ? {zip: ladder.zip} :null

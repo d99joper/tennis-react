@@ -48,7 +48,7 @@ const MyRouter = (props) => {
           <Routes key="MyMainRoutes">
             <Route exact path="/" element={<Home />} />
             <Route exact path="/about" element={<About />} />
-            <Route path="/profile" element={<Profile isLoggedIn={props.isLoggedIn} />} />
+            <Route path="/profile" element={<Profile isLoggedIn={props.isLoggedIn} reload={props.reload} />} />
             <Route path="/profile/:userid" element={<Profile isLoggedIn={props.isLoggedIn} />} />
             <Route path="/login" element={<Login />} />
             <Route path="/adminTasks" element={<AdminTasks />} />

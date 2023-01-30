@@ -19,7 +19,7 @@ export type AmplifyDependentResourcesAttributes = {
         }
     },
     "api": {
-        "MTSApiProd": {
+        "MyTennisAPIProd": {
             "GraphQLAPIKeyOutput": "string",
             "GraphQLAPIIdOutput": "string",
             "GraphQLAPIEndpointOutput": "string"

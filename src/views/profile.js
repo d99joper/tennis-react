@@ -9,7 +9,7 @@ import { Editable, Matches, Ladders, PhoneNumber, UserStats, TopRivals } from '.
 import Modal from '../components/layout/Modal/modal';
 import './profile.css';
 
-function Profile() {
+function Profile(props) {
 
     const MatchEditor = lazy(() => import("../components/forms/index") //MatchEditor/MatchEditor")
         .then(module => { return { default: module.MatchEditor } }))
@@ -60,17 +60,18 @@ function Profile() {
     async function updateProfilePic(e) {
 
         const profilePic = Array.from(e.target.files)[0]
-
+        setIsLoaded(false)
         const p = await userFunctions.UpdatePlayer(player, player.id, profilePic)
         console.log("updateProfilePic", p)
         setPlayer(prevState => ({ ...prevState, image: p.image, imageUrl: p.imageUrl }))
-
+        setIsLoaded(true)
         setShowImagePicker(false)
     }
 
     async function updateProfileData(e) {
         e.preventDefault();
 
+        setIsLoaded(false)
         const form = new FormData(e.target);
 
         const data = {
@@ -84,7 +85,7 @@ function Profile() {
 
         // setPlayer(prevState => ({...prevState, p}))
         setPlayer(p)
-
+        setIsLoaded(true)
         setIsEdit((isEdit) => !isEdit)
     }
 
@@ -151,9 +152,12 @@ function Profile() {
 
         }
 
-        getProfile().then(p => setPlayer(p))
+        getProfile().then(p => {
+            console.log("getProfile", p)
+            setPlayer(p)
+        })
         //}, []);  
-    }, [params.userid]);
+    }, [params.userid, props.reload]);
 
     if (error.status) {
         return <div>Error: {error.message}</div>;
