@@ -16,7 +16,7 @@ const isLocalhost = Boolean(
        /^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/
      )
  );
- 
+  
  // Assuming you have two redirect URIs, and the first is for production and second is for localhost
  const [
    productionRedirectSignIn,
