@@ -8,7 +8,7 @@ type Player @model @searchable
 {
   id: ID! @primaryKey
   name: String! 
-  email: AWSEmail! @index(name: "byEmail", queryField: "playerByEmail")
+  email: AWSEmail! @index(name: "byEmail", queryField: "playerByEmail", sortKeyFields: ["name"])
   phone: AWSPhone
   about: String
   image: String
@@ -16,43 +16,48 @@ type Player @model @searchable
   UTR: String
   verified: Boolean! @default(value: "false")
   playerMatches: [PlayerMatch!] @hasMany
+  matches: [Match] @hasMany
   ladders: [Ladder!] @manyToMany(relationName: "ladderPlayer")
   comments: [Comment!] @hasMany(indexName: "byPlayer", fields: ["id"])
 }
 
 type PlayerMatch @model @searchable {
-  player: Player! @belongsTo(fields: ["playerID"])
+  player: Player @belongsTo(fields: ["playerID"])
   playerID: ID! @primaryKey(sortKeyFields: ["matchID"])
                 @index(
                     name: "byPlayer", 
-                    queryField: "playerMatchByPlayer"
+                    queryField: "getPlayerMatchByPlayer",
+                    sortKeyFields: ["playedOn"]
                 )
                 @index(
                     name: "byPlayerVs", 
-                    queryField: "playerMatchByPlayerVs", 
+                    queryField: "getPlayerMatchByPlayerVs", 
                     sortKeyFields: ["opponentID","matchType"]
                 )
                 @index(
                     name: "byPlayerWithPartner", 
-                    queryField: "playerMatchByPlayerWithPartner", 
+                    queryField: "getPlayerMatchByPlayerWithPartner", 
                     sortKeyFields: ["partnerID"]
                 )
                 @index(
                     name: "byPlayerDoublesOpponentPartner", 
-                    queryField: "playerMatchByPlayerDoublesOpponentPartner", 
+                    queryField: "getPlayerMatchByPlayerDoublesOpponentPartner", 
                     sortKeyFields: ["opponentPartnerID"]
                 )
   partner: Player @belongsTo(fields: ["partnerID"])
-  partnerID: ID @index(name: "byPartner", queryField: "playerMatchByPartner")
-  opponent: Player! @belongsTo(fields: ["opponentID"])
-  opponentID: ID! 
+  partnerID: ID @index(
+                    name: "byPartner", 
+                    queryField: "getPlayerMatchByPartner", 
+                    sortKeyFields:["playerID"])
+  opponent: Player @belongsTo(fields: ["opponentID"])
+  opponentID: ID! @index(name: "byOpponent", queryField: "getPlayerMatchByOpponent", sortKeyFields: ["playerID"])
   opponentPartner: Player @belongsTo(fields: ["opponentPartnerID"])
   opponentPartnerID: ID
-  match: Match! 
-  matchID: ID! @index(name: "byMatchID", queryField: "playerMatchByMatchID")
-  matchType: matchType! @index(name: "byMatchType", queryField: "playerMatchByMatchType")
-  ladder: Ladder! 
-  ladderID: ID! @index(name: "byLadder", queryField: "playerMatchByLadder")
+  match: Match @belongsTo(fields: ["matchID"])
+  matchID: ID! @index(name: "byMatchID", queryField: "getPlayerMatchByMatchID")
+  matchType: matchType! @index(name: "byMatchType", queryField: "getPlayerMatchByMatchType")
+  ladder: Ladder @belongsTo(fields: ["ladderID"])
+  ladderID: ID! @index(name: "byLadder", queryField: "getPlayerMatchByLadder", sortKeyFields: ["playerID"])
   win: Boolean!
   setsWon: Int! @default(value: "0")
   setsLost: Int! @default(value: "0")
@@ -61,6 +66,7 @@ type PlayerMatch @model @searchable {
   tiebreaksWon: Int! @default(value: "0")
   tiebreaksLost: Int! @default(value: "0")
   retired: Boolean @default(value: "false")
+  playedOn: AWSDate!
 }
 
 type Match @model @searchable {
@@ -68,33 +74,35 @@ type Match @model @searchable {
   type: matchType!
   playedOn: AWSDate! 
   year: Int!
-  winnerID: ID!
-  winner: Player! 
-  loserID: ID! 
-  loser: Player!  
+  winnerID: ID! @index(name: "byMatchDetails", queryField: "getMatchByDetails", sortKeyFields: ["loserID","type","ladderID","playedOn","score"])
+  winner: Player @belongsTo(fields:["winnerID"])
+  loserID: ID! @index
+  loser: Player @belongsTo(fields:["loserID"]) 
   score: String!
-  ladderID: ID! @index(name: "byLadderID", queryField: "matchByLadderID")
+  ladderID: ID! @index(name: "byLadderID", queryField: "getMatchByLadderID", sortKeyFields: ["playedOn"])
   ladder: Ladder @belongsTo(fields: ["ladderID"])
   comments: [Comment!] @hasMany(indexName: "byMatch", fields: ["id"])
+  playerMatches: [PlayerMatch] @hasMany
 }
 
 type Ladder @model @searchable {
   id: ID! @primaryKey
   matchType: matchType!  
-  name: String! @index(name: "byName", queryField: "ladderByName")
+  name: String! @index(name: "byName", queryField: "getLadderByName")
   geoData: Location
-  city: String @index(name: "byCity", queryField: "ladderByCity", sortKeyFields: ["zip"])
+  city: String @index(name: "byCity", queryField: "getLadderByCity", sortKeyFields: ["zip"])
   zip: String 
   matches: [Match!] @hasMany
   players: [Player!] @manyToMany(relationName: "ladderPlayer")
+  playerMatches: [PlayerMatch] @hasMany
 }
 
 type Comment @model @searchable{
   id: ID! @primaryKey
-  matchID: ID! @index(name: "byMatch", sortKeyFields: ["postedOn"])
+  matchID: ID! @index(name: "byMatch", queryField: "getCommentsByMatch", sortKeyFields: ["postedOn"])
   match: Match @belongsTo(fields: ["matchID"])
   content: String!
-  postedByID: ID! @index(name: "byPlayer", sortKeyFields: ["postedOn"])
+  postedByID: ID! @index(name: "byPlayer", queryField: "getCommentsByPlayer", sortKeyFields: ["postedOn"])
   postedBy: Player @belongsTo(fields: ["postedByID"]) 
   postedOn: AWSDate! 
   private: Boolean @default(value: "true")
@@ -102,9 +110,9 @@ type Comment @model @searchable{
 
 type Standings @model @searchable {
   id: ID! @primaryKey
-  playerID: ID! @index(name: "byPlayerID", queryField: "standingsByPlayerID", sortKeyFields: ["ladderID","isCurrent"])
+  playerID: ID! @index(name: "byPlayerID", queryField: "getStandingsByPlayerID", sortKeyFields: ["ladderID","isCurrent"])
   player: Player! @hasOne
-  ladderID: ID! @index(name: "byLadderID", queryField: "standingsByLadderID", sortKeyFields: ["isCurrent"])
+  ladderID: ID! @index(name: "byLadderID", queryField: "getStandingsByLadderID", sortKeyFields: ["isCurrent"])
   ladder: Ladder! @hasOne
   wins: Int! @default(value: "0")
   losses: Int! @default(value: "0")
@@ -115,8 +123,7 @@ type Standings @model @searchable {
 
 enum matchType {
   SINGLES,
-  DOUBLES,
-  ANY
+  DOUBLES
 }
 
 type Location {   

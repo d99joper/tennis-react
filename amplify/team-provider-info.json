@@ -19,9 +19,7 @@
         "profilePics": {}
       },
       "api": {
-        "MTSApiProd": {
-          "OpenSearchInstanceType": "t3.small.search"
-        }
+        "MyTennisAPIProd": {}
       }
     }
   }

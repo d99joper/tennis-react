@@ -29,15 +29,16 @@ const Matches = ({
     const tableHeaders = [
         { label: "Date", accessor: "playedOn", sortable: true, parts:1, link: 'Match/id' },
         { label: "Ladder", accessor: "ladder.name", sortable: true, parts:2, link: 'Ladders/id' },
-        { label: "Winner", accessor: "winner.name", sortable: true, parts:2, link: 'Profile/id' },
-        { label: "Loser", accessor: "loser.name", sortable: true, parts:2, link: 'Profile/id' },
-        { label: "Score", accessor: "score", sortable: false, parts:1, link: 'Match/id' },
+        { label: "Winner", accessor: "player.name", sortable: true, parts:2, link: 'Profile/id' },
+        { label: "Loser", accessor: "opponent.name", sortable: true, parts:2, link: 'Profile/id' },
+        { label: "Score", accessor: "match.score", sortable: false, parts:2, link: 'Match/id' },
         { label: "", accessor: "games", sortable: false, parts:0 }
     ]
 
     useEffect(() => {
         if(!dataIsFetched)
-            mf.listMatches(player, ladder, startDate, endDate).then((data) => {
+            //mf.listMatches(player, ladder, startDate, endDate).then((data) => {
+            mf.getMatchesForPlayer(player, ladder, startDate, endDate).then((data) => {
                 setMatches(data)
                 setDataIsFetched(true)
             })

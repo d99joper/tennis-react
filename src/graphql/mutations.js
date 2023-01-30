@@ -33,9 +33,29 @@ export const createPlayer = /* GraphQL */ `
           tiebreaksWon
           tiebreaksLost
           retired
+          playedOn
           createdAt
           updatedAt
           playerPlayerMatchesId
+          matchPlayerMatchesId
+          ladderPlayerMatchesId
+        }
+        nextToken
+      }
+      matches {
+        items {
+          id
+          type
+          playedOn
+          year
+          winnerID
+          loserID
+          score
+          ladderID
+          createdAt
+          updatedAt
+          playerMatchesId
+          ladderMatchesId
         }
         nextToken
       }
@@ -99,9 +119,29 @@ export const updatePlayer = /* GraphQL */ `
           tiebreaksWon
           tiebreaksLost
           retired
+          playedOn
           createdAt
           updatedAt
           playerPlayerMatchesId
+          matchPlayerMatchesId
+          ladderPlayerMatchesId
+        }
+        nextToken
+      }
+      matches {
+        items {
+          id
+          type
+          playedOn
+          year
+          winnerID
+          loserID
+          score
+          ladderID
+          createdAt
+          updatedAt
+          playerMatchesId
+          ladderMatchesId
         }
         nextToken
       }
@@ -165,9 +205,29 @@ export const deletePlayer = /* GraphQL */ `
           tiebreaksWon
           tiebreaksLost
           retired
+          playedOn
           createdAt
           updatedAt
           playerPlayerMatchesId
+          matchPlayerMatchesId
+          ladderPlayerMatchesId
+        }
+        nextToken
+      }
+      matches {
+        items {
+          id
+          type
+          playedOn
+          year
+          winnerID
+          loserID
+          score
+          ladderID
+          createdAt
+          updatedAt
+          playerMatchesId
+          ladderMatchesId
         }
         nextToken
       }
@@ -218,6 +278,9 @@ export const createPlayerMatch = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -239,6 +302,9 @@ export const createPlayerMatch = /* GraphQL */ `
         UTR
         verified
         playerMatches {
+          nextToken
+        }
+        matches {
           nextToken
         }
         ladders {
@@ -264,6 +330,9 @@ export const createPlayerMatch = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -285,6 +354,9 @@ export const createPlayerMatch = /* GraphQL */ `
         UTR
         verified
         playerMatches {
+          nextToken
+        }
+        matches {
           nextToken
         }
         ladders {
@@ -344,8 +416,12 @@ export const createPlayerMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        playerMatches {
+          nextToken
+        }
         createdAt
         updatedAt
+        playerMatchesId
         ladderMatchesId
       }
       matchID
@@ -366,6 +442,9 @@ export const createPlayerMatch = /* GraphQL */ `
         players {
           nextToken
         }
+        playerMatches {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -378,9 +457,12 @@ export const createPlayerMatch = /* GraphQL */ `
       tiebreaksWon
       tiebreaksLost
       retired
+      playedOn
       createdAt
       updatedAt
       playerPlayerMatchesId
+      matchPlayerMatchesId
+      ladderPlayerMatchesId
     }
   }
 `;
@@ -403,6 +485,9 @@ export const updatePlayerMatch = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -424,6 +509,9 @@ export const updatePlayerMatch = /* GraphQL */ `
         UTR
         verified
         playerMatches {
+          nextToken
+        }
+        matches {
           nextToken
         }
         ladders {
@@ -449,6 +537,9 @@ export const updatePlayerMatch = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -470,6 +561,9 @@ export const updatePlayerMatch = /* GraphQL */ `
         UTR
         verified
         playerMatches {
+          nextToken
+        }
+        matches {
           nextToken
         }
         ladders {
@@ -529,8 +623,12 @@ export const updatePlayerMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        playerMatches {
+          nextToken
+        }
         createdAt
         updatedAt
+        playerMatchesId
         ladderMatchesId
       }
       matchID
@@ -551,6 +649,9 @@ export const updatePlayerMatch = /* GraphQL */ `
         players {
           nextToken
         }
+        playerMatches {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -563,9 +664,12 @@ export const updatePlayerMatch = /* GraphQL */ `
       tiebreaksWon
       tiebreaksLost
       retired
+      playedOn
       createdAt
       updatedAt
       playerPlayerMatchesId
+      matchPlayerMatchesId
+      ladderPlayerMatchesId
     }
   }
 `;
@@ -588,6 +692,9 @@ export const deletePlayerMatch = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -609,6 +716,9 @@ export const deletePlayerMatch = /* GraphQL */ `
         UTR
         verified
         playerMatches {
+          nextToken
+        }
+        matches {
           nextToken
         }
         ladders {
@@ -634,6 +744,9 @@ export const deletePlayerMatch = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -655,6 +768,9 @@ export const deletePlayerMatch = /* GraphQL */ `
         UTR
         verified
         playerMatches {
+          nextToken
+        }
+        matches {
           nextToken
         }
         ladders {
@@ -714,8 +830,12 @@ export const deletePlayerMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        playerMatches {
+          nextToken
+        }
         createdAt
         updatedAt
+        playerMatchesId
         ladderMatchesId
       }
       matchID
@@ -736,6 +856,9 @@ export const deletePlayerMatch = /* GraphQL */ `
         players {
           nextToken
         }
+        playerMatches {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -748,9 +871,12 @@ export const deletePlayerMatch = /* GraphQL */ `
       tiebreaksWon
       tiebreaksLost
       retired
+      playedOn
       createdAt
       updatedAt
       playerPlayerMatchesId
+      matchPlayerMatchesId
+      ladderPlayerMatchesId
     }
   }
 `;
@@ -778,6 +904,9 @@ export const createMatch = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -799,6 +928,9 @@ export const createMatch = /* GraphQL */ `
         UTR
         verified
         playerMatches {
+          nextToken
+        }
+        matches {
           nextToken
         }
         ladders {
@@ -828,6 +960,9 @@ export const createMatch = /* GraphQL */ `
         players {
           nextToken
         }
+        playerMatches {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -844,8 +979,35 @@ export const createMatch = /* GraphQL */ `
         }
         nextToken
       }
+      playerMatches {
+        items {
+          playerID
+          partnerID
+          opponentID
+          opponentPartnerID
+          matchID
+          matchType
+          ladderID
+          win
+          setsWon
+          setsLost
+          gamesWon
+          gamesLost
+          tiebreaksWon
+          tiebreaksLost
+          retired
+          playedOn
+          createdAt
+          updatedAt
+          playerPlayerMatchesId
+          matchPlayerMatchesId
+          ladderPlayerMatchesId
+        }
+        nextToken
+      }
       createdAt
       updatedAt
+      playerMatchesId
       ladderMatchesId
     }
   }
@@ -874,6 +1036,9 @@ export const updateMatch = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -895,6 +1060,9 @@ export const updateMatch = /* GraphQL */ `
         UTR
         verified
         playerMatches {
+          nextToken
+        }
+        matches {
           nextToken
         }
         ladders {
@@ -924,6 +1092,9 @@ export const updateMatch = /* GraphQL */ `
         players {
           nextToken
         }
+        playerMatches {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -940,8 +1111,35 @@ export const updateMatch = /* GraphQL */ `
         }
         nextToken
       }
+      playerMatches {
+        items {
+          playerID
+          partnerID
+          opponentID
+          opponentPartnerID
+          matchID
+          matchType
+          ladderID
+          win
+          setsWon
+          setsLost
+          gamesWon
+          gamesLost
+          tiebreaksWon
+          tiebreaksLost
+          retired
+          playedOn
+          createdAt
+          updatedAt
+          playerPlayerMatchesId
+          matchPlayerMatchesId
+          ladderPlayerMatchesId
+        }
+        nextToken
+      }
       createdAt
       updatedAt
+      playerMatchesId
       ladderMatchesId
     }
   }
@@ -970,6 +1168,9 @@ export const deleteMatch = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -991,6 +1192,9 @@ export const deleteMatch = /* GraphQL */ `
         UTR
         verified
         playerMatches {
+          nextToken
+        }
+        matches {
           nextToken
         }
         ladders {
@@ -1020,6 +1224,9 @@ export const deleteMatch = /* GraphQL */ `
         players {
           nextToken
         }
+        playerMatches {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -1036,8 +1243,35 @@ export const deleteMatch = /* GraphQL */ `
         }
         nextToken
       }
+      playerMatches {
+        items {
+          playerID
+          partnerID
+          opponentID
+          opponentPartnerID
+          matchID
+          matchType
+          ladderID
+          win
+          setsWon
+          setsLost
+          gamesWon
+          gamesLost
+          tiebreaksWon
+          tiebreaksLost
+          retired
+          playedOn
+          createdAt
+          updatedAt
+          playerPlayerMatchesId
+          matchPlayerMatchesId
+          ladderPlayerMatchesId
+        }
+        nextToken
+      }
       createdAt
       updatedAt
+      playerMatchesId
       ladderMatchesId
     }
   }
@@ -1069,6 +1303,7 @@ export const createLadder = /* GraphQL */ `
           ladderID
           createdAt
           updatedAt
+          playerMatchesId
           ladderMatchesId
         }
         nextToken
@@ -1080,6 +1315,32 @@ export const createLadder = /* GraphQL */ `
           ladderID
           createdAt
           updatedAt
+        }
+        nextToken
+      }
+      playerMatches {
+        items {
+          playerID
+          partnerID
+          opponentID
+          opponentPartnerID
+          matchID
+          matchType
+          ladderID
+          win
+          setsWon
+          setsLost
+          gamesWon
+          gamesLost
+          tiebreaksWon
+          tiebreaksLost
+          retired
+          playedOn
+          createdAt
+          updatedAt
+          playerPlayerMatchesId
+          matchPlayerMatchesId
+          ladderPlayerMatchesId
         }
         nextToken
       }
@@ -1115,6 +1376,7 @@ export const updateLadder = /* GraphQL */ `
           ladderID
           createdAt
           updatedAt
+          playerMatchesId
           ladderMatchesId
         }
         nextToken
@@ -1126,6 +1388,32 @@ export const updateLadder = /* GraphQL */ `
           ladderID
           createdAt
           updatedAt
+        }
+        nextToken
+      }
+      playerMatches {
+        items {
+          playerID
+          partnerID
+          opponentID
+          opponentPartnerID
+          matchID
+          matchType
+          ladderID
+          win
+          setsWon
+          setsLost
+          gamesWon
+          gamesLost
+          tiebreaksWon
+          tiebreaksLost
+          retired
+          playedOn
+          createdAt
+          updatedAt
+          playerPlayerMatchesId
+          matchPlayerMatchesId
+          ladderPlayerMatchesId
         }
         nextToken
       }
@@ -1161,6 +1449,7 @@ export const deleteLadder = /* GraphQL */ `
           ladderID
           createdAt
           updatedAt
+          playerMatchesId
           ladderMatchesId
         }
         nextToken
@@ -1172,6 +1461,32 @@ export const deleteLadder = /* GraphQL */ `
           ladderID
           createdAt
           updatedAt
+        }
+        nextToken
+      }
+      playerMatches {
+        items {
+          playerID
+          partnerID
+          opponentID
+          opponentPartnerID
+          matchID
+          matchType
+          ladderID
+          win
+          setsWon
+          setsLost
+          gamesWon
+          gamesLost
+          tiebreaksWon
+          tiebreaksLost
+          retired
+          playedOn
+          createdAt
+          updatedAt
+          playerPlayerMatchesId
+          matchPlayerMatchesId
+          ladderPlayerMatchesId
         }
         nextToken
       }
@@ -1235,8 +1550,12 @@ export const createComment = /* GraphQL */ `
         comments {
           nextToken
         }
+        playerMatches {
+          nextToken
+        }
         createdAt
         updatedAt
+        playerMatchesId
         ladderMatchesId
       }
       content
@@ -1252,6 +1571,9 @@ export const createComment = /* GraphQL */ `
         UTR
         verified
         playerMatches {
+          nextToken
+        }
+        matches {
           nextToken
         }
         ladders {
@@ -1325,8 +1647,12 @@ export const updateComment = /* GraphQL */ `
         comments {
           nextToken
         }
+        playerMatches {
+          nextToken
+        }
         createdAt
         updatedAt
+        playerMatchesId
         ladderMatchesId
       }
       content
@@ -1342,6 +1668,9 @@ export const updateComment = /* GraphQL */ `
         UTR
         verified
         playerMatches {
+          nextToken
+        }
+        matches {
           nextToken
         }
         ladders {
@@ -1415,8 +1744,12 @@ export const deleteComment = /* GraphQL */ `
         comments {
           nextToken
         }
+        playerMatches {
+          nextToken
+        }
         createdAt
         updatedAt
+        playerMatchesId
         ladderMatchesId
       }
       content
@@ -1432,6 +1765,9 @@ export const deleteComment = /* GraphQL */ `
         UTR
         verified
         playerMatches {
+          nextToken
+        }
+        matches {
           nextToken
         }
         ladders {
@@ -1471,6 +1807,9 @@ export const createStandings = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -1495,6 +1834,9 @@ export const createStandings = /* GraphQL */ `
           nextToken
         }
         players {
+          nextToken
+        }
+        playerMatches {
           nextToken
         }
         createdAt
@@ -1533,6 +1875,9 @@ export const updateStandings = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -1557,6 +1902,9 @@ export const updateStandings = /* GraphQL */ `
           nextToken
         }
         players {
+          nextToken
+        }
+        playerMatches {
           nextToken
         }
         createdAt
@@ -1595,6 +1943,9 @@ export const deleteStandings = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -1619,6 +1970,9 @@ export const deleteStandings = /* GraphQL */ `
           nextToken
         }
         players {
+          nextToken
+        }
+        playerMatches {
           nextToken
         }
         createdAt
@@ -1658,6 +2012,9 @@ export const createLadderPlayer = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -1681,6 +2038,9 @@ export const createLadderPlayer = /* GraphQL */ `
           nextToken
         }
         players {
+          nextToken
+        }
+        playerMatches {
           nextToken
         }
         createdAt
@@ -1713,6 +2073,9 @@ export const updateLadderPlayer = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -1736,6 +2099,9 @@ export const updateLadderPlayer = /* GraphQL */ `
           nextToken
         }
         players {
+          nextToken
+        }
+        playerMatches {
           nextToken
         }
         createdAt
@@ -1768,6 +2134,9 @@ export const deleteLadderPlayer = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -1791,6 +2160,9 @@ export const deleteLadderPlayer = /* GraphQL */ `
           nextToken
         }
         players {
+          nextToken
+        }
+        playerMatches {
           nextToken
         }
         createdAt

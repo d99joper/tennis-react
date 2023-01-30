@@ -1,5 +1,5 @@
 import { API, Auth, DataStore, Storage } from 'aws-amplify';
-import { getPlayer, listPlayers } from "../graphql/queries";
+import { getPlayer, listPlayers, playerByEmail } from "../graphql/queries";
 import {
     createPlayer as createPlayerMutation,
     updatePlayer as updatePlayerMutation,
@@ -16,15 +16,15 @@ const userFunctions = {
         //console.log(user);
         if (typeof user != 'undefined') {
             let player
-            if(name) player = await this.getPlayerFromAPI(null, null, null, name);
+            if(name) player = await this.getPlayerFromAPI('noEmail@mytennis.space', null, null, name);
             else player = await this.getPlayerFromAPI(user.attributes.email, null, null, null);
             //console.log("createPlayerIfNotExist", player);
             if (player === 'undefined' || !player) {
                 // user doesn't exist, so create it
                 // by name
-                if(name) player = await this.createPlayer(name, 'noEmail@otherTable.mytennis', null)
+                if(name) player = await this.createPlayer(name, 'noEmail@mytennis.space', null)
                 else player = await this.createPlayer(user.attributes.name, user.attributes.email, user.attributes.sub)
-
+                console.log("createPlayerIfNotExist",player)
                 return player
             }
             else return player
@@ -44,9 +44,7 @@ const userFunctions = {
                 id: userId,
                 ...(player.name && { name: player.name }),
                 ...(image && { image: imageName }),
-                phone: (typeof player.phone !== "undefined")
-                    ? (player.phone.length === 0 ? null : player.phone)
-                    : player.phone,
+                ...(player.phone && { phone: player.phone }),
                 about: player.about,
                 NTRP: player.NTRP,
                 UTR: player.UTR
@@ -214,22 +212,21 @@ const userFunctions = {
         }
     },
 
-    getPlayerFromAPI: async function (email=null, id = null, includeImage = false, name = null) {
+    getPlayerFromAPI: async function (email = null, id = null, includeImage = false, name = null) {
 
         try {
+            const query = id ? getPlayer : playerByEmail
+            const variables = id ? {id: id} 
+                : { email: email, ...name ? {name: {eq: name}} : null }
 
-            const filter = { 
-                ... email ? {email: { eq: email }} :null,
-                ... id ? {id: {eq: id }} :null,
-                ... name ? {name: {eq: name}} :null
-            }
-            
-            const apiData = await API.graphql({ query: listPlayers, variables: { filter: filter } });
+            const apiData = await API.graphql({ 
+                query: query, 
+                variables: variables 
+            })
 
-            // only grab the first one (if many)
-            const playerFromAPI = apiData.data.listPlayers.items[0];
+            const playerFromAPI = id ? apiData.data.getPlayer : apiData.data.playerByEmail.items[0]
             
-            if (includeImage)
+            if (playerFromAPI && includeImage)
                 await PrivateFunc.SetPlayerImage(playerFromAPI)
 
             //console.log("getPlayerFromAPI", playerFromAPI)

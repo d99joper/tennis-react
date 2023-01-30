@@ -57,7 +57,7 @@ const DynamicTable = ({
                                 onClick={() => openH2HModal(item,i)}
                             />
                             <Modal 
-                                title={`${item.winner.name} vs ${item.loser.name}`}
+                                title={`${item.player.name} vs ${item.opponent.name}`}
                                 onClose={() => setIsShowH2H(prevState => {return {...prevState, [i]:false}})} 
                                 show={isShowH2H[i]}
                             >
@@ -84,7 +84,7 @@ const DynamicTable = ({
 
     function setContent(item, column, i) {
         let text, urlVals
-
+        console.log("setContent",item,column,i)
         if (column.link) {
             const urlSplit = column.link.split('/')
             urlVals = { page: urlSplit[0], type: urlSplit[1], value: 0 }

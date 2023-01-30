@@ -31,6 +31,9 @@ export const searchPlayers = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -144,6 +147,7 @@ export const searchPlayerMatches = /* GraphQL */ `
           ladderID
           createdAt
           updatedAt
+          playerMatchesId
           ladderMatchesId
         }
         matchID
@@ -166,9 +170,12 @@ export const searchPlayerMatches = /* GraphQL */ `
         tiebreaksWon
         tiebreaksLost
         retired
+        playedOn
         createdAt
         updatedAt
         playerPlayerMatchesId
+        matchPlayerMatchesId
+        ladderPlayerMatchesId
       }
       nextToken
       total
@@ -253,8 +260,12 @@ export const searchMatches = /* GraphQL */ `
         comments {
           nextToken
         }
+        playerMatches {
+          nextToken
+        }
         createdAt
         updatedAt
+        playerMatchesId
         ladderMatchesId
       }
       nextToken
@@ -307,6 +318,9 @@ export const searchLadders = /* GraphQL */ `
           nextToken
         }
         players {
+          nextToken
+        }
+        playerMatches {
           nextToken
         }
         createdAt
@@ -362,6 +376,7 @@ export const searchComments = /* GraphQL */ `
           ladderID
           createdAt
           updatedAt
+          playerMatchesId
           ladderMatchesId
         }
         content
@@ -504,9 +519,29 @@ export const getPlayer = /* GraphQL */ `
           tiebreaksWon
           tiebreaksLost
           retired
+          playedOn
           createdAt
           updatedAt
           playerPlayerMatchesId
+          matchPlayerMatchesId
+          ladderPlayerMatchesId
+        }
+        nextToken
+      }
+      matches {
+        items {
+          id
+          type
+          playedOn
+          year
+          winnerID
+          loserID
+          score
+          ladderID
+          createdAt
+          updatedAt
+          playerMatchesId
+          ladderMatchesId
         }
         nextToken
       }
@@ -566,6 +601,9 @@ export const listPlayers = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -595,6 +633,9 @@ export const getPlayerMatch = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -616,6 +657,9 @@ export const getPlayerMatch = /* GraphQL */ `
         UTR
         verified
         playerMatches {
+          nextToken
+        }
+        matches {
           nextToken
         }
         ladders {
@@ -641,6 +685,9 @@ export const getPlayerMatch = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -662,6 +709,9 @@ export const getPlayerMatch = /* GraphQL */ `
         UTR
         verified
         playerMatches {
+          nextToken
+        }
+        matches {
           nextToken
         }
         ladders {
@@ -721,8 +771,12 @@ export const getPlayerMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        playerMatches {
+          nextToken
+        }
         createdAt
         updatedAt
+        playerMatchesId
         ladderMatchesId
       }
       matchID
@@ -743,6 +797,9 @@ export const getPlayerMatch = /* GraphQL */ `
         players {
           nextToken
         }
+        playerMatches {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -755,9 +812,12 @@ export const getPlayerMatch = /* GraphQL */ `
       tiebreaksWon
       tiebreaksLost
       retired
+      playedOn
       createdAt
       updatedAt
       playerPlayerMatchesId
+      matchPlayerMatchesId
+      ladderPlayerMatchesId
     }
   }
 `;
@@ -846,6 +906,7 @@ export const listPlayerMatches = /* GraphQL */ `
           ladderID
           createdAt
           updatedAt
+          playerMatchesId
           ladderMatchesId
         }
         matchID
@@ -868,9 +929,12 @@ export const listPlayerMatches = /* GraphQL */ `
         tiebreaksWon
         tiebreaksLost
         retired
+        playedOn
         createdAt
         updatedAt
         playerPlayerMatchesId
+        matchPlayerMatchesId
+        ladderPlayerMatchesId
       }
       nextToken
     }
@@ -897,6 +961,9 @@ export const getMatch = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -918,6 +985,9 @@ export const getMatch = /* GraphQL */ `
         UTR
         verified
         playerMatches {
+          nextToken
+        }
+        matches {
           nextToken
         }
         ladders {
@@ -947,6 +1017,9 @@ export const getMatch = /* GraphQL */ `
         players {
           nextToken
         }
+        playerMatches {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -963,8 +1036,35 @@ export const getMatch = /* GraphQL */ `
         }
         nextToken
       }
+      playerMatches {
+        items {
+          playerID
+          partnerID
+          opponentID
+          opponentPartnerID
+          matchID
+          matchType
+          ladderID
+          win
+          setsWon
+          setsLost
+          gamesWon
+          gamesLost
+          tiebreaksWon
+          tiebreaksLost
+          retired
+          playedOn
+          createdAt
+          updatedAt
+          playerPlayerMatchesId
+          matchPlayerMatchesId
+          ladderPlayerMatchesId
+        }
+        nextToken
+      }
       createdAt
       updatedAt
+      playerMatchesId
       ladderMatchesId
     }
   }
@@ -1031,8 +1131,12 @@ export const listMatches = /* GraphQL */ `
         comments {
           nextToken
         }
+        playerMatches {
+          nextToken
+        }
         createdAt
         updatedAt
+        playerMatchesId
         ladderMatchesId
       }
       nextToken
@@ -1063,6 +1167,7 @@ export const getLadder = /* GraphQL */ `
           ladderID
           createdAt
           updatedAt
+          playerMatchesId
           ladderMatchesId
         }
         nextToken
@@ -1074,6 +1179,32 @@ export const getLadder = /* GraphQL */ `
           ladderID
           createdAt
           updatedAt
+        }
+        nextToken
+      }
+      playerMatches {
+        items {
+          playerID
+          partnerID
+          opponentID
+          opponentPartnerID
+          matchID
+          matchType
+          ladderID
+          win
+          setsWon
+          setsLost
+          gamesWon
+          gamesLost
+          tiebreaksWon
+          tiebreaksLost
+          retired
+          playedOn
+          createdAt
+          updatedAt
+          playerPlayerMatchesId
+          matchPlayerMatchesId
+          ladderPlayerMatchesId
         }
         nextToken
       }
@@ -1111,6 +1242,9 @@ export const listLadders = /* GraphQL */ `
           nextToken
         }
         players {
+          nextToken
+        }
+        playerMatches {
           nextToken
         }
         createdAt
@@ -1172,8 +1306,12 @@ export const getComment = /* GraphQL */ `
         comments {
           nextToken
         }
+        playerMatches {
+          nextToken
+        }
         createdAt
         updatedAt
+        playerMatchesId
         ladderMatchesId
       }
       content
@@ -1189,6 +1327,9 @@ export const getComment = /* GraphQL */ `
         UTR
         verified
         playerMatches {
+          nextToken
+        }
+        matches {
           nextToken
         }
         ladders {
@@ -1236,6 +1377,7 @@ export const listComments = /* GraphQL */ `
           ladderID
           createdAt
           updatedAt
+          playerMatchesId
           ladderMatchesId
         }
         content
@@ -1280,6 +1422,9 @@ export const getStandings = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -1304,6 +1449,9 @@ export const getStandings = /* GraphQL */ `
           nextToken
         }
         players {
+          nextToken
+        }
+        playerMatches {
           nextToken
         }
         createdAt
@@ -1395,6 +1543,9 @@ export const getLadderPlayer = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -1418,6 +1569,9 @@ export const getLadderPlayer = /* GraphQL */ `
           nextToken
         }
         players {
+          nextToken
+        }
+        playerMatches {
           nextToken
         }
         createdAt
@@ -1471,6 +1625,7 @@ export const listLadderPlayers = /* GraphQL */ `
 export const playerByEmail = /* GraphQL */ `
   query PlayerByEmail(
     $email: AWSEmail!
+    $name: ModelStringKeyConditionInput
     $sortDirection: ModelSortDirection
     $filter: ModelPlayerFilterInput
     $limit: Int
@@ -1478,6 +1633,7 @@ export const playerByEmail = /* GraphQL */ `
   ) {
     playerByEmail(
       email: $email
+      name: $name
       sortDirection: $sortDirection
       filter: $filter
       limit: $limit
@@ -1496,6 +1652,9 @@ export const playerByEmail = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        matches {
+          nextToken
+        }
         ladders {
           nextToken
         }
@@ -1509,16 +1668,18 @@ export const playerByEmail = /* GraphQL */ `
     }
   }
 `;
-export const playerMatchByPlayer = /* GraphQL */ `
-  query PlayerMatchByPlayer(
+export const getPlayerMatchByPlayer = /* GraphQL */ `
+  query GetPlayerMatchByPlayer(
     $playerID: ID!
+    $playedOn: ModelStringKeyConditionInput
     $sortDirection: ModelSortDirection
     $filter: ModelPlayerMatchFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    playerMatchByPlayer(
+    getPlayerMatchByPlayer(
       playerID: $playerID
+      playedOn: $playedOn
       sortDirection: $sortDirection
       filter: $filter
       limit: $limit
@@ -1592,6 +1753,7 @@ export const playerMatchByPlayer = /* GraphQL */ `
           ladderID
           createdAt
           updatedAt
+          playerMatchesId
           ladderMatchesId
         }
         matchID
@@ -1614,16 +1776,19 @@ export const playerMatchByPlayer = /* GraphQL */ `
         tiebreaksWon
         tiebreaksLost
         retired
+        playedOn
         createdAt
         updatedAt
         playerPlayerMatchesId
+        matchPlayerMatchesId
+        ladderPlayerMatchesId
       }
       nextToken
     }
   }
 `;
-export const playerMatchByPlayerVs = /* GraphQL */ `
-  query PlayerMatchByPlayerVs(
+export const getPlayerMatchByPlayerVs = /* GraphQL */ `
+  query GetPlayerMatchByPlayerVs(
     $playerID: ID!
     $opponentIDMatchType: ModelPlayerMatchByPlayerVsCompositeKeyConditionInput
     $sortDirection: ModelSortDirection
@@ -1631,7 +1796,7 @@ export const playerMatchByPlayerVs = /* GraphQL */ `
     $limit: Int
     $nextToken: String
   ) {
-    playerMatchByPlayerVs(
+    getPlayerMatchByPlayerVs(
       playerID: $playerID
       opponentIDMatchType: $opponentIDMatchType
       sortDirection: $sortDirection
@@ -1707,6 +1872,7 @@ export const playerMatchByPlayerVs = /* GraphQL */ `
           ladderID
           createdAt
           updatedAt
+          playerMatchesId
           ladderMatchesId
         }
         matchID
@@ -1729,16 +1895,19 @@ export const playerMatchByPlayerVs = /* GraphQL */ `
         tiebreaksWon
         tiebreaksLost
         retired
+        playedOn
         createdAt
         updatedAt
         playerPlayerMatchesId
+        matchPlayerMatchesId
+        ladderPlayerMatchesId
       }
       nextToken
     }
   }
 `;
-export const playerMatchByPlayerWithPartner = /* GraphQL */ `
-  query PlayerMatchByPlayerWithPartner(
+export const getPlayerMatchByPlayerWithPartner = /* GraphQL */ `
+  query GetPlayerMatchByPlayerWithPartner(
     $playerID: ID!
     $partnerID: ModelIDKeyConditionInput
     $sortDirection: ModelSortDirection
@@ -1746,7 +1915,7 @@ export const playerMatchByPlayerWithPartner = /* GraphQL */ `
     $limit: Int
     $nextToken: String
   ) {
-    playerMatchByPlayerWithPartner(
+    getPlayerMatchByPlayerWithPartner(
       playerID: $playerID
       partnerID: $partnerID
       sortDirection: $sortDirection
@@ -1822,6 +1991,7 @@ export const playerMatchByPlayerWithPartner = /* GraphQL */ `
           ladderID
           createdAt
           updatedAt
+          playerMatchesId
           ladderMatchesId
         }
         matchID
@@ -1844,16 +2014,19 @@ export const playerMatchByPlayerWithPartner = /* GraphQL */ `
         tiebreaksWon
         tiebreaksLost
         retired
+        playedOn
         createdAt
         updatedAt
         playerPlayerMatchesId
+        matchPlayerMatchesId
+        ladderPlayerMatchesId
       }
       nextToken
     }
   }
 `;
-export const playerMatchByPlayerDoublesOpponentPartner = /* GraphQL */ `
-  query PlayerMatchByPlayerDoublesOpponentPartner(
+export const getPlayerMatchByPlayerDoublesOpponentPartner = /* GraphQL */ `
+  query GetPlayerMatchByPlayerDoublesOpponentPartner(
     $playerID: ID!
     $opponentPartnerID: ModelIDKeyConditionInput
     $sortDirection: ModelSortDirection
@@ -1861,7 +2034,7 @@ export const playerMatchByPlayerDoublesOpponentPartner = /* GraphQL */ `
     $limit: Int
     $nextToken: String
   ) {
-    playerMatchByPlayerDoublesOpponentPartner(
+    getPlayerMatchByPlayerDoublesOpponentPartner(
       playerID: $playerID
       opponentPartnerID: $opponentPartnerID
       sortDirection: $sortDirection
@@ -1937,6 +2110,7 @@ export const playerMatchByPlayerDoublesOpponentPartner = /* GraphQL */ `
           ladderID
           createdAt
           updatedAt
+          playerMatchesId
           ladderMatchesId
         }
         matchID
@@ -1959,24 +2133,29 @@ export const playerMatchByPlayerDoublesOpponentPartner = /* GraphQL */ `
         tiebreaksWon
         tiebreaksLost
         retired
+        playedOn
         createdAt
         updatedAt
         playerPlayerMatchesId
+        matchPlayerMatchesId
+        ladderPlayerMatchesId
       }
       nextToken
     }
   }
 `;
-export const playerMatchByPartner = /* GraphQL */ `
-  query PlayerMatchByPartner(
+export const getPlayerMatchByPartner = /* GraphQL */ `
+  query GetPlayerMatchByPartner(
     $partnerID: ID!
+    $playerID: ModelIDKeyConditionInput
     $sortDirection: ModelSortDirection
     $filter: ModelPlayerMatchFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    playerMatchByPartner(
+    getPlayerMatchByPartner(
       partnerID: $partnerID
+      playerID: $playerID
       sortDirection: $sortDirection
       filter: $filter
       limit: $limit
@@ -2050,6 +2229,7 @@ export const playerMatchByPartner = /* GraphQL */ `
           ladderID
           createdAt
           updatedAt
+          playerMatchesId
           ladderMatchesId
         }
         matchID
@@ -2072,23 +2252,145 @@ export const playerMatchByPartner = /* GraphQL */ `
         tiebreaksWon
         tiebreaksLost
         retired
+        playedOn
         createdAt
         updatedAt
         playerPlayerMatchesId
+        matchPlayerMatchesId
+        ladderPlayerMatchesId
       }
       nextToken
     }
   }
 `;
-export const playerMatchByMatchID = /* GraphQL */ `
-  query PlayerMatchByMatchID(
+export const getPlayerMatchByOpponent = /* GraphQL */ `
+  query GetPlayerMatchByOpponent(
+    $opponentID: ID!
+    $playerID: ModelIDKeyConditionInput
+    $sortDirection: ModelSortDirection
+    $filter: ModelPlayerMatchFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    getPlayerMatchByOpponent(
+      opponentID: $opponentID
+      playerID: $playerID
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        player {
+          id
+          name
+          email
+          phone
+          about
+          image
+          NTRP
+          UTR
+          verified
+          createdAt
+          updatedAt
+        }
+        playerID
+        partner {
+          id
+          name
+          email
+          phone
+          about
+          image
+          NTRP
+          UTR
+          verified
+          createdAt
+          updatedAt
+        }
+        partnerID
+        opponent {
+          id
+          name
+          email
+          phone
+          about
+          image
+          NTRP
+          UTR
+          verified
+          createdAt
+          updatedAt
+        }
+        opponentID
+        opponentPartner {
+          id
+          name
+          email
+          phone
+          about
+          image
+          NTRP
+          UTR
+          verified
+          createdAt
+          updatedAt
+        }
+        opponentPartnerID
+        match {
+          id
+          type
+          playedOn
+          year
+          winnerID
+          loserID
+          score
+          ladderID
+          createdAt
+          updatedAt
+          playerMatchesId
+          ladderMatchesId
+        }
+        matchID
+        matchType
+        ladder {
+          id
+          matchType
+          name
+          city
+          zip
+          createdAt
+          updatedAt
+        }
+        ladderID
+        win
+        setsWon
+        setsLost
+        gamesWon
+        gamesLost
+        tiebreaksWon
+        tiebreaksLost
+        retired
+        playedOn
+        createdAt
+        updatedAt
+        playerPlayerMatchesId
+        matchPlayerMatchesId
+        ladderPlayerMatchesId
+      }
+      nextToken
+    }
+  }
+`;
+export const getPlayerMatchByMatchID = /* GraphQL */ `
+  query GetPlayerMatchByMatchID(
     $matchID: ID!
     $sortDirection: ModelSortDirection
     $filter: ModelPlayerMatchFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    playerMatchByMatchID(
+    getPlayerMatchByMatchID(
       matchID: $matchID
       sortDirection: $sortDirection
       filter: $filter
@@ -2163,6 +2465,7 @@ export const playerMatchByMatchID = /* GraphQL */ `
           ladderID
           createdAt
           updatedAt
+          playerMatchesId
           ladderMatchesId
         }
         matchID
@@ -2185,23 +2488,26 @@ export const playerMatchByMatchID = /* GraphQL */ `
         tiebreaksWon
         tiebreaksLost
         retired
+        playedOn
         createdAt
         updatedAt
         playerPlayerMatchesId
+        matchPlayerMatchesId
+        ladderPlayerMatchesId
       }
       nextToken
     }
   }
 `;
-export const playerMatchByMatchType = /* GraphQL */ `
-  query PlayerMatchByMatchType(
+export const getPlayerMatchByMatchType = /* GraphQL */ `
+  query GetPlayerMatchByMatchType(
     $matchType: matchType!
     $sortDirection: ModelSortDirection
     $filter: ModelPlayerMatchFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    playerMatchByMatchType(
+    getPlayerMatchByMatchType(
       matchType: $matchType
       sortDirection: $sortDirection
       filter: $filter
@@ -2276,6 +2582,7 @@ export const playerMatchByMatchType = /* GraphQL */ `
           ladderID
           createdAt
           updatedAt
+          playerMatchesId
           ladderMatchesId
         }
         matchID
@@ -2298,24 +2605,29 @@ export const playerMatchByMatchType = /* GraphQL */ `
         tiebreaksWon
         tiebreaksLost
         retired
+        playedOn
         createdAt
         updatedAt
         playerPlayerMatchesId
+        matchPlayerMatchesId
+        ladderPlayerMatchesId
       }
       nextToken
     }
   }
 `;
-export const playerMatchByLadder = /* GraphQL */ `
-  query PlayerMatchByLadder(
+export const getPlayerMatchByLadder = /* GraphQL */ `
+  query GetPlayerMatchByLadder(
     $ladderID: ID!
+    $playerID: ModelIDKeyConditionInput
     $sortDirection: ModelSortDirection
     $filter: ModelPlayerMatchFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    playerMatchByLadder(
+    getPlayerMatchByLadder(
       ladderID: $ladderID
+      playerID: $playerID
       sortDirection: $sortDirection
       filter: $filter
       limit: $limit
@@ -2389,6 +2701,7 @@ export const playerMatchByLadder = /* GraphQL */ `
           ladderID
           createdAt
           updatedAt
+          playerMatchesId
           ladderMatchesId
         }
         matchID
@@ -2411,24 +2724,29 @@ export const playerMatchByLadder = /* GraphQL */ `
         tiebreaksWon
         tiebreaksLost
         retired
+        playedOn
         createdAt
         updatedAt
         playerPlayerMatchesId
+        matchPlayerMatchesId
+        ladderPlayerMatchesId
       }
       nextToken
     }
   }
 `;
-export const matchByLadderID = /* GraphQL */ `
-  query MatchByLadderID(
-    $ladderID: ID!
+export const getMatchByDetails = /* GraphQL */ `
+  query GetMatchByDetails(
+    $winnerID: ID!
+    $loserIDTypeLadderIDPlayedOnScore: ModelMatchByMatchDetailsCompositeKeyConditionInput
     $sortDirection: ModelSortDirection
     $filter: ModelMatchFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    matchByLadderID(
-      ladderID: $ladderID
+    getMatchByDetails(
+      winnerID: $winnerID
+      loserIDTypeLadderIDPlayedOnScore: $loserIDTypeLadderIDPlayedOnScore
       sortDirection: $sortDirection
       filter: $filter
       limit: $limit
@@ -2481,23 +2799,103 @@ export const matchByLadderID = /* GraphQL */ `
         comments {
           nextToken
         }
+        playerMatches {
+          nextToken
+        }
         createdAt
         updatedAt
+        playerMatchesId
         ladderMatchesId
       }
       nextToken
     }
   }
 `;
-export const ladderByName = /* GraphQL */ `
-  query LadderByName(
+export const getMatchByLadderID = /* GraphQL */ `
+  query GetMatchByLadderID(
+    $ladderID: ID!
+    $playedOn: ModelStringKeyConditionInput
+    $sortDirection: ModelSortDirection
+    $filter: ModelMatchFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    getMatchByLadderID(
+      ladderID: $ladderID
+      playedOn: $playedOn
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        type
+        playedOn
+        year
+        winnerID
+        winner {
+          id
+          name
+          email
+          phone
+          about
+          image
+          NTRP
+          UTR
+          verified
+          createdAt
+          updatedAt
+        }
+        loserID
+        loser {
+          id
+          name
+          email
+          phone
+          about
+          image
+          NTRP
+          UTR
+          verified
+          createdAt
+          updatedAt
+        }
+        score
+        ladderID
+        ladder {
+          id
+          matchType
+          name
+          city
+          zip
+          createdAt
+          updatedAt
+        }
+        comments {
+          nextToken
+        }
+        playerMatches {
+          nextToken
+        }
+        createdAt
+        updatedAt
+        playerMatchesId
+        ladderMatchesId
+      }
+      nextToken
+    }
+  }
+`;
+export const getLadderByName = /* GraphQL */ `
+  query GetLadderByName(
     $name: String!
     $sortDirection: ModelSortDirection
     $filter: ModelLadderFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    ladderByName(
+    getLadderByName(
       name: $name
       sortDirection: $sortDirection
       filter: $filter
@@ -2520,6 +2918,9 @@ export const ladderByName = /* GraphQL */ `
         players {
           nextToken
         }
+        playerMatches {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -2527,8 +2928,8 @@ export const ladderByName = /* GraphQL */ `
     }
   }
 `;
-export const ladderByCity = /* GraphQL */ `
-  query LadderByCity(
+export const getLadderByCity = /* GraphQL */ `
+  query GetLadderByCity(
     $city: String!
     $zip: ModelStringKeyConditionInput
     $sortDirection: ModelSortDirection
@@ -2536,7 +2937,7 @@ export const ladderByCity = /* GraphQL */ `
     $limit: Int
     $nextToken: String
   ) {
-    ladderByCity(
+    getLadderByCity(
       city: $city
       zip: $zip
       sortDirection: $sortDirection
@@ -2560,6 +2961,9 @@ export const ladderByCity = /* GraphQL */ `
         players {
           nextToken
         }
+        playerMatches {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -2567,8 +2971,124 @@ export const ladderByCity = /* GraphQL */ `
     }
   }
 `;
-export const standingsByPlayerID = /* GraphQL */ `
-  query StandingsByPlayerID(
+export const getCommentsByMatch = /* GraphQL */ `
+  query GetCommentsByMatch(
+    $matchID: ID!
+    $postedOn: ModelStringKeyConditionInput
+    $sortDirection: ModelSortDirection
+    $filter: ModelCommentFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    getCommentsByMatch(
+      matchID: $matchID
+      postedOn: $postedOn
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        matchID
+        match {
+          id
+          type
+          playedOn
+          year
+          winnerID
+          loserID
+          score
+          ladderID
+          createdAt
+          updatedAt
+          playerMatchesId
+          ladderMatchesId
+        }
+        content
+        postedByID
+        postedBy {
+          id
+          name
+          email
+          phone
+          about
+          image
+          NTRP
+          UTR
+          verified
+          createdAt
+          updatedAt
+        }
+        postedOn
+        private
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;
+export const getCommentsByPlayer = /* GraphQL */ `
+  query GetCommentsByPlayer(
+    $postedByID: ID!
+    $postedOn: ModelStringKeyConditionInput
+    $sortDirection: ModelSortDirection
+    $filter: ModelCommentFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    getCommentsByPlayer(
+      postedByID: $postedByID
+      postedOn: $postedOn
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        matchID
+        match {
+          id
+          type
+          playedOn
+          year
+          winnerID
+          loserID
+          score
+          ladderID
+          createdAt
+          updatedAt
+          playerMatchesId
+          ladderMatchesId
+        }
+        content
+        postedByID
+        postedBy {
+          id
+          name
+          email
+          phone
+          about
+          image
+          NTRP
+          UTR
+          verified
+          createdAt
+          updatedAt
+        }
+        postedOn
+        private
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;
+export const getStandingsByPlayerID = /* GraphQL */ `
+  query GetStandingsByPlayerID(
     $playerID: ID!
     $ladderIDIsCurrent: ModelStandingsByPlayerIDCompositeKeyConditionInput
     $sortDirection: ModelSortDirection
@@ -2576,7 +3096,7 @@ export const standingsByPlayerID = /* GraphQL */ `
     $limit: Int
     $nextToken: String
   ) {
-    standingsByPlayerID(
+    getStandingsByPlayerID(
       playerID: $playerID
       ladderIDIsCurrent: $ladderIDIsCurrent
       sortDirection: $sortDirection
@@ -2624,8 +3144,8 @@ export const standingsByPlayerID = /* GraphQL */ `
     }
   }
 `;
-export const standingsByLadderID = /* GraphQL */ `
-  query StandingsByLadderID(
+export const getStandingsByLadderID = /* GraphQL */ `
+  query GetStandingsByLadderID(
     $ladderID: ID!
     $isCurrent: ModelStringKeyConditionInput
     $sortDirection: ModelSortDirection
@@ -2633,7 +3153,7 @@ export const standingsByLadderID = /* GraphQL */ `
     $limit: Int
     $nextToken: String
   ) {
-    standingsByLadderID(
+    getStandingsByLadderID(
       ladderID: $ladderID
       isCurrent: $isCurrent
       sortDirection: $sortDirection
