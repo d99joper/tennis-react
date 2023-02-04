@@ -45,6 +45,14 @@ img {
   }
 }
 
+.win-accent * {
+  color:green;
+}
+
+.lose-accent * {
+  color: rgb(224, 13, 13);
+}
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -88,12 +96,12 @@ img {
 }
 
 a {
-  color: #076b6e;
+  color: #000000;
+  text-decoration: none;
 }
 a:hover {
-  color: black;
-  background-color: beige;
-
+  color: rgb(64, 0, 107);
+  text-decoration: underline;
 }
 
 .cursorHand {

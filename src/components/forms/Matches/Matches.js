@@ -7,6 +7,7 @@ import { DynamicTable, H2H, Match } from "../index.js"
 import { GiCrossedSwords } from 'react-icons/gi';
 import { GoCommentDiscussion } from 'react-icons/go';
 import "./Matches.css"
+import { ConsoleLogger } from "@aws-amplify/core";
 
 const Matches = ({
     player,
@@ -22,29 +23,37 @@ const Matches = ({
     const MatchEditor = lazy(() => import("../MatchEditor/MatchEditor").then(module => { return { default: module.MatchEditor } }))
 
     const [matches, setMatches] = useState([])
-    const [sortField, setSortField] = useState("playedOn");
-    const [direction, setDirection] = useState("desc");
+    const sortField = "playedOn"
+    const direction = "asc"
+    const [nextToken, setNextToken] = useState("playedOn");
     const [dataIsFetched, setDataIsFetched] = useState(false);
 
     const tableHeaders = [
         { label: "Date", accessor: "playedOn", sortable: true, parts:1, link: 'Match/id' },
-        { label: "Ladder", accessor: "ladder.name", sortable: true, parts:2, link: 'Ladders/id' },
-        { label: "Winner", accessor: "player.name", sortable: true, parts:2, link: 'Profile/id' },
-        { label: "Loser", accessor: "opponent.name", sortable: true, parts:2, link: 'Profile/id' },
+        { label: "Winner", accessor: "winner.name", sortable: true, parts:2, link: 'Profile/id' },
+        { label: "Loser", accessor: "loser.name", sortable: true, parts:2, link: 'Profile/id' },
         { label: "Score", accessor: "match.score", sortable: false, parts:2, link: 'Match/id' },
+        { label: "Ladder", accessor: "ladder.name", sortable: true, parts:2, link: 'Ladders/id' },
         { label: "", accessor: "games", sortable: false, parts:0 }
     ]
 
     useEffect(() => {
         if(!dataIsFetched)
             //mf.listMatches(player, ladder, startDate, endDate).then((data) => {
-            mf.getMatchesForPlayer(player, ladder, startDate, endDate).then((data) => {
-                setMatches(data)
+            mf.getMatchesForPlayer(player, ladder, startDate, endDate, null, 10, null).then((data) => {
+                setMatches(data.matches)
+                setNextToken(data.nextToken)
                 setDataIsFetched(true)
             })
 
-    }, [sortField, direction])
+    }, [])
 
+    function addMatches(e) {
+        mf.getMatchesForPlayer(player, ladder, startDate, endDate, null, 10, nextToken).then((data) => {
+            setMatches(oldMatches => [...oldMatches, ...data.matches])
+            setNextToken(data.nextToken)
+        })
+    }
     const setColor = ((match, index) => {
         //console.log('setColor winnerId', match.winner)
         if (player) // win gets green and loss gets red
@@ -94,6 +103,11 @@ const Matches = ({
                     direction={direction}
                     data={matches}
                     iconSet={[{name: 'H2H'}, {name: 'Comments'}]}
+                    nextToken={nextToken}
+                    nextText={"View more matches"}
+                    onNextClick={addMatches}
+                    styleConditionColor={['win-accent','lose-accent']}
+                    styleConditionVariable={'win'}
                 />
                 : null
             }

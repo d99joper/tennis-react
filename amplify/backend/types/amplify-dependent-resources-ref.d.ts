@@ -1,4 +1,11 @@
 export type AmplifyDependentResourcesAttributes = {
+    "api": {
+        "MyTennisAPIProd": {
+            "GraphQLAPIKeyOutput": "string",
+            "GraphQLAPIIdOutput": "string",
+            "GraphQLAPIEndpointOutput": "string"
+        }
+    },
     "auth": {
         "tennisreact": {
             "IdentityPoolId": "string",
@@ -18,11 +25,11 @@ export type AmplifyDependentResourcesAttributes = {
             "Region": "string"
         }
     },
-    "api": {
-        "MyTennisAPIProd": {
-            "GraphQLAPIKeyOutput": "string",
-            "GraphQLAPIIdOutput": "string",
-            "GraphQLAPIEndpointOutput": "string"
+    "geo": {
+        "MyTennisSpaceGEO": {
+            "Name": "string",
+            "Region": "string",
+            "Arn": "string"
         }
     }
 }

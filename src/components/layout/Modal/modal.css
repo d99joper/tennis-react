@@ -17,6 +17,7 @@
   .modal.enter-done {
     opacity: 1;
     pointer-events: visible;
+    z-index: 9999;
   }
   
   .modal.exit {

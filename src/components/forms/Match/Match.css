@@ -11,7 +11,7 @@
     margin-bottom: 2px;
 }
 
-a,a:active,a::after{
+/* a,a:active,a::after{
     color: black;
 }
 a:hover {
@@ -19,7 +19,7 @@ a:hover {
     background-color: black;
     border-radius: 5px;
     padding: 2px;
-}
+} */
 
 .matchRow {
     padding: 1px 1rem 1px 1rem;

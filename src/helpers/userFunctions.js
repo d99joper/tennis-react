@@ -5,7 +5,7 @@ import {
     updatePlayer as updatePlayerMutation,
     deletePlayer as deletePlayerMutation,
 } from "../graphql/mutations";
-import { GetUserStats_All, GetYearsPlayed, H2HStats, GetGreatestRivals } from 'graphql/customQueries';
+import { GetUserStatsByYear, GetYearsPlayed, H2HStats, GetGreatestRivals } from 'graphql/customQueries';
 import { Match, Player } from 'models';
 
 const userFunctions = {
@@ -227,7 +227,7 @@ const userFunctions = {
             const playerFromAPI = id ? apiData.data.getPlayer : apiData.data.playerByEmail.items[0]
             
             if (playerFromAPI && includeImage)
-                await PrivateFunc.SetPlayerImage(playerFromAPI)
+                await SetPlayerImage(playerFromAPI)
 
             //console.log("getPlayerFromAPI", playerFromAPI)
             return playerFromAPI;
@@ -287,7 +287,7 @@ const userFunctions = {
         await Promise.all(
             playersFromAPI.map(async (player) => {
                 console.log(player);
-                PrivateFunc.SetPlayerImage(player)
+                SetPlayerImage(player)
                 return player;
             })
         );
@@ -296,54 +296,48 @@ const userFunctions = {
     },
 
     getPlayerH2H: async function(player1, player2){
-        const filter_winner = {
+        const filter = {
             and: [
-                { winnerID: { eq: player1.id }},
-                { loserID: { eq: player2.id }}
+                { playerID: { eq: player1.id }},
+                { opponentID: { eq: player2.id }}
             ]
         }
-        const filter_loser = {
-            and: [
-                { winnerID: { eq: player2.id }},
-                { loserID: { eq: player1.id }}
-            ]
-        }
-        
+    
         const apiData = await API.graphql({
             query: H2HStats,
-            variables: {filter_winner: filter_winner, filter_loser: filter_loser}
+            variables: {filter: filter}
         })
         // add potential player images
-        await PrivateFunc.SetPlayerImage(player1)
-        await PrivateFunc.SetPlayerImage(player2)
-        
-        let matches = apiData.data.wins.items.concat(apiData.data.losses.items) 
-            .sort((a,b) => new Date(b.playedOn).getTime() - new Date(a.playedOn).getTime())
+        await SetPlayerImage(player1)
+        await SetPlayerImage(player2)
+        console.log(apiData.data)
+        //let matches = apiData.data.result.matches 
+           // .sort((a,b) => new Date(b.playedOn).getTime() - new Date(a.playedOn).getTime())
 
         let data = {
             player1: player1,
             player2: player2,
-            matches: matches,
-            stats: PrivateFunc.MassageStats(apiData.data)
+            matches: apiData.data.result.matches,
+            stats: MassageStats(apiData.data.result)
         }
-        //console.log("getPlayerH2H",data)
+        console.log("getPlayerH2H",data)
 
         return data
     },
 
     
-    GetUserStatsAllByYear: async function (playerId, singlesOrDoubles, year) {
-        const apiData = await API.graphql({
-            query: GetUserStats_All,
-            variables: { playerId: playerId, type: singlesOrDoubles, year: year }
-        })
+    // GetUserStatsAllByYear: async function (playerId, singlesOrDoubles, year) {
+    //     const apiData = await API.graphql({
+    //         query: GetUserStats_All,
+    //         variables: { playerId: playerId, type: singlesOrDoubles, year: year }
+    //     })
         
-        // massage the data
-        let data = PrivateFunc.MassageStats(apiData.data)
+    //     // massage the data
+    //     let data = MassageStats(apiData.data)
             
-        console.log(data)
-        return data
-    },
+    //     console.log(data)
+    //     return data
+    // },
 
     getPlayerStatsByYear: async function (playerId, singlesOrDoubles) {
         
@@ -359,7 +353,15 @@ const userFunctions = {
             years = await Promise.all(result.data.searchMatches.aggregateItems[0].result.buckets.map(async (y) => {
                 const year = y.key
                 //const stats = await this.getPlayerStats(playerId, singlesOrDoubles, year)
-                const stats = await this.GetUserStatsAllByYear(playerId, singlesOrDoubles, year)
+                //const stats = await this.GetUserStatsAllByYear(playerId, singlesOrDoubles, year)
+                const apiData = await API.graphql({
+                    query: GetUserStatsByYear,
+                    variables: { playerId: playerId, type: singlesOrDoubles, startDate: `${year}-01-01` , endDate: `${year}-12-31` }
+                })
+                
+                // massage the data
+                console.log(apiData.data)
+                let stats = MassageStats(apiData.data.result)
                 // add year and data to array, and add a total
                 return { year: y.key, count: y.doc_count, stats: stats }
             }))
@@ -376,7 +378,7 @@ const userFunctions = {
             if(i !== 0) {
                 console.log("index",i)
                 totals.count += item.count              
-                PrivateFunc.MergeStats(totals.stats, item.stats)                
+                MergeStats(totals.stats, item.stats)                
             }
         })
         years.totals = totals
@@ -385,119 +387,134 @@ const userFunctions = {
     }
 }
 
-const PrivateFunc = {
     
-    SetPlayerImage: async function(player) {
-        if (player.image) {
-            if(!player.imageUrl) {
-            const url = await Storage.get(player.image);
-            player.imageUrl = url;
-            }   
-        }
-    },
-
-    MergeStats: function(stats1, stats2) {
-        //console.log(stats1,stats2)
-        for(const prop in stats2) {
-            if(prop !== 'raw') {
-                console.log(prop)
-                stats1[prop].total += stats2[prop].total
-                stats1[prop].losses += stats2[prop].losses
-                stats1[prop].wins += stats2[prop].wins
-                stats1[prop].percentage = this.CalcPercentage(stats1[prop].wins, stats1[prop].losses)
-            }
-        }
-        //return stats1
-    },
-    
-    MassageStats: function(rawData) {
-        //console.log(rawData)
-        const totals = {
-             gamesWon: PrivateFunc.GetTotalValue2(rawData.wins.stats, rawData.losses.stats, "gamesWon"),
-             gamesLost: PrivateFunc.GetTotalValue2(rawData.wins.stats, rawData.losses.stats, "gamesLost"),
-             setsWon: PrivateFunc.GetTotalValue2(rawData.wins.stats, rawData.losses.stats, "setsWon"),
-             setsLost: PrivateFunc.GetTotalValue2(rawData.wins.stats, rawData.losses.stats, "setsLost"),
-             tiebreaksWon: PrivateFunc.GetTotalValue2(rawData.wins.stats, rawData.losses.stats, "tiebreaksWon"),
-             tiebreaksLost: PrivateFunc.GetTotalValue2(rawData.wins.stats, rawData.losses.stats, "tiebreaksLost")
-        }
-        //console.log("totals",totals)
-        let data = {
-            raw: {
-                // total matches
-                total: rawData.wins.total + rawData.losses.total,
-                // create a combined category with all the data
-                aggregates: this.GetCombinedAggregates(rawData.wins, rawData.losses),
-                losses: rawData.losses,
-                wins: rawData.wins
-            },
-            matches: {
-                wins: rawData.wins.total,
-                losses: rawData.losses.total,
-                percentage: this.CalcPercentage(rawData.wins.total, rawData.losses.total),
-                total: rawData.losses.total + rawData.wins.total
-            },
-            sets: {
-                wins: totals.setsWon,
-                losses: totals.setsLost,
-                percentage: PrivateFunc.CalcPercentage(totals.setsWon, totals.setsLost),
-                total: totals.setsLost + totals.setsWon
-            },
-            games: {
-                wins: totals.gamesWon,
-                losses: totals.gamesLost,
-                percentage: PrivateFunc.CalcPercentage(totals.gamesWon, totals.gamesLost),
-                total: totals.gamesLost + totals.gamesWon
-            },
-            tiebreaks: {
-                wins: totals.tiebreaksWon,
-                losses: totals.tiebreaksLost,
-                percentage: PrivateFunc.CalcPercentage(totals.tiebreaksWon, totals.tiebreaksLost),
-                total: totals.tiebreaksLost + totals.tiebreaksWon
-            }
-        }
-        
-        return data
-    },
-    
-    GetCombinedAggregates: function(wins, losses) {
-        //console.log(wins, losses)
-        const combined = wins.stats.map((item, i) => {
-            // copy the wins child object
-            let copy = { result: { value: 0 }, name: item.name }
-            // find the equivalent losses child object
-            const lossChildOject = losses.stats.find(x => x.name === item.name)
-            // Calculate and set the new value 
-            copy.result.value = 
-                lossChildOject ? lossChildOject.result.value :0 
-                + item ? item.result.value:0 
-            // return the new item
-            return copy
-        })
-        return combined
-    }, 
-    
-    GetTotalValue: function (array1, name1, array2, name2) {
-        
-        const item1 = array1.find(x => x.name === name1)
-        const item2 = array2.find(x => x.name === name2)
-        
-        return item1.result.value + item2.result.value
-    },
-    
-    GetTotalValue2: function (array1, array2, name) {
-        const item1 = array1.find(x => x.name === name)
-        const item2 = array2.find(x => x.name === name)
-        
-        const val1 = (item1 ? item1.result.value :0)
-        const val2 = (item2 ? item2.result.value :0)
-        //console.log(`val1:${val1}, val2:${val2}, result:${val1+val2}`)
-        return val1+val2
-    },
-    
-    CalcPercentage: function (val1, val2) {
-        return val1 === 0 ? 0 : Math.round(100 * val1 / (val1 + val2), 2)
-    },    
+async function SetPlayerImage(player) {
+    if (player.image) {
+        if(!player.imageUrl) {
+        const url = await Storage.get(player.image);
+        player.imageUrl = url;
+        }   
+    }
 }
+
+function MergeStats(stats1, stats2) {
+    //console.log(stats1,stats2)
+    for(const prop in stats2) {
+        if(prop !== 'raw') {
+            console.log(prop)
+            stats1[prop].total += stats2[prop].total
+            stats1[prop].losses += stats2[prop].losses
+            stats1[prop].wins += stats2[prop].wins
+            stats1[prop].percentage = CalcPercentage(stats1[prop].wins, stats1[prop].losses)
+        }
+    }
+    //return stats1
+}
+
+function MassageStats(rawData) {
+    //console.log(rawData)
+    const totals = {
+            gamesWon: GetArrayItemValue(rawData.stats, 'name', 'gamesWon', 'result.value'),
+            gamesLost: GetArrayItemValue(rawData.stats, 'name', 'gamesLost', 'result.value'),
+            setsWon: GetArrayItemValue(rawData.stats, 'name', 'setsWon', 'result.value'),
+            setsLost: GetArrayItemValue(rawData.stats, 'name', 'setsLost', 'result.value'),
+            tiebreaksWon: GetArrayItemValue(rawData.stats, 'name', 'tiebreaksWon', 'result.value'),
+            tiebreaksLost: GetArrayItemValue(rawData.stats, 'name', 'tiebreaksLost', 'result.value'),
+    }
+    const wins = GetArrayItemValue(GetArrayItemValue(rawData.stats, 'name', 'wins', 'result.buckets'), 'key', '1','doc_count') 
+    const losses = GetArrayItemValue(GetArrayItemValue(rawData.stats, 'name', 'wins', 'result.buckets'), 'key', '0','doc_count') 
+   
+    let data = {
+        raw: {
+            // total matches
+            total: rawData.total,
+            aggregates: totals,
+            losses: losses,
+            wins: wins
+        },
+        matches: {
+            wins: wins,
+            losses: losses,
+            percentage: CalcPercentage(wins, losses),
+            total: rawData.total
+        },
+        sets: {
+            wins: totals.setsWon,
+            losses: totals.setsLost,
+            percentage: CalcPercentage(totals.setsWon, totals.setsLost),
+            total: totals.setsLost + totals.setsWon
+        },
+        games: {
+            wins: totals.gamesWon,
+            losses: totals.gamesLost,
+            percentage: CalcPercentage(totals.gamesWon, totals.gamesLost),
+            total: totals.gamesLost + totals.gamesWon
+        },
+        tiebreaks: {
+            wins: totals.tiebreaksWon,
+            losses: totals.tiebreaksLost,
+            percentage: CalcPercentage(totals.tiebreaksWon, totals.tiebreaksLost),
+            total: totals.tiebreaksLost + totals.tiebreaksWon
+        }
+    }
+    
+    return data
+}
+
+function GetCombinedAggregates(wins, losses) {
+    //console.log(wins, losses)
+    const combined = wins.stats.map((item, i) => {
+        // copy the wins child object
+        let copy = { result: { value: 0 }, name: item.name }
+        // find the equivalent losses child object
+        const lossChildOject = losses.stats.find(x => x.name === item.name)
+        // Calculate and set the new value 
+        copy.result.value = 
+            lossChildOject ? lossChildOject.result.value :0 
+            + item ? item.result.value:0 
+        // return the new item
+        return copy
+    })
+    return combined
+}
+
+function GetTotalValue(array1, name1, array2, name2) {
+    
+    const item1 = array1.find(x => x.name === name1)
+    const item2 = array2.find(x => x.name === name2)
+    
+    return item1.result.value + item2.result.value
+}
+
+function GetArrayItemValue(arr, variableName, variableValue, valueName) {
+    let item = arr.find(x => x[variableName] == variableValue)
+    let value = item
+
+    if(item) {
+        const itemNames = valueName.split('.')
+        itemNames.forEach(element => {
+            value = value[element]
+        });
+        return value
+    }
+
+    return 0
+}
+
+function GetTotalValue2(array1, array2, name) {
+    const item1 = array1.find(x => x.name === name)
+    const item2 = array2.find(x => x.name === name)
+    
+    const val1 = (item1 ? item1.result.value :0)
+    const val2 = (item2 ? item2.result.value :0)
+    //console.log(`val1:${val1}, val2:${val2}, result:${val1+val2}`)
+    return val1+val2
+}
+
+function CalcPercentage(val1, val2) {
+    return val1 === 0 ? 0 : Math.round(100 * val1 / (val1 + val2), 2)
+}   
+
 
 export default userFunctions;
 
@@ -508,9 +525,9 @@ export default userFunctions;
 //     const fetchData = async () => {
 //         let stats = {}
 //         // Get win stats
-//         const winData = await PrivateFunc.GetStats(playerId, singlesOrDoubles, 'W', year)
+//         const winData = await GetStats(playerId, singlesOrDoubles, 'W', year)
 //         // Get loss stats
-//         const lossData = await PrivateFunc.GetStats(playerId, singlesOrDoubles, 'L', year)
+//         const lossData = await GetStats(playerId, singlesOrDoubles, 'L', year)
 //         // Set the data
 //         const data = {
 //             wins: {
@@ -523,12 +540,12 @@ export default userFunctions;
         //             }
         //         }
         //         // massage data
-        //         const gamesWon = PrivateFunc.GetTotalValue(data.wins.agg, "gamesWon", data.losses.agg, "gamesLost")
-        //         const gamesLost = PrivateFunc.GetTotalValue(data.wins.agg, "gamesLost", data.losses.agg, "gamesWon")
-//         const setsWon = PrivateFunc.GetTotalValue(data.wins.agg, "setsWon", data.losses.agg, "setsLost")
-//         const setsLost = PrivateFunc.GetTotalValue(data.wins.agg, "setsLost", data.losses.agg, "setsWon")
-//         const tBWon = PrivateFunc.GetTotalValue(data.wins.agg, "tiebreaksWon", data.losses.agg, "tiebreaksLost")
-//         const tBLost = PrivateFunc.GetTotalValue(data.wins.agg, "tiebreaksLost", data.losses.agg, "tiebreaksWon")
+        //         const gamesWon = GetTotalValue(data.wins.agg, "gamesWon", data.losses.agg, "gamesLost")
+        //         const gamesLost = GetTotalValue(data.wins.agg, "gamesLost", data.losses.agg, "gamesWon")
+//         const setsWon = GetTotalValue(data.wins.agg, "setsWon", data.losses.agg, "setsLost")
+//         const setsLost = GetTotalValue(data.wins.agg, "setsLost", data.losses.agg, "setsWon")
+//         const tBWon = GetTotalValue(data.wins.agg, "tiebreaksWon", data.losses.agg, "tiebreaksLost")
+//         const tBLost = GetTotalValue(data.wins.agg, "tiebreaksLost", data.losses.agg, "tiebreaksWon")
 
 //         stats = {
 //             totalWins: data.wins.total,

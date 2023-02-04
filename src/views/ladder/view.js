@@ -5,6 +5,8 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "@maplibre/maplibre-gl-geocoder/dist/maplibre-gl-geocoder.css";
 import "maplibre-gl-js-amplify/dist/public/amplify-geocoder.css"; // Optional CSS for Amplify recommended styling
+import { Button } from "@aws-amplify/ui-react";
+import { Link } from "react-router-dom";
 
 
 const LadderView = () => {
@@ -42,8 +44,9 @@ const LadderView = () => {
 
     return (
         <>
-            <div id="mapcontainer" style={{ height: '500px' }}></div>
-            Ladders
+            {/* <div id="mapcontainer" style={{ height: '500px' }}></div> */}
+            <Button>Create new Ladder</Button>
+            <Link to="/ladders/new" >Create new ladder</Link>
         </>
     )
 }
