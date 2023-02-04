@@ -253,7 +253,6 @@ const MatchFunctions = {
 function scoreToString(score, flipScore) {
 
     if (!flipScore) return score.filter(Boolean).join(', ')
-
     let flippedScore = []
     for (const set of score) {
         const games = set.split('-')
