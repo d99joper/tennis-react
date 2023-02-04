@@ -39,7 +39,7 @@ function Profile(props) {
 
     const handleStatsClick = () => {
         if(!statsFetched){
-            userFunctions.getPlayerStatsByYear(player.id, 'singles')
+            userFunctions.getPlayerStatsByYear(player.id, 'SINGLES')
                 .then((data) => {
                     setStats(data)
                     setStatsFetched(true)
@@ -301,7 +301,6 @@ function Profile(props) {
                     {/************ MATCHES   *************/}
                     <Flex direction="row" gap="1rem">
                         <Card className='card' variation="elevated">
-                            Latest matches
                             <Matches player={player} limit="5"></Matches>
                             <Button label="Add new match"
                                 onClick={(e) => { toggleMatchEditor(e) }}

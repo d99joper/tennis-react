@@ -33,9 +33,10 @@ function About() {
 };
 
 const Profile = lazy(() => import('./views/profile'))
-const LadderView = lazy(() => import('./views/ladderView'))
+const LadderView = lazy(() => import('./views/ladder/view'))
 const NoPage = lazy(() => import('./views/NoPage'))
 const AdminTasks = lazy(() => import('./views/adminTasks'))
+const LadderCreate = lazy(() => import('./views/ladder/create'))
 
 const MyRouter = (props) => {
   return (
@@ -52,10 +53,11 @@ const MyRouter = (props) => {
             <Route path="/profile/:userid" element={<Profile isLoggedIn={props.isLoggedIn} />} />
             <Route path="/login" element={<Login />} />
             <Route path="/adminTasks" element={<AdminTasks />} />
-            <Route path="/ladders" element={<LadderView />} >
+            <Route path="ladders">
+              <Route index={true} element={<LadderView />} />
               <Route path=":ladderId" element={<LadderView />} />
-              <Route path="new" element={<Home />} />
-              <Route index element={<Home />} />
+              <Route path="new" element={<LadderCreate />} />
+              {/* <Route index element={<Home />} /> */}
             </Route>
             <Route path="*" element={<NoPage />} />
           </Routes>

@@ -84,11 +84,11 @@ const H2H = ({ data, ...props }) => {
                     </TableHead>
                     <TableBody>
                         {data ? data.matches.map(m =>
-                            <TableRow key={m.id} className={m.winner.id === data.player1.id ? "player1" : "player2"}>
-                                <TableCell as="td">{m.playedOn}</TableCell>
-                                <TableCell as="td">{m.ladder.name}</TableCell>
-                                <TableCell as="td">{m.winner.name}</TableCell>
-                                <TableCell as="td">{m.score}</TableCell>
+                            <TableRow key={m.match.id} className={m.match.winnerID === data.player1.id ? "player1" : "player2"}>
+                                <TableCell as="td">{m.match.playedOn}</TableCell>
+                                <TableCell as="td">{m.match.ladder.name}</TableCell>
+                                <TableCell as="td">{m.match.winnerID === data.player1.id ? data.player1.name : data.player2.name}</TableCell>
+                                <TableCell as="td">{m.match.score}</TableCell>
                             </TableRow>
                         ) : null}
                     </TableBody>

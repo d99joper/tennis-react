@@ -17,11 +17,13 @@ const DynamicTable = ({
     data,//: initialData,
     footerChildren,
     iconSet,
+    nextToken,
+    nextText,
     ...props
 }) => {
 
     //useEffect(()=>{},[data])
-
+console.log(data)
     const [sortField, setSortField] = useState(initialSortField)
     const [direction, setDirection] = useState(initialDirection)
     const [isShowH2H, setIsShowH2H] = useState([])
@@ -84,7 +86,7 @@ const DynamicTable = ({
 
     function setContent(item, column, i) {
         let text, urlVals
-        console.log("setContent",item,column,i)
+        //console.log("setContent",item,column,i)
         if (column.link) {
             const urlSplit = column.link.split('/')
             urlVals = { page: urlSplit[0], type: urlSplit[1], value: 0 }
@@ -145,9 +147,19 @@ const DynamicTable = ({
         handleSorting(col, sortOrder)
     }
 
+    function setBackgroundColor(item) {
+        if(props.styleConditionVariable) {
+            if(item[props.styleConditionVariable])
+                return {className: props.styleConditionColor[0]}
+            return {className: props.styleConditionColor[1]}
+        }
+        return null
+    }
+
     return (<div  key={"dynamicTable"+props.key}>
         {data.length > 0 ?
-            <Table highlightOnHover={true} marginTop="1em" variation="striped" backgroundColor={props.backgroundColor ?? 'white'}>
+            <>
+            <Table highlightOnHover={true} marginTop="1em" marginBottom=".2em" variation="striped" className={props.className} backgroundColor={props.backgroundColor ?? 'white'}>
                 <TableHead backgroundColor={props.headerBackgroundColor ?? 'blue.20'} >
                     <TableRow>
                         {columns.map((col,i) =>
@@ -178,7 +190,10 @@ const DynamicTable = ({
                 </TableHead>
                 <TableBody>
                     {data.map((m, i) =>
-                        <TableRow key={`BodyRow_${i}_${m.id}`}>
+                        <TableRow 
+                            key={`BodyRow_${i}_${m.id}`} 
+                            {...setBackgroundColor(m)}
+                        >
                             {columns.map(c => {
                                 const content = setContent(m, c, i)
                                 return (
@@ -195,6 +210,14 @@ const DynamicTable = ({
                     </TableFoot>
                 }
             </Table>
+            {nextToken ? 
+                    <div onClick={props.onNextClick}>
+                        {nextText}
+                    </div> 
+                : null
+            }
+            
+            </>
             : 'no matches'
         }
     </div>)
