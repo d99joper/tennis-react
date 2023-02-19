@@ -30,6 +30,201 @@
     "EmptyResource": {
       "Type": "Custom::EmptyResource",
       "Condition": "AlwaysFalse"
+    },
+    "ConfigureESCustom": {
+      "Type": "Custom::ConfigureES",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": ["ConfigureES", "Arn"]
+        }
+      }
+    },
+    "ConfigureES": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Environment": {
+          "Variables": {
+            "ES_ENDPOINT": "https://search-amplify-opense-nomh8xetkpi3-gbhlh74lsqdwpcqrcv22m7adp4.us-west-1.es.amazonaws.com/",
+            "ES_REGION": {
+              "Ref": "AWS::Region"
+            }
+          }
+        },
+        "Code": {
+          "ZipFile": {
+            "Fn::Join": [
+              "\n",
+              [
+                "import base64",
+                "import json",
+                "import logging",
+                "import string",
+                "import boto3",
+                "import os",
+                "import time",
+                "import datetime",
+                "import traceback",
+                "from urllib.parse import urlparse, quote",
+                "from botocore.vendored import requests",
+                "from botocore.auth import SigV4Auth",
+                "from botocore.awsrequest import AWSRequest",
+                "from botocore.credentials import get_credentials",
+                "from botocore.httpsession import URLLib3Session",
+                "from botocore.session import Session",
+                "import cfnresponse",
+                " ",
+                "logger = logging.getLogger()",
+                "logger.setLevel(logging.INFO)",
+                " ",
+                "# The following parameters are required to configure the ES cluster",
+                "ES_ENDPOINT = os.environ['ES_ENDPOINT']",
+                "ES_REGION = os.environ['ES_REGION']",
+                "# DEBUG = True if os.environ['DEBUG'] is not None else False",
+                " ",
+                "def es_put(payload, region, creds, host, path, method='PUT', proto='https://'):",
+                "    # Put index data to ES endpoint with SigV4 signed http headers ",
+                "    req = AWSRequest(method=method, url=proto + host +    quote(path), data=payload, headers={'Host': host, 'Content-Type': 'application/json'})",
+                "    SigV4Auth(creds, 'es', region).add_auth(req)",
+                "    http_session = URLLib3Session()",
+                "    res = http_session.send(req.prepare())",
+                "    return res._content",
+                " ",
+                "def lambda_handler(event, context):",
+                "    logger.info('got event {}'.format(event))",
+                "    if event['RequestType'] == 'Create':",
+                "        # Get aws_region and credentials to post signed URL to ES",
+                "        es_region = ES_REGION or os.environ['AWS_REGION']",
+                "        session = Session()",
+                "        creds = get_credentials(session)",
+                "        es_url = urlparse(ES_ENDPOINT)",
+                "        # Extract the domain name in ES_ENDPOINT",
+                "        es_endpoint = es_url.netloc or es_url.path",
+                "        es_put('', es_region, creds,es_endpoint, '/')",
+                "        action = {\"mappings\": {\"doc\": {\"properties\": {\"location\": {\"type\": \"geo_point\"}}}}}",
+                "        es_payload = json.dumps(action)",
+                "        es_put(es_payload, es_region, creds, es_endpoint, '/ladder')",
+                "        cfnresponse.send(event, context, cfnresponse.SUCCESS, {})"
+              ]
+            ]
+          }
+        },
+        "FunctionName": {
+          "Fn::Join": [
+            "-",
+            [
+              "ConfigureES",
+              {
+                "Ref": "env"
+              }
+            ]
+          ]
+        },
+        "Handler": "index.lambda_handler",
+        "Timeout": 30,
+        "Role": {
+          "Fn::GetAtt": ["LambdaRole", "Arn"]
+        },
+        "Runtime": "python3.7",
+        "Layers": [
+          "arn:aws:lambda:us-west-1:325793726646:layer:AWSLambda-Python-AWS-SDK:4"
+        ]
+      }
+    },
+     "LambdaRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": ["lambda.amazonaws.com"]
+              },
+              "Action": ["sts:AssumeRole"]
+            }
+          ]
+        },
+        "Path": "/",
+        "Policies": [
+          {
+            "PolicyName": "lambda-logs",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": ["arn:aws:logs:*:*:*"]
+                }
+              ]
+            }
+          },
+          {
+            "PolicyName": "ES",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": ["es:*"],
+                  "Resource": "arn:aws:es:us-west-1:781466862382:domain/amplify-opense-nomh8xetkpi3/*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "FindNearbyLaddersResolver": {
+      "Type": "AWS::AppSync::Resolver",
+      "Properties": {
+        "ApiId": {
+          "Ref": "AppSyncApiId"
+        },
+        "DataSourceName": "OpenSearchDataSource",
+        "FieldName": "findNearbyLadders",
+        "TypeName": "Query",
+        "RequestMappingTemplateS3Location": {
+          "Fn::Sub": [
+            "s3://${S3DeploymentBucket}/${S3DeploymentRootKey}/resolvers/${ResolverFileName}",
+            {
+              "S3DeploymentBucket": {
+                "Ref": "S3DeploymentBucket"
+              },
+              "S3DeploymentRootKey": {
+                "Ref": "S3DeploymentRootKey"
+              },
+              "ResolverFileName": {
+                "Fn::Join": [".", ["Query", "findNearbyLadders", "req", "vtl"]]
+              }
+            }
+          ]
+        },
+        "ResponseMappingTemplateS3Location": {
+          "Fn::Sub": [
+            "s3://${S3DeploymentBucket}/${S3DeploymentRootKey}/resolvers/${ResolverFileName}",
+            {
+              "S3DeploymentBucket": {
+                "Ref": "S3DeploymentBucket"
+              },
+              "S3DeploymentRootKey": {
+                "Ref": "S3DeploymentRootKey"
+              },
+              "ResolverFileName": {
+                "Fn::Join": [
+                  ".",
+                  ["Query", "searchLadders", "res", "vtl"]
+                ]
+              }
+            }
+          ]
+        }
+      }
     }
   },
   "Conditions": {

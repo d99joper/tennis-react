@@ -5,7 +5,7 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "@maplibre/maplibre-gl-geocoder/dist/maplibre-gl-geocoder.css";
 import "maplibre-gl-js-amplify/dist/public/amplify-geocoder.css"; // Optional CSS for Amplify recommended styling
-import { Button, Flex, LocationSearch } from "@aws-amplify/ui-react";
+import { Button, Flex, Grid, LocationSearch } from "@aws-amplify/ui-react";
 import "./ladder.css"
 import { Geo } from "aws-amplify"
 import { useState } from "react";
@@ -14,11 +14,11 @@ import { Autocomplete, TextField } from "@mui/material";
 const LadderCreate = () => {
 
     useEffect(() => {
-   
+
     }, [])
     console.log("Ladder Create")
 
-    const [city, setCity] = useState({name:'', id: -1})
+    const [location, setLocation] = useState({ name: '', id: -1 })
     const [places, setPlaces] = useState([])
     // const geocoder = createAmplifyGeocoder();
     // document.getElementById("search").appendChild(geocoder.onAdd());
@@ -26,48 +26,40 @@ const LadderCreate = () => {
     const searchOptionsWithBiasPosition = {
         countries: ['USA'], // Alpha-3 country codes
         maxResults: 10, // 50 is the max and the default
-        //types: ['locality'],
+        types: ['locality'],
         biasPosition: [
-          -121.74365619216327,
-          38.54422591158026
+            -121.74365619216327,
+            38.54422591158026
         ], // Coordinates point to act as the center of the search
-        maxLength: 4
+        minLength: 2
         //searchAreaConstraints: [SWLongitude, SWLatitude, NELongitude, NELatitude], // Bounding box to search inside of
         //searchIndexName:  the string name of the search index
-      }
-
-      //console.log(geoTest)
-      function onCreate(e) {
-          e.preventDefault();
-          
-          const form = new FormData(e.target);
-          
-          const data = {
-              name: form.get("name"),
-              city: form.get("city"),
-              zip: form.get("zip"),
-            };
-            console.log(data)
-        }
-        
-        function handleSearch(e) {
-            const searchText = e.target.value
-            if(searchText.length <= 2) return 
-            console.log(searchText)
-            Geo.searchByText(
+    }
+    function handleSearch(e) {
+        const searchText = e.target.value
+        if (searchText.length <= 2) return
+        console.log(searchText)
+        Geo.searchByText(
             //Geo.searchForSuggestions(
-                searchText, 
-                searchOptionsWithBiasPosition).then((result) => {
+            searchText,
+            searchOptionsWithBiasPosition).then((result) => {
                 let counter = 0;
                 console.log(result)
                 let ps = result.map((p) => {
-                    let place = {name: p.municipality, id: counter}
+                    let place = {
+                        id: counter,
+                        name: p.label.substring(0, p.label.lastIndexOf(',')),
+                        point: { lon: p.geometry.point[0], lat: p.geometry.point[1] },
+                        zip: p.postalCode
+                    }
                     counter++
                     return place
                 })
                 console.log(ps)
                 setPlaces(ps)
-            })
+                // get list of places close to this 
+            }
+        )
     }
     const options = {
         types: ['locality'],
@@ -76,35 +68,86 @@ const LadderCreate = () => {
         minLength: 4
     }
 
+    //console.log(geoTest)
+    function onCreate(e) {
+        e.preventDefault();
+
+        const form = new FormData(e.target);
+
+        const ladder = {
+            name: form.get("name"),
+            city: location.name,
+            location: location.point,
+            zip: location.zip,
+            matchType: form.get("matchType")
+        };
+        console.log(ladder)
+        //ask to confirm
+        if(window.confirm("Are you sure you want to create this ladder?"))
+            lf.CreateLadder(ladder)
+    }
+
+    function createOtherLadder() {
+        const point1 = {lat: 38.54422591158026, lon: -121.74365619216327}
+        const point2 = {lat: 38.544503705511694, lon: -121.75123751808259}
+        lf.CreateLadder({id: -1, name: "<None>", location: point2, city: "Everywhere", matchType: 'SINGLES', zip: '95616'})
+        
+        // const SAN_FRANCISCO = {
+        //     latitude: 37.774,
+        //     longitude: -122.431,
+        // }
+        // lf.CreateLadder({name: "Davis 3.5 singles", location: point1, city: "Davis, CA", matchType: 'SINGLES', zip: '95616'})
+        // lf.AddPlayerToLadder(
+        //     {id:'5eb69653-8f4b-42f7-a322-1075b5700f94', email:'jonas@zooark.com'}, 
+        //     {id:'efc35a20-a3b5-4652-9205-c25a7337ad83', name: 'Davis 3.5 singles'} 
+        // )
+    }
+
     return (
         <>
             Create a new ladder
-            <Flex as="form"
-                maxWidth='500px'
-                direction="column"
-                gap="1rem" 
+            <Grid as="form"
+                gap="1rem"
                 onSubmit={onCreate}
             >
-                <input type={'text'} id={'search'} />
-                <LocationSearch minLength='4' types={"locality"} countries='USA, SWE' showIcon='false' placeholder='City' /> 
-                <Autocomplete
+                {/* <div className="form-group">
+                    <LocationSearch proximity={SAN_FRANCISCO} minLength='2' types={"locality"} countries='USA, SWE' showIcon='false' placeholder='City' />
+                </div> */}
+                <div className="form-group">
+                    {/* <label for="name">Name:</label> */}
+                    <input type="text" name="name" placeholder="Name" required />
+                </div>
+                <div className="form-group">
+                    <Autocomplete
                         id="city"
+                        name="city"
                         required
                         options={!places ? [{ name: 'Loading...', id: -1 }] : places}
                         autoSelect={true}
-                        onChange={(e, value) => { setCity(value); console.log(city)}}
+                        onChange={(e, value) => { setLocation(value) }}
                         getOptionLabel={option => option.name}
-                        value={city}
+                        value={location}
                         sx={{ width: 300 }}
-                        renderInput={(params) => <TextField {...params} label="City" onChange={handleSearch} />}
+                        renderInput={(params) => (
+                            <div className="form-group">
+                                <TextField {...params} label="city" type="text" name="city" placeholder="City" onChange={handleSearch} required />
+                            </div>
+                        )}
                     />
-                <input type="text" name="name" placeholder="Name" />
-                <input type="text" name="city" placeholder="City" />
-                <input type="text" name="zip" placeholder="Zip" />
+                </div>
+                <div className="form-group">
+                    <label>Name:</label>
+                    <select name="matchType" id="matchType">
+                        <option value="SINGLES">Singles</option>
+                        <option value="DOUBLES">Doubles</option>
+                    </select>
+                </div>
                 <Button type="submit" variation="primary">
                     Create
                 </Button>
-            </Flex>
+            </Grid>
+
+            <Button onClick={createOtherLadder}>Create Other Ladder</Button>
         </>
     )
 }

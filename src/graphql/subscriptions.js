@@ -420,7 +420,7 @@ export const onCreatePlayerMatch = /* GraphQL */ `
         id
         matchType
         name
-        geoData {
+        location {
           lat
           lon
         }
@@ -626,7 +626,7 @@ export const onUpdatePlayerMatch = /* GraphQL */ `
         id
         matchType
         name
-        geoData {
+        location {
           lat
           lon
         }
@@ -832,7 +832,7 @@ export const onDeletePlayerMatch = /* GraphQL */ `
         id
         matchType
         name
-        geoData {
+        location {
           lat
           lon
         }
@@ -933,7 +933,7 @@ export const onCreateMatch = /* GraphQL */ `
         id
         matchType
         name
-        geoData {
+        location {
           lat
           lon
         }
@@ -1062,7 +1062,7 @@ export const onUpdateMatch = /* GraphQL */ `
         id
         matchType
         name
-        geoData {
+        location {
           lat
           lon
         }
@@ -1191,7 +1191,7 @@ export const onDeleteMatch = /* GraphQL */ `
         id
         matchType
         name
-        geoData {
+        location {
           lat
           lon
         }
@@ -1261,7 +1261,7 @@ export const onCreateLadder = /* GraphQL */ `
       id
       matchType
       name
-      geoData {
+      location {
         lat
         lon
       }
@@ -1331,7 +1331,7 @@ export const onUpdateLadder = /* GraphQL */ `
       id
       matchType
       name
-      geoData {
+      location {
         lat
         lon
       }
@@ -1401,7 +1401,7 @@ export const onDeleteLadder = /* GraphQL */ `
       id
       matchType
       name
-      geoData {
+      location {
         lat
         lon
       }
@@ -1784,7 +1784,7 @@ export const onCreateStandings = /* GraphQL */ `
         id
         matchType
         name
-        geoData {
+        location {
           lat
           lon
         }
@@ -1851,7 +1851,7 @@ export const onUpdateStandings = /* GraphQL */ `
         id
         matchType
         name
-        geoData {
+        location {
           lat
           lon
         }
@@ -1918,7 +1918,7 @@ export const onDeleteStandings = /* GraphQL */ `
         id
         matchType
         name
-        geoData {
+        location {
           lat
           lon
         }
@@ -1985,7 +1985,7 @@ export const onCreateLadderPlayer = /* GraphQL */ `
         id
         matchType
         name
-        geoData {
+        location {
           lat
           lon
         }
@@ -2045,7 +2045,7 @@ export const onUpdateLadderPlayer = /* GraphQL */ `
         id
         matchType
         name
-        geoData {
+        location {
           lat
           lon
         }
@@ -2105,7 +2105,7 @@ export const onDeleteLadderPlayer = /* GraphQL */ `
         id
         matchType
         name
-        geoData {
+        location {
           lat
           lon
         }

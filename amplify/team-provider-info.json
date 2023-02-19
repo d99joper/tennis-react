@@ -18,11 +18,11 @@
       "storage": {
         "profilePics": {}
       },
-      "api": {
-        "MyTennisAPIProd": {}
-      },
       "geo": {
         "MyTennisSpaceGEO": {}
+      },
+      "api": {
+        "MyTennisAPIProd": {}
       }
     }
   }
