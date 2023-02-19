@@ -89,15 +89,46 @@ type Ladder @model @searchable {
   id: ID! @primaryKey
   matchType: matchType!  
   name: String! @index(name: "byName", queryField: "getLadderByName")
-  geoData: Location
-  city: String @index(name: "byCity", queryField: "getLadderByCity", sortKeyFields: ["zip"])
+  location: Location
+  # lon: Float
+  # lat: Float 
+  # geoIndexAnchor: Int @default(value: "1")
+  #                         @index(name: "byLonLat", queryField: "getLadderByLonLat", sortKeyFields: ["lon","lat"])
+  city: String
   zip: String 
   matches: [Match!] @hasMany
   players: [Player!] @manyToMany(relationName: "ladderPlayer")
   playerMatches: [PlayerMatch] @hasMany
 }
+type Query {
+  findNearbyLadders(
+    input: FindNearbyLaddersInput!
+  ): SearchableLadderConnection #@aws_iam @aws_cognito_user_pools
+}
+type SearchableLadderConnection #@aws_iam @aws_cognito_user_pools 
+{
+  items: [Ladder]
+  nextToken: String
+  total: Int
+}
 
-type Comment @model @searchable{
+input LocationInput {
+  lon: Float!
+  lat: Float!
+}
+
+input LocationQueryInput {
+  point: LocationInput!
+  radius: Float!
+}
+
+input FindNearbyLaddersInput {
+  byLocation: LocationQueryInput
+  limit: Int
+  nextToken: String
+  from: Int
+}
+type Comment @model {
   id: ID! @primaryKey
   matchID: ID! @index(name: "byMatch", queryField: "getCommentsByMatch", sortKeyFields: ["postedOn"])
   match: Match @belongsTo(fields: ["matchID"])
@@ -108,7 +139,7 @@ type Comment @model @searchable{
   private: Boolean @default(value: "true")
 }
 
-type Standings @model @searchable {
+type Standings @model {
   id: ID! @primaryKey
   playerID: ID! @index(name: "byPlayerID", queryField: "getStandingsByPlayerID", sortKeyFields: ["ladderID","isCurrent"])
   player: Player! @hasOne

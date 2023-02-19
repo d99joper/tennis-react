@@ -1,6 +1,36 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
+export const findNearbyLadders = /* GraphQL */ `
+  query FindNearbyLadders($input: FindNearbyLaddersInput!) {
+    findNearbyLadders(input: $input) {
+      items {
+        id
+        matchType
+        name
+        location {
+          lat
+          lon
+        }
+        city
+        zip
+        matches {
+          nextToken
+        }
+        players {
+          nextToken
+        }
+        playerMatches {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      nextToken
+      total
+    }
+  }
+`;
 export const searchPlayers = /* GraphQL */ `
   query SearchPlayers(
     $filter: SearchablePlayerFilterInput
@@ -308,7 +338,7 @@ export const searchLadders = /* GraphQL */ `
         id
         matchType
         name
-        geoData {
+        location {
           lat
           lon
         }
@@ -328,165 +358,6 @@ export const searchLadders = /* GraphQL */ `
       }
       nextToken
       total
-      aggregateItems {
-        name
-        result {
-          ... on SearchableAggregateScalarResult {
-            value
-          }
-          ... on SearchableAggregateBucketResult {
-            buckets {
-              key
-              doc_count
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-export const searchComments = /* GraphQL */ `
-  query SearchComments(
-    $filter: SearchableCommentFilterInput
-    $sort: [SearchableCommentSortInput]
-    $limit: Int
-    $nextToken: String
-    $from: Int
-    $aggregates: [SearchableCommentAggregationInput]
-  ) {
-    searchComments(
-      filter: $filter
-      sort: $sort
-      limit: $limit
-      nextToken: $nextToken
-      from: $from
-      aggregates: $aggregates
-    ) {
-      items {
-        id
-        matchID
-        match {
-          id
-          type
-          playedOn
-          year
-          winnerID
-          loserID
-          score
-          ladderID
-          createdAt
-          updatedAt
-          playerMatchesId
-          ladderMatchesId
-        }
-        content
-        postedByID
-        postedBy {
-          id
-          name
-          email
-          phone
-          about
-          image
-          NTRP
-          UTR
-          verified
-          createdAt
-          updatedAt
-        }
-        postedOn
-        private
-        createdAt
-        updatedAt
-      }
-      nextToken
-      total
-      aggregateItems {
-        name
-        result {
-          ... on SearchableAggregateScalarResult {
-            value
-          }
-          ... on SearchableAggregateBucketResult {
-            buckets {
-              key
-              doc_count
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-export const searchStandings = /* GraphQL */ `
-  query SearchStandings(
-    $filter: SearchableStandingsFilterInput
-    $sort: [SearchableStandingsSortInput]
-    $limit: Int
-    $nextToken: String
-    $from: Int
-    $aggregates: [SearchableStandingsAggregationInput]
-  ) {
-    searchStandings(
-      filter: $filter
-      sort: $sort
-      limit: $limit
-      nextToken: $nextToken
-      from: $from
-      aggregates: $aggregates
-    ) {
-      items {
-        id
-        playerID
-        player {
-          id
-          name
-          email
-          phone
-          about
-          image
-          NTRP
-          UTR
-          verified
-          createdAt
-          updatedAt
-        }
-        ladderID
-        ladder {
-          id
-          matchType
-          name
-          city
-          zip
-          createdAt
-          updatedAt
-        }
-        wins
-        losses
-        points
-        position
-        isCurrent
-        createdAt
-        updatedAt
-        standingsPlayerId
-        standingsLadderId
-      }
-      nextToken
-      total
-      aggregateItems {
-        name
-        result {
-          ... on SearchableAggregateScalarResult {
-            value
-          }
-          ... on SearchableAggregateBucketResult {
-            buckets {
-              key
-              doc_count
-            }
-          }
-        }
-      }
     }
   }
 `;
@@ -785,7 +656,7 @@ export const getPlayerMatch = /* GraphQL */ `
         id
         matchType
         name
-        geoData {
+        location {
           lat
           lon
         }
@@ -1005,7 +876,7 @@ export const getMatch = /* GraphQL */ `
         id
         matchType
         name
-        geoData {
+        location {
           lat
           lon
         }
@@ -1149,7 +1020,7 @@ export const getLadder = /* GraphQL */ `
       id
       matchType
       name
-      geoData {
+      location {
         lat
         lon
       }
@@ -1232,7 +1103,7 @@ export const listLadders = /* GraphQL */ `
         id
         matchType
         name
-        geoData {
+        location {
           lat
           lon
         }
@@ -1439,7 +1310,7 @@ export const getStandings = /* GraphQL */ `
         id
         matchType
         name
-        geoData {
+        location {
           lat
           lon
         }
@@ -1559,7 +1430,7 @@ export const getLadderPlayer = /* GraphQL */ `
         id
         matchType
         name
-        geoData {
+        location {
           lat
           lon
         }
@@ -2906,50 +2777,7 @@ export const getLadderByName = /* GraphQL */ `
         id
         matchType
         name
-        geoData {
-          lat
-          lon
-        }
-        city
-        zip
-        matches {
-          nextToken
-        }
-        players {
-          nextToken
-        }
-        playerMatches {
-          nextToken
-        }
-        createdAt
-        updatedAt
-      }
-      nextToken
-    }
-  }
-`;
-export const getLadderByCity = /* GraphQL */ `
-  query GetLadderByCity(
-    $city: String!
-    $zip: ModelStringKeyConditionInput
-    $sortDirection: ModelSortDirection
-    $filter: ModelLadderFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    getLadderByCity(
-      city: $city
-      zip: $zip
-      sortDirection: $sortDirection
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-    ) {
-      items {
-        id
-        matchType
-        name
-        geoData {
+        location {
           lat
           lon
         }

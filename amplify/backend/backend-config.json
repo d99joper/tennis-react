@@ -1,22 +1,22 @@
 {
   "api": {
     "MyTennisAPIProd": {
+      "service": "AppSync",
+      "providerPlugin": "awscloudformation",
       "dependsOn": [],
       "output": {
         "authConfig": {
-          "additionalAuthenticationProviders": [],
           "defaultAuthentication": {
+            "authenticationType": "API_KEY",
             "apiKeyConfig": {
-              "apiKeyExpirationDate": "2024-01-30T06:08:54.205Z",
               "apiKeyExpirationDays": 365,
+              "apiKeyExpirationDate": "2024-02-10T05:15:23.979Z",
               "description": ""
-            },
-            "authenticationType": "API_KEY"
-          }
+            }
+          },
+          "additionalAuthenticationProviders": []
         }
-      },
-      "providerPlugin": "awscloudformation",
-      "service": "AppSync"
+      }
     }
   },
   "auth": {

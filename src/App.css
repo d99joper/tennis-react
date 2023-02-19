@@ -2,6 +2,14 @@
   margin-inline: auto;
   max-width: 60rem;
   padding: 0 1em;
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  display: grid;
+  grid-template-rows: 
+    auto
+    1fr
+    auto;
 }
 
 .App-logo {
@@ -11,6 +19,10 @@
 
 .Content {
   width: 60rem;
+}
+
+.form-group {
+  display: grid;
 }
 
 header {
@@ -112,9 +124,9 @@ a:hover {
   display: none;
 }
 
-.MuiOutlinedInput-root {
+/* .MuiOutlinedInput-root {
   background-color: #ccff0022;
-}
+} */
 
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
