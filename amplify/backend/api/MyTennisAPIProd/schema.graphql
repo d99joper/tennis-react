@@ -45,19 +45,20 @@ type PlayerMatch @model @searchable {
                     sortKeyFields: ["opponentPartnerID"]
                 )
   partner: Player @belongsTo(fields: ["partnerID"])
-  partnerID: ID @index(
-                    name: "byPartner", 
-                    queryField: "getPlayerMatchByPartner", 
-                    sortKeyFields:["playerID"])
+  partnerID: ID 
   opponent: Player @belongsTo(fields: ["opponentID"])
-  opponentID: ID! @index(name: "byOpponent", queryField: "getPlayerMatchByOpponent", sortKeyFields: ["playerID"])
+  opponentID: ID!
   opponentPartner: Player @belongsTo(fields: ["opponentPartnerID"])
   opponentPartnerID: ID
   match: Match @belongsTo(fields: ["matchID"])
-  matchID: ID! @index(name: "byMatchID", queryField: "getPlayerMatchByMatchID")
-  matchType: matchType! @index(name: "byMatchType", queryField: "getPlayerMatchByMatchType")
+  matchID: ID! @index(name: "playerMatchByMatchID", queryField: "getPlayerMatchByMatchID")
+  matchType: matchType! @index(name: "byMatchType", 
+                               queryField: "getPlayerMatchByMatchType", 
+                               sortKeyFields: ["playerID"])
   ladder: Ladder @belongsTo(fields: ["ladderID"])
-  ladderID: ID! @index(name: "byLadder", queryField: "getPlayerMatchByLadder", sortKeyFields: ["playerID"])
+  ladderID: ID! @index(name: "playerMatchByLadder", 
+                       queryField: "getPlayerMatchByLadder", 
+                       sortKeyFields: ["playerID"])
   win: Boolean!
   setsWon: Int! @default(value: "0")
   setsLost: Int! @default(value: "0")
@@ -76,19 +77,19 @@ type Match @model @searchable {
   year: Int!
   winnerID: ID! @index(name: "byMatchDetails", queryField: "getMatchByDetails", sortKeyFields: ["loserID","type","ladderID","playedOn","score"])
   winner: Player @belongsTo(fields:["winnerID"])
-  loserID: ID! @index
+  loserID: ID!
   loser: Player @belongsTo(fields:["loserID"]) 
   score: String!
-  ladderID: ID! @index(name: "byLadderID", queryField: "getMatchByLadderID", sortKeyFields: ["playedOn"])
+  ladderID: ID! @index(name: "matchByLadderID", queryField: "getMatchByLadderID", sortKeyFields: ["playedOn"])
   ladder: Ladder @belongsTo(fields: ["ladderID"])
   comments: [Comment!] @hasMany(indexName: "byMatch", fields: ["id"])
-  playerMatches: [PlayerMatch] @hasMany
+  playerMatches: [PlayerMatch] @hasMany(indexName: "playerMatchByMatchID", fields: ["id"])
 }
 
 type Ladder @model @searchable {
   id: ID! @primaryKey
   matchType: matchType!  
-  name: String! @index(name: "byName", queryField: "getLadderByName")
+  name: String! #@index(name: "byName", queryField: "getLadderByName")
   location: Location
   # lon: Float
   # lat: Float 
@@ -96,14 +97,28 @@ type Ladder @model @searchable {
   #                         @index(name: "byLonLat", queryField: "getLadderByLonLat", sortKeyFields: ["lon","lat"])
   city: String
   zip: String 
-  matches: [Match!] @hasMany
+  matches: [Match!] @hasMany(indexName: "matchByLadderID", fields: ["id"])
   players: [Player!] @manyToMany(relationName: "ladderPlayer")
-  playerMatches: [PlayerMatch] @hasMany
+  playerMatches: [PlayerMatch] @hasMany(indexName: "playerMatchByLadder", fields: ["id"])
 }
 type Query {
   findNearbyLadders(
     input: FindNearbyLaddersInput!
   ): SearchableLadderConnection #@aws_iam @aws_cognito_user_pools
+}
+input FindNearbyLaddersInput {
+  byLocation: LocationQueryInput
+  limit: Int
+  nextToken: String
+  from: Int
+}
+input LocationQueryInput {
+  point: LocationInput!
+  radius: Int!
+}
+input LocationInput {
+  lon: Float!
+  lat: Float!
 }
 type SearchableLadderConnection #@aws_iam @aws_cognito_user_pools 
 {
@@ -112,22 +127,9 @@ type SearchableLadderConnection #@aws_iam @aws_cognito_user_pools
   total: Int
 }
 
-input LocationInput {
-  lon: Float!
-  lat: Float!
-}
 
-input LocationQueryInput {
-  point: LocationInput!
-  radius: Float!
-}
 
-input FindNearbyLaddersInput {
-  byLocation: LocationQueryInput
-  limit: Int
-  nextToken: String
-  from: Int
-}
+
 type Comment @model {
   id: ID! @primaryKey
   matchID: ID! @index(name: "byMatch", queryField: "getCommentsByMatch", sortKeyFields: ["postedOn"])
@@ -139,17 +141,22 @@ type Comment @model {
   private: Boolean @default(value: "true")
 }
 
+# type Standings @model {
+#   id: ID! @primaryKey
+#   playerID: ID! @index(name: "byPlayerID", queryField: "getStandingsByPlayerID", sortKeyFields: ["ladderID","isCurrent"])
+#   player: Player! @hasOne
+#   ladderID: ID! @index(name: "byLadderID", queryField: "getStandingsByLadderID", sortKeyFields: ["isCurrent"])
+#   ladder: Ladder! @hasOne
+#   wins: Int! @default(value: "0")
+#   losses: Int! @default(value: "0")
+#   points: Int! @default(value: "0")
+#   position: Int! @default(value: "0")
+#   isCurrent: String! @default(value: "true")
+# }
 type Standings @model {
-  id: ID! @primaryKey
-  playerID: ID! @index(name: "byPlayerID", queryField: "getStandingsByPlayerID", sortKeyFields: ["ladderID","isCurrent"])
-  player: Player! @hasOne
-  ladderID: ID! @index(name: "byLadderID", queryField: "getStandingsByLadderID", sortKeyFields: ["isCurrent"])
-  ladder: Ladder! @hasOne
-  wins: Int! @default(value: "0")
-  losses: Int! @default(value: "0")
-  points: Int! @default(value: "0")
-  position: Int! @default(value: "0")
-  isCurrent: String! @default(value: "true")
+  id: ID! @primaryKey(sortKeyFields: ["postedOn"]) # set id #cur#ladderId for current and #old#ladderId for older
+  details: AWSJSON # details will be a position with a player object name/wins/losses 
+  postedOn: AWSDateTime!
 }
 
 enum matchType {

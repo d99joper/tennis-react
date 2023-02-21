@@ -1,6 +1,6 @@
 {
   "api": {
-    "MyTennisAPIProd": {
+    "MyTennisApiProd": {
       "service": "AppSync",
       "providerPlugin": "awscloudformation",
       "dependsOn": [],
@@ -10,7 +10,7 @@
             "authenticationType": "API_KEY",
             "apiKeyConfig": {
               "apiKeyExpirationDays": 365,
-              "apiKeyExpirationDate": "2024-02-10T05:15:23.979Z",
+              "apiKeyExpirationDate": "2024-02-20T20:21:20.691Z",
               "description": ""
             }
           },
@@ -73,6 +73,23 @@
       "dataProvider": "Here",
       "dataSourceIntendedUse": "SingleUse",
       "accessType": "AuthorizedAndGuestUsers",
+      "dependsOn": [
+        {
+          "category": "auth",
+          "resourceName": "tennisreact",
+          "attributes": [
+            "UserPoolId"
+          ]
+        }
+      ]
+    },
+    "MyTennisGeoIndex": {
+      "isDefault": true,
+      "providerPlugin": "awscloudformation",
+      "service": "PlaceIndex",
+      "dataProvider": "HERE",
+      "dataSourceIntendedUse": "SingleUse",
+      "accessType": "AuthorizedUsers",
       "dependsOn": [
         {
           "category": "auth",

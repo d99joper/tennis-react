@@ -44,7 +44,7 @@
       "Properties": {
         "Environment": {
           "Variables": {
-            "ES_ENDPOINT": "https://search-amplify-opense-nomh8xetkpi3-gbhlh74lsqdwpcqrcv22m7adp4.us-west-1.es.amazonaws.com/",
+            "ES_ENDPOINT": "https://search-amplify-opense-z7ew2qxe83c9-fxli3k745n66gamma6zula45oi.us-west-1.es.amazonaws.com/",
             "ES_REGION": {
               "Ref": "AWS::Region"
             }
@@ -77,8 +77,8 @@
                 "logger.setLevel(logging.INFO)",
                 " ",
                 "# The following parameters are required to configure the ES cluster",
-                "ES_ENDPOINT = os.environ['ES_ENDPOINT']",
-                "ES_REGION = os.environ['ES_REGION']",
+                "ES_ENDPOINT = os.environ['OPENSEARCH_ENDPOINT']",
+                "ES_REGION = os.environ['OPENSEARCH_REGION']",
                 "# DEBUG = True if os.environ['DEBUG'] is not None else False",
                 " ",
                 "def es_put(payload, region, creds, host, path, method='PUT', proto='https://'):",
@@ -100,9 +100,9 @@
                 "        # Extract the domain name in ES_ENDPOINT",
                 "        es_endpoint = es_url.netloc or es_url.path",
                 "        es_put('', es_region, creds,es_endpoint, '/')",
-                "        action = {\"mappings\": {\"doc\": {\"properties\": {\"location\": {\"type\": \"geo_point\"}}}}}",
+                "        action = {\"properties\": {\"location\": {\"type\": \"geo_point\"}}}",
                 "        es_payload = json.dumps(action)",
-                "        es_put(es_payload, es_region, creds, es_endpoint, '/ladder')",
+                "        es_put(es_payload, es_region, creds, es_endpoint, '/ladder/_mapping/_doc?include_type_name=true')",
                 "        cfnresponse.send(event, context, cfnresponse.SUCCESS, {})"
               ]
             ]
@@ -172,7 +172,7 @@
                 {
                   "Effect": "Allow",
                   "Action": ["es:*"],
-                  "Resource": "arn:aws:es:us-west-1:781466862382:domain/amplify-opense-nomh8xetkpi3/*"
+                  "Resource": "arn:aws:es:us-west-1:781466862382:domain/amplify-opense-z7ew2qxe83c9/*"
                 }
               ]
             }
