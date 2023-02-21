@@ -34,6 +34,7 @@ function About() {
 
 const Profile = lazy(() => import('./views/profile'))
 const LadderView = lazy(() => import('./views/ladder/view'))
+const LadderSearch = lazy(() => import('./views/ladder/search'))
 const NoPage = lazy(() => import('./views/NoPage'))
 const AdminTasks = lazy(() => import('./views/adminTasks'))
 const LadderCreate = lazy(() => import('./views/ladder/create'))
@@ -56,6 +57,7 @@ const MyRouter = (props) => {
             <Route path="ladders">
               <Route index={true} element={<LadderView />} />
               <Route path=":ladderId" element={<LadderView />} />
+              <Route path="search" element={<LadderSearch />} />
               <Route path="new" element={<LadderCreate />} />
               {/* <Route index element={<Home />} /> */}
             </Route>

@@ -255,7 +255,8 @@
               "Action": [
                 "geo:SearchPlaceIndexForPosition",
                 "geo:SearchPlaceIndexForText",
-                "geo:SearchPlaceIndexForSuggestions"
+                "geo:SearchPlaceIndexForSuggestions",
+                "geo:GetPlace"
               ],
               "Effect": "Allow",
               "Resource": {
@@ -292,9 +293,6 @@
         "Roles": [
           {
             "Ref": "authRoleName"
-          },
-          {
-            "Ref": "unauthRoleName"
           }
         ]
       }
@@ -329,5 +327,5 @@
       }
     }
   },
-  "Description": "{\"createdOn\":\"Windows\",\"createdBy\":\"Amplify\",\"createdWith\":\"10.3.1\",\"stackType\":\"geo-PlaceIndex\",\"metadata\":{}}"
+  "Description": "{\"createdOn\":\"Windows\",\"createdBy\":\"Amplify\",\"createdWith\":\"10.5.1\",\"stackType\":\"geo-PlaceIndex\",\"metadata\":{}}"
 }

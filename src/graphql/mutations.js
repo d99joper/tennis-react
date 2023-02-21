@@ -37,8 +37,6 @@ export const createPlayer = /* GraphQL */ `
           createdAt
           updatedAt
           playerPlayerMatchesId
-          matchPlayerMatchesId
-          ladderPlayerMatchesId
         }
         nextToken
       }
@@ -55,7 +53,6 @@ export const createPlayer = /* GraphQL */ `
           createdAt
           updatedAt
           playerMatchesId
-          ladderMatchesId
         }
         nextToken
       }
@@ -123,8 +120,6 @@ export const updatePlayer = /* GraphQL */ `
           createdAt
           updatedAt
           playerPlayerMatchesId
-          matchPlayerMatchesId
-          ladderPlayerMatchesId
         }
         nextToken
       }
@@ -141,7 +136,6 @@ export const updatePlayer = /* GraphQL */ `
           createdAt
           updatedAt
           playerMatchesId
-          ladderMatchesId
         }
         nextToken
       }
@@ -209,8 +203,6 @@ export const deletePlayer = /* GraphQL */ `
           createdAt
           updatedAt
           playerPlayerMatchesId
-          matchPlayerMatchesId
-          ladderPlayerMatchesId
         }
         nextToken
       }
@@ -227,7 +219,6 @@ export const deletePlayer = /* GraphQL */ `
           createdAt
           updatedAt
           playerMatchesId
-          ladderMatchesId
         }
         nextToken
       }
@@ -422,7 +413,6 @@ export const createPlayerMatch = /* GraphQL */ `
         createdAt
         updatedAt
         playerMatchesId
-        ladderMatchesId
       }
       matchID
       matchType
@@ -461,8 +451,6 @@ export const createPlayerMatch = /* GraphQL */ `
       createdAt
       updatedAt
       playerPlayerMatchesId
-      matchPlayerMatchesId
-      ladderPlayerMatchesId
     }
   }
 `;
@@ -629,7 +617,6 @@ export const updatePlayerMatch = /* GraphQL */ `
         createdAt
         updatedAt
         playerMatchesId
-        ladderMatchesId
       }
       matchID
       matchType
@@ -668,8 +655,6 @@ export const updatePlayerMatch = /* GraphQL */ `
       createdAt
       updatedAt
       playerPlayerMatchesId
-      matchPlayerMatchesId
-      ladderPlayerMatchesId
     }
   }
 `;
@@ -836,7 +821,6 @@ export const deletePlayerMatch = /* GraphQL */ `
         createdAt
         updatedAt
         playerMatchesId
-        ladderMatchesId
       }
       matchID
       matchType
@@ -875,8 +859,6 @@ export const deletePlayerMatch = /* GraphQL */ `
       createdAt
       updatedAt
       playerPlayerMatchesId
-      matchPlayerMatchesId
-      ladderPlayerMatchesId
     }
   }
 `;
@@ -1000,15 +982,12 @@ export const createMatch = /* GraphQL */ `
           createdAt
           updatedAt
           playerPlayerMatchesId
-          matchPlayerMatchesId
-          ladderPlayerMatchesId
         }
         nextToken
       }
       createdAt
       updatedAt
       playerMatchesId
-      ladderMatchesId
     }
   }
 `;
@@ -1132,15 +1111,12 @@ export const updateMatch = /* GraphQL */ `
           createdAt
           updatedAt
           playerPlayerMatchesId
-          matchPlayerMatchesId
-          ladderPlayerMatchesId
         }
         nextToken
       }
       createdAt
       updatedAt
       playerMatchesId
-      ladderMatchesId
     }
   }
 `;
@@ -1264,15 +1240,12 @@ export const deleteMatch = /* GraphQL */ `
           createdAt
           updatedAt
           playerPlayerMatchesId
-          matchPlayerMatchesId
-          ladderPlayerMatchesId
         }
         nextToken
       }
       createdAt
       updatedAt
       playerMatchesId
-      ladderMatchesId
     }
   }
 `;
@@ -1304,7 +1277,6 @@ export const createLadder = /* GraphQL */ `
           createdAt
           updatedAt
           playerMatchesId
-          ladderMatchesId
         }
         nextToken
       }
@@ -1339,8 +1311,6 @@ export const createLadder = /* GraphQL */ `
           createdAt
           updatedAt
           playerPlayerMatchesId
-          matchPlayerMatchesId
-          ladderPlayerMatchesId
         }
         nextToken
       }
@@ -1377,7 +1347,6 @@ export const updateLadder = /* GraphQL */ `
           createdAt
           updatedAt
           playerMatchesId
-          ladderMatchesId
         }
         nextToken
       }
@@ -1412,8 +1381,6 @@ export const updateLadder = /* GraphQL */ `
           createdAt
           updatedAt
           playerPlayerMatchesId
-          matchPlayerMatchesId
-          ladderPlayerMatchesId
         }
         nextToken
       }
@@ -1450,7 +1417,6 @@ export const deleteLadder = /* GraphQL */ `
           createdAt
           updatedAt
           playerMatchesId
-          ladderMatchesId
         }
         nextToken
       }
@@ -1485,8 +1451,6 @@ export const deleteLadder = /* GraphQL */ `
           createdAt
           updatedAt
           playerPlayerMatchesId
-          matchPlayerMatchesId
-          ladderPlayerMatchesId
         }
         nextToken
       }
@@ -1556,7 +1520,6 @@ export const createComment = /* GraphQL */ `
         createdAt
         updatedAt
         playerMatchesId
-        ladderMatchesId
       }
       content
       postedByID
@@ -1653,7 +1616,6 @@ export const updateComment = /* GraphQL */ `
         createdAt
         updatedAt
         playerMatchesId
-        ladderMatchesId
       }
       content
       postedByID
@@ -1750,7 +1712,6 @@ export const deleteComment = /* GraphQL */ `
         createdAt
         updatedAt
         playerMatchesId
-        ladderMatchesId
       }
       content
       postedByID
@@ -1793,64 +1754,10 @@ export const createStandings = /* GraphQL */ `
   ) {
     createStandings(input: $input, condition: $condition) {
       id
-      playerID
-      player {
-        id
-        name
-        email
-        phone
-        about
-        image
-        NTRP
-        UTR
-        verified
-        playerMatches {
-          nextToken
-        }
-        matches {
-          nextToken
-        }
-        ladders {
-          nextToken
-        }
-        comments {
-          nextToken
-        }
-        createdAt
-        updatedAt
-      }
-      ladderID
-      ladder {
-        id
-        matchType
-        name
-        location {
-          lat
-          lon
-        }
-        city
-        zip
-        matches {
-          nextToken
-        }
-        players {
-          nextToken
-        }
-        playerMatches {
-          nextToken
-        }
-        createdAt
-        updatedAt
-      }
-      wins
-      losses
-      points
-      position
-      isCurrent
+      details
+      postedOn
       createdAt
       updatedAt
-      standingsPlayerId
-      standingsLadderId
     }
   }
 `;
@@ -1861,64 +1768,10 @@ export const updateStandings = /* GraphQL */ `
   ) {
     updateStandings(input: $input, condition: $condition) {
       id
-      playerID
-      player {
-        id
-        name
-        email
-        phone
-        about
-        image
-        NTRP
-        UTR
-        verified
-        playerMatches {
-          nextToken
-        }
-        matches {
-          nextToken
-        }
-        ladders {
-          nextToken
-        }
-        comments {
-          nextToken
-        }
-        createdAt
-        updatedAt
-      }
-      ladderID
-      ladder {
-        id
-        matchType
-        name
-        location {
-          lat
-          lon
-        }
-        city
-        zip
-        matches {
-          nextToken
-        }
-        players {
-          nextToken
-        }
-        playerMatches {
-          nextToken
-        }
-        createdAt
-        updatedAt
-      }
-      wins
-      losses
-      points
-      position
-      isCurrent
+      details
+      postedOn
       createdAt
       updatedAt
-      standingsPlayerId
-      standingsLadderId
     }
   }
 `;
@@ -1929,64 +1782,10 @@ export const deleteStandings = /* GraphQL */ `
   ) {
     deleteStandings(input: $input, condition: $condition) {
       id
-      playerID
-      player {
-        id
-        name
-        email
-        phone
-        about
-        image
-        NTRP
-        UTR
-        verified
-        playerMatches {
-          nextToken
-        }
-        matches {
-          nextToken
-        }
-        ladders {
-          nextToken
-        }
-        comments {
-          nextToken
-        }
-        createdAt
-        updatedAt
-      }
-      ladderID
-      ladder {
-        id
-        matchType
-        name
-        location {
-          lat
-          lon
-        }
-        city
-        zip
-        matches {
-          nextToken
-        }
-        players {
-          nextToken
-        }
-        playerMatches {
-          nextToken
-        }
-        createdAt
-        updatedAt
-      }
-      wins
-      losses
-      points
-      position
-      isCurrent
+      details
+      postedOn
       createdAt
       updatedAt
-      standingsPlayerId
-      standingsLadderId
     }
   }
 `;

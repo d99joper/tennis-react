@@ -34,8 +34,6 @@ export const onCreatePlayer = /* GraphQL */ `
           createdAt
           updatedAt
           playerPlayerMatchesId
-          matchPlayerMatchesId
-          ladderPlayerMatchesId
         }
         nextToken
       }
@@ -52,7 +50,6 @@ export const onCreatePlayer = /* GraphQL */ `
           createdAt
           updatedAt
           playerMatchesId
-          ladderMatchesId
         }
         nextToken
       }
@@ -117,8 +114,6 @@ export const onUpdatePlayer = /* GraphQL */ `
           createdAt
           updatedAt
           playerPlayerMatchesId
-          matchPlayerMatchesId
-          ladderPlayerMatchesId
         }
         nextToken
       }
@@ -135,7 +130,6 @@ export const onUpdatePlayer = /* GraphQL */ `
           createdAt
           updatedAt
           playerMatchesId
-          ladderMatchesId
         }
         nextToken
       }
@@ -200,8 +194,6 @@ export const onDeletePlayer = /* GraphQL */ `
           createdAt
           updatedAt
           playerPlayerMatchesId
-          matchPlayerMatchesId
-          ladderPlayerMatchesId
         }
         nextToken
       }
@@ -218,7 +210,6 @@ export const onDeletePlayer = /* GraphQL */ `
           createdAt
           updatedAt
           playerMatchesId
-          ladderMatchesId
         }
         nextToken
       }
@@ -412,7 +403,6 @@ export const onCreatePlayerMatch = /* GraphQL */ `
         createdAt
         updatedAt
         playerMatchesId
-        ladderMatchesId
       }
       matchID
       matchType
@@ -451,8 +441,6 @@ export const onCreatePlayerMatch = /* GraphQL */ `
       createdAt
       updatedAt
       playerPlayerMatchesId
-      matchPlayerMatchesId
-      ladderPlayerMatchesId
     }
   }
 `;
@@ -618,7 +606,6 @@ export const onUpdatePlayerMatch = /* GraphQL */ `
         createdAt
         updatedAt
         playerMatchesId
-        ladderMatchesId
       }
       matchID
       matchType
@@ -657,8 +644,6 @@ export const onUpdatePlayerMatch = /* GraphQL */ `
       createdAt
       updatedAt
       playerPlayerMatchesId
-      matchPlayerMatchesId
-      ladderPlayerMatchesId
     }
   }
 `;
@@ -824,7 +809,6 @@ export const onDeletePlayerMatch = /* GraphQL */ `
         createdAt
         updatedAt
         playerMatchesId
-        ladderMatchesId
       }
       matchID
       matchType
@@ -863,8 +847,6 @@ export const onDeletePlayerMatch = /* GraphQL */ `
       createdAt
       updatedAt
       playerPlayerMatchesId
-      matchPlayerMatchesId
-      ladderPlayerMatchesId
     }
   }
 `;
@@ -985,15 +967,12 @@ export const onCreateMatch = /* GraphQL */ `
           createdAt
           updatedAt
           playerPlayerMatchesId
-          matchPlayerMatchesId
-          ladderPlayerMatchesId
         }
         nextToken
       }
       createdAt
       updatedAt
       playerMatchesId
-      ladderMatchesId
     }
   }
 `;
@@ -1114,15 +1093,12 @@ export const onUpdateMatch = /* GraphQL */ `
           createdAt
           updatedAt
           playerPlayerMatchesId
-          matchPlayerMatchesId
-          ladderPlayerMatchesId
         }
         nextToken
       }
       createdAt
       updatedAt
       playerMatchesId
-      ladderMatchesId
     }
   }
 `;
@@ -1243,15 +1219,12 @@ export const onDeleteMatch = /* GraphQL */ `
           createdAt
           updatedAt
           playerPlayerMatchesId
-          matchPlayerMatchesId
-          ladderPlayerMatchesId
         }
         nextToken
       }
       createdAt
       updatedAt
       playerMatchesId
-      ladderMatchesId
     }
   }
 `;
@@ -1280,7 +1253,6 @@ export const onCreateLadder = /* GraphQL */ `
           createdAt
           updatedAt
           playerMatchesId
-          ladderMatchesId
         }
         nextToken
       }
@@ -1315,8 +1287,6 @@ export const onCreateLadder = /* GraphQL */ `
           createdAt
           updatedAt
           playerPlayerMatchesId
-          matchPlayerMatchesId
-          ladderPlayerMatchesId
         }
         nextToken
       }
@@ -1350,7 +1320,6 @@ export const onUpdateLadder = /* GraphQL */ `
           createdAt
           updatedAt
           playerMatchesId
-          ladderMatchesId
         }
         nextToken
       }
@@ -1385,8 +1354,6 @@ export const onUpdateLadder = /* GraphQL */ `
           createdAt
           updatedAt
           playerPlayerMatchesId
-          matchPlayerMatchesId
-          ladderPlayerMatchesId
         }
         nextToken
       }
@@ -1420,7 +1387,6 @@ export const onDeleteLadder = /* GraphQL */ `
           createdAt
           updatedAt
           playerMatchesId
-          ladderMatchesId
         }
         nextToken
       }
@@ -1455,8 +1421,6 @@ export const onDeleteLadder = /* GraphQL */ `
           createdAt
           updatedAt
           playerPlayerMatchesId
-          matchPlayerMatchesId
-          ladderPlayerMatchesId
         }
         nextToken
       }
@@ -1523,7 +1487,6 @@ export const onCreateComment = /* GraphQL */ `
         createdAt
         updatedAt
         playerMatchesId
-        ladderMatchesId
       }
       content
       postedByID
@@ -1617,7 +1580,6 @@ export const onUpdateComment = /* GraphQL */ `
         createdAt
         updatedAt
         playerMatchesId
-        ladderMatchesId
       }
       content
       postedByID
@@ -1711,7 +1673,6 @@ export const onDeleteComment = /* GraphQL */ `
         createdAt
         updatedAt
         playerMatchesId
-        ladderMatchesId
       }
       content
       postedByID
@@ -1753,64 +1714,10 @@ export const onCreateStandings = /* GraphQL */ `
   ) {
     onCreateStandings(filter: $filter) {
       id
-      playerID
-      player {
-        id
-        name
-        email
-        phone
-        about
-        image
-        NTRP
-        UTR
-        verified
-        playerMatches {
-          nextToken
-        }
-        matches {
-          nextToken
-        }
-        ladders {
-          nextToken
-        }
-        comments {
-          nextToken
-        }
-        createdAt
-        updatedAt
-      }
-      ladderID
-      ladder {
-        id
-        matchType
-        name
-        location {
-          lat
-          lon
-        }
-        city
-        zip
-        matches {
-          nextToken
-        }
-        players {
-          nextToken
-        }
-        playerMatches {
-          nextToken
-        }
-        createdAt
-        updatedAt
-      }
-      wins
-      losses
-      points
-      position
-      isCurrent
+      details
+      postedOn
       createdAt
       updatedAt
-      standingsPlayerId
-      standingsLadderId
     }
   }
 `;
@@ -1820,64 +1727,10 @@ export const onUpdateStandings = /* GraphQL */ `
   ) {
     onUpdateStandings(filter: $filter) {
       id
-      playerID
-      player {
-        id
-        name
-        email
-        phone
-        about
-        image
-        NTRP
-        UTR
-        verified
-        playerMatches {
-          nextToken
-        }
-        matches {
-          nextToken
-        }
-        ladders {
-          nextToken
-        }
-        comments {
-          nextToken
-        }
-        createdAt
-        updatedAt
-      }
-      ladderID
-      ladder {
-        id
-        matchType
-        name
-        location {
-          lat
-          lon
-        }
-        city
-        zip
-        matches {
-          nextToken
-        }
-        players {
-          nextToken
-        }
-        playerMatches {
-          nextToken
-        }
-        createdAt
-        updatedAt
-      }
-      wins
-      losses
-      points
-      position
-      isCurrent
+      details
+      postedOn
       createdAt
       updatedAt
-      standingsPlayerId
-      standingsLadderId
     }
   }
 `;
@@ -1887,64 +1740,10 @@ export const onDeleteStandings = /* GraphQL */ `
   ) {
     onDeleteStandings(filter: $filter) {
       id
-      playerID
-      player {
-        id
-        name
-        email
-        phone
-        about
-        image
-        NTRP
-        UTR
-        verified
-        playerMatches {
-          nextToken
-        }
-        matches {
-          nextToken
-        }
-        ladders {
-          nextToken
-        }
-        comments {
-          nextToken
-        }
-        createdAt
-        updatedAt
-      }
-      ladderID
-      ladder {
-        id
-        matchType
-        name
-        location {
-          lat
-          lon
-        }
-        city
-        zip
-        matches {
-          nextToken
-        }
-        players {
-          nextToken
-        }
-        playerMatches {
-          nextToken
-        }
-        createdAt
-        updatedAt
-      }
-      wins
-      losses
-      points
-      position
-      isCurrent
+      details
+      postedOn
       createdAt
       updatedAt
-      standingsPlayerId
-      standingsLadderId
     }
   }
 `;

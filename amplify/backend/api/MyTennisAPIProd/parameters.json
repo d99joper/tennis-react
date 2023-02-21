@@ -1,5 +1,5 @@
 {
-  "AppSyncApiName": "MyTennisAPIProd",
+  "AppSyncApiName": "MyTennisApiProd",
   "DynamoDBBillingMode": "PAY_PER_REQUEST",
   "DynamoDBEnableServerSideEncryption": false
 }

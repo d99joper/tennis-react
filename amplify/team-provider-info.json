@@ -19,10 +19,12 @@
         "profilePics": {}
       },
       "geo": {
-        "MyTennisSpaceGEO": {}
+        "MyTennisSpaceGEO": {},
+        "MyTennisGeoIndex": {}
       },
       "api": {
-        "MyTennisAPIProd": {}
+        "MyTennisAPIProd": {},
+        "MyTennisApiProd": {}
       }
     }
   }
