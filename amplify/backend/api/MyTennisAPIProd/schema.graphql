@@ -93,6 +93,10 @@ type Ladder @model @searchable {
   description: String
   level: LevelInterval
   location: Location
+  # lon: Float
+  # lat: Float 
+  # geoIndexAnchor: Int @default(value: "1")
+  #                         @index(name: "byLonLat", queryField: "getLadderByLonLat", sortKeyFields: ["lon","lat"])
   city: String
   zip: String 
   matches: [Match!] @hasMany(indexName: "matchByLadderID", fields: ["id"])
