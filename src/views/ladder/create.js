@@ -59,7 +59,7 @@ const LadderCreate = () => {
                 setPlaces(ps)
                 // get list of places close to this 
             }
-        )
+            )
     }
     const options = {
         types: ['locality'],
@@ -83,19 +83,15 @@ const LadderCreate = () => {
         };
         console.log(ladder)
         //ask to confirm
-        if(window.confirm("Are you sure you want to create this ladder?"))
+        if (window.confirm("Are you sure you want to create this ladder?"))
             lf.CreateLadder(ladder)
     }
 
     function createOtherLadder() {
-        const point1 = {lat: 38.54422591158026, lon: -121.74365619216327}
-        const point2 = {lat: 38.544503705511694, lon: -121.75123751808259}
-        lf.CreateLadder({id: -1, name: "<None>", location: point2, city: "Everywhere", matchType: 'SINGLES', zip: '95616'})
-        
-        // const SAN_FRANCISCO = {
-        //     latitude: 37.774,
-        //     longitude: -122.431,
-        // }
+        const point1 = { lat: 38.54422591158026, lon: -121.74365619216327 }
+        const point2 = { lat: 38.544503705511694, lon: -121.75123751808259 }
+        lf.CreateLadder({ id: -1, name: "<None>", description: "A ladder for matches that don't belong to any other ladder. A good repository for friendly matches, or USTA matches.", level: {min:1.0, max:7.0},  location: point2, city: "Everywhere", matchType: 'SINGLES', zip: '95616' })
+
         // lf.CreateLadder({name: "Davis 3.5 singles", location: point1, city: "Davis, CA", matchType: 'SINGLES', zip: '95616'})
         // lf.AddPlayerToLadder(
         //     {id:'5eb69653-8f4b-42f7-a322-1075b5700f94', email:'jonas@zooark.com'}, 
@@ -103,6 +99,10 @@ const LadderCreate = () => {
         // )
     }
 
+    const SAN_FRANCISCO = {
+        latitude: 37.774,
+        longitude: -122.431,
+    }
     return (
         <>
             Create a new ladder
@@ -110,9 +110,9 @@ const LadderCreate = () => {
                 gap="1rem"
                 onSubmit={onCreate}
             >
-                {/* <div className="form-group">
-                    <LocationSearch proximity={SAN_FRANCISCO} minLength='2' types={"locality"} countries='USA, SWE' showIcon='false' placeholder='City' />
-                </div> */}
+                <div className="form-group">
+                    <LocationSearch minLength='2' types={"locality"} countries='USA, SWE' showIcon='false' placeholder='City' />
+                </div>
                 <div className="form-group">
                     {/* <label for="name">Name:</label> */}
                     <input type="text" name="name" placeholder="Name" required />

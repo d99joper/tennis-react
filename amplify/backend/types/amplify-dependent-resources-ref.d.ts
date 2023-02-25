@@ -30,6 +30,12 @@ export type AmplifyDependentResourcesAttributes = {
             "Name": "string",
             "Region": "string",
             "Arn": "string"
+        },
+        "MyTennisMap": {
+            "Name": "string",
+            "Style": "string",
+            "Region": "string",
+            "Arn": "string"
         }
     }
 }

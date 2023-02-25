@@ -90,16 +90,18 @@ type Ladder @model @searchable {
   id: ID! @primaryKey
   matchType: matchType!  
   name: String! #@index(name: "byName", queryField: "getLadderByName")
+  description: String
+  level: LevelInterval
   location: Location
-  # lon: Float
-  # lat: Float 
-  # geoIndexAnchor: Int @default(value: "1")
-  #                         @index(name: "byLonLat", queryField: "getLadderByLonLat", sortKeyFields: ["lon","lat"])
   city: String
   zip: String 
   matches: [Match!] @hasMany(indexName: "matchByLadderID", fields: ["id"])
   players: [Player!] @manyToMany(relationName: "ladderPlayer")
   playerMatches: [PlayerMatch] @hasMany(indexName: "playerMatchByLadder", fields: ["id"])
+}
+type LevelInterval {
+  min: Float
+  max: Float
 }
 type Query {
   findNearbyLadders(
@@ -126,9 +128,6 @@ type SearchableLadderConnection #@aws_iam @aws_cognito_user_pools
   nextToken: String
   total: Int
 }
-
-
-
 
 type Comment @model {
   id: ID! @primaryKey

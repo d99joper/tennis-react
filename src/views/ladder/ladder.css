@@ -2,10 +2,17 @@
     box-sizing: border-box;
   }
 
-  input[type=text] {
+  /* input[type=text] {
     padding: 0.4rem;
     border:0;
     box-shadow:0 0 15px 4px rgba(0,0,0,0.06);
     border-radius:10px;
   }
-  
+   */
+  .mapcontainer {
+    background-color: aquamarine;
+  }
+
+  .maplibregl-map, .mapboxgl-map {
+    max-width: 100%;
+  }
