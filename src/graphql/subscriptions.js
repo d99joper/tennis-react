@@ -389,6 +389,7 @@ export const onCreatePlayerMatch = /* GraphQL */ `
           id
           matchType
           name
+          description
           city
           zip
           createdAt
@@ -410,6 +411,11 @@ export const onCreatePlayerMatch = /* GraphQL */ `
         id
         matchType
         name
+        description
+        level {
+          min
+          max
+        }
         location {
           lat
           lon
@@ -592,6 +598,7 @@ export const onUpdatePlayerMatch = /* GraphQL */ `
           id
           matchType
           name
+          description
           city
           zip
           createdAt
@@ -613,6 +620,11 @@ export const onUpdatePlayerMatch = /* GraphQL */ `
         id
         matchType
         name
+        description
+        level {
+          min
+          max
+        }
         location {
           lat
           lon
@@ -795,6 +807,7 @@ export const onDeletePlayerMatch = /* GraphQL */ `
           id
           matchType
           name
+          description
           city
           zip
           createdAt
@@ -816,6 +829,11 @@ export const onDeletePlayerMatch = /* GraphQL */ `
         id
         matchType
         name
+        description
+        level {
+          min
+          max
+        }
         location {
           lat
           lon
@@ -915,6 +933,11 @@ export const onCreateMatch = /* GraphQL */ `
         id
         matchType
         name
+        description
+        level {
+          min
+          max
+        }
         location {
           lat
           lon
@@ -1041,6 +1064,11 @@ export const onUpdateMatch = /* GraphQL */ `
         id
         matchType
         name
+        description
+        level {
+          min
+          max
+        }
         location {
           lat
           lon
@@ -1167,6 +1195,11 @@ export const onDeleteMatch = /* GraphQL */ `
         id
         matchType
         name
+        description
+        level {
+          min
+          max
+        }
         location {
           lat
           lon
@@ -1234,6 +1267,11 @@ export const onCreateLadder = /* GraphQL */ `
       id
       matchType
       name
+      description
+      level {
+        min
+        max
+      }
       location {
         lat
         lon
@@ -1301,6 +1339,11 @@ export const onUpdateLadder = /* GraphQL */ `
       id
       matchType
       name
+      description
+      level {
+        min
+        max
+      }
       location {
         lat
         lon
@@ -1368,6 +1411,11 @@ export const onDeleteLadder = /* GraphQL */ `
       id
       matchType
       name
+      description
+      level {
+        min
+        max
+      }
       location {
         lat
         lon
@@ -1473,6 +1521,7 @@ export const onCreateComment = /* GraphQL */ `
           id
           matchType
           name
+          description
           city
           zip
           createdAt
@@ -1566,6 +1615,7 @@ export const onUpdateComment = /* GraphQL */ `
           id
           matchType
           name
+          description
           city
           zip
           createdAt
@@ -1659,6 +1709,7 @@ export const onDeleteComment = /* GraphQL */ `
           id
           matchType
           name
+          description
           city
           zip
           createdAt
@@ -1784,6 +1835,11 @@ export const onCreateLadderPlayer = /* GraphQL */ `
         id
         matchType
         name
+        description
+        level {
+          min
+          max
+        }
         location {
           lat
           lon
@@ -1844,6 +1900,11 @@ export const onUpdateLadderPlayer = /* GraphQL */ `
         id
         matchType
         name
+        description
+        level {
+          min
+          max
+        }
         location {
           lat
           lon
@@ -1904,6 +1965,11 @@ export const onDeleteLadderPlayer = /* GraphQL */ `
         id
         matchType
         name
+        description
+        level {
+          min
+          max
+        }
         location {
           lat
           lon

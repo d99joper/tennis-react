@@ -88,6 +88,8 @@ const ladderFunctions = {
         const loadData = {
             name: ladder.name,
             matchType: ladder.matchType,
+            ...ladder.description ? {description: ladder.description} :null,
+            ...ladder.level ? {level: ladder.level} :null,
             ...ladder.id ? {id: ladder.id} :null,
             ... ladder.location ? {
                 location: ladder.location, 

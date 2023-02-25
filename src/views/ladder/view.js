@@ -29,7 +29,7 @@ const LadderView = () => {
                     {/* <Button onClick={leaveLadder}>Leave this ladder</Button> */}
 
                     {/* Search for ladders */}
-                    <Link to="ladders/search" >Search for other ladders</Link>
+                    <Link to="/ladders/search" >Search for other ladders</Link>
                     <Link to="/ladders/new" >Create new ladder</Link>
                 </>
             }

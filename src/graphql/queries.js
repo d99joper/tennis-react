@@ -8,6 +8,11 @@ export const findNearbyLadders = /* GraphQL */ `
         id
         matchType
         name
+        description
+        level {
+          min
+          max
+        }
         location {
           lat
           lon
@@ -185,6 +190,7 @@ export const searchPlayerMatches = /* GraphQL */ `
           id
           matchType
           name
+          description
           city
           zip
           createdAt
@@ -279,6 +285,7 @@ export const searchMatches = /* GraphQL */ `
           id
           matchType
           name
+          description
           city
           zip
           createdAt
@@ -334,6 +341,11 @@ export const searchLadders = /* GraphQL */ `
         id
         matchType
         name
+        description
+        level {
+          min
+          max
+        }
         location {
           lat
           lon
@@ -627,6 +639,7 @@ export const getPlayerMatch = /* GraphQL */ `
           id
           matchType
           name
+          description
           city
           zip
           createdAt
@@ -648,6 +661,11 @@ export const getPlayerMatch = /* GraphQL */ `
         id
         matchType
         name
+        description
+        level {
+          min
+          max
+        }
         location {
           lat
           lon
@@ -775,6 +793,7 @@ export const listPlayerMatches = /* GraphQL */ `
           id
           matchType
           name
+          description
           city
           zip
           createdAt
@@ -863,6 +882,11 @@ export const getMatch = /* GraphQL */ `
         id
         matchType
         name
+        description
+        level {
+          min
+          max
+        }
         location {
           lat
           lon
@@ -978,6 +1002,7 @@ export const listMatches = /* GraphQL */ `
           id
           matchType
           name
+          description
           city
           zip
           createdAt
@@ -1003,6 +1028,11 @@ export const getLadder = /* GraphQL */ `
       id
       matchType
       name
+      description
+      level {
+        min
+        max
+      }
       location {
         lat
         lon
@@ -1083,6 +1113,11 @@ export const listLadders = /* GraphQL */ `
         id
         matchType
         name
+        description
+        level {
+          min
+          max
+        }
         location {
           lat
           lon
@@ -1149,6 +1184,7 @@ export const getComment = /* GraphQL */ `
           id
           matchType
           name
+          description
           city
           zip
           createdAt
@@ -1327,6 +1363,11 @@ export const getLadderPlayer = /* GraphQL */ `
         id
         matchType
         name
+        description
+        level {
+          min
+          max
+        }
         location {
           lat
           lon
@@ -1378,6 +1419,7 @@ export const listLadderPlayers = /* GraphQL */ `
           id
           matchType
           name
+          description
           city
           zip
           createdAt
@@ -1529,6 +1571,7 @@ export const getPlayerMatchByPlayer = /* GraphQL */ `
           id
           matchType
           name
+          description
           city
           zip
           createdAt
@@ -1645,6 +1688,7 @@ export const getPlayerMatchByPlayerVs = /* GraphQL */ `
           id
           matchType
           name
+          description
           city
           zip
           createdAt
@@ -1761,6 +1805,7 @@ export const getPlayerMatchByPlayerWithPartner = /* GraphQL */ `
           id
           matchType
           name
+          description
           city
           zip
           createdAt
@@ -1877,6 +1922,7 @@ export const getPlayerMatchByPlayerDoublesOpponentPartner = /* GraphQL */ `
           id
           matchType
           name
+          description
           city
           zip
           createdAt
@@ -1991,6 +2037,7 @@ export const getPlayerMatchByMatchID = /* GraphQL */ `
           id
           matchType
           name
+          description
           city
           zip
           createdAt
@@ -2107,6 +2154,7 @@ export const getPlayerMatchByMatchType = /* GraphQL */ `
           id
           matchType
           name
+          description
           city
           zip
           createdAt
@@ -2223,6 +2271,7 @@ export const getPlayerMatchByLadder = /* GraphQL */ `
           id
           matchType
           name
+          description
           city
           zip
           createdAt
@@ -2302,6 +2351,7 @@ export const getMatchByDetails = /* GraphQL */ `
           id
           matchType
           name
+          description
           city
           zip
           createdAt
@@ -2377,6 +2427,7 @@ export const getMatchByLadderID = /* GraphQL */ `
           id
           matchType
           name
+          description
           city
           zip
           createdAt
