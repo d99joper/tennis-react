@@ -1,43 +1,40 @@
 import React, { useEffect, useState } from "react";
-import { ladderFunctions as lf } from "helpers";
+import { helpers, ladderFunctions as lf } from "helpers";
 import { createMap, createAmplifyGeocoder } from "maplibre-gl-js-amplify";
+import { Marker, Popup } from 'react-map-gl';
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "@maplibre/maplibre-gl-geocoder/dist/maplibre-gl-geocoder.css";
 import "maplibre-gl-js-amplify/dist/public/amplify-geocoder.css"; // Optional CSS for Amplify recommended styling
-import { MapView, Button, TabItem, Tabs, LocationSearch } from "@aws-amplify/ui-react";
+import { MapView, Button, Grid, TabItem, Tabs, LocationSearch, Collection } from "@aws-amplify/ui-react";
+import { ScaleControl, NavigationControl, GeolocateControl } from 'react-map-gl';
 import { Geo } from "aws-amplify"
 import { Link } from "react-router-dom";
-import { Grid, Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, TextField } from "@mui/material";
 import "./ladder.css"
+import MarkerWithPopup from "components/layout/MarkerWithPopup";
+import { ItemCard } from "components/forms";
 
 
 const LadderSearch = () => {
 
-    // const map = {}
+    const [{ latitude, longitude }, setMarkerLocation] = useState({
+        latitude: 40,
+        longitude: -100,
+    });
 
-    // async function initializeMap() {
-    //     const el = document.createElement("div");
-    //     el.setAttribute("id", "map");
-    //     document.body.appendChild(el);
+    const updateMarker = () =>
+        setMarkerLocation({ latitude: latitude + 5, longitude: longitude + 5 });
 
-    //     map = await createMap({
-    //         container: "map",
-    //         center: [-123.1187, 49.2819], // [Longitude, Latitude]
-    //         zoom: 11,
-    //     })
 
-    //     map.addControl(createAmplifyGeocoder());
-    // }
 
-    // initializeMap();
-
-    const [location, setLocation] = useState({ name: '', id: -1 })
-    const [places, setPlaces] = useState([])
     const SAN_FRANCISCO = {
         latitude: 37.774,
         longitude: -122.431,
     }
+    const [location, setLocation] = useState({ name: '', id: -1 })
+    const [mapCenter, setMapCenter] = useState({ SAN_FRANCISCO })
+    const [{ ladders, count }, setLadders] = useState({ ladders: [], count: 0 })
     const searchOptionsWithBiasPosition = {
         countries: ['USA'], // Alpha-3 country codes
         maxResults: 10, // 50 is the max and the default
@@ -51,6 +48,44 @@ const LadderSearch = () => {
         //searchIndexName:  the string name of the search index
     }
 
+    useEffect(() => {
+        console.log(ladders)
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(x => {
+                    setMapCenter({ latitude: x.coords.latitude, longitude: x.coords.longitude })
+                });
+            } else {
+                console.log("Geolocation is not supported by this browser. Set San Fran as default")
+            }
+        }
+        getLocation()
+    }, [])
+
+    function updateMarkers(e) {
+        const map = e.target
+        if (e.isSourceLoaded && !map._zooming) {
+            // console.log(e)
+            // console.log("_zooming", map._zooming)
+            // console.log("loaded", map.loaded())
+            // console.log("isZooming", map.isZooming())
+            //map.setZoom(12)
+            console.log(map.getCenter())
+            lf.FindNearByLadders(map.getCenter()).then(r => {
+                //console.log(r)
+                setLadders({ ladders: r.ladders, count: r.count })
+                r.ladders.forEach(ladder => {
+                    // const marker = new maplibregl.Marker({
+                    //     color: 'greem',
+                    //     draggable: true
+                    // }).setLngLat([ladder.location.lon + 1, ladder.location.lat + 1])
+                    //     .addTo(map)
+                    //console.log(marker)
+                })
+            })
+        }
+    }
+
     function handleSearch(e) {
         const searchText = e.target.value
         if (searchText.length <= 2) return
@@ -58,75 +93,94 @@ const LadderSearch = () => {
         Geo.searchByText(
             //Geo.searchForSuggestions(
             searchText,
-            searchOptionsWithBiasPosition).then((result) => {
-                let counter = 0;
-                console.log(result)
-                let ps = result.map((p) => {
-                    let place = {
-                        id: counter,
-                        name: p.label.substring(0, p.label.lastIndexOf(',')),
-                        point: { lon: p.geometry.point[0], lat: p.geometry.point[1] },
-                        zip: p.postalCode
-                    }
-                    counter++
-                    return place
-                })
-                console.log(ps)
-                setPlaces(ps)
-                // get list of places close to this 
-            }
-            )
+            searchOptionsWithBiasPosition
+        ).then((result) => {
+            let counter = 0;
+            console.log(result)
+            let ps = result.map((p) => {
+                let place = {
+                    id: counter,
+                    name: p.label.substring(0, p.label.lastIndexOf(',')),
+                    point: { lon: p.geometry.point[0], lat: p.geometry.point[1] },
+                    zip: p.postalCode
+                }
+                counter++
+                return place
+            })
+            console.log(ps)
+            setLadders(ps)
+            // get list of places close to this
+
+        })
     }
-
-    // useEffect(() => {
-    //     async function initializeMap() {
-    //         // const el = document.createElement("div");
-    //         // el.setAttribute("id", "map");
-    //         const container = await document.getElementById("mapcontainer")
-    //         if (container) {
-    //             //console.log(container)
-    //             //container.appendChild(el);
-    //             const map = await createMap({
-    //                 container: "mapcontainer",
-    //                 center: [-121.7512721677313, 38.55811189268456], // [Longitude, Latitude]
-    //                 zoom: 13,
-    //             })
-    //             //console.log(map)
-    //             map.addControl(createAmplifyGeocoder());
-    //         }
-    //         // const geocoder = createAmplifyGeocoder();
-    //         // document.getElementById("map").appendChild(geocoder.onAdd())
-    //     }
-
-    //     initializeMap();
-    // }, [])
-
 
     return (
         <>
             <Tabs defaultIndex={0}
                 justifyContent="flex-start">
                 <TabItem title="Map search">
-                    <div id="mapcontainer" >
-                        <MapView
-                            initialViewState={{
-                                latitude: 37.8,
-                                longitude: -122.4,
-                                zoom: 14,
-                                width: 100
-                            }}
-                        >
-                            <LocationSearch minLength='4' types={"locality"} countries='USA, SWE' showIcon='false' placeholder='City' />
-                        </MapView>
+                    <Grid templateColumns={'2fr auto'}>
 
-                    </div>
+                        <div className="collectionContainer">
+                            <Collection
+                                type="list"
+                                items={ladders}
+                                direction='column'
+                                justifyContent={'space-between'}
+                            >
+                                {(item, index) => (
+                                    <ItemCard
+                                        key={`${item.id}_list${index}`}
+                                        footer={`${item.players.length ?? 0} players`}
+                                        header={item.name ?? 'No ladder found'}
+                                        description={item.description ?? ''}
+                                        footerRight={`Level: ${helpers.intToFloat(item.level.min)}${item.level.max !== item.level.min ? '-'+helpers.intToFloat(item.level.max) :''}`}
+                                    />
+                                )}
+                            </Collection>
+                            <p>
+                                <span>
+                                    Can't find a suitable ladder?
+                                    <Link to="/ladders/new">
+                                        <Button>Create a new ladder</Button>
+                                    </Link>
+                                </span>
+                            </p>
+                        </div>
+                        <div id="mapContainer" className="mapContainer" >
+                            <MapView
+                                initialViewState={{
+                                    latitude: mapCenter.latitude,
+                                    longitude: mapCenter.longitude,
+                                    zoom: 10
+                                }}
+                                onSourceData={updateMarkers}
+                            >
+                                <GeolocateControl position="bottom-right" />
+                                <ScaleControl />
+                                <NavigationControl position="bottom-right" showCompass={false} />
+                                <LocationSearch minLength='4' types={"locality"} countries='USA, SWE' showIcon='false' placeholder='City' />
+
+                                {ladders.map(l => {
+                                    return (
+                                        <MarkerWithPopup
+                                            key={`${l.id}_marker`}
+                                            latitude={l.location.lat}
+                                            longitude={l.location.lon}
+                                            ladder={l}
+                                        />
+                                    )
+                                })}
+                            </MapView>
+                        </div>
+                    </Grid>
                 </TabItem>
                 <TabItem title="Text search">
                     <Grid>
                         <div className="form-group">
-                            <LocationSearch proximity={SAN_FRANCISCO} minLength='2' types={"locality"} countries='USA, SWE' showIcon='false' placeholder='City' />
+                            <LocationSearch proximity={mapCenter} minLength='2' types={"locality"} countries='USA, SWE' showIcon='false' placeholder='City' />
                         </div>
-                        <Autocomplete
+                        {/* <Autocomplete
                             id="city"
                             name="city"
                             required
@@ -141,14 +195,11 @@ const LadderSearch = () => {
                                     <TextField {...params} label="city" type="text" name="city" placeholder="City" onChange={handleSearch} required />
                                 </div>
                             )}
-                        />
+                        /> */}
                     </Grid>
                 </TabItem>
             </Tabs>
-            <div id="searchResults">
-                List results here
-            </div>
-            If you can't find a suitable ladder, you can <Link to="/ladders/new">create new ladder</Link>
+            
         </>
     )
 }

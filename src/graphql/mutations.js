@@ -402,6 +402,7 @@ export const createPlayerMatch = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -440,6 +441,15 @@ export const createPlayerMatch = /* GraphQL */ `
         }
         playerMatches {
           nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
         }
         createdAt
         updatedAt
@@ -612,6 +622,7 @@ export const updatePlayerMatch = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -650,6 +661,15 @@ export const updatePlayerMatch = /* GraphQL */ `
         }
         playerMatches {
           nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
         }
         createdAt
         updatedAt
@@ -822,6 +842,7 @@ export const deletePlayerMatch = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -860,6 +881,15 @@ export const deletePlayerMatch = /* GraphQL */ `
         }
         playerMatches {
           nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
         }
         createdAt
         updatedAt
@@ -967,6 +997,15 @@ export const createMatch = /* GraphQL */ `
         }
         playerMatches {
           nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
         }
         createdAt
         updatedAt
@@ -1102,6 +1141,15 @@ export const updateMatch = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
+        }
         createdAt
         updatedAt
       }
@@ -1236,6 +1284,15 @@ export const deleteMatch = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
+        }
         createdAt
         updatedAt
       }
@@ -1352,6 +1409,26 @@ export const createLadder = /* GraphQL */ `
         }
         nextToken
       }
+      standingsID
+      standings {
+        id
+        details
+        postedOn
+        ladderID
+        ladder {
+          id
+          matchType
+          name
+          description
+          city
+          zip
+          standingsID
+          createdAt
+          updatedAt
+        }
+        createdAt
+        updatedAt
+      }
       createdAt
       updatedAt
     }
@@ -1426,6 +1503,26 @@ export const updateLadder = /* GraphQL */ `
           playerPlayerMatchesId
         }
         nextToken
+      }
+      standingsID
+      standings {
+        id
+        details
+        postedOn
+        ladderID
+        ladder {
+          id
+          matchType
+          name
+          description
+          city
+          zip
+          standingsID
+          createdAt
+          updatedAt
+        }
+        createdAt
+        updatedAt
       }
       createdAt
       updatedAt
@@ -1502,6 +1599,179 @@ export const deleteLadder = /* GraphQL */ `
         }
         nextToken
       }
+      standingsID
+      standings {
+        id
+        details
+        postedOn
+        ladderID
+        ladder {
+          id
+          matchType
+          name
+          description
+          city
+          zip
+          standingsID
+          createdAt
+          updatedAt
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const createStandings = /* GraphQL */ `
+  mutation CreateStandings(
+    $input: CreateStandingsInput!
+    $condition: ModelStandingsConditionInput
+  ) {
+    createStandings(input: $input, condition: $condition) {
+      id
+      details
+      postedOn
+      ladderID
+      ladder {
+        id
+        matchType
+        name
+        description
+        level {
+          min
+          max
+        }
+        location {
+          lat
+          lon
+        }
+        city
+        zip
+        matches {
+          nextToken
+        }
+        players {
+          nextToken
+        }
+        playerMatches {
+          nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const updateStandings = /* GraphQL */ `
+  mutation UpdateStandings(
+    $input: UpdateStandingsInput!
+    $condition: ModelStandingsConditionInput
+  ) {
+    updateStandings(input: $input, condition: $condition) {
+      id
+      details
+      postedOn
+      ladderID
+      ladder {
+        id
+        matchType
+        name
+        description
+        level {
+          min
+          max
+        }
+        location {
+          lat
+          lon
+        }
+        city
+        zip
+        matches {
+          nextToken
+        }
+        players {
+          nextToken
+        }
+        playerMatches {
+          nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const deleteStandings = /* GraphQL */ `
+  mutation DeleteStandings(
+    $input: DeleteStandingsInput!
+    $condition: ModelStandingsConditionInput
+  ) {
+    deleteStandings(input: $input, condition: $condition) {
+      id
+      details
+      postedOn
+      ladderID
+      ladder {
+        id
+        matchType
+        name
+        description
+        level {
+          min
+          max
+        }
+        location {
+          lat
+          lon
+        }
+        city
+        zip
+        matches {
+          nextToken
+        }
+        players {
+          nextToken
+        }
+        playerMatches {
+          nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
+        }
+        createdAt
+        updatedAt
+      }
       createdAt
       updatedAt
     }
@@ -1557,6 +1827,7 @@ export const createComment = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -1654,6 +1925,7 @@ export const updateComment = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -1751,6 +2023,7 @@ export const deleteComment = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -1793,48 +2066,6 @@ export const deleteComment = /* GraphQL */ `
       }
       postedOn
       private
-      createdAt
-      updatedAt
-    }
-  }
-`;
-export const createStandings = /* GraphQL */ `
-  mutation CreateStandings(
-    $input: CreateStandingsInput!
-    $condition: ModelStandingsConditionInput
-  ) {
-    createStandings(input: $input, condition: $condition) {
-      id
-      details
-      postedOn
-      createdAt
-      updatedAt
-    }
-  }
-`;
-export const updateStandings = /* GraphQL */ `
-  mutation UpdateStandings(
-    $input: UpdateStandingsInput!
-    $condition: ModelStandingsConditionInput
-  ) {
-    updateStandings(input: $input, condition: $condition) {
-      id
-      details
-      postedOn
-      createdAt
-      updatedAt
-    }
-  }
-`;
-export const deleteStandings = /* GraphQL */ `
-  mutation DeleteStandings(
-    $input: DeleteStandingsInput!
-    $condition: ModelStandingsConditionInput
-  ) {
-    deleteStandings(input: $input, condition: $condition) {
-      id
-      details
-      postedOn
       createdAt
       updatedAt
     }
@@ -1897,6 +2128,15 @@ export const createLadderPlayer = /* GraphQL */ `
         }
         playerMatches {
           nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
         }
         createdAt
         updatedAt
@@ -1964,6 +2204,15 @@ export const updateLadderPlayer = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
+        }
         createdAt
         updatedAt
       }
@@ -2029,6 +2278,15 @@ export const deleteLadderPlayer = /* GraphQL */ `
         }
         playerMatches {
           nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
         }
         createdAt
         updatedAt

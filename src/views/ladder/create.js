@@ -9,9 +9,12 @@ import { Button, Flex, Grid, LocationSearch } from "@aws-amplify/ui-react";
 import "./ladder.css"
 import { Geo } from "aws-amplify"
 import { useState } from "react";
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, TextField, Slider } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const LadderCreate = () => {
+
+    let navigate = useNavigate()
 
     useEffect(() => {
 
@@ -19,7 +22,15 @@ const LadderCreate = () => {
     console.log("Ladder Create")
 
     const [location, setLocation] = useState({ name: '', id: -1 })
-    const [places, setPlaces] = useState([])
+    const [places, setPlaces] = useState()
+    const [level, setLevel] = useState([2.0, 6.5])
+    const levelMarks = [
+        {value: 2, label: '2.0'}, {value: 2.5, label: '2.5'},
+        {value: 3, label: '3.0'}, {value: 3.5, label: '3.5'},
+        {value: 4, label: '4.0'}, {value: 4.5, label: '4.5'},
+        {value: 5, label: '5.0'}, {value: 5.5, label: '5.5'},
+        {value: 6, label: '6.0'}, {value: 6.5, label: '6.5'}]
+
     // const geocoder = createAmplifyGeocoder();
     // document.getElementById("search").appendChild(geocoder.onAdd());
 
@@ -77,14 +88,18 @@ const LadderCreate = () => {
         const ladder = {
             name: form.get("name"),
             city: location.name,
+            description: form.get("description"),
+            level: {min: level[0], max: level[1]},
             location: location.point,
             zip: location.zip,
             matchType: form.get("matchType")
-        };
+        }
         console.log(ladder)
         //ask to confirm
         if (window.confirm("Are you sure you want to create this ladder?"))
-            lf.CreateLadder(ladder)
+            lf.CreateLadder(ladder).then((id) => {
+                navigate('/ladders/'+id)
+            })
     }
 
     function createOtherLadder() {
@@ -99,10 +114,11 @@ const LadderCreate = () => {
         // )
     }
 
-    const SAN_FRANCISCO = {
-        latitude: 37.774,
-        longitude: -122.431,
+    function handleChange(event, numbers) {
+        console.log(numbers)
+        setLevel(numbers)
     }
+
     return (
         <>
             Create a new ladder
@@ -111,11 +127,26 @@ const LadderCreate = () => {
                 onSubmit={onCreate}
             >
                 <div className="form-group">
-                    <LocationSearch minLength='2' types={"locality"} countries='USA, SWE' showIcon='false' placeholder='City' />
+                    {/* <label for="name">Name:</label> */}
+                    <input type="text" name="name" placeholder="Name" required />
                 </div>
                 <div className="form-group">
                     {/* <label for="name">Name:</label> */}
-                    <input type="text" name="name" placeholder="Name" required />
+                    <input type="text" name="description" placeholder="Description" required />
+                </div>
+                <div className="form-group">
+                    <Slider
+                        getAriaLabel={()=>'Level'}
+                        label="Level"
+                        min={2}  
+                        max={6.5}  
+                        step={0.5}
+                        value={level}
+                        onChange={handleChange}
+                        disableSwap
+                        marks={levelMarks}
+                        valueLabelDisplay="auto"
+                    />
                 </div>
                 <div className="form-group">
                     <Autocomplete
@@ -136,7 +167,7 @@ const LadderCreate = () => {
                     />
                 </div>
                 <div className="form-group">
-                    <label>Name:</label>
+                    <label>Type:</label>
                     <select name="matchType" id="matchType">
                         <option value="SINGLES">Singles</option>
                         <option value="DOUBLES">Doubles</option>
@@ -147,7 +178,7 @@ const LadderCreate = () => {
                 </Button>
             </Grid>
 
-            <Button onClick={createOtherLadder}>Create Other Ladder</Button>
+            {/* <Button onClick={createOtherLadder}>Create Other Ladder</Button> */}
         </>
     )
 }
