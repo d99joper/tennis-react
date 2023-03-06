@@ -1,14 +1,16 @@
 import { API } from 'aws-amplify';
-import { listLadders, getLadder } from "../graphql/queries";
+import { listLadders, getLadder, findNearbyLadders } from "../graphql/queries";
 import { listLadderPlayersAsObjects, listOtherPlayersAsObjects } from "../graphql/customQueries";
 import {
     createLadder as createLadderMutation,
     updateLadder as updateLadderMutation,
     deleteLadder as deleteLadderMutation,
-    createLadderPlayer
+    createLadderPlayer,
+    createStandings
 } from "../graphql/mutations";
 import { useEffect, useState } from 'react';
 import { responsiveFontSizes } from '@mui/material';
+import { helpers } from './helpers';
 
 const ladderFunctions = {
 
@@ -83,34 +85,45 @@ const ladderFunctions = {
     },
 
     CreateLadder: async function (ladder) {
-        console.log('createLadder', ladder);
+        
+        const ladderId = helpers.getGUID()
+        const standingsID = `cur#${ladderId}`
 
         const loadData = {
+            id: ladderId,
             name: ladder.name,
             matchType: ladder.matchType,
-            ...ladder.description ? {description: ladder.description} :null,
-            ...ladder.level ? {level: ladder.level} :null,
-            ...ladder.id ? {id: ladder.id} :null,
-            ... ladder.location ? {
-                location: ladder.location, 
-                // lon: ladder.location.lon,
-                // lat: ladder.location.lat,
-                // geoIndexAnchor: 1
-            } :null,
-            ... ladder.city ? {city: ladder.city} :null,
-            ... ladder.zip ? {zip: ladder.zip} :null
-        };
+            ...ladder.description ? { description: ladder.description } : null,
+            ...ladder.level ? { level: ladder.level } : null,
+            ...ladder.id ? { id: ladder.id } : null,
+            ...ladder.location ? {
+                location: ladder.location,
+            } : null,
+            ...ladder.city ? { city: ladder.city } : null,
+            ...ladder.zip ? { zip: ladder.zip } : null,
+            standingsID: `cur#${ladderId}`
+        }
 
-        console.log(loadData);
+        //console.log(loadData);
 
         try {
-            API.graphql({
+            const result = await API.graphql({
                 query: createLadderMutation,
                 variables: { input: loadData },
-            }).then((result) => {
-                console.log('New ladder created', result);
-                return result;
-            }).catch((e) => { console.log(e) });
+            })
+            console.log('New ladder created', result, ladderId)
+            // next, create an empty standings
+            API.graphql({
+                query: createStandings,
+                variables: { input: {
+                    id: standingsID, 
+                    details: "{}", 
+                    postedOn: new Date().toISOString(),
+                    ladderID: ladderId
+                }}
+            })
+            return ladderId;
+            //}).catch((e) => { console.log(e) });
         }
         catch (e) {
             console.error("failed to create a ladder", e);
@@ -134,6 +147,7 @@ const ladderFunctions = {
     },
 
     GetLadder: async function (id) {
+        console.log(id)
         try {
             const apiData = await API.graphql({
                 query: getLadder,
@@ -166,7 +180,7 @@ const ladderFunctions = {
             if (result.length > 0) {
                 let retVal = { ladder: { name: 'Other *', id: -1 }, players: new Array(result.length) }
                 result.forEach((item, i) => {
-                    retVal.players[i] = {id: item.id, name: item.name}
+                    retVal.players[i] = { id: item.id, name: item.name }
                 })
                 return retVal
             }
@@ -175,6 +189,32 @@ const ladderFunctions = {
         catch (e) {
             console.log("GetLadderPlayersForOther", e)
             return
+        }
+    },
+
+    FindNearByLadders: async function (location, radius = 20, excludeList = ['-1']) {
+        try {
+            const result = await API.graphql({
+                query: findNearbyLadders,
+                variables: {
+                    input: {byLocation: {
+                        point: {
+                            lon: location.lng,
+                            lat: location.lat
+                        },
+                        radius: radius
+                    }},
+                    limit: 10
+                }
+            })
+            const ladders = result.data.findNearbyLadders.items
+            const filteredLadders = ladders.filter(x => !excludeList.includes(x.id))
+            
+            return {ladders: filteredLadders, count: result.data.findNearbyLadders.total }
+        }
+        catch (e) {
+            console.log(e)
+            return { error: e }
         }
     },
 

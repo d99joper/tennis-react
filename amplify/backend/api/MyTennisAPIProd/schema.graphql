@@ -102,7 +102,51 @@ type Ladder @model @searchable {
   matches: [Match!] @hasMany(indexName: "matchByLadderID", fields: ["id"])
   players: [Player!] @manyToMany(relationName: "ladderPlayer")
   playerMatches: [PlayerMatch] @hasMany(indexName: "playerMatchByLadder", fields: ["id"])
+  standingsID: ID
+  standings: Standings @hasOne(fields: ["standingsID"])
 }
+
+type Standings @model {
+  id: ID! @primaryKey # set id #cur#ladderId for current and #old#ladderId for older
+  details: AWSJSON # details will be a position with a player object name/wins/losses 
+  postedOn: AWSDateTime!
+  ladderID: ID! @index(name: "ladderStandings", queryField: "standingsByLadder", sortKeyFields:["postedOn"])
+  ladder: Ladder @belongsTo(fields: ["ladderID"]) 
+}
+# type Standings @model {
+#   id: ID! @primaryKey
+#   playerID: ID! @index(name: "byPlayerID", queryField: "getStandingsByPlayerID", sortKeyFields: ["ladderID","isCurrent"])
+#   player: Player! @hasOne
+#   ladderID: ID! @index(name: "byLadderID", queryField: "getStandingsByLadderID", sortKeyFields: ["isCurrent"])
+#   ladder: Ladder! @hasOne
+#   wins: Int! @default(value: "0")
+#   losses: Int! @default(value: "0")
+#   points: Int! @default(value: "0")
+#   position: Int! @default(value: "0")
+#   isCurrent: String! @default(value: "true")
+# }
+
+type Comment @model {
+  id: ID! @primaryKey
+  matchID: ID! @index(name: "byMatch", queryField: "getCommentsByMatch", sortKeyFields: ["postedOn"])
+  match: Match @belongsTo(fields: ["matchID"])
+  content: String!
+  postedByID: ID! @index(name: "byPlayer", queryField: "getCommentsByPlayer", sortKeyFields: ["postedOn"])
+  postedBy: Player @belongsTo(fields: ["postedByID"]) 
+  postedOn: AWSDate! 
+  private: Boolean @default(value: "true")
+}
+
+enum matchType {
+  SINGLES,
+  DOUBLES
+}
+
+type Location {   
+  lat: Float!   
+  lon: Float! 
+}
+
 type LevelInterval {
   min: Float
   max: Float
@@ -131,43 +175,4 @@ type SearchableLadderConnection #@aws_iam @aws_cognito_user_pools
   items: [Ladder]
   nextToken: String
   total: Int
-}
-
-type Comment @model {
-  id: ID! @primaryKey
-  matchID: ID! @index(name: "byMatch", queryField: "getCommentsByMatch", sortKeyFields: ["postedOn"])
-  match: Match @belongsTo(fields: ["matchID"])
-  content: String!
-  postedByID: ID! @index(name: "byPlayer", queryField: "getCommentsByPlayer", sortKeyFields: ["postedOn"])
-  postedBy: Player @belongsTo(fields: ["postedByID"]) 
-  postedOn: AWSDate! 
-  private: Boolean @default(value: "true")
-}
-
-# type Standings @model {
-#   id: ID! @primaryKey
-#   playerID: ID! @index(name: "byPlayerID", queryField: "getStandingsByPlayerID", sortKeyFields: ["ladderID","isCurrent"])
-#   player: Player! @hasOne
-#   ladderID: ID! @index(name: "byLadderID", queryField: "getStandingsByLadderID", sortKeyFields: ["isCurrent"])
-#   ladder: Ladder! @hasOne
-#   wins: Int! @default(value: "0")
-#   losses: Int! @default(value: "0")
-#   points: Int! @default(value: "0")
-#   position: Int! @default(value: "0")
-#   isCurrent: String! @default(value: "true")
-# }
-type Standings @model {
-  id: ID! @primaryKey(sortKeyFields: ["postedOn"]) # set id #cur#ladderId for current and #old#ladderId for older
-  details: AWSJSON # details will be a position with a player object name/wins/losses 
-  postedOn: AWSDateTime!
-}
-
-enum matchType {
-  SINGLES,
-  DOUBLES
-}
-
-type Location {   
-  lat: Float!   
-  lon: Float! 
 }

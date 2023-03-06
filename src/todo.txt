@@ -9,7 +9,7 @@ Overall design
 
 Search page
     [ ] Add to menu
-    [ ] Searches for different categories (ladder, players, locations?)
+    [ ] Searches for different categories (ladder name/location/level, players name/location/level)
 
 Profile page
     [ ] Style and clean up
@@ -26,17 +26,19 @@ Profile page
         [x] H2H component
         [x] Greatest rivals 
 
-Ladders page
+Ladders search page
     [ ] Display (5) ladders near you 
-    [ ] Search available ladders
+    [x] Search available ladders
+    
+Ladder Create page   
     [ ] Create a ladder 
-        [ ] Create
+        [x] Create
         [ ] Check if already exists and give suggestion
         [ ] Invite players (suggest close by by geo)
         [ ] Doubles or singels
     [x] Add to menu
 
-Ladder page
+Ladder view page
     [ ] Join ladder
     [ ] View ladder players
     [ ] Add match

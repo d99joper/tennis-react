@@ -11,12 +11,14 @@ import PhoneNumber from './PhoneNumber/PhoneNumber'
 import UserStats from './Stats/UserStats'
 import LadderStats from './Stats/LadderStats'
 import TopRivals from './Rivals/TopRivals'
+import ItemCard from './Cards/ItemCard'
 
 export {
     Comments, 
     DynamicTable,
     Editable, 
     H2H,
+    ItemCard,
     Ladder, 
     Ladders, 
     LadderStats,

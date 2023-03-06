@@ -14,6 +14,7 @@ const Matches = ({
     startDate,
     endDate = new Date(),
     ladder,
+    ladderMatches,
     showHeader = true,
     displayAs = enums.DISPLAY_MODE.Table,
     allowAdd = true,
@@ -40,13 +41,25 @@ const Matches = ({
     useEffect(() => {
         if(!dataIsFetched)
             //mf.listMatches(player, ladder, startDate, endDate).then((data) => {
-            mf.getMatchesForPlayer(player, ladder, startDate, endDate, null, 10, null).then((data) => {
+            if(player)
+                mf.getMatchesForPlayer(player, ladder, startDate, endDate, null, 10, null).then((data) => {
+                    setMatches(data.matches)
+                    setNextToken(data.nextToken)
+                    setDataIsFetched(true)
+                })
+            
+            if(ladderMatches) {
+                setMatches(ladderMatches)
+                setDataIsFetched(true)
+            }
+            else if(ladder)
+            mf.getMatchesForLadder(ladder.id).then((data) => {
                 setMatches(data.matches)
                 setNextToken(data.nextToken)
                 setDataIsFetched(true)
             })
 
-    }, [])
+    }, [dataIsFetched, endDate, ladder, ladderMatches, player, startDate])
 
     function addMatches(e) {
         mf.getMatchesForPlayer(player, ladder, startDate, endDate, null, 10, nextToken).then((data) => {

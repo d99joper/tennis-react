@@ -28,6 +28,15 @@ export const findNearbyLadders = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
+        }
         createdAt
         updatedAt
       }
@@ -193,6 +202,7 @@ export const searchPlayerMatches = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -288,6 +298,7 @@ export const searchMatches = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -360,6 +371,15 @@ export const searchLadders = /* GraphQL */ `
         }
         playerMatches {
           nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
         }
         createdAt
         updatedAt
@@ -642,6 +662,7 @@ export const getPlayerMatch = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -680,6 +701,15 @@ export const getPlayerMatch = /* GraphQL */ `
         }
         playerMatches {
           nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
         }
         createdAt
         updatedAt
@@ -796,6 +826,7 @@ export const listPlayerMatches = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -902,6 +933,15 @@ export const getMatch = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
+        }
         createdAt
         updatedAt
       }
@@ -1005,6 +1045,7 @@ export const listMatches = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -1089,6 +1130,26 @@ export const getLadder = /* GraphQL */ `
         }
         nextToken
       }
+      standingsID
+      standings {
+        id
+        details
+        postedOn
+        ladderID
+        ladder {
+          id
+          matchType
+          name
+          description
+          city
+          zip
+          standingsID
+          createdAt
+          updatedAt
+        }
+        createdAt
+        updatedAt
+      }
       createdAt
       updatedAt
     }
@@ -1132,6 +1193,101 @@ export const listLadders = /* GraphQL */ `
         }
         playerMatches {
           nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
+        }
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;
+export const getStandings = /* GraphQL */ `
+  query GetStandings($id: ID!) {
+    getStandings(id: $id) {
+      id
+      details
+      postedOn
+      ladderID
+      ladder {
+        id
+        matchType
+        name
+        description
+        level {
+          min
+          max
+        }
+        location {
+          lat
+          lon
+        }
+        city
+        zip
+        matches {
+          nextToken
+        }
+        players {
+          nextToken
+        }
+        playerMatches {
+          nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const listStandings = /* GraphQL */ `
+  query ListStandings(
+    $id: ID
+    $filter: ModelStandingsFilterInput
+    $limit: Int
+    $nextToken: String
+    $sortDirection: ModelSortDirection
+  ) {
+    listStandings(
+      id: $id
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
+      items {
+        id
+        details
+        postedOn
+        ladderID
+        ladder {
+          id
+          matchType
+          name
+          description
+          city
+          zip
+          standingsID
+          createdAt
+          updatedAt
         }
         createdAt
         updatedAt
@@ -1187,6 +1343,7 @@ export const getComment = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -1289,45 +1446,6 @@ export const listComments = /* GraphQL */ `
     }
   }
 `;
-export const getStandings = /* GraphQL */ `
-  query GetStandings($id: ID!, $postedOn: AWSDateTime!) {
-    getStandings(id: $id, postedOn: $postedOn) {
-      id
-      details
-      postedOn
-      createdAt
-      updatedAt
-    }
-  }
-`;
-export const listStandings = /* GraphQL */ `
-  query ListStandings(
-    $id: ID
-    $postedOn: ModelStringKeyConditionInput
-    $filter: ModelStandingsFilterInput
-    $limit: Int
-    $nextToken: String
-    $sortDirection: ModelSortDirection
-  ) {
-    listStandings(
-      id: $id
-      postedOn: $postedOn
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      sortDirection: $sortDirection
-    ) {
-      items {
-        id
-        details
-        postedOn
-        createdAt
-        updatedAt
-      }
-      nextToken
-    }
-  }
-`;
 export const getLadderPlayer = /* GraphQL */ `
   query GetLadderPlayer($id: ID!) {
     getLadderPlayer(id: $id) {
@@ -1383,6 +1501,15 @@ export const getLadderPlayer = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
+        }
         createdAt
         updatedAt
       }
@@ -1422,6 +1549,7 @@ export const listLadderPlayers = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -1574,6 +1702,7 @@ export const getPlayerMatchByPlayer = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -1691,6 +1820,7 @@ export const getPlayerMatchByPlayerVs = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -1808,6 +1938,7 @@ export const getPlayerMatchByPlayerWithPartner = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -1925,6 +2056,7 @@ export const getPlayerMatchByPlayerDoublesOpponentPartner = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -2040,6 +2172,7 @@ export const getPlayerMatchByMatchID = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -2157,6 +2290,7 @@ export const getPlayerMatchByMatchType = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -2274,6 +2408,7 @@ export const getPlayerMatchByLadder = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -2354,6 +2489,7 @@ export const getMatchByDetails = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -2430,6 +2566,7 @@ export const getMatchByLadderID = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -2442,6 +2579,46 @@ export const getMatchByLadderID = /* GraphQL */ `
         createdAt
         updatedAt
         playerMatchesId
+      }
+      nextToken
+    }
+  }
+`;
+export const standingsByLadder = /* GraphQL */ `
+  query StandingsByLadder(
+    $ladderID: ID!
+    $postedOn: ModelStringKeyConditionInput
+    $sortDirection: ModelSortDirection
+    $filter: ModelStandingsFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    standingsByLadder(
+      ladderID: $ladderID
+      postedOn: $postedOn
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        details
+        postedOn
+        ladderID
+        ladder {
+          id
+          matchType
+          name
+          description
+          city
+          zip
+          standingsID
+          createdAt
+          updatedAt
+        }
+        createdAt
+        updatedAt
       }
       nextToken
     }

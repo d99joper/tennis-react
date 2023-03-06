@@ -392,6 +392,7 @@ export const onCreatePlayerMatch = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -430,6 +431,15 @@ export const onCreatePlayerMatch = /* GraphQL */ `
         }
         playerMatches {
           nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
         }
         createdAt
         updatedAt
@@ -601,6 +611,7 @@ export const onUpdatePlayerMatch = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -639,6 +650,15 @@ export const onUpdatePlayerMatch = /* GraphQL */ `
         }
         playerMatches {
           nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
         }
         createdAt
         updatedAt
@@ -810,6 +830,7 @@ export const onDeletePlayerMatch = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -848,6 +869,15 @@ export const onDeletePlayerMatch = /* GraphQL */ `
         }
         playerMatches {
           nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
         }
         createdAt
         updatedAt
@@ -952,6 +982,15 @@ export const onCreateMatch = /* GraphQL */ `
         }
         playerMatches {
           nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
         }
         createdAt
         updatedAt
@@ -1084,6 +1123,15 @@ export const onUpdateMatch = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
+        }
         createdAt
         updatedAt
       }
@@ -1215,6 +1263,15 @@ export const onDeleteMatch = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
+        }
         createdAt
         updatedAt
       }
@@ -1328,6 +1385,26 @@ export const onCreateLadder = /* GraphQL */ `
         }
         nextToken
       }
+      standingsID
+      standings {
+        id
+        details
+        postedOn
+        ladderID
+        ladder {
+          id
+          matchType
+          name
+          description
+          city
+          zip
+          standingsID
+          createdAt
+          updatedAt
+        }
+        createdAt
+        updatedAt
+      }
       createdAt
       updatedAt
     }
@@ -1399,6 +1476,26 @@ export const onUpdateLadder = /* GraphQL */ `
           playerPlayerMatchesId
         }
         nextToken
+      }
+      standingsID
+      standings {
+        id
+        details
+        postedOn
+        ladderID
+        ladder {
+          id
+          matchType
+          name
+          description
+          city
+          zip
+          standingsID
+          createdAt
+          updatedAt
+        }
+        createdAt
+        updatedAt
       }
       createdAt
       updatedAt
@@ -1472,6 +1569,176 @@ export const onDeleteLadder = /* GraphQL */ `
         }
         nextToken
       }
+      standingsID
+      standings {
+        id
+        details
+        postedOn
+        ladderID
+        ladder {
+          id
+          matchType
+          name
+          description
+          city
+          zip
+          standingsID
+          createdAt
+          updatedAt
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onCreateStandings = /* GraphQL */ `
+  subscription OnCreateStandings(
+    $filter: ModelSubscriptionStandingsFilterInput
+  ) {
+    onCreateStandings(filter: $filter) {
+      id
+      details
+      postedOn
+      ladderID
+      ladder {
+        id
+        matchType
+        name
+        description
+        level {
+          min
+          max
+        }
+        location {
+          lat
+          lon
+        }
+        city
+        zip
+        matches {
+          nextToken
+        }
+        players {
+          nextToken
+        }
+        playerMatches {
+          nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onUpdateStandings = /* GraphQL */ `
+  subscription OnUpdateStandings(
+    $filter: ModelSubscriptionStandingsFilterInput
+  ) {
+    onUpdateStandings(filter: $filter) {
+      id
+      details
+      postedOn
+      ladderID
+      ladder {
+        id
+        matchType
+        name
+        description
+        level {
+          min
+          max
+        }
+        location {
+          lat
+          lon
+        }
+        city
+        zip
+        matches {
+          nextToken
+        }
+        players {
+          nextToken
+        }
+        playerMatches {
+          nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onDeleteStandings = /* GraphQL */ `
+  subscription OnDeleteStandings(
+    $filter: ModelSubscriptionStandingsFilterInput
+  ) {
+    onDeleteStandings(filter: $filter) {
+      id
+      details
+      postedOn
+      ladderID
+      ladder {
+        id
+        matchType
+        name
+        description
+        level {
+          min
+          max
+        }
+        location {
+          lat
+          lon
+        }
+        city
+        zip
+        matches {
+          nextToken
+        }
+        players {
+          nextToken
+        }
+        playerMatches {
+          nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
+        }
+        createdAt
+        updatedAt
+      }
       createdAt
       updatedAt
     }
@@ -1524,6 +1791,7 @@ export const onCreateComment = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -1618,6 +1886,7 @@ export const onUpdateComment = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -1712,6 +1981,7 @@ export const onDeleteComment = /* GraphQL */ `
           description
           city
           zip
+          standingsID
           createdAt
           updatedAt
         }
@@ -1754,45 +2024,6 @@ export const onDeleteComment = /* GraphQL */ `
       }
       postedOn
       private
-      createdAt
-      updatedAt
-    }
-  }
-`;
-export const onCreateStandings = /* GraphQL */ `
-  subscription OnCreateStandings(
-    $filter: ModelSubscriptionStandingsFilterInput
-  ) {
-    onCreateStandings(filter: $filter) {
-      id
-      details
-      postedOn
-      createdAt
-      updatedAt
-    }
-  }
-`;
-export const onUpdateStandings = /* GraphQL */ `
-  subscription OnUpdateStandings(
-    $filter: ModelSubscriptionStandingsFilterInput
-  ) {
-    onUpdateStandings(filter: $filter) {
-      id
-      details
-      postedOn
-      createdAt
-      updatedAt
-    }
-  }
-`;
-export const onDeleteStandings = /* GraphQL */ `
-  subscription OnDeleteStandings(
-    $filter: ModelSubscriptionStandingsFilterInput
-  ) {
-    onDeleteStandings(filter: $filter) {
-      id
-      details
-      postedOn
       createdAt
       updatedAt
     }
@@ -1854,6 +2085,15 @@ export const onCreateLadderPlayer = /* GraphQL */ `
         }
         playerMatches {
           nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
         }
         createdAt
         updatedAt
@@ -1920,6 +2160,15 @@ export const onUpdateLadderPlayer = /* GraphQL */ `
         playerMatches {
           nextToken
         }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
+        }
         createdAt
         updatedAt
       }
@@ -1984,6 +2233,15 @@ export const onDeleteLadderPlayer = /* GraphQL */ `
         }
         playerMatches {
           nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
         }
         createdAt
         updatedAt

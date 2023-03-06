@@ -9,10 +9,19 @@
     border-radius:10px;
   }
    */
-  .mapcontainer {
-    background-color: aquamarine;
+  .mapContainer {
+    background-color: rgb(105, 105, 105);
+    height: 400px;
+    width: 650px;
+    padding: 2px;
   }
 
   .maplibregl-map, .mapboxgl-map {
     max-width: 100%;
+    max-height: 100%;
+  }
+
+  .collectionContainer {
+    width: 300px;
+    padding: 1rem;
   }
