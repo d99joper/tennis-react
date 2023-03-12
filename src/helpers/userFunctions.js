@@ -194,6 +194,14 @@ const userFunctions = {
         }
     },
 
+    GetPlayers: async function() {
+        const playersAPI = await API.graphql({
+            query: listPlayers
+        })
+
+        return playersAPI.data.listPlayers.items;
+    },
+
     getPlayers: async function () {
         try {
             const players = await DataStore.query(Player);

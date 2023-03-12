@@ -17,7 +17,7 @@ type Player @model @searchable
   verified: Boolean! @default(value: "false")
   playerMatches: [PlayerMatch!] @hasMany
   matches: [Match] @hasMany
-  ladders: [Ladder!] @manyToMany(relationName: "ladderPlayer")
+  ladders: [Ladder!] @manyToMany(relationName: "ladderPlayer", limit: 1000)
   comments: [Comment!] @hasMany(indexName: "byPlayer", fields: ["id"])
 }
 
