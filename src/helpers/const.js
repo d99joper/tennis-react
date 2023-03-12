@@ -11,5 +11,10 @@ export const enums = {
         Inline: 'inline',
         Card: 'card',
         Table: 'table'
+    },
+
+    STANDINGS_ID: {
+        Current: 'cur',
+        Old: 'old'
     }
 }

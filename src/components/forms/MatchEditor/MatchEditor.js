@@ -14,7 +14,7 @@ import { GrCircleInformation } from 'react-icons/gr'
 
 //import { Dayjs } from 'dayjs';
 
-const MatchEditor = ({ player, onSubmit, ...props }) => {
+const MatchEditor = ({ player, onSubmit, isAdmin, minDate, ...props }) => {
     // Initialize the state for the player names and the selected match format
     const [playedOn, setPlayedOn] = useState(null);
     const [winner, setWinner] = useState(player)
@@ -41,32 +41,51 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
     const playerLadders = lf.usePlayerLadders(player.id)
     //https://stackoverflow.com/questions/40811535/delay-suggestion-time-in-mui-autocomplete
     const ladderPlayers = lf.useLadderPlayersData(ladderId, searchInput)
-    
+
     const handleSubmit = (event) => {
         event.preventDefault();
 
         // Create an object with the match result data
-        const match = {
+        let match = {
             winner,
             loser,
             score,
+            type: 'SINGLES',
             playedOn: playedOn,
-            comment: {
+            ladderID: ladderId,
+            retired: retired
+        }
+
+        if(comment.length > 0) {
+            const matchComment = {
                 content: comment,
                 postedByID: player.id,
                 private: true,
-                postedOn: helpers.formatAWSDate(Date.now) 
-            },
-            ladderID: ladderId,
-            retired: retired
+                postedOn: helpers.formatAWSDate(Date.now)
+            }
+            match.comment = matchComment
         }
 
         mf.createMatch(match).then((result) => {
             // Call the onSubmit prop and pass the result object
             console.log(result)
-            onSubmit(result);
+            onSubmit(result)
+            resetForm()
         })
 
+    }
+
+    function resetForm() {
+        setSet1('')
+        setSet2('')
+        setSet3('')
+        setSet4('')
+        setSet5('')
+        setLoser({ name: '' })
+        setWinner(player)
+        setComment('')
+        setPlayedOn(null)
+        setLadderId(props.ladderId || 0)
     }
 
     const handleWinnerRadio = (e) => {
@@ -108,21 +127,25 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
 
     return (
         <form onSubmit={handleSubmit}>
-            <RadioGroupField
-                label="Did you win?"
-                direction={'row'}
-                name="isWinner"
-                value={isWinner}
-                onChange={handleWinnerRadio}>
-                <Radio value={true} checked={isWinner}>Yes</Radio>
-                <Radio value={false}>No</Radio>
-            </RadioGroupField>
-            {!isWinner &&
-                <div className="error" style={{ display: 'block', width: '300px', overflowX: 'visible' }}>
-                    Warning: Winner is supposed to report the score.
-                    You can report it, but make sure your opponent isn't planning on reporting it as well,
-                    to prevent duplicate scores.
-                </div>
+            {!isAdmin &&
+                <>
+                    <RadioGroupField
+                        label="Did you win?"
+                        direction={'row'}
+                        name="isWinner"
+                        value={isWinner}
+                        onChange={handleWinnerRadio}>
+                        <Radio value={true} checked={isWinner}>Yes</Radio>
+                        <Radio value={false}>No</Radio>
+                    </RadioGroupField>
+                    {!isWinner &&
+                        <div className="error" style={{ display: 'block', width: '300px', overflowX: 'visible' }}>
+                            Warning: Winner is supposed to report the score.
+                            You can report it, but make sure your opponent isn't planning on reporting it as well,
+                            to prevent duplicate scores.
+                        </div>
+                    }
+                </>
             }
             <Flex direction={'column'} gap="1" marginTop={'1em'}>
                 <Flex direction={'row'} className={'mediaFlex'}>
@@ -134,6 +157,7 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
                                 labelId='select-ladders-label'
                                 label="My Ladders"
                                 id="ladder-select"
+                                required
                                 value={ladderId}
                                 onChange={(e) => { setLadderId(e.target.value) }}>
                                 {playerLadders?.map(option => {
@@ -145,8 +169,8 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
                             </Select>
                             {ladderId === '-1' ?
                                 <Text fontSize=".75em" variation="info" fontWeight={'100'}>
-                                    <GrCircleInformation /> 
-                                    Use 'Other' for matches you want to track, 
+                                    <GrCircleInformation />
+                                    Use 'Other' for matches you want to track,
                                     but that are not part of a Tennis Space ladder.
                                 </Text>
                                 : null
@@ -160,11 +184,12 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
                         <DatePicker
                             label="Match played date"
                             required
+                            minDate={minDate}
                             value={playedOn}
                             onChange={(newValue) => {
                                 setPlayedOn(newValue);
                             }}
-                            renderInput={(params) => <TextField {...params} sx={{ width: 200 }} />}
+                            renderInput={(params) => <TextField required {...params} sx={{ width: 200 }} />}
                         />
                     </LocalizationProvider>
                 </Flex>
@@ -176,14 +201,14 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
                         required
                         options={!ladderPlayers ? [{ name: 'Loading...', id: -1 }] : ladderPlayers.players}
                         disableClearable={isWinner}
-                        disabled={isWinner}
+                        disabled={isWinner && !isAdmin}
                         getOptionDisabled={(option) => option.id === loser.id}
                         autoSelect={true}
                         onChange={(e, value) => { setWinner(value) }}
                         getOptionLabel={option => option.name}
                         value={winner}
                         sx={{ width: 300 }}
-                        renderInput={(params) => <TextField {...params} label="Winner" />}
+                        renderInput={(params) => <TextField required {...params} label="Winner" />}
                     />
                     {/* 'A last option, for instance: Add "YOUR SEARCH".'      
                         https://mui.com/material-ui/react-autocomplete/ */}
@@ -199,7 +224,7 @@ const MatchEditor = ({ player, onSubmit, ...props }) => {
                         value={loser}
                         getOptionLabel={option => option.name}
                         sx={{ width: 300 }}
-                        renderInput={(params) => <TextField {...params} label="Defeated" />}
+                        renderInput={(params) => <TextField required {...params} label="Defeated" />}
                     />
                 </Flex>
                 <Flex className='mediaFlex' direction={'row'}>

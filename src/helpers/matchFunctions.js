@@ -8,7 +8,7 @@ import {
     createComment,
     createPlayerMatch
 } from "../graphql/mutations";
-import { helpers, userFunctions as uf } from 'helpers';
+import { enums, helpers, ladderFunctions, userFunctions as uf } from 'helpers';
 //import userFunctions from './userFunctions';
 
 
@@ -57,28 +57,28 @@ const MatchFunctions = {
             winnerID: match.winner.id,
             loserID: match.loser.id,
             playedOn: playedOn,
-            type: match.type,
+            type: match.type ?? 'SINGLES',
             year: new Date(playedOn).getFullYear(),
             ladderID: match.ladderID,
             score: scoreToString(match.score, flipScoreOnLoss)
         };
-        
+        console.log(loadData)
         // check that the match hasn't already been added
         const matchCheck = await this.findMatch(loadData)
-        console.log("find", matchCheck)
+        //console.log("find", matchCheck)
         if (matchCheck) return matchCheck
 
         try {
+
+            // create the match
             const apiData = await API.graphql({
                 query: createMatchMutation,
                 variables: { input: loadData }
             })
             const matchID = apiData.data.createMatch.id
-            //.then((result) => {
             console.log('New Match created', apiData)
 
             // create the playerMatches
-            
             let playerMatchInput = setPlayerMatchInput(match, matchID, flipScoreOnLoss, true)
             await API.graphql({
                 query: createPlayerMatch,
@@ -87,9 +87,13 @@ const MatchFunctions = {
             playerMatchInput = setPlayerMatchInput(match, matchID, flipScoreOnLoss, false)
             await API.graphql({
                 query: createPlayerMatch,
-                variables: { input: playerMatchInput}
+                variables: { input: playerMatchInput }
             })
 
+            // update the ladder standings based on date
+            await ladderFunctions.UpdateStandings(match.ladderID, playedOn)
+
+            // if there's a comment, create it
             if (match.comment) {
                 console.log("add comment", match.comment)
                 const comment = await API.graphql({
@@ -104,7 +108,7 @@ const MatchFunctions = {
                         }
                     }
                 })
-                apiData.data.createMatch.comments = [{...comment.data.createComment}]
+                apiData.data.createMatch.comments = [{ ...comment.data.createComment }]
             }
 
             return apiData.data.createMatch
@@ -130,7 +134,7 @@ const MatchFunctions = {
                 }
             }
         }
-        
+
         const matches = await API.graphql({
             query: getMatchByDetails,
             variables: variables
@@ -202,10 +206,10 @@ const MatchFunctions = {
 
         const apiData = await API.graphql({
             query: getPlayerMatchByPlayer,
-            variables: { 
-                playerID: player.id, 
+            variables: {
+                playerID: player.id,
                 limit: limit,
-                sortDirection: 'DESC', 
+                sortDirection: 'DESC',
                 nextToken: nextToken
             }
         })
@@ -217,7 +221,7 @@ const MatchFunctions = {
         }
         //const matches = setMatchWinnerLoserScore(apiData.data.getPlayerMatchByPlayer.items)
         console.log(data)
-        
+
         return data
     },
 
@@ -264,9 +268,9 @@ function scoreToString(score, flipScore) {
     for (const set of score) {
         const games = set.split('-')
         // keep tiebreak score to the right side
-        if(games[1].indexOf("(") > 0) {
+        if (games[1].indexOf("(") > 0) {
             games[0] += games[1].substring(games[1].indexOf("("))
-            games[1] = games[1].substring(0,games[1].indexOf("("))
+            games[1] = games[1].substring(0, games[1].indexOf("("))
         }
 
         flippedScore.push(games[1] + '-' + games[0])
@@ -275,8 +279,8 @@ function scoreToString(score, flipScore) {
 }
 
 function setPlayerMatchInput(match, matchID, flipScoreOnLoss, winner) {
-    const scoreBreakdown = parseScore(match.score, winner ? flipScoreOnLoss : !flipScoreOnLoss) 
-    const playerMatchInput = 
+    const scoreBreakdown = parseScore(match.score, winner ? flipScoreOnLoss : !flipScoreOnLoss)
+    const playerMatchInput =
     {
         matchID: matchID,
         playerID: winner ? match.winner.id : match.loser.id,
@@ -287,7 +291,7 @@ function setPlayerMatchInput(match, matchID, flipScoreOnLoss, winner) {
         win: winner,
         ...scoreBreakdown
     }
-    console.log(playerMatchInput)
+    //console.log(playerMatchInput)
     return playerMatchInput
 }
 
@@ -340,7 +344,7 @@ function setMatchWinnerLoserScore(matches) {
         m.winner = m.win ? m.player : m.opponent
         m.loser = m.win ? m.opponent : m.player
         // flip the score if it's a loss
-        if(!m.win) m.score = scoreToString(m.match.score.replace(/\s/g, '').split(','), true)
+        if (!m.win) m.score = scoreToString(m.match.score.replace(/\s/g, '').split(','), true)
     })
     return matches
 }
