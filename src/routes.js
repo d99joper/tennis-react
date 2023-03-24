@@ -1,7 +1,8 @@
 import {
   BrowserRouter,
   Routes,
-  Route
+  Route,
+  useLocation
 } from 'react-router-dom';
 import { Heading, Loader } from '@aws-amplify/ui-react';
 import Login from './views/login'
@@ -12,23 +13,13 @@ import { Suspense } from 'react';
 import { userFunctions } from 'helpers';
 import { Player } from 'models';
 import { DataStore } from 'aws-amplify';
+import { Breadcrumbs, Typography } from '@mui/material';
 
 function Home() {
   return <Heading level={2}>Home</Heading>;
 };
 
 function About() {
-
-  //console.log('about')
-  //let p = new Player({name: 'Test DataStore', email: 'nope@test.com', userGuid: '123'})
-  //userFunctions.createPlayer_DataStore(p)
-  //userFunctions.getPlayerStatsByYear('5eb69653-8f4b-42f7-a322-1075b5700f94', 'singles,')
-  // userFunctions.getGreatestRivals('5eb69653-8f4b-42f7-a322-1075b5700f94').then((x) => {console.log(x)})
-  // userFunctions.getGreatestRivals('1').then((x) => {console.log(x)})
-  // userFunctions.getGreatestRivals('2').then((x) => {console.log(x)})
-  // userFunctions.getGreatestRivals('3').then((x) => {console.log(x)})
-  //const matches = userFunctions.GetMatches()
-
   return <Heading level={2}>About</Heading>;
 };
 
@@ -40,32 +31,47 @@ const AdminTasks = lazy(() => import('./views/adminTasks'))
 const LadderCreate = lazy(() => import('./views/ladder/create'))
 
 const MyRouter = (props) => {
+  
+  const location = useLocation()
+  const pathnames = location.pathname.split('/').filter((x) => x);
+  console.log(pathnames)
   return (
-    <BrowserRouter key="MyMainBrowserRouter">
+    <>
+    {/* <BrowserRouter key="MyMainBrowserRouter"> */}
       <header>
-        <Navbar useMenu={MyMenu} isLoggedIn={props.isLoggedIn} testing={props.testing} key="myNavbar" />
+        <MyMenu {...props} />
+        <Breadcrumbs>
+          {pathnames.map((elem, index) => {
+            return (
+              <Typography key={`${elem}_${index}`}>{elem}</Typography>
+            )
+          })}
+        </Breadcrumbs>
+        {/* <Navbar useMenu={MyMenu} isLoggedIn={props.isLoggedIn} testing={props.testing} key="myNavbar" /> */}
       </header>
       <div className='Content'>
         <Suspense fallback={<h2><Loader/>Loading...</h2>}>
           <Routes key="MyMainRoutes">
             <Route exact path="/" element={<Home />} />
+            <Route exact path="/home" element={<Home />} />
             <Route exact path="/about" element={<About />} />
-            <Route path="/profile" element={<Profile isLoggedIn={props.isLoggedIn} reload={props.reload} />} />
-            <Route path="/profile/:userid" element={<Profile isLoggedIn={props.isLoggedIn} />} />
+            <Route path="/profile" element={<Profile isLoggedIn={props.isLoggedIn} currentUser={props.currentUser} />} />
+            <Route path="/profile/:userid" element={<Profile isLoggedIn={props.isLoggedIn} currentUser={props.currentUser} />} />
             <Route path="/login" element={<Login />} />
             <Route path="/adminTasks" element={<AdminTasks />} />
             <Route path="ladders">
-              <Route index={true} element={<LadderView />} />
-              <Route path=":ladderId" element={<LadderView />} />
-              <Route path="search" element={<LadderSearch />} />
-              <Route path="new" element={<LadderCreate />} />
+              <Route index={true} element={<LadderView isLoggedIn={props.isLoggedIn} currentUser={props.currentUser} />} />
+              <Route path=":ladderId" element={<LadderView isLoggedIn={props.isLoggedIn} currentUser={props.currentUser} />} />
+              <Route path="search" element={<LadderSearch isLoggedIn={props.isLoggedIn} />} />
+              <Route path="new" element={<LadderCreate isLoggedIn={props.isLoggedIn} />} />
               {/* <Route index element={<Home />} /> */}
             </Route>
             <Route path="*" element={<NoPage />} />
           </Routes>
         </Suspense>
       </div>
-    </BrowserRouter>
+    {/* </BrowserRouter> */}
+    </>
   )
 };
 

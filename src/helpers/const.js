@@ -16,5 +16,10 @@ export const enums = {
     STANDINGS_ID: {
         Current: 'cur',
         Old: 'old'
+    },    
+
+    MATCH_TYPE: {
+        SINGLES: 'SINGLES',
+        DOUBLES: 'DOUBLES'
     }
 }

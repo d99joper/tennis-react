@@ -76,7 +76,7 @@ const MatchEditor = ({ player, onSubmit, isAdmin, minDate, ...props }) => {
     }
 
     function resetForm() {
-        setSet1('')
+        setSet1()
         setSet2('')
         setSet3('')
         setSet4('')

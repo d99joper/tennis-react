@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { SlUser } from 'react-icons/sl';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { Button, Card, Flex, Grid, Text, TextField, SelectField, View,
     Image, TextAreaField, Divider, SwitchField, Loader, TabItem, Tabs
 } from "@aws-amplify/ui-react";
@@ -21,7 +21,7 @@ function Profile(props) {
     const params = useParams();
     const [error, setError] = useState({ status: false, message: null });
     const [isLoaded, setIsLoaded] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(props.isLoggedIn);
     const [isEdit, setIsEdit] = useState(false);
     //const [profileChange, setProfileChange] = useState(0)
     const [canEdit, setCanEdit] = useState(false);
@@ -103,10 +103,10 @@ function Profile(props) {
 
         async function getProfile() {
 
-            const loggedIn = async () => {
-                return await userFunctions.CheckIfSignedIn()
-            }
-            setIsLoggedIn(loggedIn);
+            // const loggedIn = async () => {
+            //     return await userFunctions.CheckIfSignedIn()
+            // }
+            // setIsLoggedIn(loggedIn);
 
             let p = null;
 
@@ -157,7 +157,7 @@ function Profile(props) {
             setPlayer(p)
         })
         //}, []);  
-    }, [params.userid, props.reload]);
+    }, [params.userid]);
 
     if (error.status) {
         return <div>Error: {error.message}</div>;
@@ -256,7 +256,9 @@ function Profile(props) {
                                                 ></SelectField>
 
                                             </Editable>
-                                            <span>View the USTA NTPR <a href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf' target='blank'>guidelines</a>.</span>
+                                            <Text fontSize={'smaller'}>
+                                                <a href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf' target='blank'>View the USTA NTPR guidelines</a>.
+                                            </Text>
                                         </Flex>
 
                                         {/************ UTR   *************/}
@@ -270,7 +272,13 @@ function Profile(props) {
 
                                         {/************ LADDERS   *************/}
                                         <View>Ladders:</View>
-                                        <Ladders player={player} />
+                                        {/* <Ladders ladderList={player.ladders} player={player} /> */}
+                                        {player.ladders.items.map((item, i) => {
+                                            console.log(item)
+                                            return (
+                                                <Link to={`/ladders/${item.ladder.id}`} key={item.ladder.id}>{item.ladder.name}</Link>
+                                            )
+                                        })}
 
                                         {/************ ABOUT   *************/}
                                         <View><Text fontSize={'large'}>About:</Text></View>

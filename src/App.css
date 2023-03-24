@@ -1,15 +1,40 @@
+body {
+  background-color: white;
+  -webkit-transition: all 0.4s ease-in-out;
+  -moz-transition: all 0.4s ease-in-out;
+  -o-transition: all 0.4s ease-in-out;    
+  transition: all 0.4s ease-in-out;
+}
+
+@font-face {
+  font-family: belleFair;
+  src: url(images/Bellefair-Regular.otf);
+}
+
+/* * {
+  font-family: belleFair;
+} */
+
+.transition {
+  -webkit-transition: all 0.4s ease-in-out;
+  -moz-transition: all 0.4s ease-in-out;
+  -o-transition: all 0.4s ease-in-out;    
+  transition: all 0.4s ease-in-out;
+}
+
 .App {
-  margin-inline: auto;
+  /* margin-inline: auto; */
+  /* margin-top: 100px; */
   max-width: 60rem;
-  padding: 0 1em;
+  padding: 0;
   min-height: 100vh;
   min-height: 100dvh;
-
   display: grid;
   grid-template-rows: 
     auto
     1fr
     auto;
+  background-color: #edfdf0;
 }
 
 .App-logo {
@@ -19,6 +44,11 @@
 
 .Content {
   width: 60rem;
+  padding: 1rem;
+}
+
+.hidden {
+  display: none;
 }
 
 .form-group {
@@ -27,8 +57,13 @@
 
 header {
   min-height: 2rem;
-  display: grid;
-  place-items: center;
+  background-color: #f6ffc3;
+  min-height: 85px;
+}
+
+footer {
+  padding: 1rem;
+  text-align: center;
 }
 
 /* @media only screen and (max-width: 600px) { 
@@ -143,12 +178,13 @@ input::-webkit-inner-spin-button {
 
 .tooltip .tooltiptext {
   visibility: hidden;
-  width: 120px;
-  background-color: #555;
-  color: #fff;
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px 0;
+  width: 180px;
+  background-color: #c8e6c9;
+  color: #000000;
+  text-align: left;
+  border-radius: 10px;
+  border: 1px solid black;
+  padding: .7rem;
   position: absolute;
   z-index: 1;
   bottom: 125%;
