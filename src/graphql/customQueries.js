@@ -17,6 +17,16 @@ export const listLadderPlayersAsObjects = /* GraphQL */ `
           ladder {
             id
             name
+            players {
+              items {id}
+            }
+            level {min max}
+            location {lon lat}
+            description
+            matchType
+            matches {
+              items {id}
+            }
           }
           createdAt
           updatedAt
@@ -24,6 +34,232 @@ export const listLadderPlayersAsObjects = /* GraphQL */ `
         nextToken
       }
     }  
+`;
+
+export const qCheckIfPlayerInLadder = /* GraphQL */ `
+  query qCheckIfPlayerInLadder(
+    $filter: ModelLadderPlayerFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listLadderPlayers(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+      }
+    }
+  }
+`;
+
+export const qGetStandingsDetails = /* GraphQL */ `
+  query qGetStandingsDetails($id: ID!) {
+    getStandings(id: $id) {
+      details
+      id
+      ladderID
+      postedOn
+    }
+  }
+`;
+
+export const qGetPlayer = /* GraphQL */ `
+  query qGetPlayer($id: ID!) {
+    getPlayer(id: $id) {
+      id
+      name
+      email
+      phone
+      about
+      image
+      NTRP
+      UTR
+      verified
+      ladders {
+        items {
+          ladder {
+            id
+            name
+          }
+        }
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const qGetPlayerByEmail = /* GraphQL */ `
+  query qGetPlayerByEmail(
+    $email: AWSEmail!
+    $name: ModelStringKeyConditionInput
+    $sortDirection: ModelSortDirection
+    $filter: ModelPlayerFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    playerByEmail(
+      email: $email
+      name: $name
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        name
+        email
+        phone
+        about
+        image
+        NTRP
+        UTR
+        verified
+        ladders {
+          items {
+            ladder {
+              id
+              name
+            }
+          }
+        }
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;
+
+export const qGetLadder = /* GraphQL */ `
+  query qGetLadder($id: ID!) {
+    getLadder(id: $id) {
+      id
+      matchType
+      name
+      description
+      level {
+        min
+        max
+      }
+      location {
+        lat
+        lon
+      }
+      city
+      zip
+      matches {
+        items {
+          id
+          type
+          playedOn
+          year
+          winner {
+            id
+            name
+          }
+          winnerID
+          loser {
+            id
+            name
+          }
+          loserID
+          score
+          ladderID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      standingsID
+      standings {
+        id
+        details
+        postedOn
+        ladderID
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const qListLadders = /* GraphQL */ `
+  query qListLadders(
+    $id: ID
+    $filter: ModelLadderFilterInput
+    $limit: Int
+    $nextToken: String
+    $sortDirection: ModelSortDirection
+  ) {
+    listLadders(
+      id: $id
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
+      items {
+        id
+        matchType
+        name
+        description
+        level {
+          min
+          max
+        }
+        location {
+          lat
+          lon
+        }
+        city
+        zip
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;
+
+export const qGetMatchByLadderID = /* GraphQL */ `
+  query GetMatchByLadderID(
+    $ladderID: ID!
+    $playedOn: ModelStringKeyConditionInput
+    $sortDirection: ModelSortDirection
+    $filter: ModelMatchFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    getMatchByLadderID(
+      ladderID: $ladderID
+      playedOn: $playedOn
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        type
+        playedOn
+        year
+        winnerID
+        winner {
+          id
+          name
+        }
+        loserID
+        loser {
+          id
+          name
+        }
+        score
+      }
+      nextToken
+    }
+  }
 `;
 
 export const listOtherPlayersAsObjects = /* GraphQL */ `
@@ -43,52 +279,6 @@ export const listOtherPlayersAsObjects = /* GraphQL */ `
       }
     }  
 `;
-
-// export const listMatches = /* GraphQL */ `
-//   query ListMatches(
-//     $filter: SearchableMatchFilterInput #ModelMatchFilterInput
-//     $sort: [SearchableMatchSortInput]
-//     $limit: Int
-//     $nextToken: String 
-//   ) {
-//     searchMatches(filter: $filter, sort: $sort, limit: $limit, nextToken: $nextToken) {
-//       items {
-//         id
-//         playedOn
-//         winnerID
-//         loserID
-//         score
-//         setsWon
-//         setsLost
-//         gamesWon
-//         gamesLost
-//         tiebreaksWon
-//         tiebreaksLost
-//         retired
-//         ladderID
-//         createdOn
-//         updatedOn
-//         playerMatchesId
-//         ladderMatchesId
-//         winner {
-//           id
-//           name
-//           image
-//         }
-//         loser {
-//           id
-//           name
-//           image
-//         }
-//         ladder {
-//           id 
-//           name
-//         }
-//       }
-//       nextToken
-//     }
-//   }
-// `;
 
 export const GetYearsPlayed = /* GraphQL */ `
   query GetYearsPlayed($playerId: ID!, $type: String) {
@@ -162,25 +352,6 @@ query GetUserStatsByYear($playerId: ID!, $type: String!, $startDate: String, $en
 `;
 
 export const H2HStats =   /* GraphQL */ ` 
-# fragment matchFrag on PlayerMatch {
-#   playerID
-#       score
-#       playedOn
-#       winner {
-#         name
-#         id
-#         image
-#       }
-#       loser {
-#         name
-#         id
-#         image
-#       }
-#       ladder {
-#         id 
-#         name
-#       }
-# }
 query H2HStats($filter: SearchablePlayerMatchFilterInput) {
   result: searchPlayerMatches(
     filter: $filter,
@@ -203,30 +374,11 @@ query H2HStats($filter: SearchablePlayerMatchFilterInput) {
         loserID
         score
         playedOn
-        ladder {name}
+        ladder {
+          name
+        }
       }
     }
-    # items {
-    #   player {
-    #     id
-    #     name
-    #     image
-    #   }
-    #   opponent {
-    #     id
-    #     name
-    #     image
-    #   }
-    #   matches: match {
-    #     id
-    #     score
-    #     playedOn
-    #   }
-    #   ladder {
-    #     id
-    #     name
-    #   }
-    # }
     stats: aggregateItems {
       result {
         ... on SearchableAggregateScalarResult {
@@ -244,105 +396,8 @@ query H2HStats($filter: SearchablePlayerMatchFilterInput) {
       name
     }
   }
-  # ,losses: searchMatches(filter: $filter_loser,
-  #   aggregates: 
-  #   [
-  #     {field: setsLost, name: "setsWon", type: sum},
-  #     {field: setsWon, name: "setsLost", type: sum},
-  #     {field: tiebreaksLost, name: "tiebreaksWon", type: sum},
-  #     {field: tiebreaksWon, name: "tiebreaksLost", type: sum},
-  #     {field: gamesLost, name: "gamesWon", type: sum},
-  #     {field: gamesWon, name: "gamesLost", type: sum}
-  #   ]) {
-  #   total
-  #   items {
-  #     ... matchFrag
-  #   }
-  #   stats: aggregateItems {
-  #     result {
-  #       ... on SearchableAggregateScalarResult {
-  #         __typename
-  #         value
-  #       }
-  #     }
-  #     name
-  #   }
-  # }
 }
 `;
-
-//export const H2HStats =   /* GraphQL */ ` 
-// fragment matchFrag on Match {
-//   id
-//       score
-//       retired
-//       playedOn
-//       winner {
-//         name
-//         id
-//         image
-//       }
-//       loser {
-//         name
-//         id
-//         image
-//       }
-//       ladder {
-//         id 
-//         name
-//       }
-// }
-// query H2HStats($filter_winner: SearchableMatchFilterInput, $filter_loser: SearchableMatchFilterInput) {
-//   wins: searchMatches(filter: $filter_winner,
-//     aggregates: 
-//     [
-//       {field: setsLost, name: "setsLost", type: sum},
-//       {field: setsWon, name: "setsWon", type: sum},
-//       {field: tiebreaksLost, name: "tiebreaksLost", type: sum},
-//       {field: tiebreaksWon, name: "tiebreaksWon", type: sum},
-//       {field: gamesLost, name: "gamesLost", type: sum},
-//       {field: gamesWon, name: "gamesWon", type: sum}
-//     ]) {
-//     total
-//     items {
-//       ... matchFrag
-//     }
-//     stats: aggregateItems {
-//       result {
-//         ... on SearchableAggregateScalarResult {
-//           __typename
-//           value
-//         }
-//       }
-//       name
-//     }
-//   },
-//   losses: searchMatches(filter: $filter_loser,
-//     aggregates: 
-//     [
-//       {field: setsLost, name: "setsWon", type: sum},
-//       {field: setsWon, name: "setsLost", type: sum},
-//       {field: tiebreaksLost, name: "tiebreaksWon", type: sum},
-//       {field: tiebreaksWon, name: "tiebreaksLost", type: sum},
-//       {field: gamesLost, name: "gamesWon", type: sum},
-//       {field: gamesWon, name: "gamesLost", type: sum}
-//     ]) {
-//     total
-//     items {
-//       ... matchFrag
-//     }
-//     stats: aggregateItems {
-//       result {
-//         ... on SearchableAggregateScalarResult {
-//           __typename
-//           value
-//         }
-//       }
-//       name
-//     }
-//   }
-// }
-// `;
 
 // Try ALL rivaleries using terms and buckets for winners, losers. Then merge and sort
 export const GetGreatestRivals =   /* GraphQL */ ` 
@@ -386,4 +441,115 @@ query GetGreatestRivals(
     }
   }
 }
+`;
+export const qFindMatchByDetails = /* GraphQL */ `
+  query qFindMatchByDetails(
+    $winnerID: ID!
+    $loserIDTypeLadderIDPlayedOnScore: ModelMatchByMatchDetailsCompositeKeyConditionInput
+    $sortDirection: ModelSortDirection
+    $filter: ModelMatchFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    getMatchByDetails(
+      winnerID: $winnerID
+      loserIDTypeLadderIDPlayedOnScore: $loserIDTypeLadderIDPlayedOnScore
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+      }
+    }
+  }
+`;
+export const qGetPlayerMatchByPlayer = /* GraphQL */ `
+  query qGetPlayerMatchByPlayer(
+    $playerID: ID!
+    $playedOn: ModelStringKeyConditionInput
+    $sortDirection: ModelSortDirection
+    $filter: ModelPlayerMatchFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    getPlayerMatchByPlayer(
+      playerID: $playerID
+      playedOn: $playedOn
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        match {
+          id
+          type
+          playedOn
+          year
+          winnerID
+          winner {
+            id
+            name
+          }
+          loserID
+          loser {
+            id
+            name
+          }
+          score
+          ladderID
+          ladder {
+            id
+            name
+          }
+          createdAt
+          updatedAt
+          playerMatchesId
+        }
+        matchID
+        matchType
+        win
+        retired
+        playedOn
+        playerPlayerMatchesId
+      }
+      nextToken
+    }
+  }
+`;
+export const mUpdatePlayer = /* GraphQL */ `
+  mutation mUpdatePlayer(
+    $input: UpdatePlayerInput!
+    $condition: ModelPlayerConditionInput
+  ) {
+    updatePlayer(input: $input, condition: $condition) {
+      id
+      name
+      email
+      phone
+      about
+      image
+      NTRP
+      UTR
+      verified
+      ladders {
+        items {
+          id
+          playerID
+          ladderID
+          ladder {
+            id
+            name
+          }
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      createdAt
+      updatedAt
+    }
+  }
 `;

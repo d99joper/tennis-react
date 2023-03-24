@@ -1,15 +1,18 @@
-import { API } from 'aws-amplify';
-import { getMatch, getMatchByDetails, getPlayerMatchByPlayer, getPlayerMatchByPlayerVs, listComments, listMatches as findMatches } from "../graphql/queries";
-//import { listMatches } from 'graphql/customQueries';
+import { API } from 'aws-amplify'
+import { 
+    getMatch, 
+    getPlayerMatchByPlayer, 
+    listComments
+} from "../graphql/queries"
 import {
     createMatch as createMatchMutation,
     updateMatch as updateMatchMutation,
     deleteMatch as deleteMatchMutation,
     createComment,
     createPlayerMatch
-} from "../graphql/mutations";
-import { enums, helpers, ladderFunctions, userFunctions as uf } from 'helpers';
-//import userFunctions from './userFunctions';
+} from "../graphql/mutations"
+import { enums, helpers, ladderFunctions, userFunctions as uf } from 'helpers'
+import { qFindMatchByDetails, qGetPlayerMatchByPlayer } from 'graphql/customQueries'
 
 
 const MatchFunctions = {
@@ -136,9 +139,9 @@ const MatchFunctions = {
         }
 
         const matches = await API.graphql({
-            query: getMatchByDetails,
+            query: qFindMatchByDetails,
             variables: variables
-        })  //await this.listMatches(null, null, null, null, filter)
+        })  
         //console.log(matches)
         if (matches.data.getMatchByDetails.items.length > 0)
             return matches.data.getMatchByDetails.items[0] //matches[0]
@@ -171,23 +174,6 @@ const MatchFunctions = {
         }
     },
 
-    GetMatch: async function (id) {
-        try {
-            const apiData = await API.graphql({
-                query: getMatch,
-                variables: { id: id },
-            });
-
-            const MatchFromAPI = apiData.data.getMatch;
-
-            return MatchFromAPI;
-        }
-        catch (e) {
-            console.log("failed to get Match", e);
-            return;
-        }
-    },
-
     deleteMatch: async function (id) {
         try {
             await API.graphql({
@@ -205,7 +191,7 @@ const MatchFunctions = {
     getMatchesForPlayer: async function (player, ladder, startDate, endDate, findFilter = null, limit = 10, nextToken) {
 
         const apiData = await API.graphql({
-            query: getPlayerMatchByPlayer,
+            query: qGetPlayerMatchByPlayer,
             variables: {
                 playerID: player.id,
                 limit: limit,
@@ -216,7 +202,8 @@ const MatchFunctions = {
 
         let data = {
             // massage data to add winner and loser
-            matches: setMatchWinnerLoserScore(apiData.data.getPlayerMatchByPlayer.items),
+            //matches: setMatchWinnerLoserScore(apiData.data.getPlayerMatchByPlayer.items),
+            matches: apiData.data.getPlayerMatchByPlayer.items,
             nextToken: apiData.data.getPlayerMatchByPlayer.nextToken
         }
         //const matches = setMatchWinnerLoserScore(apiData.data.getPlayerMatchByPlayer.items)
@@ -224,32 +211,6 @@ const MatchFunctions = {
 
         return data
     },
-
-    // listMatches: async function (player, ladder, startDate, endDate, findFilter = null) {
-    //     let filter = findFilter ?? {
-    //         playedOn: { lt: helpers.formatAWSDate(endDate) },
-    //         ...(startDate && { playedOn: { gt: helpers.formatAWSDate(startDate) } }),
-    //         ...(player && {
-    //             or: [
-    //                 { winnerID: { eq: player.id } },
-    //                 { loserID: { eq: player.id } }
-    //             ]
-    //         }),
-    //         ...(ladder && { ladderID: { eq: ladder.id } })
-    //     }
-    //     //console.log(filter)
-    //     const apiData = await API.graphql({
-    //         query: findFilter ? findMatches : listMatches,
-    //         variables: {
-    //             filter: filter,
-    //             sort: [{ field: "playedOn", direction: "desc" }]
-    //         }
-    //     })
-    //     //console.log(apiData.data)
-    //     const MatchsFromAPI = findFilter ? apiData.data.listMatches.items : apiData.data.searchMatches.items
-
-    //     return MatchsFromAPI;
-    // },
 
     GetComments: async function (matchId) {
         const apiData = await API.graphql({

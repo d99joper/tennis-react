@@ -7,6 +7,7 @@ import { userFunctions } from './helpers/index';
 import MyRouter from './routes';
 import Footer from './views/footer';
 import { green } from '@mui/material/colors';
+import { BrowserRouter } from 'react-router-dom';
 
 function App() {
   const PrimaryMainTheme = createTheme({
@@ -27,6 +28,7 @@ function App() {
   const [isLoading, setLoading] = useState(true); // Loading state
   const [doReload, setDoReload] = useState(false); // reload if new user is created
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState({id:-1})
 
   useEffect(() => { // useEffect hook
     Hub.listen('auth', (data) => {
@@ -35,7 +37,9 @@ function App() {
         case 'signIn':
           console.log('user signed in');
           // set signed in status
-          setIsLoggedIn(true);
+          setIsLoggedIn(true)
+          userFunctions.getCurrentlyLoggedInPlayer()
+            .then((data) => {setCurrentUser(data)}) 
 
           // check if a new user was just created
           if (newUser.current) {
@@ -66,11 +70,13 @@ function App() {
           break;
         case 'signOut':
           console.log('user signed out');
-          setIsLoggedIn(false);
+          setIsLoggedIn(false)
+          setCurrentUser({}) //userFunctions.getCurrentlyLoggedInPlayer()
           break;
         case 'signIn_failure':
           console.log('user sign in failed');
-          setIsLoggedIn(false);
+          setIsLoggedIn(false)
+          setCurrentUser({})
           break;
         case 'configured':
           console.log('the Auth module is configured');
@@ -80,19 +86,24 @@ function App() {
       }
     });
 
-    setLoading(false); //set loading state
+    async function getCurrentUser() {
+      try {
+        const isSignedIn = await userFunctions.CheckIfSignedIn()
+        if(isSignedIn) {
+          const user = await userFunctions.getCurrentlyLoggedInPlayer()
+          setCurrentUser(user)
+        }
+        setIsLoggedIn(isSignedIn)
+        setLoading(false); //set loading state
+      }
+      catch (e) {
+        console.log(e);
+      }
+    }
+    getCurrentUser()   
+
   }, []);
 
-  try {
-    userFunctions.CheckIfSignedIn()
-      .then((isSignedIn) => {
-        setIsLoggedIn(isSignedIn);
-      })
-      .catch((e) => { console.log(e) });
-  }
-  catch (e) {
-    console.log(e);
-  }
 
   if (isLoading) {
     return (
@@ -109,11 +120,12 @@ function App() {
   }
 
   return (
-    <div className="App">
+    <div className="App" id="app">
       <ThemeProvider theme={PrimaryMainTheme}>
-
-        <MyRouter isLoggedIn={isLoggedIn} testing={true} reload={doReload} />
-        <Footer></Footer>
+        <BrowserRouter>
+          <MyRouter isLoggedIn={isLoggedIn} testing={true} reload={doReload} currentUser={currentUser} />
+          <Footer></Footer>
+        </BrowserRouter>
       </ThemeProvider>
     </div>
   );

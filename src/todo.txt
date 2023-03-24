@@ -1,5 +1,23 @@
 Overall design
     [ ] Mobile vs computer menu
+    [ ] Custom-make queries to minimize data transfer
+        [x] ladderFunctions
+            [x] useLadderPlayersData
+            [x] usePlayerLadders
+            [x] GetPlayerLadders
+            [x] IsPlayerInLadder
+            [x] AddLadderPlayer
+            [x] GetLadder
+            [x] GetLadders
+            [x] GetPlayerLadders
+            [x] UpdateStandings
+        [x] userFunctions
+            [x] getPlayerFromAPI
+            [x] GetPlayers
+        [x] matchFunctions
+            [x] findMatch
+            [x] getMatchesForPlayer
+            [x] listComments
     [ ] Style and clean up
     [ ] Search for players
     [ ] Nicer menu
@@ -13,6 +31,7 @@ Search page
 
 Profile page
     [ ] Style and clean up
+    [x] Loader for matches when switching user
     [ ] Cannot access profile when not logged in (you get error)
         [ ] Remove from menu when not logged in
         [ ] Fix profile link to other players to work when not logged in
@@ -40,7 +59,9 @@ Ladder Create page
 
 Ladder view page
     [ ] Join ladder
-    [ ] View ladder players
+    [ ] View ladder players/standings
+    [ ] List last 10 matches
+        [ ] Add paging
     [ ] Add match
     [ ] See standing at particular date
     [ ] If doubles, search for partner
@@ -60,9 +81,13 @@ Matches
     [ ] Post result to UTR
     [ ] Add comments
     [ ] Calculate standings / ranking points
-    [ ] Dynamic Sort
-    [ ] Reset forms
-    [ ] Update match list on profile
+    [x] Dynamic Sort
+    [*] Reset forms
+    [x] Update match list on profile
 
 Player
-    [ ] Make sure email is unique when creating new player
+    [ ] Signup
+        [ ] Make sure email is unique when creating new player
+        [ ] Check if name already exists, then suggest merging/signing up with that (unused) account. 
+            If there is a real email on the other account, suggest merge (but that will be more complex with verification)
+        

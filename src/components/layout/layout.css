@@ -1,0 +1,76 @@
+.nav-container {
+    display: flex;
+    width: 100%;
+    height: 55px;
+    justify-content: left;
+    background: #ccff0022;
+    z-index: 2;
+    margin-bottom: 1rem;
+  }
+  
+  .nav-unordered-list {
+    list-style-type: none;
+    display: flex;
+  }
+  
+  .nav-list-item {
+    margin: 0 10px;
+    padding: 0 1rem;
+  }
+  
+  .nav-list-item a {
+    text-decoration: none;
+  }
+
+  .active {
+    text-decoration: underline;
+  }
+
+  .MuiPaper-root {
+    -webkit-transition: all 0.4s ease-in-out !important;
+    -moz-transition: all 0.4s ease-in-out !important;
+    -o-transition: all 0.4s ease-in-out !important;   
+    transition: all 0.4s ease-in-out !important;
+  }
+  
+  .banner {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../../images/banner_tennis.jpg);
+    position: relative;
+    opacity: 100%;
+    /* Set a specific height */
+    height: 65px;
+  
+    /* Position and center the image to scale nicely on all screens */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+  }
+
+  /* Place text in the middle of the image */
+.banner-title {
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-family: belleFair, sans-serif;
+}
+
+.banner-settings {
+  text-align: right;
+  top: 30%;
+  right: 5%;
+  position: absolute;
+  color: white;
+}
+
+.drawer-puller {
+  background-color: #c8e6c9; /*#edfdf0; c8e6c9*/
+  display: block;
+  cursor: pointer;
+  border-radius: 0 10px 10px 10px;
+  width: 50px;
+  padding: 5px;
+}

@@ -4,13 +4,13 @@ import { helpers } from "helpers";
 import { decomposeColor } from "@mui/material";
 
 const ItemCard = ({ header, description, footer, footerRight, ...props }) => {
-    console.log(footer,footerRight)
     return (
 
         <Card
-            width="250px"
+            width={props.width ?? "250px"}
             borderRadius={'15px'}
-            border='solid'>
+            border='solid'
+            backgroundColor={props.backgroundColor ?? 'white'}>
             <Grid 
                 templateRows={'1fr 2fr auto'}
                 rowGap=".25rem"

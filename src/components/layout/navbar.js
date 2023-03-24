@@ -1,5 +1,5 @@
 import React from "react";
-import "./navbar.css";
+import "./layout.css";
 import { NavLink } from "react-router-dom";
 
 const Navbar = ({useMenu: MyMenu, isLoggedIn, testing}) => {

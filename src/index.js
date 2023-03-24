@@ -28,7 +28,7 @@ const isLocalhost = Boolean(
    localRedirectSignOut
  ] = awsconfig.oauth.redirectSignOut.split(",");
  
- console.log(isLocalhost ? localRedirectSignIn : productionRedirectSignIn);
+ //console.log(isLocalhost ? localRedirectSignIn : productionRedirectSignIn);
  
  const updatedAwsConfig = {
    ...awsconfig,
@@ -38,7 +38,7 @@ const isLocalhost = Boolean(
      redirectSignOut: isLocalhost ? localRedirectSignOut : productionRedirectSignOut,
    }
  }
- console.log(updatedAwsConfig);
+ //console.log(updatedAwsConfig);
  
  Amplify.configure(updatedAwsConfig);
 

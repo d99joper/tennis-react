@@ -124,6 +124,7 @@ const LadderCreate = () => {
             Create a new ladder
             <Grid as="form"
                 gap="1rem"
+                width={300}
                 onSubmit={onCreate}
             >
                 <div className="form-group">

@@ -1,5 +1,5 @@
 // Matches.js
-import { Button, Collection, Flex, Loader, Table, TableCell, TableHead, TableRow, View } from "@aws-amplify/ui-react";
+import { Button, Collection, Flex, Loader } from "@aws-amplify/ui-react";
 import { matchFunctions as mf, enums } from "helpers";
 import { React, Suspense, useState, lazy, useEffect } from "react";
 import { DynamicTable, H2H, Match } from "../index.js"
@@ -8,11 +8,12 @@ import { GiCrossedSwords } from 'react-icons/gi';
 import { GoCommentDiscussion } from 'react-icons/go';
 import "./Matches.css"
 import { ConsoleLogger } from "@aws-amplify/core";
+import { LinearProgress } from "@mui/material";
 
 const Matches = ({
     player,
     startDate,
-    endDate = new Date(),
+    endDate,// = new Date(),
     ladder,
     ladderMatches,
     showHeader = true,
@@ -28,35 +29,41 @@ const Matches = ({
     const direction = "asc"
     const [nextToken, setNextToken] = useState("playedOn");
     const [dataIsFetched, setDataIsFetched] = useState(false);
+    const [showLoader, setShowLoader] = useState(true);
 
     const tableHeaders = [
         { label: "Date", accessor: "playedOn", sortable: true, parts:1, link: 'Match/id' },
-        { label: "Winner", accessor: "winner.name", sortable: true, parts:2, link: 'Profile/id' },
-        { label: "Loser", accessor: "loser.name", sortable: true, parts:2, link: 'Profile/id' },
+        { label: "Winner", accessor: "match.winner.name", sortable: true, parts:3, link: 'Profile/id' },
+        { label: "Loser", accessor: "match.loser.name", sortable: true, parts:3, link: 'Profile/id' },
         { label: "Score", accessor: "match.score", sortable: false, parts:2, link: 'Match/id' },
-        { label: "Ladder", accessor: "ladder.name", sortable: true, parts:2, link: 'Ladders/id' },
+        { label: "Ladder", accessor: "match.ladder.name", sortable: true, parts:3, link: 'Ladders/id' },
         { label: "", accessor: "games", sortable: false, parts:0 }
     ]
 
     useEffect(() => {
+        console.log('try load data', dataIsFetched)
         if(!dataIsFetched)
+        console.log('load data')
             //mf.listMatches(player, ladder, startDate, endDate).then((data) => {
             if(player)
                 mf.getMatchesForPlayer(player, ladder, startDate, endDate, null, 10, null).then((data) => {
                     setMatches(data.matches)
                     setNextToken(data.nextToken)
                     setDataIsFetched(true)
+                    setShowLoader(false)
                 })
             
             if(ladderMatches) {
                 setMatches(ladderMatches)
                 setDataIsFetched(true)
+                setShowLoader(false)
             }
             else if(ladder)
             mf.getMatchesForLadder(ladder.id).then((data) => {
                 setMatches(data.matches)
                 setNextToken(data.nextToken)
                 setDataIsFetched(true)
+                setShowLoader(false)
             })
 
     }, [dataIsFetched, endDate, ladder, ladderMatches, player, startDate])
@@ -76,6 +83,13 @@ const Matches = ({
 
     })
 
+    if(showLoader) {
+        return (
+            <div style={{width: '800px'}}>
+                <LinearProgress /> 
+            </div>
+        )
+    }
     return (
         <section {...props}>
             {displayAs === enums.DISPLAY_MODE.Inline ?
@@ -119,6 +133,7 @@ const Matches = ({
                     nextToken={nextToken}
                     nextText={"View more matches"}
                     onNextClick={addMatches}
+                    onLinkClick={() => {setShowLoader(true)}}
                     styleConditionColor={['win-accent','lose-accent']}
                     styleConditionVariable={'win'}
                 />

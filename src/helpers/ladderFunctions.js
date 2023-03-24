@@ -1,21 +1,24 @@
-import { API } from 'aws-amplify';
-import { listLadders, getLadder, findNearbyLadders, getStandings, getLadderPlayer, getPlayer, listLadderPlayers, getMatchByLadderID, standingsByLadder } from "../graphql/queries";
-import { listLadderPlayersAsObjects, listOtherPlayersAsObjects } from "../graphql/customQueries";
+import { API } from 'aws-amplify'
+import { findNearbyLadders, standingsByLadder } from "../graphql/queries"
+import { 
+    listLadderPlayersAsObjects, 
+    listOtherPlayersAsObjects, 
+    qCheckIfPlayerInLadder, 
+    qGetLadder, 
+    qGetMatchByLadderID, 
+    qGetStandingsDetails, 
+    qListLadders 
+} from "../graphql/customQueries"
 import {
     createLadder as createLadderMutation,
     updateLadder as updateLadderMutation,
     deleteLadder as deleteLadderMutation,
     createLadderPlayer,
     createStandings as createStandingsMutation,
-    updateStandings,
-    updateLadder
-} from "../graphql/mutations";
-import { useEffect, useState } from 'react';
-import { responsiveFontSizes } from '@mui/material';
-import { helpers } from './helpers';
-import userFunctions from './userFunctions';
-import { ComponentPropsToStylePropsMap } from '@aws-amplify/ui-react';
-import { enums } from './const';
+    updateStandings
+} from "../graphql/mutations"
+import { useEffect, useState } from 'react'
+import { helpers, enums, userFunctions } from 'helpers'
 
 const ladderFunctions = {
 
@@ -26,6 +29,7 @@ const ladderFunctions = {
                 let ladderPlayers
                 if (ladderId == '-1') {
                     //console.log("updated the search input on 'Other' ladder")
+                    // get all players, not only players attached to a ladder
                     ladderPlayers = await ladderFunctions.GetLadderPlayersForOther(searchInput)
 
                 } else {
@@ -94,7 +98,7 @@ const ladderFunctions = {
         try {
             console.log("IsPlayerInLadder", `${ladderId}#${playerId}`)
             const apiData = await API.graphql({
-                query: listLadderPlayers,
+                query: qCheckIfPlayerInLadder,
                 variables: {
                     filter: { 
                         ladderID: { eq: ladderId }, 
@@ -129,7 +133,7 @@ const ladderFunctions = {
             // update the ladder standings
             const standingsId = `cur#${ladderId}`
             const standings = await API.graphql({
-                query: getStandings,
+                query: qGetStandingsDetails,
                 variables: { id: standingsId }
             })
 
@@ -203,19 +207,8 @@ const ladderFunctions = {
                 }, 
                 enums.STANDINGS_ID.Current
             )
-            // API.graphql({
-            //     query: createStandings,
-            //     variables: {
-            //         input: {
-            //             id: standingsID,
-            //             details: "[]",
-            //             postedOn: new Date().toISOString(),
-            //             ladderID: ladderId
-            //         }
-            //     }
-            // })
+           
             return ladderId;
-            //}).catch((e) => { console.log(e) });
         }
         catch (e) {
             console.error("failed to create a ladder", e);
@@ -242,7 +235,7 @@ const ladderFunctions = {
         //console.log(id)
         try {
             const apiData = await API.graphql({
-                query: getLadder,
+                query: qGetLadder,
                 variables: { id: id },
             });
 
@@ -284,8 +277,9 @@ const ladderFunctions = {
         }
     },
 
-    FindNearByLadders: async function (location, radius = 20, excludeList = ['-1']) {
+    FindNearByLadders: async function (location, radius = 30, excludeList = ['-1']) {
         try {
+            console.log(excludeList)
             const result = await API.graphql({
                 query: findNearbyLadders,
                 variables: {
@@ -345,7 +339,7 @@ const ladderFunctions = {
 
     GetLadders: async function() {
         const laddersAPI = await API.graphql({
-            query: listLadders
+            query: qListLadders
         })
         return laddersAPI.data.listLadders.items
     },
@@ -353,7 +347,7 @@ const ladderFunctions = {
     GetPlayerLadders: async function (playerId = null) {
         try {
             const filter = { ... playerId && {playerID: { eq: playerId } }}
-            const query = playerId ? listLadderPlayersAsObjects : listLadders
+            const query = playerId ? listLadderPlayersAsObjects : qListLadders
 
             const apiData = await API.graphql({
                 query: query,
@@ -362,7 +356,7 @@ const ladderFunctions = {
 
             if(!playerId) return apiData.data.listLadders.items
 
-            const result =apiData.data.listLadderPlayers.items
+            const result = apiData.data.listLadderPlayers.items
             
             if (result.length > 0) {
                 let ladders = new Array(result.length)
@@ -401,8 +395,8 @@ const ladderFunctions = {
 
     UpdateStandings: async function(ladderId, playedOn) {
         try{
-            function loserGamesCount(m) {
-                const sets = m.score.split(/[\s,]+/)
+            function loserGamesCount(score) {
+                const sets = score.split(/[\s,]+/)
                 let gameCount = 0
                 for (const set of sets) {
                     const games = set.split('-')
@@ -412,7 +406,7 @@ const ladderFunctions = {
             }
             // get all matches for the ladder since the match date, sorted by date
             let apiData = await API.graphql({
-                query: getMatchByLadderID,
+                query: qGetMatchByLadderID,
                 variables: {ladderID: ladderId, playedOn: {ge: playedOn}, sortDirection: 'ASC'}
             })
             const matches = apiData.data.getMatchByLadderID.items
@@ -434,7 +428,7 @@ const ladderFunctions = {
                 await this.CreateStandings(standings, enums.STANDINGS_ID.Old)
             } else {
                 const apiData = await API.graphql({
-                    query: getStandings,
+                    query: qGetStandingsDetails,
                     variables: {id: `cur#${ladderId}`}
                 })
                 const currentStandings = apiData.data.getStandings
@@ -454,7 +448,7 @@ const ladderFunctions = {
                 else 
                     winner.points = loser.points + 20
                 
-                loser.points += parseInt(loserGamesCount(match))
+                loser.points += parseInt(loserGamesCount(match.score))
                 // 3. put them back in the standings - is this needed?
                 console.log("winner", winner, "loser", loser)
             })
@@ -469,17 +463,10 @@ const ladderFunctions = {
                 variables: {input: {
                     id: `cur#${ladderId}`,
                     details: JSON.stringify(details),
-                    postedOn: new Date().toISOString(), 
+                    postedOn: new Date(playedOn).toISOString(), 
                     ladderID: ladderId
                 }}
             })
-            // do I need this? The ladder ALWAYS points to cur#...
-            // await API.graphql({
-            //     query: updateLadder,
-            //     variables: {input: {id: ladderId}}
-            // })
-
-            // Create a match comment that specifies how many points each player gained.
 
             return true
 
@@ -502,19 +489,6 @@ const ladderFunctions = {
             console.log("failed to delete ladder", e);
             return false;
         }
-    },
-
-    fetchLadders: async function (filter) {
-        // let filter = {
-        //     name: {
-        //         eq: name // filter priority = 1
-        //     }
-        // };
-        const apiData = await API.graphql({ query: listLadders, variables: { filter: filter } });
-
-        const laddersFromAPI = apiData.data.listLadders.items;
-
-        return laddersFromAPI;
     }
 }
 

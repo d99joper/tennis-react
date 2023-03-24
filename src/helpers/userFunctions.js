@@ -1,12 +1,19 @@
 import { API, Auth, DataStore, Storage } from 'aws-amplify';
-import { getPlayer, listPlayers, playerByEmail } from "../graphql/queries";
+import { listPlayers } from "../graphql/queries";
 import {
     createPlayer as createPlayerMutation,
     updatePlayer as updatePlayerMutation,
     deletePlayer as deletePlayerMutation,
 } from "../graphql/mutations";
-import { GetUserStatsByYear, GetYearsPlayed, H2HStats, GetGreatestRivals } from 'graphql/customQueries';
-import { Match, Player } from 'models';
+import { GetUserStatsByYear, 
+    GetYearsPlayed, 
+    H2HStats, 
+    GetGreatestRivals, 
+    qGetPlayer, 
+    qGetPlayerByEmail, 
+    mUpdatePlayer
+} from 'graphql/customQueries';
+import { Match } from 'models';
 
 const userFunctions = {
     
@@ -59,7 +66,7 @@ const userFunctions = {
             }
 
             const result = await API.graphql({
-                query: updatePlayerMutation,
+                query: mUpdatePlayer,
                 variables: {
                     input: inputData,
                     conditions: { id: userId } // required
@@ -202,14 +209,14 @@ const userFunctions = {
         return playersAPI.data.listPlayers.items;
     },
 
-    getPlayers: async function () {
-        try {
-            const players = await DataStore.query(Player);
-            console.log("Players retrieved successfully!", JSON.stringify(players, null, 2));
-        } catch (error) {
-            console.log("Error retrieving players", error);
-        }
-    },
+    // getPlayers: async function () {
+    //     try {
+    //         const players = await DataStore.query(Player);
+    //         console.log("Players retrieved successfully!", JSON.stringify(players, null, 2));
+    //     } catch (error) {
+    //         console.log("Error retrieving players", error);
+    //     }
+    // },
 
     createPlayer_DataStore: async function (Player) {
         try {
@@ -223,7 +230,7 @@ const userFunctions = {
     getPlayerFromAPI: async function (email = null, id = null, includeImage = false, name = null) {
 
         try {
-            const query = id ? getPlayer : playerByEmail
+            const query = id ? qGetPlayer : qGetPlayerByEmail
             const variables = id ? {id: id} 
                 : { email: email, ...name ? {name: {eq: name}} : null }
 
@@ -287,21 +294,21 @@ const userFunctions = {
         }
     },
 
-    fetchPlayers: async function (email, filter) {
-        const apiData = await API.graphql({ query: listPlayers, variables: { filter: filter } });
+    // fetchPlayers: async function (email, filter) {
+    //     const apiData = await API.graphql({ query: listPlayers, variables: { filter: filter } });
 
-        const playersFromAPI = apiData.data.listPlayers.items;
+    //     const playersFromAPI = apiData.data.listPlayers.items;
 
-        await Promise.all(
-            playersFromAPI.map(async (player) => {
-                console.log(player);
-                SetPlayerImage(player)
-                return player;
-            })
-        );
+    //     await Promise.all(
+    //         playersFromAPI.map(async (player) => {
+    //             console.log(player);
+    //             SetPlayerImage(player)
+    //             return player;
+    //         })
+    //     );
 
-        return playersFromAPI;
-    },
+    //     return playersFromAPI;
+    // },
 
     getPlayerH2H: async function(player1, player2){
         const filter = {
@@ -319,8 +326,6 @@ const userFunctions = {
         await SetPlayerImage(player1)
         await SetPlayerImage(player2)
         console.log(apiData.data)
-        //let matches = apiData.data.result.matches 
-           // .sort((a,b) => new Date(b.playedOn).getTime() - new Date(a.playedOn).getTime())
 
         let data = {
             player1: player1,
@@ -332,20 +337,6 @@ const userFunctions = {
 
         return data
     },
-
-    
-    // GetUserStatsAllByYear: async function (playerId, singlesOrDoubles, year) {
-    //     const apiData = await API.graphql({
-    //         query: GetUserStats_All,
-    //         variables: { playerId: playerId, type: singlesOrDoubles, year: year }
-    //     })
-        
-    //     // massage the data
-    //     let data = MassageStats(apiData.data)
-            
-    //     console.log(data)
-    //     return data
-    // },
 
     getPlayerStatsByYear: async function (playerId, singlesOrDoubles) {
         
@@ -525,80 +516,3 @@ function CalcPercentage(val1, val2) {
 
 
 export default userFunctions;
-
-// getPlayerStats: async function (playerId, singlesOrDoubles, year) {
-
-//     let stats = {}
-
-//     const fetchData = async () => {
-//         let stats = {}
-//         // Get win stats
-//         const winData = await GetStats(playerId, singlesOrDoubles, 'W', year)
-//         // Get loss stats
-//         const lossData = await GetStats(playerId, singlesOrDoubles, 'L', year)
-//         // Set the data
-//         const data = {
-//             wins: {
-    //                 total: winData.searchMatches.total,
-    //                 agg: winData.searchMatches.aggregateItems
-    //             },
-    //             losses: {
-        //                 total: lossData.searchMatches.total,
-        //                 agg: lossData.searchMatches.aggregateItems
-        //             }
-        //         }
-        //         // massage data
-        //         const gamesWon = GetTotalValue(data.wins.agg, "gamesWon", data.losses.agg, "gamesLost")
-        //         const gamesLost = GetTotalValue(data.wins.agg, "gamesLost", data.losses.agg, "gamesWon")
-//         const setsWon = GetTotalValue(data.wins.agg, "setsWon", data.losses.agg, "setsLost")
-//         const setsLost = GetTotalValue(data.wins.agg, "setsLost", data.losses.agg, "setsWon")
-//         const tBWon = GetTotalValue(data.wins.agg, "tiebreaksWon", data.losses.agg, "tiebreaksLost")
-//         const tBLost = GetTotalValue(data.wins.agg, "tiebreaksLost", data.losses.agg, "tiebreaksWon")
-
-//         stats = {
-//             totalWins: data.wins.total,
-//             totalLosses: data.losses.total,
-//             winPercentage: data.wins.total === 0 ? 0 : Math.round(100 * data.wins.total / (data.wins.total + data.losses.total), 2),
-//             gamesWon: gamesWon,
-//             gamesLost: gamesLost,
-//             gamesWonPercentage: gamesWon === 0 ? 0 : Math.round(100 * gamesWon / (gamesWon + gamesLost), 2),
-//             setsWon: setsWon,
-//             setsLost: setsLost,
-//             setsWonPercentage: setsWon === 0 ? 0 : Math.round(100 * setsWon / (setsWon + setsLost), 2),
-//             tiebreaksWon: tBWon,
-//             tiebreaksLost: tBLost,
-//             tiebreakPercentage: tBWon === 0 ? 0 : Math.round(100 * tBWon / (tBWon + tBLost), 2),
-//         }
-//         return stats
-//     }
-
-//     stats = await fetchData()
-
-//     console.log(stats)
-//     return stats
-// },
-// GetStats: async function (playerId, singlesOrDoubles, WinLoss, year) {
-    
-    //     let apiData
-    //     const vars = {
-        //         playerId: playerId,
-        //         type: singlesOrDoubles,
-        //         year: year
-        //         // startDate: year + "-01-01",
-        //         // endDate: year + "-12-31"
-        //     }
-        
-        //     if (WinLoss === 'L')
-        //         apiData = await API.graphql({
-            //             query: GetUserStatsOnLoss,
-            //             variables: vars
-            //         })
-            //     else if (WinLoss === 'W')
-            //         apiData = await API.graphql({
-                //             query: GetUserStatsOnWin,
-                //             variables: vars
-                //         })
-                
-                //     return apiData.data
-                // },
-                
