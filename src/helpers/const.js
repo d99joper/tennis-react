@@ -8,8 +8,8 @@ export const enums = {
     },
 
     DISPLAY_MODE: {
-        Inline: 'inline',
         Card: 'card',
+        Inline: 'inline',
         Table: 'table'
     },
 

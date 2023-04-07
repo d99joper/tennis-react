@@ -14,6 +14,8 @@ import { GetUserStatsByYear,
     mUpdatePlayer
 } from 'graphql/customQueries';
 import { Match } from 'models';
+import { helpers } from './helpers';
+import { SlUser } from 'react-icons/sl';
 
 const userFunctions = {
     
@@ -88,6 +90,22 @@ const userFunctions = {
         //   finally {
         //     return inputData;
         //   }
+    },
+
+    stringAvatar: function(player, size) {
+        const jsonObj = {
+            sx: {
+                ... player ? {bgcolor: helpers.stringToColor(player.name)} :null,
+                width: size,
+                height: size,
+                border: 1
+            },
+            ... player && player.image 
+            ? {src: player.imageUrl} 
+            : {children: <SlUser {... size ? {size: size*0.65} :null } />}
+        } 
+        
+        return jsonObj
     },
 
     createPlayer: async function (name, email, id) {

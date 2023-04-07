@@ -20,10 +20,10 @@ export const findNearbyLadders = /* GraphQL */ `
         city
         zip
         matches {
-          nextToken
+          items {id}
         }
         players {
-          nextToken
+          items {id}
         }
         playerMatches {
           nextToken

@@ -69,6 +69,7 @@ Ladder view page
         [ ] if no partner, sign up as available / reserved (for a player yet to sign up)
         [ ] split up from partner (leave ladder)
     [ ] Leave ladder (double-check, since you lose all your ranking points)
+    [ ] Move FindNearByLadders query to customQueries in order to not overwrite the players and matches {items{id}}
 
 Matches
     [ ] Separate doubles from singels
