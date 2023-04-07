@@ -8,6 +8,7 @@ import { userFunctions } from 'helpers'
 import { Editable, Matches, Ladders, PhoneNumber, UserStats, TopRivals } from '../components/forms/index.js'
 import Modal from '../components/layout/Modal/modal';
 import './profile.css';
+import { Avatar } from '@mui/material';
 
 function Profile(props) {
 
@@ -158,6 +159,7 @@ function Profile(props) {
         })
         //}, []);  
     }, [params.userid]);
+    
 
     if (error.status) {
         return <div>Error: {error.message}</div>;
@@ -176,17 +178,12 @@ function Profile(props) {
                         <Card className='card profilePic' variation="elevated">
 
                             {/************ PROFILE PICTURE   *************/}
-                            <View className={"profileImageContainer"}>
-                                {player.image ?
-                                    <Image
-                                        src={player.imageUrl}
-                                        alt={`visual aid for ${player.name}`}
-                                        className={`profileImage ${canEdit ? " cursorHand" : null}`}
-                                        onClick={(e) => { openUserImagePicker(e) }}
-                                    />
-
-                                    : <SlUser size='150' className={`${canEdit ? " cursorHand" : null}`} onClick={(e) => { openUserImagePicker(e) }} />}
-                            </View>
+                            <Avatar 
+                                {... userFunctions.stringAvatar(player, 150)} 
+                                className={`${canEdit ? " cursorHand" : null}`} 
+                                onClick={(e) => { openUserImagePicker(e) }} 
+                            />
+                            
                             <Modal
                                 title="Update profile picture"
                                 onClose={() => setShowImagePicker(false)} show={showImagePicker}

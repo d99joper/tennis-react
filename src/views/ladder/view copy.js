@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from 'react-router-dom';
-import { Button, Divider, Grid } from "@aws-amplify/ui-react";
+import { Button, Collection, Divider, Grid, Text } from "@aws-amplify/ui-react";
 import { Link } from "react-router-dom";
-import { Ladder, Ladders } from "components/forms";
-import { enums, ladderFunctions, userFunctions } from "helpers";
-import { Typography } from "@mui/material";
+import { ItemCard, Ladder, Ladders } from "components/forms";
+import { enums, helpers, ladderFunctions, userFunctions } from "helpers";
+import LadderSearch from "./search";
+import { Box } from "@mui/system";
 
 
 const LadderView = (props) => {
@@ -21,9 +22,8 @@ const LadderView = (props) => {
     const currentUser = props.currentUser
     //console.log(isLoggedIn, currentUser)
 
-    const LadderSearch = () => { 
-        return <Button style={{marginTop: 15}} variation="secondary"><Link to="/ladders/search" >Search for more ladders</Link></Button> 
-    }
+    const LadderSearch = () => { return <Link to="/ladders/search" >Search for other ladders</Link> }
+
 
     useEffect(() => {
         async function GetUserInfo() {
@@ -109,26 +109,45 @@ const LadderView = (props) => {
     else if (isLoggedIn) {// no ladderId, so display my ladders
         return (
             <>
-                <Grid templateColumns={"1fr"} templateRows={"1fr auto 1fr 1fr auto"} gap="1rem">
-                    <Typography variant="h6">My Ladders</Typography>
+                <Grid templateColumns={"1fr 1fr"} templateRows={"1fr 1fr auto 1fr 1fr auto"} gap="1rem">
+                    <Text columnStart="1" columnEnd="-1">My Ladders</Text>
+                    <Text>Singles</Text>
+                    <Text>Doubles</Text>
                     <Ladders 
-                        ladders={playerLadders} 
+                        ladders={playerLadders.filter(x => x.matchType === enums.MATCH_TYPE.SINGLES)} 
+                        useMatchItems={true} 
+                        usePlayerItems={true} 
                         width={500}
                         displayAs={enums.DISPLAY_MODE.Card}
                     />
+                    <Ladders 
+                        ladders={playerLadders.filter(x => x.matchType === enums.MATCH_TYPE.DOUBLES)} 
+                        useMatchItems={true} 
+                        usePlayerItems={true} 
+                        displayAs={enums.DISPLAY_MODE.Inline}
+                    />
 
-                    <Divider />
-                    <Typography variant="h6">Nearby Ladders</Typography>
+                    <Grid columnStart="1" columnEnd="-1">
+                        <Divider />
+                        <Text>Nearby Ladders</Text>
+                    </Grid>
+                    <Text>Singles</Text>
+                    <Text>Doubles</Text>
                     {nearbyLadders.ladders &&
+                    <>
                         <Ladders 
-                            ladders={nearbyLadders.ladders} 
-                            width={500}
-                            displayAs={enums.DISPLAY_MODE.Card}
+                            ladders={nearbyLadders.ladders.filter(x => x.matchType === enums.MATCH_TYPE.SINGLES)} 
                         />
+                        <Ladders 
+                            ladders={nearbyLadders.ladders.filter(x => x.matchType === enums.MATCH_TYPE.DOUBLES)} 
+                        />
+                    </>
                     }
                 </Grid>
 
-                <LadderSearch />
+                <p>
+                    <LadderSearch />
+                </p>
             </>
         )
     }
