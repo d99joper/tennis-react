@@ -159,6 +159,11 @@ a:hover {
   display: none;
 }
 
+.vericaltext{
+  writing-mode: vertical-lr;
+  text-orientation: upright;
+ }
+
 /* .MuiOutlinedInput-root {
   background-color: #ccff0022;
 } */

@@ -1,13 +1,15 @@
 // DynamicTable.js
-import { Table, TableBody, TableCell, TableFoot, TableHead, TableRow } from "@aws-amplify/ui-react";
+import { Button, Table, TableBody, TableCell, TableFoot, TableHead, TableRow } from "@aws-amplify/ui-react";
 import { userFunctions } from "helpers";
 import React, { useEffect, useState } from "react";
 import { GoTriangleDown, GoTriangleUp, GoCommentDiscussion } from 'react-icons/go';
-import { GiCrossedSwords, GiPropellerBeanie } from 'react-icons/gi';
+import { GiCrossedSwords, GiPropellerBeanie, GiTennisRacket } from 'react-icons/gi';
 import { Link } from "react-router-dom";
 import H2H from "../H2H/H2H";
 import Modal from "components/layout/Modal/modal";
 import { ConsoleLogger } from "@aws-amplify/core";
+import { SortDirection } from "aws-amplify";
+import { BsArrowBarDown, BsChevronCompactDown, BsChevronDoubleDown } from "react-icons/bs";
 //import "./Matches.css"
 
 const DynamicTable = ({
@@ -28,6 +30,8 @@ const DynamicTable = ({
     const [isShowH2H, setIsShowH2H] = useState([])
     const [isH2HDataFetched, setIsH2HDataFetched] = useState({})//new Array(data.length).fill(false))
     const [h2HData, setH2HData] = useState()
+
+    console.log("dynamicTable",data, sortField, direction)
 
     function openH2HModal(match, i) {
         if (!isH2HDataFetched[i]) {
@@ -104,6 +108,8 @@ const DynamicTable = ({
                 }
                 break;
             case 2:
+                // console.log(item)
+                // console.log(x)
                 //const x = column.accessor.split('.')
                 text = item[x[0]][[x[1]]]
                 if (urlVals) {
@@ -173,7 +179,7 @@ const DynamicTable = ({
     }
 
     return (<div key={"dynamicTable" + props.key}>
-        {data.length > 0 ?
+        {data &&
             <>
                 <Table highlightOnHover={true} marginTop="1em" marginBottom=".2em" variation="striped" className={props.className} backgroundColor={props.backgroundColor ?? 'white'}>
                     <TableHead backgroundColor={props.headerBackgroundColor ?? 'blue.20'} >
@@ -205,7 +211,7 @@ const DynamicTable = ({
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {data.map((m, i) =>
+                        {data?.map((m, i) =>
                             <TableRow
                                 key={`BodyRow_${i}_${m.id}`}
                                 {...setBackgroundColor(m)}
@@ -227,14 +233,14 @@ const DynamicTable = ({
                     }
                 </Table>
                 {nextToken ?
-                    <div onClick={props.onNextClick}>
-                        {nextText}
-                    </div>
+                    <Button onClick={props.onNextClick} variation="link">
+                        {nextText}&nbsp;<BsChevronDoubleDown />    <BsChevronDoubleDown /> 
+                    </Button>
                     : null
                 }
 
             </>
-            : 'no matches'
+            // : 'no matches'
         }
     </div>)
 }

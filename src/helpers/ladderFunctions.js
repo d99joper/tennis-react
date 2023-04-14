@@ -146,7 +146,9 @@ const ladderFunctions = {
                 points: 0,
                 player: {
                     id: playerId,
-                    name: player.name
+                    name: player.name,
+                    wins: 0,
+                    losses: 0
                 }
             }
             details.push(standing)
@@ -231,17 +233,27 @@ const ladderFunctions = {
         catch (e) { console.log(e); }
     },
 
-    GetLadder: async function (id) {
+    GetLadder: async function (id, nextMatchesToken) {
         //console.log(id)
         try {
             const apiData = await API.graphql({
                 query: qGetLadder,
-                variables: { id: id },
+                variables: { id: id, matchLimit: 5, nextMatchesToken: nextMatchesToken },
             });
 
-            const ladderFromAPI = apiData.data.getLadder;
-
-            return ladderFromAPI;
+            let ladderFromAPI = apiData.data.getLadder;
+            ladderFromAPI.matches.items = ladderFromAPI.matches.items.map((elem,i) => {
+                //console.log(elem)
+                return {match: elem}
+            })
+            let data = {
+                ... apiData.data.getLadder,
+                matches: {
+                    nextToken: apiData.data.getLadder.matches.nextToken, 
+                    matches: apiData.data.getLadder.matches.items
+                }
+            }
+            return data//ladderFromAPI;
         }
         catch (e) {
             console.log("failed to get ladder", e);
@@ -441,6 +453,9 @@ const ladderFunctions = {
                 // 1. find the players in the standings
                 let winner = details.find(x => x.player.id === match.winnerID)
                 let loser = details.find(x => x.player.id === match.loserID)
+                this.setDefaultPlayerSettings(winner, match.winner)
+                this.setDefaultPlayerSettings(loser, match.loser)
+                
                 console.log("winner", winner, "loser", loser)
                 // 2. update the players points
                 if(winner.points > loser.points) 
@@ -449,7 +464,11 @@ const ladderFunctions = {
                     winner.points = loser.points + 20
                 
                 loser.points += parseInt(loserGamesCount(match.score))
-                // 3. put them back in the standings - is this needed?
+
+                // 3. update win/loss number
+                winner.wins++
+                loser.losses++
+
                 console.log("winner", winner, "loser", loser)
             })
             
@@ -489,6 +508,15 @@ const ladderFunctions = {
             console.log("failed to delete ladder", e);
             return false;
         }
+    },
+
+    setDefaultPlayerSettings: function(player, playerTemplate) {
+        player.wins ??= 0
+        player.losses ??= 0
+        userFunctions.SetPlayerImage(playerTemplate)
+
+        if(playerTemplate.imageUrl)
+            player.imageUrl = playerTemplate.imageUrl
     }
 }
 

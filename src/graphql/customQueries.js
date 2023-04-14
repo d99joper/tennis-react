@@ -131,7 +131,11 @@ export const qGetPlayerByEmail = /* GraphQL */ `
 `;
 
 export const qGetLadder = /* GraphQL */ `
-  query qGetLadder($id: ID!) {
+  query qGetLadder(
+    $id: ID! 
+    $matchLimit: Int=5
+    $nextMatchesToken: String
+  ) {
     getLadder(id: $id) {
       id
       matchType
@@ -147,7 +151,7 @@ export const qGetLadder = /* GraphQL */ `
       }
       city
       zip
-      matches {
+      matches(limit: $matchLimit, sortDirection: DESC, nextToken: $nextMatchesToken) {
         items {
           id
           type
@@ -156,11 +160,17 @@ export const qGetLadder = /* GraphQL */ `
           winner {
             id
             name
+            image
           }
           winnerID
+          ladder {
+            id
+            name
+          }
           loser {
             id
             name
+            image
           }
           loserID
           score
@@ -249,11 +259,13 @@ export const qGetMatchByLadderID = /* GraphQL */ `
         winner {
           id
           name
+          image
         }
         loserID
         loser {
           id
           name
+          image
         }
         score
       }

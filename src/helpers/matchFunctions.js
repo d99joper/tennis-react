@@ -187,6 +187,9 @@ const MatchFunctions = {
             return false;
         }
     },
+    getMatchesForLadder: async function(ladder, startDate, endDate, findFilter=null, limit = 10, nextToken) {
+        
+    },
 
     getMatchesForPlayer: async function (player, ladder, startDate, endDate, findFilter = null, limit = 10, nextToken) {
 
