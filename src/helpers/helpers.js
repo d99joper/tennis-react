@@ -49,13 +49,19 @@ const helpers = {
         }
       
         let color = '#';
+        let val
       
         for (i = 0; i < 3; i += 1) {
-          const value = (hash >> (i * 8)) & 0xaa;
+          const value = Math.floor((hash >> (i*8))*56) + 200 //& 0xaa//Math.floor(Math.random()*75)+175 //(hash >> (i * 8)) & 0xff;
+          val = value
           color += `00${value.toString(16)}`.slice(-2);
         }
+        //console.log(color)
         /* eslint-enable no-bitwise */
-      
+        // return "hsl(" + 360 * Math.random() + ',' +
+        // (25 + 70 * Math.random()) + '%,' + 
+        // (85 + 10 * Math.random()) + '%)'
+        return `hsla(${val}, 70%,  72%, 0.8)`
         return color;
     }
 

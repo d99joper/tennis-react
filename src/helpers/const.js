@@ -10,7 +10,8 @@ export const enums = {
     DISPLAY_MODE: {
         Card: 'card',
         Inline: 'inline',
-        Table: 'table'
+        Table: 'table',
+        SimpleList: 'simpleList'
     },
 
     STANDINGS_ID: {

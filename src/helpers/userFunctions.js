@@ -93,6 +93,7 @@ const userFunctions = {
     },
 
     stringAvatar: function(player, size) {
+        //console.log("stringAvatar", player)
         const jsonObj = {
             sx: {
                 ... player ? {bgcolor: helpers.stringToColor(player.name)} :null,
@@ -100,7 +101,7 @@ const userFunctions = {
                 height: size,
                 border: 1
             },
-            ... player && player.image 
+            ... player && player.imageUrl 
             ? {src: player.imageUrl} 
             : {children: <SlUser {... size ? {size: size*0.65} :null } />}
         } 
@@ -260,7 +261,7 @@ const userFunctions = {
             const playerFromAPI = id ? apiData.data.getPlayer : apiData.data.playerByEmail.items[0]
             
             if (playerFromAPI && includeImage)
-                await SetPlayerImage(playerFromAPI)
+                await this.SetPlayerImage(playerFromAPI)
 
             //console.log("getPlayerFromAPI", playerFromAPI)
             return playerFromAPI;
@@ -341,8 +342,8 @@ const userFunctions = {
             variables: {filter: filter}
         })
         // add potential player images
-        await SetPlayerImage(player1)
-        await SetPlayerImage(player2)
+        await this.SetPlayerImage(player1)
+        await this.SetPlayerImage(player2)
         console.log(apiData.data)
 
         let data = {
@@ -401,16 +402,15 @@ const userFunctions = {
         years.totals = totals
         console.log("getPlayerStatsByYear", years)
         return years.sort((a, b) => (b.year - a.year))
-    }
-}
+    },
 
-    
-async function SetPlayerImage(player) {
-    if (player.image) {
-        if(!player.imageUrl) {
-        const url = await Storage.get(player.image);
-        player.imageUrl = url;
-        }   
+    SetPlayerImage: async function(player) {
+        if (player.image) {
+            if(!player.imageUrl) {
+            const url = await Storage.get(player.image);
+            player.imageUrl = url;
+            }   
+        }
     }
 }
 

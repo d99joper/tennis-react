@@ -4,9 +4,11 @@
     "private": true,
     "dependencies": {
         "@aws-amplify/ui-react": "^3.5.2",
-        "@emotion/react": "^11.10.5",
-        "@emotion/styled": "^11.10.5",
+        "@emotion/react": "^11.10.6",
+        "@emotion/styled": "^11.10.6",
+        "@fontsource/public-sans": "^4.5.12",
         "@fontsource/roboto": "^4.5.8",
+        "@mui/joy": "^5.0.0-alpha.75",
         "@mui/material": "^5.11.0",
         "@mui/x-date-pickers": "^5.0.12",
         "@testing-library/jest-dom": "^5.16.5",

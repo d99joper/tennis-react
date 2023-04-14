@@ -102,7 +102,7 @@ const LadderView = (props) => {
                         </div>
                     }
                     {/* Search for ladders */}
-                    <LadderSearch />
+                    {/* <LadderSearch /> */}
                 </Grid>
             </>
         )
