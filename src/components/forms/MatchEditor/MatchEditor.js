@@ -2,7 +2,7 @@ import { Flex, Radio, RadioGroupField, TextAreaField, Text } from '@aws-amplify/
 import {
     Autocomplete, Select, TextField,
     MenuItem, InputLabel, FormControl,
-    Checkbox, FormControlLabel, Button
+    Checkbox, FormControlLabel, Button, Typography
 } from '@mui/material'; //https://mui.com/material-ui/react-autocomplete/
 import React, { useEffect, useState } from 'react';
 import { enums, helpers, ladderFunctions as lf, matchFunctions as mf } from '../../../helpers/index';
@@ -14,7 +14,7 @@ import { GrCircleInformation } from 'react-icons/gr'
 
 //import { Dayjs } from 'dayjs';
 
-const MatchEditor = ({ player, onSubmit, isAdmin, minDate, ...props }) => {
+const MatchEditor = ({ ladder, player, onSubmit, isAdmin, minDate, ...props }) => {
     // Initialize the state for the player names and the selected match format
     const [playedOn, setPlayedOn] = useState(null);
     const [winner, setWinner] = useState(player)
@@ -139,10 +139,9 @@ const MatchEditor = ({ player, onSubmit, isAdmin, minDate, ...props }) => {
                         <Radio value={false}>No</Radio>
                     </RadioGroupField>
                     {!isWinner &&
-                        <div className="error" style={{ display: 'block', width: '300px', overflowX: 'visible' }}>
-                            Warning: Winner is supposed to report the score.
-                            You can report it, but make sure your opponent isn't planning on reporting it as well,
-                            to prevent duplicate scores.
+                        <div className="error" style={{ float: 'right', display: 'block', width: '300px', overflowX: 'visible', marginTop:'-100px' }}>
+                            <b>Warning:</b> The winner is supposed to submit the score.
+                            To prevent duplicate scores, make sure your opponent is not planning to submit it.
                         </div>
                     }
                 </>
@@ -177,7 +176,7 @@ const MatchEditor = ({ player, onSubmit, isAdmin, minDate, ...props }) => {
                             }
                         </FormControl>
                         :
-                        <label>ladderPlayers.ladder.name</label>
+                        <Typography variant='h6'>{ladderPlayers.ladder.name}</Typography>
                     }
                     {/* Date match was played */}
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
