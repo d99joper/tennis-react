@@ -1,10 +1,9 @@
-import { Grid, TabItem, Tabs, Text, View } from "@aws-amplify/ui-react";
+import { Button, Grid, Loader, TabItem, Tabs, Text, View } from "@aws-amplify/ui-react";
 import { enums, ladderFunctions as lf, matchFunctions, userFunctions } from "helpers";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, lazy, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Matches } from "../../forms/index.js"
 import './Ladder.css'
-import { Modal, Typography, Table, TableHead, TableCell, TableBody, Avatar, TableRow, CardHeader, Box, Select, MenuItem } from "@mui/material"
+import { Modal, Typography, Table, TableHead, TableCell, TableBody, Avatar, TableRow, CardHeader, Box, Select, MenuItem, FormControl, InputLabel, Dialog, DialogTitle } from "@mui/material"
 import '@fontsource/roboto/300.css'
 import '@fontsource/roboto/400.css'
 import '@fontsource/roboto/500.css'
@@ -12,37 +11,65 @@ import '@fontsource/roboto/700.css'
 import { GiSwordsPower, GiTennisRacket } from "react-icons/gi";
 import { AiOutlineMail, AiOutlinePhone } from "react-icons/ai";
 import { MdOutlineSms } from "react-icons/md";
+import { Storage } from "aws-amplify";
+import { Matches } from "../../forms/index.js"
 // import Modal from "components/layout/Modal/modal.js";
 // import { Modal, ModalClose, ModalDialog, Sheet } from "@mui/joy";
 
 const Ladder = ({
     id,
     isPlayerInLadder,
+    loggedInPlayerId,
+    currentUser = null,
     ...props
 }) => {
+    
+    const MatchEditor = lazy(() => import("../../forms/index") //MatchEditor/MatchEditor")
+    .then(module => { return { default: module.MatchEditor } }))
 
     const [ladder, setLadder] = useState()
     const [matches, setMatches] = useState({ nextToken: null, matches: [] })
     const [player, setPlayer] = useState()
-    const [showModal, setShowModal] = useState(false)
+    const [showChallangeModal, setShowChallangeModal] = useState(false)
+    const [showAddMatchModal, setShowAddMatchModal] = useState(false)
     const [nextMatchesToken, setNextMatchesToken] = useState()
-    const previousStandings = [{id:'1', createdOn: '2023-04-13'}]
+    const [previousStandings, setPreviousStandings] = useState([{ postedOn: '2017-02-01', id: "1laddertest", details: '[{"position":"0","player":{"name":"Jonas Persson","id":"1262162a-9732-4222-8a93-c9925703c911"},"points":"40"},{"position":"0","player":{"name":"Andy Peters","id":"624e73d8-bcde-4c55-91fe-cb39939cedef"},"points":"28"},{"position":"0","player":{"name":"Kevin Judson","id":"b6dc9d38-24c2-48bb-9b57-942b638a51b6"},"points":"16"}]' }])
+    const [displayedStandings, setDisplayedStandings] = useState()
 
+    async function setPlayerImages(details) {
+        return await Promise.all(JSON.parse(details).map(async (s, i) => {
+            if (s.player?.image) {
+                // set the image 
+                await Storage.get(s.player.image).then(data => {
+                    s.player.imageUrl = data
+                })
+            }
+            return s
+        }))
+    }
     // get latest standing
     useEffect(() => {
         async function getLadder() {
             const l = await lf.GetLadder(id, nextMatchesToken)
             //console.log(l)
+            // parse the details JSON and set player images
+            l.standings.details = await setPlayerImages(l.standings.details)
             return l
         }
+
         getLadder().then((data) => {
             // only refresh the ladder data if there is no nextMatchToken (meaining we've never fetched more matches)
-            if (!nextMatchesToken)
+            if (!nextMatchesToken) {
                 setLadder(data)
+                setPreviousStandings([...previousStandings, data.standings])
+                setDisplayedStandings(data.standings)
+            }
             setMatches(oldMatches => ({ nextToken: data.matches.nextToken, matches: [...oldMatches.matches, ...data.matches.matches] }))
             console.log(data)
         })
     }, [isPlayerInLadder, id, nextMatchesToken])
+
+    useEffect(() => { }, [])
 
     function addMatches(nextToken) {
         const compareToken = nextMatchesToken ?? ''
@@ -55,6 +82,30 @@ const Ladder = ({
         return
     }
 
+    async function updateDisplayedStandings(standings) {
+        if (typeof standings.details === "string") {
+            standings.details = await setPlayerImages(standings.details)
+        }
+
+        setDisplayedStandings(standings)
+    }
+
+    function handleStandingsChange(e) {
+        console.log(e.target.value)
+        let standings = e.target.value
+        updateDisplayedStandings(standings)
+
+    }
+
+    function handleAddMatch(match) {
+        console.log(match)
+        console.log(ladder)
+        console.log(matches)
+        setMatches(oldMatches => ({matches: [...oldMatches.matches, {match: match}]}))
+        setLadder(prevLadder => ({...prevLadder, matches: {matches: [...prevLadder.matches.matches, {match:match}]}}))
+        setShowAddMatchModal(false)
+    }
+
     function handleChallenge(playerId) {
         // get the player details
         userFunctions.getPlayer(playerId).then((data) => {
@@ -62,7 +113,7 @@ const Ladder = ({
             console.log(data)
             setPlayer(data)
             // display a modal with details
-            setShowModal(true)
+            setShowChallangeModal(true)
         })
     }
     const style = {
@@ -70,7 +121,7 @@ const Ladder = ({
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: 400,
+        width: 'auto',
         bgcolor: 'background.paper',
         border: '2px solid #000',
         boxShadow: 24,
@@ -85,8 +136,8 @@ const Ladder = ({
                 <Typography variant="h4">{ladder?.name}</Typography>
                 <Typography variant="caption">{ladder?.description}</Typography>
                 <Modal
-                    onClose={() => setShowModal(false)}
-                    open={showModal}
+                    onClose={() => setShowChallangeModal(false)}
+                    open={showChallangeModal}
                     aria-labelledby={`Challenge ${player?.name}`}
                     aria-describedby="Challenge another player to a match"
                 >
@@ -94,14 +145,16 @@ const Ladder = ({
                         <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={'1rem'}>
                             {`Challenge ${player?.name}`}
                         </Typography>
-                        <Typography variant="body1">
-                            You can challange {player?.name} by
-                            <View marginLeft={'1rem'}>
-                                {player?.phone && <div><a href={`tel:+${player?.phone}`}><AiOutlinePhone /> {player?.phone}</a></div>}
-                                {player?.phone && <div><a href={`sms:+${player?.phone}?&body=Hi ${player?.name.split(' ')[0]}!%20I'd%20like%20to%20challange%20you%20to%20a%20ladder%20match`}><MdOutlineSms /> {player?.phone}</a></div>}
-                                
-                                <div><a href={`mailto:${player?.email}`}><AiOutlineMail /> {player?.email}</a></div>
-                            </View>
+                        <Typography variant="body1" width={350}>
+                            Contact {player?.name} to schedule a match at a time and place that works for both of you.
+                        </Typography>
+                        <Typography marginTop={'1rem'} marginBottom={'1rem'} >
+                            You can challange {player?.name.split(' ')[0]} by
+                        </Typography>
+                        <Typography component={'div'} paddingLeft={'1rem'}>
+                            {player?.phone && <div><a href={`tel:+${player?.phone}`}><AiOutlinePhone /> {player?.phone}</a></div>}
+                            {player?.phone && <div><a href={`sms:+${player?.phone}?&body=Hi ${player?.name.split(' ')[0]}!%20I'd%20like%20to%20challange%20you%20to%20a%20ladder%20match`}><MdOutlineSms /> {player?.phone}</a></div>}
+                            <div><a href={`mailto:${player?.email}`}><AiOutlineMail /> {player?.email}</a></div>
                         </Typography>
                     </Box>
                 </Modal>
@@ -125,7 +178,7 @@ const Ladder = ({
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {JSON.parse(ladder?.standings?.details).map((s, i) => {
+                                    {displayedStandings?.details.map((s, i) => {
                                         return (
                                             <TableRow id='standing' key={i} hover>
                                                 <TableCell width="1px"><Typography variant="h6">{i + 1}.</Typography></TableCell>
@@ -140,7 +193,7 @@ const Ladder = ({
                                                 <TableCell>{s.wins ?? 0}</TableCell>
                                                 <TableCell>{s.losses ?? 0}</TableCell>
                                                 <TableCell>{`${s.points}p`}</TableCell>
-                                                {isPlayerInLadder &&
+                                                {isPlayerInLadder && loggedInPlayerId !== s.player.id &&
                                                     <TableCell align="center">
                                                         <GiTennisRacket
                                                             size="1.75em"
@@ -155,23 +208,63 @@ const Ladder = ({
                                     })}
                                 </TableBody>
                             </Table>
+                            {/* Make this a grid and add "Add Match in the middle" */}
+                            <Grid
+                                id='matches'
+                                templateRows={"auto 1fr auto"}
+                                textAlign='left' paddingRight='1rem' >
+                                <FormControl variant="standard" sx={{ m: 1, minWidth: 120, paddingBottom: '2rem' }}>
+                                    <InputLabel id="demo-simple-select-standard-label">Standings as of</InputLabel>
+                                    <Select
+                                        value={displayedStandings}
+                                        onChange={(e) => handleStandingsChange(e)}
+                                        labelId="demo-simple-select-standard-label"
+                                        variant="standard"
+                                    >
+                                        {previousStandings.length && previousStandings.map((s, i) => {
+                                            //const postedOn = Date(s.postedOn).toISOString().split('T')[0]
+                                            const postedOn = s.postedOn.split('T')[0]
 
-                            <View textAlign='left' paddingRight='1rem' id='matches'>
-                                <Box paddingBottom={'2rem'}>
-                                    <Typography variant="subtitle1">Previous Standings</Typography>
-                                    <Select value={'1'}>
-                                        {previousStandings.map((s) => {return <MenuItem value={s.id}>{s.createdOn}</MenuItem>})}
+                                            return (
+                                                <MenuItem key={i} value={s}>
+                                                    {postedOn}
+                                                </MenuItem>
+                                            )
+                                        })}
                                     </Select>
-                                </Box>
-                                <Typography variant="subtitle1">Last 5 matches</Typography>
-                                <Matches
-                                    ladderMatches={ladder.matches}
-                                    key="last5Matches"
-                                    displayAs={enums.DISPLAY_MODE.SimpleList}
-                                    onAddMatches={() => { console.log('add matches click') }}
-                                    limit="5">
-                                </Matches>
-                            </View>
+                                </FormControl>
+                                <View>
+                                    <Button onClick={() => setShowAddMatchModal(true)}>Add a match</Button>
+                                    <Dialog
+                                        onClose={() => setShowAddMatchModal(false)}
+                                        open={showAddMatchModal}
+                                        aria-labelledby={`Add a match`}
+                                        aria-describedby="Add a new match"
+                                        padding={'1rem'}
+                                    >
+                                        <DialogTitle>Add a new match</DialogTitle>
+                                        <Box padding={'1rem'}>
+                                            <Suspense fallback={<h2><Loader />Loading...</h2>}>
+                                                <MatchEditor 
+                                                    ladderId={ladder.id} 
+                                                    player={currentUser} 
+                                                    onSubmit={(m) => handleAddMatch(m)} 
+                                                />
+                                        </Suspense>
+                                        </Box>
+                                    </Dialog>
+                                </View>
+                                <View>
+                                    <Typography variant="subtitle1">Lastest matches</Typography>
+                                    <Matches
+                                        ladderMatches={ladder.matches}
+                                        key="last5Matches"
+                                        displayAs={enums.DISPLAY_MODE.SimpleList}
+                                        onAddMatches={() => { console.log('add matches click') }}
+                                        limit="5">
+                                    </Matches>
+                                </View>
+                            </Grid>
                         </Grid>
                     }
                 </TabItem>

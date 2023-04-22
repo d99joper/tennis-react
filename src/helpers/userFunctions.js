@@ -5,12 +5,13 @@ import {
     updatePlayer as updatePlayerMutation,
     deletePlayer as deletePlayerMutation,
 } from "../graphql/mutations";
-import { GetUserStatsByYear, 
-    GetYearsPlayed, 
-    H2HStats, 
-    GetGreatestRivals, 
-    qGetPlayer, 
-    qGetPlayerByEmail, 
+import {
+    GetUserStatsByYear,
+    GetYearsPlayed,
+    H2HStats,
+    GetGreatestRivals,
+    qGetPlayer,
+    qGetPlayerByEmail,
     mUpdatePlayer
 } from 'graphql/customQueries';
 import { Match } from 'models';
@@ -18,22 +19,22 @@ import { helpers } from './helpers';
 import { SlUser } from 'react-icons/sl';
 
 const userFunctions = {
-    
+
     createPlayerIfNotExist: async function (name) {
         const user = await Auth.currentAuthenticatedUser();
 
         //console.log(user);
         if (typeof user != 'undefined') {
             let player
-            if(name) player = await this.getPlayerFromAPI('noEmail@mytennis.space', null, null, name);
+            if (name) player = await this.getPlayerFromAPI('noEmail@mytennis.space', null, null, name);
             else player = await this.getPlayerFromAPI(user.attributes.email, null, null, null);
             //console.log("createPlayerIfNotExist", player);
             if (player === 'undefined' || !player) {
                 // user doesn't exist, so create it
                 // by name
-                if(name) player = await this.createPlayer(name, 'noEmail@mytennis.space', null)
+                if (name) player = await this.createPlayer(name, 'noEmail@mytennis.space', null)
                 else player = await this.createPlayer(user.attributes.name, user.attributes.email, user.attributes.sub)
-                console.log("createPlayerIfNotExist",player)
+                console.log("createPlayerIfNotExist", player)
                 return player
             }
             else return player
@@ -92,21 +93,24 @@ const userFunctions = {
         //   }
     },
 
-    stringAvatar: function(player, size) {
+    stringAvatar: function (player, size) {
         //console.log("stringAvatar", player)
-        const jsonObj = {
-            sx: {
-                ... player ? {bgcolor: helpers.stringToColor(player.name)} :null,
-                width: size,
-                height: size,
-                border: 1
-            },
-            ... player && player.imageUrl 
-            ? {src: player.imageUrl} 
-            : {children: <SlUser {... size ? {size: size*0.65} :null } />}
-        } 
-        
-        return jsonObj
+        try {
+            const jsonObj = {
+                sx: {
+                    ...player ? { bgcolor: helpers.stringToColor(player.name) } : null,
+                    width: size,
+                    height: size,
+                    border: 1
+                },
+                ...player && player.imageUrl
+                    ? { src: player.imageUrl }
+                    : { children: <SlUser {...size ? { size: size * 0.65 } : null} /> }
+            }
+
+            return jsonObj
+        }
+        catch (e) { console.log(e) }
     },
 
     createPlayer: async function (name, email, id) {
@@ -115,7 +119,7 @@ const userFunctions = {
         const loadData = {
             name: name,
             email: email,
-            ... id ? {id: id}: null,
+            ...id ? { id: id } : null,
             verified: (id ? true : false)
         };
         console.log(loadData);
@@ -138,7 +142,7 @@ const userFunctions = {
         try {
             let user = await Auth.currentAuthenticatedUser();
             //console.log("getCurrentlyLoggedInPlayer", user);
-            
+
             if (typeof user !== 'undefined') {
                 const player = await this.getPlayerFromAPI(user.attributes.email, null, true);
 
@@ -162,12 +166,12 @@ const userFunctions = {
         }
     },
 
-    getGreatestRivals: async function(id) {
+    getGreatestRivals: async function (id) {
         const apiResult = await API.graphql({
             query: GetGreatestRivals,
             variables: {
-                filter_winner: { winnerID: { eq: id }}, 
-                filter_loser: { loserID: { eq: id }},
+                filter_winner: { winnerID: { eq: id } },
+                filter_loser: { loserID: { eq: id } },
                 limit: 5
             }
         })
@@ -175,13 +179,13 @@ const userFunctions = {
         let rivals = []
         // start with the wins
         console.log(apiResult.data)
-        if(apiResult.data.wins.players.length > 0)  {
-            for(const rival of apiResult.data.wins.players[0].result.buckets) {
+        if (apiResult.data.wins.players.length > 0) {
+            for (const rival of apiResult.data.wins.players[0].result.buckets) {
                 const player = await this.getPlayerFromAPI(null, rival.key, true)
 
                 const lossItem = apiResult.data.losses.players[0].result.buckets.find(a => a.key === rival.key)
                 const lossCount = lossItem ? lossItem.doc_count : 0
-            
+
                 const newRival = {
                     player: player,
                     wins: rival.doc_count,
@@ -192,23 +196,23 @@ const userFunctions = {
             }
         }
         // now the loss bucket (to catch any players there are only losses against)
-        if(apiResult.data.losses.players.length > 0) 
-        for(const rival of apiResult.data.losses.players[0].result.buckets) {
-            // check if the rival is already in the array
-            const rivalExists = rivals ? rivals.find(x => x.player.id === rival.key) : false
-            if(!rivalExists) { // if the rival exists, we've already taken care of the losses 
-                const player = await this.getPlayerFromAPI(null, rival.key, true)
-                const newRival = {
-                    player: player,
-                    wins: 0,
-                    losses: rival.doc_count,
-                    totalMatches: rival.doc_count
+        if (apiResult.data.losses.players.length > 0)
+            for (const rival of apiResult.data.losses.players[0].result.buckets) {
+                // check if the rival is already in the array
+                const rivalExists = rivals ? rivals.find(x => x.player.id === rival.key) : false
+                if (!rivalExists) { // if the rival exists, we've already taken care of the losses 
+                    const player = await this.getPlayerFromAPI(null, rival.key, true)
+                    const newRival = {
+                        player: player,
+                        wins: 0,
+                        losses: rival.doc_count,
+                        totalMatches: rival.doc_count
+                    }
+                    rivals.push(newRival)
                 }
-                rivals.push(newRival)
             }
-        }
         // sort the most matches first in the list
-        return rivals.filter(a => a.totalMatches > 1).sort((a,b) => b.totalMatches - a.totalMatches)
+        return rivals.filter(a => a.totalMatches > 1).sort((a, b) => b.totalMatches - a.totalMatches)
     },
 
     GetMatches: async function () {
@@ -220,7 +224,7 @@ const userFunctions = {
         }
     },
 
-    GetPlayers: async function() {
+    GetPlayers: async function () {
         const playersAPI = await API.graphql({
             query: listPlayers
         })
@@ -250,16 +254,16 @@ const userFunctions = {
 
         try {
             const query = id ? qGetPlayer : qGetPlayerByEmail
-            const variables = id ? {id: id} 
-                : { email: email, ...name ? {name: {eq: name}} : null }
+            const variables = id ? { id: id }
+                : { email: email, ...name ? { name: { eq: name } } : null }
 
-            const apiData = await API.graphql({ 
-                query: query, 
-                variables: variables 
+            const apiData = await API.graphql({
+                query: query,
+                variables: variables
             })
 
             const playerFromAPI = id ? apiData.data.getPlayer : apiData.data.playerByEmail.items[0]
-            
+
             if (playerFromAPI && includeImage)
                 await this.SetPlayerImage(playerFromAPI)
 
@@ -329,17 +333,17 @@ const userFunctions = {
     //     return playersFromAPI;
     // },
 
-    getPlayerH2H: async function(player1, player2){
+    getPlayerH2H: async function (player1, player2) {
         const filter = {
             and: [
-                { playerID: { eq: player1.id }},
-                { opponentID: { eq: player2.id }}
+                { playerID: { eq: player1.id } },
+                { opponentID: { eq: player2.id } }
             ]
         }
-    
+
         const apiData = await API.graphql({
             query: H2HStats,
-            variables: {filter: filter}
+            variables: { filter: filter }
         })
         // add potential player images
         await this.SetPlayerImage(player1)
@@ -352,13 +356,13 @@ const userFunctions = {
             matches: apiData.data.result.matches,
             stats: MassageStats(apiData.data.result)
         }
-        console.log("getPlayerH2H",data)
+        console.log("getPlayerH2H", data)
 
         return data
     },
 
     getPlayerStatsByYear: async function (playerId, singlesOrDoubles) {
-        
+
         // get all active years
         let years = []
         const result = await API.graphql({
@@ -374,9 +378,9 @@ const userFunctions = {
                 //const stats = await this.GetUserStatsAllByYear(playerId, singlesOrDoubles, year)
                 const apiData = await API.graphql({
                     query: GetUserStatsByYear,
-                    variables: { playerId: playerId, type: singlesOrDoubles, startDate: `${year}-01-01` , endDate: `${year}-12-31` }
+                    variables: { playerId: playerId, type: singlesOrDoubles, startDate: `${year}-01-01`, endDate: `${year}-12-31` }
                 })
-                
+
                 // massage the data
                 console.log(apiData.data)
                 let stats = MassageStats(apiData.data.result)
@@ -387,16 +391,16 @@ const userFunctions = {
         else return years
 
         const clone = structuredClone(years[0].stats)//JSON.parse(JSON.stringify(years[0].stats))
-        
-        let totals = { year: 'all', count: years[0].stats.matches.total, stats: clone} 
-                
+
+        let totals = { year: 'all', count: years[0].stats.matches.total, stats: clone }
+
         totals.stats.raw = null
         //console.log("totals init", totals)
-        years.forEach((item,i) => {
-            if(i !== 0) {
-                console.log("index",i)
-                totals.count += item.count              
-                MergeStats(totals.stats, item.stats)                
+        years.forEach((item, i) => {
+            if (i !== 0) {
+                console.log("index", i)
+                totals.count += item.count
+                MergeStats(totals.stats, item.stats)
             }
         })
         years.totals = totals
@@ -404,20 +408,20 @@ const userFunctions = {
         return years.sort((a, b) => (b.year - a.year))
     },
 
-    SetPlayerImage: async function(player) {
+    SetPlayerImage: async function (player) {
         if (player.image) {
-            if(!player.imageUrl) {
-            const url = await Storage.get(player.image);
-            player.imageUrl = url;
-            }   
+            if (!player.imageUrl) {
+                const url = await Storage.get(player.image)
+                player.imageUrl = url
+            }
         }
     }
 }
 
 function MergeStats(stats1, stats2) {
     //console.log(stats1,stats2)
-    for(const prop in stats2) {
-        if(prop !== 'raw') {
+    for (const prop in stats2) {
+        if (prop !== 'raw') {
             console.log(prop)
             stats1[prop].total += stats2[prop].total
             stats1[prop].losses += stats2[prop].losses
@@ -431,16 +435,16 @@ function MergeStats(stats1, stats2) {
 function MassageStats(rawData) {
     //console.log(rawData)
     const totals = {
-            gamesWon: GetArrayItemValue(rawData.stats, 'name', 'gamesWon', 'result.value'),
-            gamesLost: GetArrayItemValue(rawData.stats, 'name', 'gamesLost', 'result.value'),
-            setsWon: GetArrayItemValue(rawData.stats, 'name', 'setsWon', 'result.value'),
-            setsLost: GetArrayItemValue(rawData.stats, 'name', 'setsLost', 'result.value'),
-            tiebreaksWon: GetArrayItemValue(rawData.stats, 'name', 'tiebreaksWon', 'result.value'),
-            tiebreaksLost: GetArrayItemValue(rawData.stats, 'name', 'tiebreaksLost', 'result.value'),
+        gamesWon: GetArrayItemValue(rawData.stats, 'name', 'gamesWon', 'result.value'),
+        gamesLost: GetArrayItemValue(rawData.stats, 'name', 'gamesLost', 'result.value'),
+        setsWon: GetArrayItemValue(rawData.stats, 'name', 'setsWon', 'result.value'),
+        setsLost: GetArrayItemValue(rawData.stats, 'name', 'setsLost', 'result.value'),
+        tiebreaksWon: GetArrayItemValue(rawData.stats, 'name', 'tiebreaksWon', 'result.value'),
+        tiebreaksLost: GetArrayItemValue(rawData.stats, 'name', 'tiebreaksLost', 'result.value'),
     }
-    const wins = GetArrayItemValue(GetArrayItemValue(rawData.stats, 'name', 'wins', 'result.buckets'), 'key', '1','doc_count') 
-    const losses = GetArrayItemValue(GetArrayItemValue(rawData.stats, 'name', 'wins', 'result.buckets'), 'key', '0','doc_count') 
-   
+    const wins = GetArrayItemValue(GetArrayItemValue(rawData.stats, 'name', 'wins', 'result.buckets'), 'key', '1', 'doc_count')
+    const losses = GetArrayItemValue(GetArrayItemValue(rawData.stats, 'name', 'wins', 'result.buckets'), 'key', '0', 'doc_count')
+
     let data = {
         raw: {
             // total matches
@@ -474,7 +478,7 @@ function MassageStats(rawData) {
             total: totals.tiebreaksLost + totals.tiebreaksWon
         }
     }
-    
+
     return data
 }
 
@@ -486,9 +490,9 @@ function GetCombinedAggregates(wins, losses) {
         // find the equivalent losses child object
         const lossChildOject = losses.stats.find(x => x.name === item.name)
         // Calculate and set the new value 
-        copy.result.value = 
-            lossChildOject ? lossChildOject.result.value :0 
-            + item ? item.result.value:0 
+        copy.result.value =
+            lossChildOject ? lossChildOject.result.value : 0
+                + item ? item.result.value : 0
         // return the new item
         return copy
     })
@@ -496,10 +500,10 @@ function GetCombinedAggregates(wins, losses) {
 }
 
 function GetTotalValue(array1, name1, array2, name2) {
-    
+
     const item1 = array1.find(x => x.name === name1)
     const item2 = array2.find(x => x.name === name2)
-    
+
     return item1.result.value + item2.result.value
 }
 
@@ -507,7 +511,7 @@ function GetArrayItemValue(arr, variableName, variableValue, valueName) {
     let item = arr.find(x => x[variableName] == variableValue)
     let value = item
 
-    if(item) {
+    if (item) {
         const itemNames = valueName.split('.')
         itemNames.forEach(element => {
             value = value[element]
@@ -521,16 +525,16 @@ function GetArrayItemValue(arr, variableName, variableValue, valueName) {
 function GetTotalValue2(array1, array2, name) {
     const item1 = array1.find(x => x.name === name)
     const item2 = array2.find(x => x.name === name)
-    
-    const val1 = (item1 ? item1.result.value :0)
-    const val2 = (item2 ? item2.result.value :0)
+
+    const val1 = (item1 ? item1.result.value : 0)
+    const val2 = (item2 ? item2.result.value : 0)
     //console.log(`val1:${val1}, val2:${val2}, result:${val1+val2}`)
-    return val1+val2
+    return val1 + val2
 }
 
 function CalcPercentage(val1, val2) {
     return val1 === 0 ? 0 : Math.round(100 * val1 / (val1 + val2), 2)
-}   
+}
 
 
 export default userFunctions;

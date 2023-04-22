@@ -94,7 +94,7 @@ const LadderView = (props) => {
                     {/* display the ladder */}
                     {params.ladderId &&
                         <div style={{ minHeight: '300px' }}>
-                            <Ladder id={params.ladderId} isPlayerInLadder={isPlayerInLadder} />
+                            <Ladder id={params.ladderId} isPlayerInLadder={isPlayerInLadder} currentUser={currentUser} loggedInPlayerId={userId} />
                             {/* join/leave ladder button (if you leave, you lose all your points but obviously keep your matches) */}
                             {/* Maybe this should be on the profile page instead? Or, better here where you can see the ladder? */}
 
