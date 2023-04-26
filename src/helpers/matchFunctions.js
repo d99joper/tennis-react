@@ -9,7 +9,8 @@ import {
     updateMatch as updateMatchMutation,
     deleteMatch as deleteMatchMutation,
     createComment,
-    createPlayerMatch
+    createPlayerMatch,
+    deletePlayerMatch
 } from "../graphql/mutations"
 import { enums, helpers, ladderFunctions, userFunctions as uf } from 'helpers'
 import { qFindMatchByDetails, qGetPlayerMatchByPlayer } from 'graphql/customQueries'
@@ -94,7 +95,7 @@ const MatchFunctions = {
             })
 
             // update the ladder standings based on date
-            await ladderFunctions.UpdateStandings(match.ladderID, playedOn)
+            await ladderFunctions.UpdateStandings({id:match.ladderID}, playedOn)
 
             // if there's a comment, create it
             if (match.comment) {
@@ -176,10 +177,21 @@ const MatchFunctions = {
 
     deleteMatch: async function (id) {
         try {
-            await API.graphql({
+            const deletedMatch = await API.graphql({
                 query: deleteMatchMutation,
                 variables: { input: { id } },
             });
+            console.log(deletedMatch)
+            // delete the winner's playerMatch
+            await API.graphql({
+                query: deletePlayerMatch,
+                variables: {input: { matchID: id, playerID: deletedMatch.data.deleteMatch.winnerID }}
+            })
+            // delete the loser's playerMatch
+            await API.graphql({
+                query: deletePlayerMatch,
+                variables: {input: {matchID: id, playerID: deletedMatch.data.deleteMatch.loserID }}
+            })
             return true
         }
         catch (e) {
@@ -187,6 +199,7 @@ const MatchFunctions = {
             return false;
         }
     },
+
     getMatchesForLadder: async function(ladder, startDate, endDate, findFilter=null, limit = 10, nextToken) {
         
     },

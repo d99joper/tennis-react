@@ -21,6 +21,7 @@ const Matches = ({
     showHeader = true,
     displayAs = enums.DISPLAY_MODE.Table,
     allowAdd = true,
+    allowDelete = false,
     excludeColumns,
     useColorCode = true,
     sortingField = "playedOn",
@@ -140,6 +141,7 @@ const Matches = ({
                                 displayAs={displayAs}
                                 index={index}
                                 match={item}
+                                allowDelete={allowDelete}
                                 color={setColor(item, index)}
                                 showComments={false}
                             ></Match>
@@ -161,6 +163,12 @@ const Matches = ({
                 <DynamicTable 
                     key={"matches"}
                     columns={tableHeaders}
+                    allowDelete={allowDelete}
+                    deleteFunc={(match) => {
+                            console.log(match.match.id)
+                            mf.deleteMatch(match.match.id)
+                            setMatches(matches.filter(x => x.match.id !== match.match.id))
+                        }}
                     sortField={sortField}
                     direction={direction}
                     data={matches}

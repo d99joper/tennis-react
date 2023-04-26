@@ -306,7 +306,7 @@ function Profile(props) {
                     {/************ MATCHES   *************/}
                     <Flex direction="row" gap="1rem">
                         <Card className='card' variation="elevated" style={{width:"100%"}}>
-                            <Matches player={player} limit="5"></Matches>
+                            <Matches player={player} limit="5" allowDelete={player.isAdmin}></Matches>
                             <Button label="Add new match"
                                 onClick={(e) => { toggleMatchEditor(e) }}
                             >{showMatchEditor ? 'Cancel' : 'Add'}</Button>

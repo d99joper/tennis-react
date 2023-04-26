@@ -20,10 +20,10 @@ export const findNearbyLadders = /* GraphQL */ `
         city
         zip
         matches {
-          items {id}
+          nextToken
         }
         players {
-          items {id}
+          nextToken
         }
         playerMatches {
           nextToken
@@ -84,6 +84,7 @@ export const searchPlayers = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -134,6 +135,7 @@ export const searchPlayerMatches = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -148,6 +150,7 @@ export const searchPlayerMatches = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -162,6 +165,7 @@ export const searchPlayerMatches = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -176,6 +180,7 @@ export const searchPlayerMatches = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -272,6 +277,7 @@ export const searchMatches = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -286,6 +292,7 @@ export const searchMatches = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -464,6 +471,7 @@ export const getPlayer = /* GraphQL */ `
         }
         nextToken
       }
+      isAdmin
       createdAt
       updatedAt
     }
@@ -506,6 +514,7 @@ export const listPlayers = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -538,6 +547,7 @@ export const getPlayerMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -564,6 +574,7 @@ export const getPlayerMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -590,6 +601,7 @@ export const getPlayerMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -616,6 +628,7 @@ export const getPlayerMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -636,6 +649,7 @@ export const getPlayerMatch = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -650,6 +664,7 @@ export const getPlayerMatch = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -758,6 +773,7 @@ export const listPlayerMatches = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -772,6 +788,7 @@ export const listPlayerMatches = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -786,6 +803,7 @@ export const listPlayerMatches = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -800,6 +818,7 @@ export const listPlayerMatches = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -878,6 +897,7 @@ export const getMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -904,6 +924,7 @@ export const getMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -1019,6 +1040,7 @@ export const listMatches = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -1033,6 +1055,7 @@ export const listMatches = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -1317,6 +1340,7 @@ export const getComment = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -1331,6 +1355,7 @@ export const getComment = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -1381,6 +1406,7 @@ export const getComment = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -1434,6 +1460,7 @@ export const listComments = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -1474,6 +1501,7 @@ export const getLadderPlayer = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -1539,6 +1567,7 @@ export const listLadderPlayers = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -1599,6 +1628,7 @@ export const playerByEmail = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -1634,6 +1664,7 @@ export const getPlayerMatchByPlayer = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -1648,6 +1679,7 @@ export const getPlayerMatchByPlayer = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -1662,6 +1694,7 @@ export const getPlayerMatchByPlayer = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -1676,6 +1709,7 @@ export const getPlayerMatchByPlayer = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -1752,6 +1786,7 @@ export const getPlayerMatchByPlayerVs = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -1766,6 +1801,7 @@ export const getPlayerMatchByPlayerVs = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -1780,6 +1816,7 @@ export const getPlayerMatchByPlayerVs = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -1794,6 +1831,7 @@ export const getPlayerMatchByPlayerVs = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -1870,6 +1908,7 @@ export const getPlayerMatchByPlayerWithPartner = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -1884,6 +1923,7 @@ export const getPlayerMatchByPlayerWithPartner = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -1898,6 +1938,7 @@ export const getPlayerMatchByPlayerWithPartner = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -1912,6 +1953,7 @@ export const getPlayerMatchByPlayerWithPartner = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -1988,6 +2030,7 @@ export const getPlayerMatchByPlayerDoublesOpponentPartner = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2002,6 +2045,7 @@ export const getPlayerMatchByPlayerDoublesOpponentPartner = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2016,6 +2060,7 @@ export const getPlayerMatchByPlayerDoublesOpponentPartner = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2030,6 +2075,7 @@ export const getPlayerMatchByPlayerDoublesOpponentPartner = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2104,6 +2150,7 @@ export const getPlayerMatchByMatchID = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2118,6 +2165,7 @@ export const getPlayerMatchByMatchID = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2132,6 +2180,7 @@ export const getPlayerMatchByMatchID = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2146,6 +2195,7 @@ export const getPlayerMatchByMatchID = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2222,6 +2272,7 @@ export const getPlayerMatchByMatchType = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2236,6 +2287,7 @@ export const getPlayerMatchByMatchType = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2250,6 +2302,7 @@ export const getPlayerMatchByMatchType = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2264,6 +2317,7 @@ export const getPlayerMatchByMatchType = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2340,6 +2394,7 @@ export const getPlayerMatchByLadder = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2354,6 +2409,7 @@ export const getPlayerMatchByLadder = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2368,6 +2424,7 @@ export const getPlayerMatchByLadder = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2382,6 +2439,7 @@ export const getPlayerMatchByLadder = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2463,6 +2521,7 @@ export const getMatchByDetails = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2477,6 +2536,7 @@ export const getMatchByDetails = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2540,6 +2600,7 @@ export const getMatchByLadderID = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2554,6 +2615,7 @@ export const getMatchByLadderID = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2669,6 +2731,7 @@ export const getCommentsByMatch = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2726,6 +2789,7 @@ export const getCommentsByPlayer = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
