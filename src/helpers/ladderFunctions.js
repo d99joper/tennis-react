@@ -204,7 +204,7 @@ const ladderFunctions = {
                 {
                     id: standingsID, 
                     details: "[]", 
-                    postedOn: new Date().toISOString(), 
+                    postedOn: new Date('1900-01-01').toISOString(), 
                     ladderID: ladderId
                 }, 
                 enums.STANDINGS_ID.Current
