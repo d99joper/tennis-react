@@ -33,7 +33,6 @@ const Ladder = ({
     const [showChallangeModal, setShowChallangeModal] = useState(false)
     const [showAddMatchModal, setShowAddMatchModal] = useState(false)
     const [nextMatchesToken, setNextMatchesToken] = useState()
-    const [previousStandings, setPreviousStandings] = useState([{ postedOn: '2017-02-01', id: "1laddertest", details: '[{"position":"0","player":{"name":"Jonas Persson","id":"1262162a-9732-4222-8a93-c9925703c911"},"points":"40"},{"position":"0","player":{"name":"Andy Peters","id":"624e73d8-bcde-4c55-91fe-cb39939cedef"},"points":"28"},{"position":"0","player":{"name":"Kevin Judson","id":"b6dc9d38-24c2-48bb-9b57-942b638a51b6"},"points":"16"}]' }])
     const [displayedStandings, setDisplayedStandings] = useState()
 
     async function setPlayerImages(details) {
@@ -61,13 +60,26 @@ const Ladder = ({
             // only refresh the ladder data if there is no nextMatchToken (meaining we've never fetched more matches)
             if (!nextMatchesToken) {
                 setLadder(data)
-                setPreviousStandings([...previousStandings, data.standings])
-                setDisplayedStandings(data.standings)
+                // // find the correct cur standings in prev standings
+                // const currentStandingIndex = data.previousStandings.findIndex(x => x.id == data.standings.id)
+                // data.previousStandings[currentStandingIndex] = data.standings
+                setDisplayedStandings(handleDisplayedStandings(data, data.standings))//data.standings)
             }
             setMatches(oldMatches => ({ nextToken: data.matches.nextToken, matches: [...oldMatches.matches, ...data.matches.matches] }))
             console.log(data)
         })
     }, [isPlayerInLadder, id, nextMatchesToken])
+
+    function handleDisplayedStandings(ladder, standings) {
+        // find the correct cur standings in prev standings
+        let currentStandingIndex = ladder.previousStandings.findIndex(x => x.id == standings.id)
+        if(currentStandingIndex === -1) {
+            ladder.previousStandings.push(standings)
+            currentStandingIndex = ladder.previousStandings.findIndex(x => x.id == standings.id)
+        }
+        ladder.previousStandings[currentStandingIndex] = standings
+        return ladder.previousStandings[currentStandingIndex]
+    }
 
     useEffect(() => { }, [])
 
@@ -83,18 +95,19 @@ const Ladder = ({
     }
 
     async function updateDisplayedStandings(standings) {
-        if (typeof standings.details === "string") {
+        if(!standings.details) {
+            console.log(standings)
+            standings = await lf.GetStandingsDetails(standings.id)
             standings.details = await setPlayerImages(standings.details)
         }
 
-        setDisplayedStandings(standings)
+        setDisplayedStandings(handleDisplayedStandings(ladder, standings))
     }
 
     function handleStandingsChange(e) {
         console.log(e.target.value)
         let standings = e.target.value
         updateDisplayedStandings(standings)
-
     }
 
     function handleAddMatch(match) {
@@ -221,7 +234,7 @@ const Ladder = ({
                                         labelId="demo-simple-select-standard-label"
                                         variant="standard"
                                     >
-                                        {previousStandings.length && previousStandings.map((s, i) => {
+                                        {ladder?.previousStandings.length && ladder?.previousStandings.map((s, i) => {
                                             //const postedOn = Date(s.postedOn).toISOString().split('T')[0]
                                             const postedOn = s.postedOn.split('T')[0]
 

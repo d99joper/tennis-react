@@ -19,6 +19,7 @@ type Player @model @searchable
   matches: [Match] @hasMany
   ladders: [Ladder!] @manyToMany(relationName: "ladderPlayer", limit: 1000)
   comments: [Comment!] @hasMany(indexName: "byPlayer", fields: ["id"])
+  isAdmin: Boolean @default(value: "false")
 }
 
 type PlayerMatch @model @searchable {

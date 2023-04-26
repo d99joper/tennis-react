@@ -140,18 +140,18 @@ const userFunctions = {
 
     getCurrentlyLoggedInPlayer: async function () {
         try {
-            let user = await Auth.currentAuthenticatedUser();
+            let user = await Auth.currentAuthenticatedUser()
             //console.log("getCurrentlyLoggedInPlayer", user);
 
             if (typeof user !== 'undefined') {
-                const player = await this.getPlayerFromAPI(user.attributes.email, null, true);
+                const player = await this.getPlayerFromAPI(user.attributes.email, null, true)
 
-                return player;
+                return player
             }
-            else return;
+            else return
 
         }
-        catch (e) { console.log(e); }
+        catch (e) { console.log(e) }
     },
 
     getPlayer: async function (id) {

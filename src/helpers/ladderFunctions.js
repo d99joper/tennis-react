@@ -1,5 +1,5 @@
 import { API } from 'aws-amplify'
-import { findNearbyLadders, standingsByLadder } from "../graphql/queries"
+import { findNearbyLadders, getStandings, standingsByLadder } from "../graphql/queries"
 import { 
     listLadderPlayersAsObjects, 
     listOtherPlayersAsObjects, 
@@ -7,7 +7,8 @@ import {
     qGetLadder, 
     qGetMatchByLadderID, 
     qGetStandingsDetails, 
-    qListLadders 
+    qListLadders, 
+    qStandingsByLadder
 } from "../graphql/customQueries"
 import {
     createLadder as createLadderMutation,
@@ -15,7 +16,8 @@ import {
     deleteLadder as deleteLadderMutation,
     createLadderPlayer,
     createStandings as createStandingsMutation,
-    updateStandings
+    updateStandings,
+    deleteStandings
 } from "../graphql/mutations"
 import { useEffect, useState } from 'react'
 import { helpers, enums, userFunctions } from 'helpers'
@@ -132,12 +134,9 @@ const ladderFunctions = {
             })
             // update the ladder standings
             const standingsId = `cur#${ladderId}`
-            const standings = await API.graphql({
-                query: qGetStandingsDetails,
-                variables: { id: standingsId }
-            })
+            const standings = await this.GetStandingsDetails(standingsId)
 
-            let details = JSON.parse(standings.data.getStandings.details)
+            let details = JSON.parse(standings.details)
 
             const maxPosition = details.length //Math.max(...details.map(o => o.position))
             const player = await userFunctions.getPlayer(playerId)
@@ -148,7 +147,8 @@ const ladderFunctions = {
                     id: playerId,
                     name: player.name,
                     wins: 0,
-                    losses: 0
+                    losses: 0,
+                    ... player.image ? {image: player.image} : null
                 }
             }
             details.push(standing)
@@ -246,13 +246,18 @@ const ladderFunctions = {
                 //console.log(elem)
                 return {match: elem}
             })
+            
+            const previousStandings = await this.GetAllLadderStandingsDates(id)
+
             let data = {
                 ... apiData.data.getLadder,
                 matches: {
                     nextToken: apiData.data.getLadder.matches.nextToken, 
                     matches: apiData.data.getLadder.matches.items
-                }
+                },
+                previousStandings: previousStandings
             }
+
             return data//ladderFromAPI;
         }
         catch (e) {
@@ -405,8 +410,9 @@ const ladderFunctions = {
         return apiData.data.createStandings
     },
 
-    UpdateStandings: async function(ladderId, playedOn) {
-        try{
+    UpdateStandings: async function(ladder, playedOn) {
+        const ladderId = ladder.id
+        try {
             function loserGamesCount(score) {
                 const sets = score.split(/[\s,]+/)
                 let gameCount = 0
@@ -416,48 +422,43 @@ const ladderFunctions = {
                 }
                 return gameCount
             }
-            // get all matches for the ladder since the match date, sorted by date
+
+            // 1. Get the ladder standing closest before the match date (playedOn). 
+            //    If there's no earlier standings, use the current standings
+            let standings = await GetStandingsForDate(ladderId, playedOn)
+            console.log("standings", standings)
+            let details = JSON.parse(standings.details)
+
+            // 2. Create a copy of the current standings and set to 'old'. 
+            //    Set the postedOn date to 
+            let currentStandings = standings
+            if(currentStandings.id.substring(0,3) !== 'cur') 
+                currentStandings = await this.GetStandingsDetails(`cur#${ladderId}`)
+
+            await this.CreateStandings(currentStandings, enums.STANDINGS_ID.Old) 
+
+            // 3. Get all matches for the ladder since the match date, sorted by date
             let apiData = await API.graphql({
                 query: qGetMatchByLadderID,
                 variables: {ladderID: ladderId, playedOn: {ge: playedOn}, sortDirection: 'ASC'}
             })
             const matches = apiData.data.getMatchByLadderID.items
             console.log("matches", matches)
-            // get the standings at the specific playedOn date
-            apiData = await API.graphql({
-                query: standingsByLadder,
-                variables: {
-                    ladderID: ladderId, 
-                    postedOn: {le: playedOn}, 
-                    sortDirection: 'DESC', 
-                    limit: 1}
-            })
-            let standings = apiData.data.standingsByLadder.items[0]
-            console.log("standings", standings)
-            let details = JSON.parse(standings.details)
-            // create a copy of the current standings and set to 'old'
-            if(standings.id.substring(0,3) === 'cur') {
-                await this.CreateStandings(standings, enums.STANDINGS_ID.Old)
-            } else {
-                const apiData = await API.graphql({
-                    query: qGetStandingsDetails,
-                    variables: {id: `cur#${ladderId}`}
-                })
-                const currentStandings = apiData.data.getStandings
-                await this.CreateStandings(currentStandings, enums.STANDINGS_ID.Old)
-            }
-
-            // for each match, 
+            
+            // 4. For each match, update points, wins, and losses
+            let maxMatchDate = new Date('1900-01-01')
             matches.map((match) => {
                 console.log(match)
-                // 1. find the players in the standings
+                const matchDate = new Date(match.playedOn)
+                maxMatchDate = matchDate > maxMatchDate ? matchDate : maxMatchDate 
+                // 4a. find the players in the standings
                 let winner = details.find(x => x.player.id === match.winnerID)
                 let loser = details.find(x => x.player.id === match.loserID)
                 this.setDefaultPlayerSettings(winner, match.winner)
                 this.setDefaultPlayerSettings(loser, match.loser)
                 
                 console.log("winner", winner, "loser", loser)
-                // 2. update the players points
+                // 4b. update the players points
                 if(winner.points > loser.points) 
                     winner.points += 20
                 else 
@@ -465,7 +466,7 @@ const ladderFunctions = {
                 
                 loser.points += parseInt(loserGamesCount(match.score))
 
-                // 3. update win/loss number
+                // 4c. update win/loss number
                 winner.wins++
                 loser.losses++
 
@@ -475,24 +476,70 @@ const ladderFunctions = {
             // sort the standings and update positions
             details.sort((a,b) => { return b.points - a.points })
             console.log("details after sort", details)
-            // Update the current standings and ladder
-            //standings.details = JSON.stringify(details)
-            await API.graphql({
+            
+            // 5. Update the current standings and ladder
+            const updatedStandings = await API.graphql({
                 query: updateStandings,
                 variables: {input: {
                     id: `cur#${ladderId}`,
                     details: JSON.stringify(details),
-                    postedOn: new Date(playedOn).toISOString(), 
+                    postedOn: maxMatchDate.toISOString(), 
                     ladderID: ladderId
                 }}
             })
 
-            return true
+            // 6. Delete all standings later than the current (can't have standings in the future)
+            // 6a. Get ladder standings
+            const standingsToDelete = await this.GetAllLadderStandingsDates(ladderId, maxMatchDate)
+            // 6b. Loop to delete
+            for (const s of standingsToDelete) 
+                //await this.deleteStandings(s.id)
+            
+            ladder.standings = updatedStandings.data
+
+            return ladder
 
         }
         catch(e) {
             console.log("failed to update standings", e)
             throw e
+        }
+    },
+
+    GetAllLadderStandingsDates: async function(ladderId, fromDate = null) {
+        const apiData = await API.graphql({
+            query: qStandingsByLadder,
+            variables: {
+                ladderID: ladderId,
+                // make sure we never delete the current standings
+                filter: {not: {id: {beginsWith: "cur#"}}},
+                ... fromDate ? {postedOn: {ge: fromDate}} : null
+            }
+        })
+
+        return apiData.data.standingsByLadder.items
+    },
+
+    GetStandingsDetails: async function(id) {
+        const apiData = await API.graphql({
+            query: qGetStandingsDetails,
+            variables: {id: id}
+        })
+
+        return apiData.data.getStandings
+    },
+
+    deleteStandings: async function(id) {
+        try {
+            await API.graphql({
+                query: deleteStandings,
+                variables: { input: { id } },
+            });
+            return true
+        }
+        catch (e) {
+            console.log(`failed to delete standings: ${id}`, e);
+            return false;
         }
     },
 
@@ -505,7 +552,7 @@ const ladderFunctions = {
             return true
         }
         catch (e) {
-            console.log("failed to delete ladder", e);
+            console.log(`failed to delete ladder: ${id}`, e);
             return false;
         }
     },
@@ -518,6 +565,26 @@ const ladderFunctions = {
         if(playerTemplate.imageUrl)
             player.imageUrl = playerTemplate.imageUrl
     }
+     
+}
+
+async function GetStandingsForDate(ladderId, playedOn) {
+    // get the standings at the specific playedOn date
+    let apiData = await API.graphql({
+        query: standingsByLadder,
+        variables: {
+            ladderID: ladderId, 
+            postedOn: {lt: playedOn}, 
+            sortDirection: 'DESC', 
+            limit: 1}
+    })
+
+    // if there are no earlier standings, get the current standings instead
+    if(!apiData.data.standingsByLadder.items.length) {
+        return await ladderFunctions.GetStandingsDetails(`cur#${ladderId}`) 
+    }
+
+    return apiData.data.standingsByLadder.items[0]
 }
 
 export default ladderFunctions;

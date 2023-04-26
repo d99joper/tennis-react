@@ -79,6 +79,7 @@ export const createPlayer = /* GraphQL */ `
         }
         nextToken
       }
+      isAdmin
       createdAt
       updatedAt
     }
@@ -162,6 +163,7 @@ export const updatePlayer = /* GraphQL */ `
         }
         nextToken
       }
+      isAdmin
       createdAt
       updatedAt
     }
@@ -245,6 +247,7 @@ export const deletePlayer = /* GraphQL */ `
         }
         nextToken
       }
+      isAdmin
       createdAt
       updatedAt
     }
@@ -278,6 +281,7 @@ export const createPlayerMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -304,6 +308,7 @@ export const createPlayerMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -330,6 +335,7 @@ export const createPlayerMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -356,6 +362,7 @@ export const createPlayerMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -376,6 +383,7 @@ export const createPlayerMatch = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -390,6 +398,7 @@ export const createPlayerMatch = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -498,6 +507,7 @@ export const updatePlayerMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -524,6 +534,7 @@ export const updatePlayerMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -550,6 +561,7 @@ export const updatePlayerMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -576,6 +588,7 @@ export const updatePlayerMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -596,6 +609,7 @@ export const updatePlayerMatch = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -610,6 +624,7 @@ export const updatePlayerMatch = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -718,6 +733,7 @@ export const deletePlayerMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -744,6 +760,7 @@ export const deletePlayerMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -770,6 +787,7 @@ export const deletePlayerMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -796,6 +814,7 @@ export const deletePlayerMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -816,6 +835,7 @@ export const deletePlayerMatch = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -830,6 +850,7 @@ export const deletePlayerMatch = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -943,6 +964,7 @@ export const createMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -969,6 +991,7 @@ export const createMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -1086,6 +1109,7 @@ export const updateMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -1112,6 +1136,7 @@ export const updateMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -1229,6 +1254,7 @@ export const deleteMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -1255,6 +1281,7 @@ export const deleteMatch = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -1801,6 +1828,7 @@ export const createComment = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -1815,6 +1843,7 @@ export const createComment = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -1865,6 +1894,7 @@ export const createComment = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -1899,6 +1929,7 @@ export const updateComment = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -1913,6 +1944,7 @@ export const updateComment = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -1963,6 +1995,7 @@ export const updateComment = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -1997,6 +2030,7 @@ export const deleteComment = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2011,6 +2045,7 @@ export const deleteComment = /* GraphQL */ `
           NTRP
           UTR
           verified
+          isAdmin
           createdAt
           updatedAt
         }
@@ -2061,6 +2096,7 @@ export const deleteComment = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -2102,6 +2138,7 @@ export const createLadderPlayer = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -2177,6 +2214,7 @@ export const updateLadderPlayer = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }
@@ -2252,6 +2290,7 @@ export const deleteLadderPlayer = /* GraphQL */ `
         comments {
           nextToken
         }
+        isAdmin
         createdAt
         updatedAt
       }

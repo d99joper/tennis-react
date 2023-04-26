@@ -1,6 +1,6 @@
 // DynamicTable.js
 import { Button, Table, TableBody, TableCell, TableFoot, TableHead, TableRow } from "@aws-amplify/ui-react";
-import { userFunctions } from "helpers";
+import { matchFunctions, userFunctions } from "helpers";
 import React, { useEffect, useState } from "react";
 import { GoTriangleDown, GoTriangleUp, GoCommentDiscussion } from 'react-icons/go';
 import { GiCrossedSwords, GiPropellerBeanie, GiTennisRacket } from 'react-icons/gi';
@@ -10,6 +10,7 @@ import Modal from "components/layout/Modal/modal";
 import { ConsoleLogger } from "@aws-amplify/core";
 import { SortDirection } from "aws-amplify";
 import { BsArrowBarDown, BsChevronCompactDown, BsChevronDoubleDown } from "react-icons/bs";
+import { AiOutlineDelete } from "react-icons/ai";
 //import "./Matches.css"
 
 const DynamicTable = ({
@@ -17,6 +18,7 @@ const DynamicTable = ({
     sortField: initialSortField,
     direction: initialDirection,
     data,//: initialData,
+    deleteFunc,
     footerChildren,
     iconSet,
     nextToken,
@@ -108,8 +110,8 @@ const DynamicTable = ({
                 }
                 break;
             case 2:
-                // console.log(item)
-                // console.log(x)
+                console.log(item)
+                console.log(x)
                 //const x = column.accessor.split('.')
                 text = item[x[0]][[x[1]]]
                 if (urlVals) {
@@ -211,18 +213,26 @@ const DynamicTable = ({
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {data?.map((m, i) =>
-                            <TableRow
-                                key={`BodyRow_${i}_${m.id}`}
-                                {...setBackgroundColor(m)}
-                            >
-                                {columns.map(c => {
-                                    const content = setContent(m, c, i)
-                                    return (
-                                        <TableCell key={`BodyCell_${i}_${c.accessor}`}>{content}</TableCell>
-                                    )
-                                })}
-                            </TableRow>
+                        {data?.map((m, i) => {
+                            const deleteCell = props.allowDelete ?
+                                <TableCell key={`delete${i}`}>
+                                    <AiOutlineDelete className="cursorHand" onClick={(e) => deleteFunc(m)} />
+                                </TableCell>
+                                : null
+                            return (
+                                <TableRow
+                                    key={`BodyRow_${i}_${m.id}`}
+                                    {...setBackgroundColor(m)}
+                                >
+                                    {columns.map(c => {
+                                        const content = setContent(m, c, i)
+                                        return (
+                                            <TableCell key={`BodyCell_${i}_${c.accessor}`}>{content}</TableCell>
+                                        )
+                                    })}
+                                    {deleteCell}
+                                </TableRow>
+                            )}
                         )}
                         {/* {bodyChildren} */}
                     </TableBody>

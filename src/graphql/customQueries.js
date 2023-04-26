@@ -61,6 +61,35 @@ export const qGetStandingsDetails = /* GraphQL */ `
   }
 `;
 
+export const qStandingsByLadder = /* GraphQL */ `
+query qStandingsByLadder(
+    $ladderID: ID!
+    $postedOn: ModelStringKeyConditionInput
+    $sortDirection: ModelSortDirection
+    $filter: ModelStandingsFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    standingsByLadder(
+      ladderID: $ladderID
+      postedOn: $postedOn
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        postedOn
+        ladderID
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;
+
 export const qGetPlayer = /* GraphQL */ `
   query qGetPlayer($id: ID!) {
     getPlayer(id: $id) {
@@ -73,6 +102,7 @@ export const qGetPlayer = /* GraphQL */ `
       NTRP
       UTR
       verified
+      isAdmin
       ladders {
         items {
           ladder {
@@ -114,6 +144,7 @@ export const qGetPlayerByEmail = /* GraphQL */ `
         NTRP
         UTR
         verified
+        isAdmin
         ladders {
           items {
             ladder {
