@@ -8,13 +8,14 @@ import { Global } from '@emotion/react';
 import { BsLadder, BsSearch } from 'react-icons/bs'
 import { SlUser } from 'react-icons/sl';
 import { AiOutlineMenuFold, AiOutlineMenuUnfold, AiOutlineHome, 
-         AiOutlineQuestionCircle, AiOutlineMail, AiOutlineSetting } from 'react-icons/ai'
+         AiOutlineQuestionCircle, AiOutlineMail, AiOutlineSetting, AiOutlineInfoCircle } from 'react-icons/ai'
 import {BiLogInCircle, BiLogOutCircle} from 'react-icons/bi'
 import bannerImage from '../../images/banner_tennis.jpg'
 import './layout.css'
+import { GiWhistle } from 'react-icons/gi';
 
 const MyMenu = (props) => {
-//console.log(props, props.isLoggedIn)
+console.log(props, props.isLoggedIn)
     const smallScreen = 600
     const mediumScreen = 900
     const userScreen = window.innerWidth
@@ -146,16 +147,28 @@ const MyMenu = (props) => {
                     </ListItemButton>
                     <ListItemButton title="About" component={Link} to="/about">
                         <ListItemIcon>
-                            <AiOutlineQuestionCircle size={'1.5rem'} />
+                            <AiOutlineInfoCircle size={'1.5rem'} />
                         </ListItemIcon>
                         <ListItemText primary={open && 'About'} />
                     </ListItemButton>
-                    <ListItemButton title="Contact" component={Link} to="/contact">
+                    <ListItemButton title="FAQ" component={Link} to="/faq">
+                        <ListItemIcon>
+                            <AiOutlineQuestionCircle size={'1.5rem'} />
+                        </ListItemIcon>
+                        <ListItemText primary={open && 'FAQ'} />
+                    </ListItemButton>
+                    <ListItemButton title="Rules" component={Link} to="/rules">
+                        <ListItemIcon>
+                            <GiWhistle size={'1.5rem'} />
+                        </ListItemIcon>
+                        <ListItemText primary={open && 'Rules'} />
+                    </ListItemButton>
+                    {/* <ListItemButton title="Contact" component={Link} to="/contact">
                         <ListItemIcon>
                             <AiOutlineMail size={'1.5rem'} />
                         </ListItemIcon>
                         <ListItemText primary={open && 'Contact'} />
-                    </ListItemButton>
+                    </ListItemButton> */}
                     {props.isLoggedIn !== true &&
                         <ListItemButton title="Login" component={Link} to="/login">
                             <ListItemIcon>
@@ -171,7 +184,7 @@ const MyMenu = (props) => {
                             </ListItemIcon>
                             <ListItemText primary={open && 'Logout'} />
                         </ListItemButton>
-                    }{props.testing === true &&
+                    }{props.currentUser?.isAdmin === true &&
                         <ListItemButton title="Admin" component={Link} to="/adminTasks">
                             <ListItemIcon>
                                 <AiOutlineSetting size={'1.5rem'} />
