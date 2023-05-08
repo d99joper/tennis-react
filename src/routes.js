@@ -19,10 +19,6 @@ function Home() {
   return <Heading level={2}>Home</Heading>;
 };
 
-function About() {
-  return <Heading level={2}>About</Heading>;
-};
-
 const Profile = lazy(() => import('./views/profile'))
 const LadderView = lazy(() => import('./views/ladder/view'))
 const LadderSearch = lazy(() => import('./views/ladder/search'))
@@ -38,6 +34,7 @@ const MyRouter = (props) => {
   const location = useLocation()
   const pathnames = location.pathname.split('/').filter((x) => x);
   console.log(pathnames)
+  console.log(props)
   return (
     <>
     {/* <BrowserRouter key="MyMainBrowserRouter"> */}
