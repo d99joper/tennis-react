@@ -15,7 +15,7 @@ import './layout.css'
 import { GiWhistle } from 'react-icons/gi';
 
 const MyMenu = (props) => {
-console.log(props, props.isLoggedIn)
+
     const smallScreen = 600
     const mediumScreen = 900
     const userScreen = window.innerWidth
@@ -133,12 +133,12 @@ console.log(props, props.isLoggedIn)
                             <ListItemText primary={open && 'My Profile'} />
                         </ListItemButton>
                     }
-                    <ListItemButton title="Ladders" component={Link} to="/ladders">
+                    {/* <ListItemButton title="Ladders" component={Link} to="/ladders">
                         <ListItemIcon>
                             <BsLadder size={'1.75rem'} />
                         </ListItemIcon>
                         <ListItemText primary={open && 'Ladders'} />
-                    </ListItemButton>
+                    </ListItemButton> */}
                     <ListItemButton title="Search" component={Link} to="/search">
                         <ListItemIcon>
                             <BsSearch size={'1.5rem'} />
