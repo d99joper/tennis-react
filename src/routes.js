@@ -19,22 +19,22 @@ function Home() {
   return <Heading level={2}>Home</Heading>;
 };
 
-function About() {
-  return <Heading level={2}>About</Heading>;
-};
-
 const Profile = lazy(() => import('./views/profile'))
 const LadderView = lazy(() => import('./views/ladder/view'))
 const LadderSearch = lazy(() => import('./views/ladder/search'))
 const NoPage = lazy(() => import('./views/NoPage'))
 const AdminTasks = lazy(() => import('./views/adminTasks'))
 const LadderCreate = lazy(() => import('./views/ladder/create'))
+const AboutPage = lazy(() => import('./views/about'))
+const FAQPage = lazy(() => import('./views/faq'))
+const RulesPage = lazy(() => import('./views/rules'))
 
 const MyRouter = (props) => {
   
   const location = useLocation()
   const pathnames = location.pathname.split('/').filter((x) => x);
   console.log(pathnames)
+  console.log(props)
   return (
     <>
     {/* <BrowserRouter key="MyMainBrowserRouter"> */}
@@ -54,7 +54,9 @@ const MyRouter = (props) => {
           <Routes key="MyMainRoutes">
             <Route exact path="/" element={<Home />} />
             <Route exact path="/home" element={<Home />} />
-            <Route exact path="/about" element={<About />} />
+            <Route exact path="/about" element={<AboutPage isLoggedIn={props.isLoggedIn} />} />
+            <Route exact path="/faq" element={<FAQPage />} />
+            <Route exact path="/rules" element={<RulesPage />} />
             <Route path="/profile" element={<Profile isLoggedIn={props.isLoggedIn} currentUser={props.currentUser} />} />
             <Route path="/profile/:userid" element={<Profile isLoggedIn={props.isLoggedIn} currentUser={props.currentUser} />} />
             <Route path="/login" element={<Login />} />
