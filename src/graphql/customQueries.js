@@ -60,6 +60,50 @@ export const qGetStandingsDetails = /* GraphQL */ `
     }
   }
 `;
+export const qfindNearbyLadders = /* GraphQL */ `
+  query FindNearbyLadders($input: FindNearbyLaddersInput!) {
+    findNearbyLadders(input: $input) {
+      items {
+        id
+        matchType
+        name
+        description
+        level {
+          min
+          max
+        }
+        location {
+          lat
+          lon
+        }
+        city
+        zip
+        matches {
+          items { id } 
+        }
+        players {
+          items { id }
+        }
+        playerMatches {
+          nextToken
+        }
+        standingsID
+        standings {
+          id
+          details
+          postedOn
+          ladderID
+          createdAt
+          updatedAt
+        }
+        createdAt
+        updatedAt
+      }
+      nextToken
+      total
+    }
+  }
+`;
 
 export const qStandingsByLadder = /* GraphQL */ `
 query qStandingsByLadder(
@@ -115,6 +159,62 @@ export const qGetPlayer = /* GraphQL */ `
       updatedAt
     }
   }
+`;
+
+export const qGetUnlinkedMatches = /* GraphQL */ `
+query qGetPlayerByEmail(
+  $email: AWSEmail!
+  $name: ModelStringKeyConditionInput
+  $sortDirection: ModelSortDirection
+  $filter: ModelPlayerFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  playerByEmail(
+    email: $email
+    name: $name
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      email
+      id
+      name
+      playerMatches {
+        items {
+          playerID
+          match {
+            id
+            score
+            playedOn
+            type
+            winner {
+              id
+              email
+              image
+              name
+            }
+            loser {
+              id
+              email
+              image
+              name
+            }
+            ladder {
+              id
+              name
+            }
+          }
+        }
+    }
+      createdAt
+      updatedAt
+    }
+    nextToken
+  }
+}
 `;
 
 export const qGetPlayerByEmail = /* GraphQL */ `
@@ -308,10 +408,11 @@ export const qGetMatchByLadderID = /* GraphQL */ `
 export const listOtherPlayersAsObjects = /* GraphQL */ `
     query listOtherPlayersAsObjects(
       $filter: SearchablePlayerFilterInput
+      $sort: [SearchablePlayerSortInput]
       $limit: Int
       $nextToken: String
     ) {
-      searchPlayers(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      searchPlayers(filter: $filter, sort: $sort, limit: $limit, nextToken: $nextToken) {
         items {
           id
           name
@@ -556,7 +657,7 @@ export const qGetPlayerMatchByPlayer = /* GraphQL */ `
         win
         retired
         playedOn
-        playerPlayerMatchesId
+        
       }
       nextToken
     }

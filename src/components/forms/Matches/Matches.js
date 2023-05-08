@@ -35,7 +35,8 @@ const Matches = ({
     const sortField = sortingField ?? "playedOn"
     const direction = sortDirection ?? "asc"
     const [nextToken, setNextToken] = useState("playedOn");
-    const [dataIsFetched, setDataIsFetched] = useState(false);
+    //const [dataIsFetched, setDataIsFetched] = useState(refetchData);
+    const [currentPlayer, setCurrentPlayer] = useState({})
     const [showLoader, setShowLoader] = useState(true);
     const matchPrefix = matches?.[0]?.hasOwnProperty('match') ? 'match.' : ''
     const useMatchPrefix = matches?.[0]?.hasOwnProperty('match') ? true : false
@@ -56,31 +57,33 @@ const Matches = ({
     }
 
     useEffect(() => {
-        if(!dataIsFetched)
+        //if(!dataIsFetched)
             //mf.listMatches(player, ladder, startDate, endDate).then((data) => {
-            if(player)
+            if(player && player != currentPlayer)
                 mf.getMatchesForPlayer(player, ladder, startDate, endDate, null, 10, null).then((data) => {
                     setMatches(data.matches)
                     setNextToken(data.nextToken)
-                    setDataIsFetched(true)
+                    //setDataIsFetched(true)
+                    setCurrentPlayer(player)
                     setShowLoader(false)
                 })
+            else setShowLoader(false)
             
             if(ladderMatches) {
                 setMatches(ladderMatches.matches)
                 setNextToken(ladderMatches.nextToken)
-                setDataIsFetched(true)
+                //setDataIsFetched(true)
                 setShowLoader(false)
             }
             else if(ladder)
             mf.getMatchesForLadder(ladder.id).then((data) => {
                 setMatches(data.matches)
                 setNextToken(data.nextToken)
-                setDataIsFetched(true)
+                //setDataIsFetched(true)
                 setShowLoader(false)
             })
 
-    }, [dataIsFetched, endDate, ladder, ladderMatches, player, startDate])
+    }, [ endDate, ladder, ladderMatches, player, startDate])
 
     function addMatches(e) {
         if(typeof onAddMatches === 'function') {
@@ -88,7 +91,10 @@ const Matches = ({
         }
         else
             mf.getMatchesForPlayer(player, ladder, startDate, endDate, null, 10, nextToken).then((data) => {
-                setMatches(oldMatches => [...oldMatches.matches, ...data.matches])
+                if(matches.matches)
+                    setMatches(oldMatches => [...oldMatches.matches, ...data.matches])
+                else
+                    setMatches(oldMatches => [...oldMatches, ...data.matches])
                 setNextToken(data.nextToken)
             })
     }
@@ -111,15 +117,16 @@ const Matches = ({
 
     function displayGames(score) {
         const sets = score.split(',')
+        
         let games = sets.map((set,i) => {
-            const games = set.split('-')
-            const winnerGames = games[0].substring(0, games[0].indexOf('(') === -1 ? games[0].length : games[0].indexOf('('))
-            const loserGames = games[1].substring(0, games[1].indexOf('(') === -1 ? games[1].length : games[1].indexOf('('))
-
+            const games = set.match(/\d+/g).map(Number) 
+            
             return (
                 <React.Fragment key={`matchScore_${i}`}>
-                    <Text marginLeft={'1rem'} columnStart={i+2} columnEnd={i+3} rowStart="2">{winnerGames}</Text>
-                    <Text marginLeft={'1rem'} columnStart={i+2} columnEnd={i+3} rowStart="4">{loserGames}</Text>
+                    <Text marginLeft={'1rem'} columnStart={i+2} columnEnd={i+3} rowStart="2">{games[0]}</Text>
+                    <Text marginLeft={'1rem'} columnStart={i+2} columnEnd={i+3} rowStart="4">
+                        {games[1]}{games[2] && <sup>({games[2]})</sup>}
+                    </Text>
                 </React.Fragment>
             )
         })
@@ -176,7 +183,7 @@ const Matches = ({
                     nextToken={nextToken}
                     nextText={"View more matches"}
                     onNextClick={addMatches}
-                    onLinkClick={() => {setShowLoader(true)}}
+                    onLinkClick={(p) => { if(p != player.id) setShowLoader(true)}}
                     styleConditionColor={useColorCode ? ['win-accent','lose-accent'] : null}
                     styleConditionVariable={useColorCode ? 'win' : null}
                 />
@@ -185,7 +192,7 @@ const Matches = ({
             {displayAs === enums.DISPLAY_MODE.SimpleList ?
                 matches?.map((m, i) => {
                     return (
-                        <Grid key={i} templateColumns="auto 1fr 1fr 1fr 1fr 1fr 1fr 1fr" marginBottom={'1rem'}>
+                        <Grid key={i} templateColumns="auto 1fr 1fr 1fr 1fr 1fr 1fr" marginBottom={'1rem'}>
                             <Text columnStart="1" columnEnd="-1" fontSize="0.8em" fontStyle="italic">{m.match?.playedOn}</Text>
                             <View columnStart="1" columnEnd="2">{m.match.winner.name}</View>
                             <Divider columnStart="1" columnEnd="-1"  />

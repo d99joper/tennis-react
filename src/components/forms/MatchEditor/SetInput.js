@@ -3,7 +3,7 @@ import React, { useState } from "react";
 
 const SetInput = (props) => {
 
-    const [setScore, setSetScore] = useState(props.value)
+    const [setScore, setSetScore] = useState()
     const [error, setError] = useState(false)
 
     const handleSetChange = (e) => {
@@ -13,13 +13,11 @@ const SetInput = (props) => {
     const handleBlur = (e) => {
         let score = formatScore(e.target.value)
 
-        if (!/^\d+ ?- ?\d+$/.test(score))
-            setError(true)
-        else {
+        if (/^\d+(?:(?!-\d+-)\-\d+)+(\(\d+\))?$/.test(score)) {
             // get the individual games
             const games = setScore && setScore.match(/\d+/g).map(Number);
             // check if the game score is unreasonable
-            if (games[0] > 10 || games[1] > 10)
+            if (games[0] > 20 || games[1] > 20)
                 setError(true)
             else {
                 // this is a legit score
@@ -27,20 +25,28 @@ const SetInput = (props) => {
 
                 // is it a tie-breaker?
                 if (Math.abs(games[0] - games[1]) === 1)
-                    console.log("show tiebreaker", Math.abs(games[0] - games[1]))
+                    console.log("it's a tiebreaker")
+                
+                props.handleBlur(score)
             }
+
         }
-        props.handleBlur(e)
+        else if(score === "") {
+            setError(false)
+            props.handleBlur(score)
+        } 
+        else setError(true)
     }
 
-    const formatScore = (score) => { return score.replace(/[^\d- ]/g, '').trim() }
+    const formatScore = (score) => { return score.replace(/[^\d-\(\) ]/g, '').trim() }
 
     return (
         <TextField
             label={props.label}
-            FormHelperTextProps={{className: "errorText"}}
+            FormHelperTextProps={{ className: "errorText" }}
             onChange={handleSetChange}
             onBlur={handleBlur}
+            //onChange={handleBlur}
             value={setScore}
             className="setBox"
             id="set-search"

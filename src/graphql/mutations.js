@@ -36,7 +36,6 @@ export const createPlayer = /* GraphQL */ `
           playedOn
           createdAt
           updatedAt
-          playerPlayerMatchesId
         }
         nextToken
       }
@@ -120,7 +119,6 @@ export const updatePlayer = /* GraphQL */ `
           playedOn
           createdAt
           updatedAt
-          playerPlayerMatchesId
         }
         nextToken
       }
@@ -204,7 +202,6 @@ export const deletePlayer = /* GraphQL */ `
           playedOn
           createdAt
           updatedAt
-          playerPlayerMatchesId
         }
         nextToken
       }
@@ -475,7 +472,6 @@ export const createPlayerMatch = /* GraphQL */ `
       playedOn
       createdAt
       updatedAt
-      playerPlayerMatchesId
     }
   }
 `;
@@ -701,7 +697,6 @@ export const updatePlayerMatch = /* GraphQL */ `
       playedOn
       createdAt
       updatedAt
-      playerPlayerMatchesId
     }
   }
 `;
@@ -927,7 +922,6 @@ export const deletePlayerMatch = /* GraphQL */ `
       playedOn
       createdAt
       updatedAt
-      playerPlayerMatchesId
     }
   }
 `;
@@ -1066,7 +1060,6 @@ export const createMatch = /* GraphQL */ `
           playedOn
           createdAt
           updatedAt
-          playerPlayerMatchesId
         }
         nextToken
       }
@@ -1211,7 +1204,6 @@ export const updateMatch = /* GraphQL */ `
           playedOn
           createdAt
           updatedAt
-          playerPlayerMatchesId
         }
         nextToken
       }
@@ -1356,7 +1348,6 @@ export const deleteMatch = /* GraphQL */ `
           playedOn
           createdAt
           updatedAt
-          playerPlayerMatchesId
         }
         nextToken
       }
@@ -1432,7 +1423,6 @@ export const createLadder = /* GraphQL */ `
           playedOn
           createdAt
           updatedAt
-          playerPlayerMatchesId
         }
         nextToken
       }
@@ -1527,7 +1517,6 @@ export const updateLadder = /* GraphQL */ `
           playedOn
           createdAt
           updatedAt
-          playerPlayerMatchesId
         }
         nextToken
       }
@@ -1622,7 +1611,6 @@ export const deleteLadder = /* GraphQL */ `
           playedOn
           createdAt
           updatedAt
-          playerPlayerMatchesId
         }
         nextToken
       }

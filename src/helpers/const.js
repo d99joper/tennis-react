@@ -22,5 +22,11 @@ export const enums = {
     MATCH_TYPE: {
         SINGLES: 'SINGLES',
         DOUBLES: 'DOUBLES'
+    },
+
+    OPERATION_TYPE: {
+        CREATE: 'CREATE',
+        UPDATE: 'UPDATE',
+        DELETE: 'DELETE'
     }
 }

@@ -1,9 +1,9 @@
-import { Button, Grid, Loader, TabItem, Tabs, Text, View } from "@aws-amplify/ui-react";
-import { enums, ladderFunctions as lf, matchFunctions, userFunctions } from "helpers";
+import { Button, Grid, Loader, TabItem, Tabs, View } from "@aws-amplify/ui-react";
+import { enums, helpers, ladderFunctions as lf, matchFunctions, userFunctions } from "helpers";
 import React, { Suspense, lazy, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import './Ladder.css'
-import { Modal, Typography, Table, TableHead, TableCell, TableBody, Avatar, TableRow, CardHeader, Box, Select, MenuItem, FormControl, InputLabel, Dialog, DialogTitle } from "@mui/material"
+import { Modal, Typography, Table, TableHead, TableCell, TableBody, Avatar, TableRow, CardHeader, Box, Select, MenuItem, FormControl, InputLabel, Dialog, DialogTitle, TextField } from "@mui/material"
 import '@fontsource/roboto/300.css'
 import '@fontsource/roboto/400.css'
 import '@fontsource/roboto/500.css'
@@ -13,6 +13,8 @@ import { AiOutlineMail, AiOutlinePhone } from "react-icons/ai";
 import { MdOutlineSms } from "react-icons/md";
 import { Storage } from "aws-amplify";
 import { Matches } from "../../forms/index.js"
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 // import Modal from "components/layout/Modal/modal.js";
 // import { Modal, ModalClose, ModalDialog, Sheet } from "@mui/joy";
 
@@ -23,9 +25,9 @@ const Ladder = ({
     currentUser = null,
     ...props
 }) => {
-    
+
     const MatchEditor = lazy(() => import("../../forms/index") //MatchEditor/MatchEditor")
-    .then(module => { return { default: module.MatchEditor } }))
+        .then(module => { return { default: module.MatchEditor } }))
 
     const [ladder, setLadder] = useState()
     const [matches, setMatches] = useState({ nextToken: null, matches: [] })
@@ -34,9 +36,13 @@ const Ladder = ({
     const [showAddMatchModal, setShowAddMatchModal] = useState(false)
     const [nextMatchesToken, setNextMatchesToken] = useState()
     const [displayedStandings, setDisplayedStandings] = useState()
+    const [standingsAsOfDate, setStandingsAsOfDate] = useState()
 
     async function setPlayerImages(details) {
-        return await Promise.all(JSON.parse(details).map(async (s, i) => {
+        if (typeof details === "string")
+            details = JSON.parse(details)
+
+        return await Promise.all(details.map(async (s, i) => {
             if (s.player?.image) {
                 // set the image 
                 await Storage.get(s.player.image).then(data => {
@@ -60,26 +66,23 @@ const Ladder = ({
             // only refresh the ladder data if there is no nextMatchToken (meaining we've never fetched more matches)
             if (!nextMatchesToken) {
                 setLadder(data)
-                // // find the correct cur standings in prev standings
-                // const currentStandingIndex = data.previousStandings.findIndex(x => x.id == data.standings.id)
-                // data.previousStandings[currentStandingIndex] = data.standings
-                setDisplayedStandings(handleDisplayedStandings(data, data.standings))//data.standings)
+                setDisplayedStandings(data.standings)
             }
             setMatches(oldMatches => ({ nextToken: data.matches.nextToken, matches: [...oldMatches.matches, ...data.matches.matches] }))
             console.log(data)
         })
     }, [isPlayerInLadder, id, nextMatchesToken])
 
-    function handleDisplayedStandings(ladder, standings) {
-        // find the correct cur standings in prev standings
-        let currentStandingIndex = ladder.previousStandings.findIndex(x => x.id == standings.id)
-        if(currentStandingIndex === -1) {
-            ladder.previousStandings.push(standings)
-            currentStandingIndex = ladder.previousStandings.findIndex(x => x.id == standings.id)
-        }
-        ladder.previousStandings[currentStandingIndex] = standings
-        return ladder.previousStandings[currentStandingIndex]
-    }
+    // function handleDisplayedStandings(ladder, standings) {
+    //     // find the correct cur standings in prev standings
+    //     let currentStandingIndex = ladder.previousStandings.findIndex(x => x.id == standings.id)
+    //     if (currentStandingIndex === -1) {
+    //         ladder.previousStandings.push(standings)
+    //         currentStandingIndex = ladder.previousStandings.findIndex(x => x.id == standings.id)
+    //     }
+    //     ladder.previousStandings[currentStandingIndex] = standings
+    //     return ladder.previousStandings[currentStandingIndex]
+    // }
 
     useEffect(() => { }, [])
 
@@ -94,29 +97,46 @@ const Ladder = ({
         return
     }
 
-    async function updateDisplayedStandings(standings) {
-        if(!standings.details) {
-            console.log(standings)
-            standings = await lf.GetStandingsDetails(standings.id)
+    // async function updateDisplayedStandings(standings) {
+    //     if (!standings.details) {
+    //         console.log(standings)
+    //         standings = await lf.GetStandingsDetails(standings.id)
+    //         standings.details = await setPlayerImages(standings.details)
+    //     }
+
+    //     setDisplayedStandings(handleDisplayedStandings(ladder, standings))
+    // }
+
+    async function updateDisplayedStandings2(date) {
+        let standings = await lf.GetStandingsForDate(ladder.id, date, true)
+        if (typeof standings.details === "string") {
+            standings.details = JSON.parse(standings.details)
             standings.details = await setPlayerImages(standings.details)
         }
-
-        setDisplayedStandings(handleDisplayedStandings(ladder, standings))
+        standings.details = standings.details.sort((a, b) => { return b.points - a.points })
+        //setDisplayedStandings(handleDisplayedStandings(ladder, standings))
+        setDisplayedStandings(standings)
     }
 
-    function handleStandingsChange(e) {
-        console.log(e.target.value)
-        let standings = e.target.value
-        updateDisplayedStandings(standings)
+    // function handleStandingsChange(e) {
+    //     console.log(e.target.value)
+    //     let standings = e.target.value
+    //     updateDisplayedStandings(standings)
+    // }
+    function handleStandingsChange2(date) {
+        console.log(date)
+        updateDisplayedStandings2(date)
     }
 
     function handleAddMatch(match) {
         console.log(match)
         console.log(ladder)
         console.log(matches)
-        setMatches(oldMatches => ({matches: [...oldMatches.matches, {match: match}]}))
-        setLadder(prevLadder => ({...prevLadder, matches: {matches: [...prevLadder.matches.matches, {match:match}]}}))
+        setMatches(oldMatches => ({ matches: [...oldMatches.matches, { match: match }] }))
+        setLadder(prevLadder => ({ ...prevLadder, matches: { matches: [...prevLadder.matches.matches, { match: match }] } }))
         setShowAddMatchModal(false)
+        // show the details from todays date
+        updateDisplayedStandings2(Date.now())
     }
 
     function handleChallenge(playerId) {
@@ -129,17 +149,7 @@ const Ladder = ({
             setShowChallangeModal(true)
         })
     }
-    const style = {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: 'auto',
-        bgcolor: 'background.paper',
-        border: '2px solid #000',
-        boxShadow: 24,
-        p: 4,
-    };
+
     return (
         <Grid
             templateRows={'1fr auto'}
@@ -154,7 +164,7 @@ const Ladder = ({
                     aria-labelledby={`Challenge ${player?.name}`}
                     aria-describedby="Challenge another player to a match"
                 >
-                    <Box sx={style}>
+                    <Box sx={helpers.modalStyle}>
                         <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={'1rem'}>
                             {`Challenge ${player?.name}`}
                         </Typography>
@@ -206,7 +216,8 @@ const Ladder = ({
                                                 <TableCell>{s.wins ?? 0}</TableCell>
                                                 <TableCell>{s.losses ?? 0}</TableCell>
                                                 <TableCell>{`${s.points}p`}</TableCell>
-                                                {isPlayerInLadder && loggedInPlayerId !== s.player.id &&
+                                                {
+                                                    isPlayerInLadder && loggedInPlayerId !== s.player.id &&
                                                     <TableCell align="center">
                                                         <GiTennisRacket
                                                             size="1.75em"
@@ -224,11 +235,23 @@ const Ladder = ({
                             {/* Make this a grid and add "Add Match in the middle" */}
                             <Grid
                                 id='matches'
-                                templateRows={"auto 1fr auto"}
+                                templateRows={"auto"}
                                 textAlign='left' paddingRight='1rem' >
                                 <FormControl variant="standard" sx={{ m: 1, minWidth: 120, paddingBottom: '2rem' }}>
-                                    <InputLabel id="demo-simple-select-standard-label">Standings as of</InputLabel>
-                                    <Select
+                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                        <DatePicker
+                                            label="Standings as of"
+                                            required
+                                            maxDate={Date.now()}
+                                            value={standingsAsOfDate}
+                                            onChange={(newValue) => {
+                                                setStandingsAsOfDate(newValue)
+                                                handleStandingsChange2(newValue.$d)
+                                            }}
+                                            renderInput={(params) => <TextField required {...params} sx={{ width: 200 }} />}
+                                        />
+                                    </LocalizationProvider>
+                                    {/* <Select
                                         value={displayedStandings}
                                         onChange={(e) => handleStandingsChange(e)}
                                         labelId="demo-simple-select-standard-label"
@@ -237,17 +260,17 @@ const Ladder = ({
                                         {ladder?.previousStandings.length && ladder?.previousStandings.map((s, i) => {
                                             //const postedOn = Date(s.postedOn).toISOString().split('T')[0]
                                             const postedOn = s.postedOn.split('T')[0]
-
+                                            if (postedOn == "1900-01-01") return
                                             return (
                                                 <MenuItem key={i} value={s}>
                                                     {postedOn}
                                                 </MenuItem>
                                             )
                                         })}
-                                    </Select>
+                                    </Select> */}
                                 </FormControl>
                                 <View>
-                                    <Button onClick={() => setShowAddMatchModal(true)}>Add a match</Button>
+                                    <Button variation="primary" onClick={() => setShowAddMatchModal(true)}>Add a match</Button>
                                     <Dialog
                                         onClose={() => setShowAddMatchModal(false)}
                                         open={showAddMatchModal}
@@ -258,12 +281,12 @@ const Ladder = ({
                                         <DialogTitle>Add a new match</DialogTitle>
                                         <Box padding={'1rem'}>
                                             <Suspense fallback={<h2><Loader />Loading...</h2>}>
-                                                <MatchEditor 
-                                                    ladderId={ladder.id} 
-                                                    player={currentUser} 
-                                                    onSubmit={(m) => handleAddMatch(m)} 
+                                                <MatchEditor
+                                                    ladderId={ladder.id}
+                                                    player={currentUser}
+                                                    onSubmit={(m) => handleAddMatch(m)}
                                                 />
-                                        </Suspense>
+                                            </Suspense>
                                         </Box>
                                     </Dialog>
                                 </View>
@@ -274,8 +297,8 @@ const Ladder = ({
                                         key="last5Matches"
                                         displayAs={enums.DISPLAY_MODE.SimpleList}
                                         onAddMatches={() => { console.log('add matches click') }}
-                                        limit="5">
-                                    </Matches>
+                                        limit="10"
+                                    />
                                 </View>
                             </Grid>
                         </Grid>

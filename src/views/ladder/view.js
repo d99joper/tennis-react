@@ -10,7 +10,7 @@ import { Typography } from "@mui/material";
 const LadderView = (props) => {
 
     const params = useParams();
-    const [isPlayerInLadder, setIsPlayerInLadder] = useState(true)
+    const [isPlayerInLadder, setIsPlayerInLadder] = useState()
     const [userId, setUserId] = useState(props.currentUser.id)
     const [playerLadders, setPlayerLadders] = useState([])
     const [nearbyLadders, setNearbyLadders] = useState([])
@@ -29,11 +29,11 @@ const LadderView = (props) => {
         async function GetUserInfo() {
             const currentUser = await userFunctions.getCurrentlyLoggedInPlayer()
             console.log(currentUser)
-            setUserId(currentUser.id)
-            setIsPlayerInLadder(await ladderFunctions.IsPlayerInLadder(currentUser.id, params.ladderId))
+            setUserId(currentUser?.id)
+            setIsPlayerInLadder(await ladderFunctions.IsPlayerInLadder(currentUser?.id, params.ladderId))
             //setIsLoggedIn(await userFunctions.CheckIfSignedIn())
         }
-        if (params.ladderId && currentUser.id !== -1)
+        if (params.ladderId )//&& currentUser.id !== -1)
             GetUserInfo()
 
         async function GetLadders() {

@@ -223,7 +223,6 @@ export const searchPlayerMatches = /* GraphQL */ `
         playedOn
         createdAt
         updatedAt
-        playerPlayerMatchesId
       }
       nextToken
       total
@@ -428,7 +427,6 @@ export const getPlayer = /* GraphQL */ `
           playedOn
           createdAt
           updatedAt
-          playerPlayerMatchesId
         }
         nextToken
       }
@@ -741,7 +739,6 @@ export const getPlayerMatch = /* GraphQL */ `
       playedOn
       createdAt
       updatedAt
-      playerPlayerMatchesId
     }
   }
 `;
@@ -861,7 +858,6 @@ export const listPlayerMatches = /* GraphQL */ `
         playedOn
         createdAt
         updatedAt
-        playerPlayerMatchesId
       }
       nextToken
     }
@@ -999,7 +995,6 @@ export const getMatch = /* GraphQL */ `
           playedOn
           createdAt
           updatedAt
-          playerPlayerMatchesId
         }
         nextToken
       }
@@ -1149,7 +1144,6 @@ export const getLadder = /* GraphQL */ `
           playedOn
           createdAt
           updatedAt
-          playerPlayerMatchesId
         }
         nextToken
       }
@@ -1752,7 +1746,6 @@ export const getPlayerMatchByPlayer = /* GraphQL */ `
         playedOn
         createdAt
         updatedAt
-        playerPlayerMatchesId
       }
       nextToken
     }
@@ -1874,7 +1867,6 @@ export const getPlayerMatchByPlayerVs = /* GraphQL */ `
         playedOn
         createdAt
         updatedAt
-        playerPlayerMatchesId
       }
       nextToken
     }
@@ -1996,7 +1988,6 @@ export const getPlayerMatchByPlayerWithPartner = /* GraphQL */ `
         playedOn
         createdAt
         updatedAt
-        playerPlayerMatchesId
       }
       nextToken
     }
@@ -2118,7 +2109,6 @@ export const getPlayerMatchByPlayerDoublesOpponentPartner = /* GraphQL */ `
         playedOn
         createdAt
         updatedAt
-        playerPlayerMatchesId
       }
       nextToken
     }
@@ -2238,7 +2228,6 @@ export const getPlayerMatchByMatchID = /* GraphQL */ `
         playedOn
         createdAt
         updatedAt
-        playerPlayerMatchesId
       }
       nextToken
     }
@@ -2360,7 +2349,6 @@ export const getPlayerMatchByMatchType = /* GraphQL */ `
         playedOn
         createdAt
         updatedAt
-        playerPlayerMatchesId
       }
       nextToken
     }
@@ -2482,7 +2470,6 @@ export const getPlayerMatchByLadder = /* GraphQL */ `
         playedOn
         createdAt
         updatedAt
-        playerPlayerMatchesId
       }
       nextToken
     }

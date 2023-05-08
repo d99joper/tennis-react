@@ -39,6 +39,19 @@ const helpers = {
 
         return 'not a date'
     },
+
+    modalStyle: {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 'auto',
+        bgcolor: 'background.paper',
+        border: '2px solid #000',
+        boxShadow: 24,
+        p: 4,
+    },
+
     stringToColor: function(string) {
         let hash = 0;
         let i;

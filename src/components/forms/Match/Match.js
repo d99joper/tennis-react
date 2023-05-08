@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-import { Flex, View } from "@aws-amplify/ui-react";
+import { Divider, Flex, Grid, Text, View } from "@aws-amplify/ui-react";
 import { GiCrossedSwords } from 'react-icons/gi';
 import { GoCommentDiscussion } from 'react-icons/go';
 import { helpers, enums, userFunctions } from "../../../helpers";
 import { Link } from "react-router-dom";
 import "./Match.css"
 import { Comments, H2H } from "../index"
-import Modal from "components/layout/Modal/modal";
+import { Box, Modal } from "@mui/material";
+// import Modal from "components/layout/Modal/modal";
 
 const Match = ({
     index,
@@ -34,6 +35,24 @@ const Match = ({
             setIsH2HDataFetched(true)
         }
         setIsShowH2H(true)
+    }
+
+    function displayGames(score) {
+        const sets = score.split(',')
+
+        let games = sets.map((set, i) => {
+            const games = set.match(/\d+/g).map(Number)
+
+            return (
+                <React.Fragment key={`matchScore_${i}`}>
+                    <Text marginLeft={'1rem'} columnStart={i + 2} columnEnd={i + 3} rowStart="2">{games[0]}</Text>
+                    <Text marginLeft={'1rem'} columnStart={i + 2} columnEnd={i + 3} rowStart="4">
+                        {games[1]}{games[2] && <sup>({games[2]})</sup>}
+                    </Text>
+                </React.Fragment>
+            )
+        })
+        return games
     }
 
     if (displayAs === enums.DISPLAY_MODE.Inline) {
@@ -83,11 +102,16 @@ const Match = ({
                                     color="#3e3333"
                                     onClick={openH2HModal} />
                                 <Modal
-                                    title={`${match.winner.name} vs ${match.loser.name}`}
-                                    onClose={() => setIsShowH2H(false)} show={isShowH2H}
+                                    aria-labelledby={'Head to Head'}
+                                    aria-describedby="Head to Head"
+                                    onClose={() => setIsShowH2H(false)}
+                                    open={isShowH2H}
                                 >
-                                    <H2H data={h2HData} />
-                                    
+                                    <Box sx={helpers.modalStyle}>
+                                        <div>{`${match.winner.name} vs ${match.loser.name}`}</div>
+                                        <H2H data={h2HData} />
+                                    </Box>
+
                                 </Modal>
                             </>
                             : ""
@@ -98,7 +122,19 @@ const Match = ({
         )
     }
     else if (displayAs === enums.DISPLAY_MODE.Card) {
-        return (<>This is a card</>)
+        return (
+            <Grid 
+                templateColumns="auto 1fr 1fr 1fr 1fr 1fr 1fr" 
+                marginBottom={'1rem'}
+                backgroundColor={props.backgroundColor ?? null}
+            >
+                <Text columnStart="1" columnEnd="-1" fontSize="0.8em" fontStyle="italic">{match?.playedOn}</Text>
+                <View columnStart="1" columnEnd="2">{match.winner.name}</View>
+                <Divider columnStart="1" columnEnd="-1" />
+                <View columnStart="1" columnEnd="2">{match.loser.name}</View>
+                {displayGames(match.score)}
+            </Grid>
+        )
     }
 }
 
