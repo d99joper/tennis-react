@@ -12,7 +12,8 @@ import {
     GetGreatestRivals,
     qGetPlayer,
     qGetPlayerByEmail,
-    mUpdatePlayer
+    mUpdatePlayer,
+    qGetUnlinkedMatches
 } from 'graphql/customQueries';
 import { Match } from 'models';
 import { helpers } from './helpers';
@@ -20,24 +21,38 @@ import { SlUser } from 'react-icons/sl';
 
 const userFunctions = {
 
-    createPlayerIfNotExist: async function (name) {
+    createPlayerIfNotExist: async function (name, email) {
         const user = await Auth.currentAuthenticatedUser();
 
         //console.log(user);
         if (typeof user != 'undefined') {
             let player
-            if (name) player = await this.getPlayerFromAPI('noEmail@mytennis.space', null, null, name);
+            if (name && email) {
+                // check if name OR email exists
+                player = await this.getPlayerFromAPI('noEmail@mytennis.space', null, null, name)
+                if(player === 'undefined' || !player) 
+                    player = await this.getPlayerFromAPI(email, null, null, null)
+            }
+            else if (name) player = await this.getPlayerFromAPI('noEmail@mytennis.space', null, null, name)
             else player = await this.getPlayerFromAPI(user.attributes.email, null, null, null);
             //console.log("createPlayerIfNotExist", player);
             if (player === 'undefined' || !player) {
-                // user doesn't exist, so create it
+                // player doesn't exist, so create it
+                // by name and email
+                if (name && email) player = await this.createPlayer(name, email, null)
                 // by name
-                if (name) player = await this.createPlayer(name, 'noEmail@mytennis.space', null)
+                else if (name) player = await this.createPlayer(name, 'noEmail@mytennis.space', null)
+                // by logged in user (first time you log in a player is created for your profile)
                 else player = await this.createPlayer(user.attributes.name, user.attributes.email, user.attributes.sub)
                 console.log("createPlayerIfNotExist", player)
                 return player
             }
-            else return player
+
+            // the player already exists.
+            // Add a flag that this is not a new player 
+            player.alreadyExists = true
+            // return the player
+            return player
         }
     },
 
@@ -113,8 +128,12 @@ const userFunctions = {
         catch (e) { console.log(e) }
     },
 
-    createPlayer: async function (name, email, id) {
-        console.log('createPlayer');
+    createPlayer: async function (name, email = 'noEmail@mytennis.space.com', id) {
+        console.log('createPlayer')
+
+        // check if the player already exists
+        const player = this.getPlayer
+        
 
         const loadData = {
             name: name,
@@ -265,8 +284,19 @@ const userFunctions = {
             const playerFromAPI = id ? apiData.data.getPlayer : apiData.data.playerByEmail.items[0]
 
             if (playerFromAPI && includeImage)
-                await this.SetPlayerImage(playerFromAPI)
-
+            await this.SetPlayerImage(playerFromAPI)
+            
+            // Get potentially unlinked matches
+            const unlinkedMatches = await API.graphql({
+                query: qGetUnlinkedMatches,
+                variables: {
+                    email: 'noEmail@mytennis.space', 
+                    name: {eq: playerFromAPI.name },
+                    filter: {not: {id: {eq: '33'+ playerFromAPI.id}}}
+                }
+            })
+            playerFromAPI.unLinkedMatches = unlinkedMatches.data?.playerByEmail?.items[0]?.playerMatches?.items
+ 
             //console.log("getPlayerFromAPI", playerFromAPI)
             return playerFromAPI;
         }
