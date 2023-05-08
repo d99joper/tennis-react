@@ -15,7 +15,7 @@ type Player @model @searchable
   NTRP: String
   UTR: String
   verified: Boolean! @default(value: "false")
-  playerMatches: [PlayerMatch!] @hasMany
+  playerMatches: [PlayerMatch!] @hasMany(indexName: "byPlayer", fields: ["id"])
   matches: [Match] @hasMany
   ladders: [Ladder!] @manyToMany(relationName: "ladderPlayer", limit: 1000)
   comments: [Comment!] @hasMany(indexName: "byPlayer", fields: ["id"])

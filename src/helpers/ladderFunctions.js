@@ -8,7 +8,8 @@ import {
     qGetMatchByLadderID, 
     qGetStandingsDetails, 
     qListLadders, 
-    qStandingsByLadder
+    qStandingsByLadder,
+    qfindNearbyLadders
 } from "../graphql/customQueries"
 import {
     createLadder as createLadderMutation,
@@ -25,7 +26,7 @@ import { helpers, enums, userFunctions } from 'helpers'
 const ladderFunctions = {
 
     useLadderPlayersData: function (ladderId, searchInput) {
-        const [data, setData] = useState({ ladder: {}, players: [{ name: 'no players found', id: 0 }] });
+        const [data, setData] = useState({ ladder: {}, players: [] });
         useEffect(() => {
             const fetchData = async () => {
                 let ladderPlayers
@@ -96,7 +97,7 @@ const ladderFunctions = {
         }
     },
 
-    IsPlayerInLadder: async function (playerId, ladderId) {
+    IsPlayerInLadder: async function (playerId = -1, ladderId) {
         try {
             console.log("IsPlayerInLadder", `${ladderId}#${playerId}`)
             const apiData = await API.graphql({
@@ -141,13 +142,13 @@ const ladderFunctions = {
             const maxPosition = details.length //Math.max(...details.map(o => o.position))
             const player = await userFunctions.getPlayer(playerId)
             let standing = {
-                position: maxPosition + 1,
+                losses: 0,
                 points: 0,
+                position: maxPosition + 1,
+                wins: 0,
                 player: {
                     id: playerId,
                     name: player.name,
-                    wins: 0,
-                    losses: 0,
                     ... player.image ? {image: player.image} : null
                 }
             }
@@ -200,14 +201,15 @@ const ladderFunctions = {
             })
             console.log('New ladder created', result, ladderId)
             // next, create an empty standings
-            this.CreateStandings(
+            this.CreateOrUpdateStandings(
                 {
                     id: standingsID, 
                     details: "[]", 
                     postedOn: new Date('1900-01-01').toISOString(), 
                     ladderID: ladderId
                 }, 
-                enums.STANDINGS_ID.Current
+                enums.STANDINGS_ID.Current,
+                enums.OPERATION_TYPE.CREATE
             )
            
             return ladderId;
@@ -233,12 +235,12 @@ const ladderFunctions = {
         catch (e) { console.log(e); }
     },
 
-    GetLadder: async function (id, nextMatchesToken) {
+    GetLadder: async function (id, nextMatchesToken, limit = 10) {
         //console.log(id)
         try {
             const apiData = await API.graphql({
                 query: qGetLadder,
-                variables: { id: id, matchLimit: 5, nextMatchesToken: nextMatchesToken },
+                variables: { id: id, matchLimit: limit, nextMatchesToken: nextMatchesToken },
             });
 
             let ladderFromAPI = apiData.data.getLadder;
@@ -247,7 +249,7 @@ const ladderFunctions = {
                 return {match: elem}
             })
             
-            const previousStandings = await this.GetAllLadderStandingsDates(id)
+            //const previousStandings = await this.GetAllLadderStandingsDates(id)
 
             let data = {
                 ... apiData.data.getLadder,
@@ -255,7 +257,7 @@ const ladderFunctions = {
                     nextToken: apiData.data.getLadder.matches.nextToken, 
                     matches: apiData.data.getLadder.matches.items
                 },
-                previousStandings: previousStandings
+                //previousStandings: previousStandings
             }
 
             return data//ladderFromAPI;
@@ -268,13 +270,13 @@ const ladderFunctions = {
 
     GetLadderPlayersForOther: async function (matchPhrase) {
         try {
-            console.log("getLadderPlayers with phrase")
-            const filter = { ...matchPhrase && { name: { matchPhrase: matchPhrase } } }
-            const limit = 20
+            const filter = { ...matchPhrase && { name: { matchPhrasePrefix: matchPhrase } } }
+            const limit = 15
             const query = listOtherPlayersAsObjects
+            
             const apiData = await API.graphql({
                 query: query,
-                variables: { filter: filter, limit: limit }
+                variables: { filter: filter, sort: {direction: 'asc', field: 'name'}, limit: limit }
             })
             console.log(apiData)
             const result = apiData.data.searchPlayers.items
@@ -286,7 +288,7 @@ const ladderFunctions = {
                 })
                 return retVal
             }
-            return { ladder: { name: 'no ladder found', id: 0 }, players: [{ name: 'no players found', id: 0 }] }
+            return { ladder: { name: 'no ladder found', id: 0 }, players: [] }
         }
         catch (e) {
             console.log("GetLadderPlayersForOther", e)
@@ -298,7 +300,7 @@ const ladderFunctions = {
         try {
             console.log(excludeList)
             const result = await API.graphql({
-                query: findNearbyLadders,
+                query: qfindNearbyLadders,
                 variables: {
                     input: {
                         byLocation: {
@@ -346,7 +348,7 @@ const ladderFunctions = {
                 })
                 return retVal
             }
-            return { ladder: { name: 'no ladder found', id: 0 }, players: [{ name: 'no players found', id: 0 }] }
+            return { ladder: { name: 'no ladder found', id: 0 }, players: [] }
         }
         catch (e) {
             console.log("GetLadderPlayers", e)
@@ -390,13 +392,27 @@ const ladderFunctions = {
         }
     },
 
-    CreateStandings: async function(standings, oldOrCur) {
-        const standingId = oldOrCur === enums.STANDINGS_ID.Current 
+    CreateOrUpdateStandings: async function(standings, oldOrCur, createOrUpdate) {
+        let standingId, query
+        if(createOrUpdate === enums.OPERATION_TYPE.CREATE) {
+            standingId = oldOrCur === enums.STANDINGS_ID.Current 
             ? `cur#${standings.ladderID}`
             : helpers.getGUID()
+            query = createStandingsMutation
+        }
+        else {
+            standingId = oldOrCur === enums.STANDINGS_ID.Current 
+            ? `cur#${standings.ladderID}`
+            : standings.id
+            query = updateStandings
+        }
+
+        // stringify the details if they are not
+        if(typeof standings.details !== "string")
+            standings.details = JSON.stringify(standings.details)
 
         const apiData = await API.graphql({
-            query: createStandingsMutation,
+            query: query,
             variables: {
                 input: {
                     id: standingId,
@@ -407,11 +423,14 @@ const ladderFunctions = {
             }
         })
 
-        return apiData.data.createStandings
+        return createOrUpdate === enums.OPERATION_TYPE.CREATE 
+            ? apiData.data.createStandings
+            : apiData.data.updateStandings
     },
 
-    UpdateStandings: async function(ladder, playedOn) {
+    CalculateStandings: async function(ladder, playedOn) {
         const ladderId = ladder.id
+
         try {
             function loserGamesCount(score) {
                 const sets = score.split(/[\s,]+/)
@@ -422,6 +441,22 @@ const ladderFunctions = {
                 }
                 return gameCount
             }
+            function addPlayerToDetails(playerObj, player, details ) {
+                playerObj = { 
+                    player: { 
+                        id: player.id, 
+                        name: player.name,
+                        ...player.image ? {image: player.image} : null 
+                    }, 
+                    wins: 0, 
+                    losses: 0, 
+                    points: 0,
+                    position: 0
+                }
+                details.push(playerObj)
+
+                return playerObj
+            }
 
             // 1. Get the ladder standing closest before the match date (playedOn). 
             //    If there's no earlier standings, use the current standings
@@ -429,15 +464,14 @@ const ladderFunctions = {
             console.log("standings", standings)
             let details = JSON.parse(standings.details)
 
-            // 2. Create a copy of the current standings and set to 'old'. 
-            //    Set the postedOn date to 
-            let currentStandings = standings
-            if(currentStandings.id.substring(0,3) !== 'cur') 
-                currentStandings = await this.GetStandingsDetails(`cur#${ladderId}`)
+            // 2. Get the all standings later than the new match date (they are now incorrect)
+            //    However, don't delete them until everything else is done (step 6)
+            const standingsToDelete = await this.GetAllLadderStandingsDates(ladderId, playedOn)
 
-            await this.CreateStandings(currentStandings, enums.STANDINGS_ID.Old) 
+            // 3. Set the is initial standings flag
+            let isInitialStandings = true
 
-            // 3. Get all matches for the ladder since the match date, sorted by date
+            // 4. Get all matches for the ladder since the match date, sorted by date
             let apiData = await API.graphql({
                 query: qGetMatchByLadderID,
                 variables: {ladderID: ladderId, playedOn: {ge: playedOn}, sortDirection: 'ASC'}
@@ -445,20 +479,38 @@ const ladderFunctions = {
             const matches = apiData.data.getMatchByLadderID.items
             console.log("matches", matches)
             
-            // 4. For each match, update points, wins, and losses
-            let maxMatchDate = new Date('1900-01-01')
-            matches.map((match) => {
-                console.log(match)
+            // 5. For each match, update points, wins, and losses
+            //await Promise.all(matches.map(async (match) => {
+            for (const match of matches) {
+                // 5a. Check if the match is played after the standings posted date
                 const matchDate = new Date(match.playedOn)
-                maxMatchDate = matchDate > maxMatchDate ? matchDate : maxMatchDate 
-                // 4a. find the players in the standings
+                const standingsDate = new Date(standings.postedOn)
+                if(standingsDate < matchDate) {
+                    if(isInitialStandings) 
+                        isInitialStandings = false
+                    else {
+                        // Update the standings with the new details
+                        details.sort((a,b) => { return b.points - a.points })
+                        standings.details = details
+                        standings = await this.CreateOrUpdateStandings(standings, enums.STANDINGS_ID.Old, enums.OPERATION_TYPE.UPDATE)
+                    }
+                    
+                    // Create a new standings for the next match
+                    standings.postedOn = matchDate.toISOString()
+                    standings = await this.CreateOrUpdateStandings(standings, enums.STANDINGS_ID.Old, enums.OPERATION_TYPE.CREATE)
+                }
+                
+                // 5b. find the players in the standings
                 let winner = details.find(x => x.player.id === match.winnerID)
+                // if the player isn't in the standings, add him/her
+                if(!winner) winner = addPlayerToDetails(winner, match.winner, details)
                 let loser = details.find(x => x.player.id === match.loserID)
+                if(!loser) loser = addPlayerToDetails(loser, match.loser, details)
                 this.setDefaultPlayerSettings(winner, match.winner)
                 this.setDefaultPlayerSettings(loser, match.loser)
                 
                 console.log("winner", winner, "loser", loser)
-                // 4b. update the players points
+                // 5c. update the players points
                 if(winner.points > loser.points) 
                     winner.points += 20
                 else 
@@ -466,37 +518,31 @@ const ladderFunctions = {
                 
                 loser.points += parseInt(loserGamesCount(match.score))
 
-                // 4c. update win/loss number
+                // 5d. update win/loss number
                 winner.wins++
                 loser.losses++
 
                 console.log("winner", winner, "loser", loser)
-            })
+            }
             
-            // sort the standings and update positions
+            // 5e. sort the standings and update positions
             details.sort((a,b) => { return b.points - a.points })
             console.log("details after sort", details)
-            
-            // 5. Update the current standings and ladder
-            const updatedStandings = await API.graphql({
-                query: updateStandings,
-                variables: {input: {
-                    id: `cur#${ladderId}`,
-                    details: JSON.stringify(details),
-                    postedOn: maxMatchDate.toISOString(), 
-                    ladderID: ladderId
-                }}
-            })
 
-            // 6. Delete all standings later than the current (can't have standings in the future)
-            // 6a. Get ladder standings
-            const standingsToDelete = await this.GetAllLadderStandingsDates(ladderId, maxMatchDate)
-            // 6b. Loop to delete
+            // 6. Loop to delete all antiquated standings
             for (const s of standingsToDelete) 
-                //await this.deleteStandings(s.id)
-            
-            ladder.standings = updatedStandings.data
+                await this.deleteStandings(s.id)
 
+            // 7. Update the current standings to this standings
+            const placeholderStandingsId = standings.id// Update the standings with the new details
+            standings.details = details
+            standings = await this.CreateOrUpdateStandings(standings, enums.STANDINGS_ID.Current, enums.OPERATION_TYPE.UPDATE)
+
+            // 8. Delete the standings used to this point. It's been saved as the current standing
+            await this.deleteStandings(placeholderStandingsId)
+
+            // 9. Set the ladder standings and return the full ladder
+            ladder.standings = standings
             return ladder
 
         }
@@ -564,6 +610,29 @@ const ladderFunctions = {
 
         if(playerTemplate.imageUrl)
             player.imageUrl = playerTemplate.imageUrl
+    },
+
+    GetStandingsForDate: async function(ladderId, playedOn, includeSameDate = false) {
+        // get the standings at the specific playedOn date
+        let dateComparison = {lt: playedOn}
+        if(includeSameDate) 
+            dateComparison = {le: playedOn}
+        
+        let apiData = await API.graphql({
+            query: standingsByLadder,
+            variables: {
+                ladderID: ladderId, 
+                postedOn: dateComparison, 
+                sortDirection: 'DESC', 
+                limit: 1}
+        })
+    
+        // if there are no earlier standings, get the current standings instead
+        if(!apiData.data.standingsByLadder.items.length) {
+            return await ladderFunctions.GetStandingsDetails(`cur#${ladderId}`) 
+        }
+    
+        return apiData.data.standingsByLadder.items[0]
     }
      
 }

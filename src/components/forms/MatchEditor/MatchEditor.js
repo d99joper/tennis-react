@@ -4,13 +4,15 @@ import {
     MenuItem, InputLabel, FormControl,
     Checkbox, FormControlLabel, Button, Typography
 } from '@mui/material'; //https://mui.com/material-ui/react-autocomplete/
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { enums, helpers, ladderFunctions as lf, matchFunctions as mf } from '../../../helpers/index';
 import SetInput from './SetInput'
 import './MatchEditor.css';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { GrCircleInformation } from 'react-icons/gr'
+import debounce from 'lodash.debounce'
+import { SelectPlayer } from './SelectPlayer';
 
 //import { Dayjs } from 'dayjs';
 
@@ -19,22 +21,23 @@ const MatchEditor = ({ ladder, player, onSubmit, isAdmin, minDate, ...props }) =
     const [playedOn, setPlayedOn] = useState(null);
     const [winner, setWinner] = useState(player)
     const [loser, setLoser] = useState({ name: '' })
+    const [newPlayer, setNewPlayer] = useState()
     const [isWinner, setIsWinner] = useState(true)
     const [matchFormat, setMatchFormat] = useState(0)
     const [scoreError, setScoreError] = useState(false)
     const [retired, setRetired] = useState(false)
-    const [set1, setSet1] = useState('')
-    const [set2, setSet2] = useState('')
-    const [set3, setSet3] = useState('')
-    const [set4, setSet4] = useState('')
-    const [set5, setSet5] = useState('')
+    // const [set1, setSet1] = useState('')
+    // const [set2, setSet2] = useState('')
+    // const [set3, setSet3] = useState('')
+    // const [set4, setSet4] = useState('')
+    // const [set5, setSet5] = useState('')
     const [comment, setComment] = useState('')
     const [ladderId, setLadderId] = useState(props.ladderId || 0)
     const [searchInput, setSearchInput] = useState('')
     const showLadderSelect = typeof (props.ladderId) === 'undefined'
 
     // Initialize the state for the score
-    const [score, setScore] = useState([set1, set2, set3, set4, set5])
+    const [score, setScore] = useState(['','','','',''])
 
     //const ladderPlayers = lf.GetLadderPlayers(ladderId)
 
@@ -76,12 +79,12 @@ const MatchEditor = ({ ladder, player, onSubmit, isAdmin, minDate, ...props }) =
     }
 
     function resetForm() {
-        setSet1()
-        setSet2('')
-        setSet3('')
-        setSet4('')
-        setSet5('')
-        setLoser({ name: '' })
+        // setSet1()
+        // setSet2('')
+        // setSet3('')
+        // setSet4('')
+        // setSet5('')
+        setLoser()
         setWinner(player)
         setComment('')
         setPlayedOn(null)
@@ -103,26 +106,10 @@ const MatchEditor = ({ ladder, player, onSubmit, isAdmin, minDate, ...props }) =
         setIsWinner(didPlayerWin)
     }
 
-    const handleSetChange = (e, set) => {
-        let s = e.target.value
+    const handleSetChange = (newValue, set) => {
         let newScore = [...score]
-        newScore[set - 1] = s
+        newScore[set - 1] = newValue
         setScore(newScore)
-
-        switch (set) {
-            case 1:
-                setSet1(s)
-                break;
-            case 2: setSet2(s)
-                break;
-            case 3: setSet3(s)
-                break;
-            case 4: setSet4(s)
-                break;
-            case 5: setSet5(s)
-                break;
-            default: break;
-        }
     }
 
     return (
@@ -134,7 +121,8 @@ const MatchEditor = ({ ladder, player, onSubmit, isAdmin, minDate, ...props }) =
                         direction={'row'}
                         name="isWinner"
                         value={isWinner}
-                        onChange={handleWinnerRadio}>
+                        onChange={handleWinnerRadio}
+                    >
                         <Radio value={true} checked={isWinner}>Yes</Radio>
                         <Radio value={false}>No</Radio>
                     </RadioGroupField>
@@ -158,18 +146,19 @@ const MatchEditor = ({ ladder, player, onSubmit, isAdmin, minDate, ...props }) =
                                 id="ladder-select"
                                 required
                                 value={ladderId}
-                                onChange={(e) => { setLadderId(e.target.value) }}>
+                                onChange={(e) => { setLadderId(e.target.value) }}
+                            >
                                 {playerLadders?.map(option => {
                                     return (
                                         <MenuItem key={option.id} value={option.id}>{option.name}</MenuItem>
                                     )
                                 })}
-                                <MenuItem key="other_ladder" value="-1">Other *</MenuItem>
+                                {/* <MenuItem key="other_ladder" value="-1">Other *</MenuItem> */}
                             </Select>
                             {ladderId === '-1' ?
                                 <Text fontSize=".75em" variation="info" fontWeight={'100'}>
                                     <GrCircleInformation />
-                                    Use 'Other' for matches you want to track,
+                                    &nbsp;Use {`'<None>'`} for matches you want to track,
                                     but that are not part of a Tennis Space ladder.
                                 </Text>
                                 : null
@@ -184,6 +173,7 @@ const MatchEditor = ({ ladder, player, onSubmit, isAdmin, minDate, ...props }) =
                             label="Match played date"
                             required
                             minDate={minDate}
+                            maxDate={Date.now()}
                             value={playedOn}
                             onChange={(newValue) => {
                                 setPlayedOn(newValue);
@@ -195,35 +185,21 @@ const MatchEditor = ({ ladder, player, onSubmit, isAdmin, minDate, ...props }) =
 
                 {/* Display the players by autocomplete */}
                 <Flex direction={'row'} className={'mediaFlex'}>
-                    <Autocomplete
-                        id="winner-search"
-                        required
-                        options={!ladderPlayers ? [{ name: 'Loading...', id: -1 }] : ladderPlayers.players}
-                        disableClearable={isWinner}
+                    <SelectPlayer 
+                        label="Winner"
+                        ladderId={ladderId}
+                        disabledPlayerList={[{id: loser?.id}]}
                         disabled={isWinner && !isAdmin}
-                        getOptionDisabled={(option) => option.id === loser.id}
-                        autoSelect={true}
-                        onChange={(e, value) => { setWinner(value) }}
-                        getOptionLabel={option => option.name}
-                        value={winner}
-                        sx={{ width: 300 }}
-                        renderInput={(params) => <TextField required {...params} label="Winner" />}
+                        player={winner}
+                        onPlayerSelect={p => setWinner(p)}
                     />
-                    {/* 'A last option, for instance: Add "YOUR SEARCH".'      
-                        https://mui.com/material-ui/react-autocomplete/ */}
-                    <Autocomplete
-                        id="loser-search"
-                        required
-                        options={!ladderPlayers ? [{ label: 'Loading...', id: -1 }] : ladderPlayers.players}
-                        disableClearable={!isWinner}
+                    <SelectPlayer 
+                        label="Defeated"
+                        ladderId={ladderId}
+                        disabledPlayerList={[{id: winner?.id}]}
                         disabled={!isWinner}
-                        getOptionDisabled={(option) => option.id === winner.id}
-                        autoSelect={true}
-                        onChange={(e, value) => { setLoser(value) }}
-                        value={loser}
-                        getOptionLabel={option => option.name}
-                        sx={{ width: 300 }}
-                        renderInput={(params) => <TextField required {...params} label="Defeated" />}
+                        player={loser}
+                        onPlayerSelect={p => setLoser(p)}
                     />
                 </Flex>
                 <Flex className='mediaFlex' direction={'row'}>
@@ -252,8 +228,7 @@ const MatchEditor = ({ ladder, player, onSubmit, isAdmin, minDate, ...props }) =
                                 label="set 1"
                                 matchFormat={matchFormat}
                                 required={!retired}
-                                value={set1}
-                                handleBlur={(e) => { handleSetChange(e, 1) }}
+                                handleBlur={(newVal) => { handleSetChange(newVal,1) }}
                                 key="1"
                             />
                             {![enums.MATCH_FORMATS.PRO_10.val, enums.MATCH_FORMATS.PRO_8.val].includes(matchFormat) &&
@@ -261,17 +236,15 @@ const MatchEditor = ({ ladder, player, onSubmit, isAdmin, minDate, ...props }) =
                                     <SetInput
                                         label="set 2"
                                         matchFormat={matchFormat}
-                                        value={set2}
                                         required={!retired}
-                                        handleBlur={(e) => { handleSetChange(e, 2) }}
+                                        handleBlur={(newVal) => { handleSetChange(newVal,2) }}
                                         key="2"
                                     />
                                     <SetInput
                                         label="set 3"
                                         matchFormat={matchFormat}
-                                        value={set3}
                                         required={matchFormat === enums.MATCH_FORMATS.FAST4_5.val && !retired}
-                                        handleBlur={(e) => { handleSetChange(e, 3) }}
+                                        handleBlur={(newVal) => { handleSetChange(newVal,3) }}
                                         key="3"
                                     />
                                 </>
@@ -283,14 +256,12 @@ const MatchEditor = ({ ladder, player, onSubmit, isAdmin, minDate, ...props }) =
                             <SetInput
                                 label="set 4"
                                 matchFormat={matchFormat}
-                                value={set4}
                                 handleBlur={(e) => { handleSetChange(e, 4) }}
                                 key="4"
                             />
                             <SetInput
                                 label="set 5"
                                 matchFormat={matchFormat}
-                                value={set5}
                                 handleBlur={(e) => { handleSetChange(e, 5) }}
                                 key="5"
                             />

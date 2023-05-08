@@ -2,16 +2,18 @@ import { Comments } from './Comments/Comments'
 import DynamicTable from './DynamicTable/DynamicTable'
 import { Editable } from './Editable/Editable'
 import H2H from './H2H/H2H'
+import ItemCard from './Cards/ItemCard'
 import { Ladder } from './Ladder/Ladder'
 import { Ladders } from './Ladders/Ladders'
+import LadderStats from './Stats/LadderStats'
 import { Match } from './Match/Match'
 import { MatchEditor } from './MatchEditor/MatchEditor'
 import { Matches } from './Matches/Matches'
 import PhoneNumber from './PhoneNumber/PhoneNumber'
-import UserStats from './Stats/UserStats'
-import LadderStats from './Stats/LadderStats'
+import { SelectPlayer } from './MatchEditor/SelectPlayer'
 import TopRivals from './Rivals/TopRivals'
-import ItemCard from './Cards/ItemCard'
+import UnlinkedMatches from './Matches/UnlinkedMatches'
+import UserStats from './Stats/UserStats'
 
 export {
     Comments, 
@@ -26,6 +28,8 @@ export {
     MatchEditor, 
     Matches, 
     PhoneNumber,
-    UserStats,
-    TopRivals
+    SelectPlayer,
+    TopRivals,
+    UnlinkedMatches,
+    UserStats
 }

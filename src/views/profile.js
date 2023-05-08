@@ -1,14 +1,14 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { SlUser } from 'react-icons/sl';
 import { Link, useParams } from 'react-router-dom';
-import { Button, Card, Flex, Grid, Text, TextField, SelectField, View,
-    Image, TextAreaField, Divider, SwitchField, Loader, TabItem, Tabs
+import {
+    Button, Card, Flex, Grid, Text, TextField, SelectField, View,
+    TextAreaField, Divider, SwitchField, Loader, TabItem, Tabs
 } from "@aws-amplify/ui-react";
-import { userFunctions } from 'helpers'
-import { Editable, Matches, Ladders, PhoneNumber, UserStats, TopRivals } from '../components/forms/index.js'
-import Modal from '../components/layout/Modal/modal';
+import { enums, helpers, userFunctions } from 'helpers'
+import { Editable, Matches, PhoneNumber, UserStats, TopRivals, Match, UnlinkedMatches } from '../components/forms/index.js'
 import './profile.css';
-import { Avatar } from '@mui/material';
+import { Avatar, Modal, Box, Typography, Dialog, DialogTitle, Checkbox } from '@mui/material';
+import { AiOutlineMail, AiOutlinePhone } from 'react-icons/ai';
 
 function Profile(props) {
 
@@ -33,13 +33,15 @@ function Profile(props) {
     const [statsFetched, setStatsFetched] = useState(false);
     const [rivals, setRivals] = useState({})
     const [rivalsFetched, setRivalsFetched] = useState(false);
+    const [tabIndex, setTabIndex] = useState(0)
+    const [unLinkedMatches, setUnLinkedMatches] = useState()
 
     const handleUpdatedPhoneNumber = newNumber => {
         setPlayer({ ...player, phone: newNumber })
     }
 
     const handleStatsClick = () => {
-        if(!statsFetched){
+        if (!statsFetched) {
             userFunctions.getPlayerStatsByYear(player.id, 'SINGLES')
                 .then((data) => {
                     setStats(data)
@@ -49,7 +51,7 @@ function Profile(props) {
         }
     }
     const handleRivalsClick = () => {
-        if(!rivalsFetched){
+        if (!rivalsFetched) {
             userFunctions.getGreatestRivals(player.id)
                 .then((data) => {
                     setRivals(data)
@@ -94,20 +96,25 @@ function Profile(props) {
         e.preventDefault()
         if (canEdit) setShowImagePicker(true);
     }
-    function toggleMatchEditor(e) {
-        e.preventDefault()
-        if (canEdit) setShowMatchEditor(!showMatchEditor);
+
+    function handleUnlinkedMatchAdded() {
+        setPlayer(prevVal => ({
+            ...prevVal,
+            matchesAdded: (prevVal.matchesAdded || 0) + 1
+        }))
     }
 
     useEffect(() => {
         console.log("profile page got new userId", params.userid)
 
-        async function getProfile() {
+        setRivals({})
+        setRivalsFetched(false)
+        setStatsFetched(false)
+        setStats({})
+        setTabIndex(0)
+        setUnLinkedMatches()
 
-            // const loggedIn = async () => {
-            //     return await userFunctions.CheckIfSignedIn()
-            // }
-            // setIsLoggedIn(loggedIn);
+        async function getProfile() {
 
             let p = null;
 
@@ -119,32 +126,34 @@ function Profile(props) {
                 // Get the user from the userid -> paramPlayer
                 p = await userFunctions.getPlayer(params.userid)
                 p = p ?? sessionPlayer
-
-                if (sessionPlayer) {
-                    if (sessionPlayer.email === p.email) {
-                        console.log('This is your page, so you can edit it');
-                        setCanEdit(true);
-                    }
-                }
-                else {
-                    setError({ status: true, message: 'This user does not exist.' });
-                }
-                setIsLoaded(true);
+                //setUnLinkedMatches(p.unLinkedMatches)
+                
             }
             else {
                 console.log('no userid provided, use sessionPlayer', sessionPlayer);
-                if (sessionPlayer) {
-                    p = sessionPlayer;
-                    document.title = 'My Tennis Space - ' + p.name;
-                    //setPlayer(prevState => ({...prevState, p})) 
+                // if (sessionPlayer) {
+                p = sessionPlayer;
+                //     document.title = 'My Tennis Space - ' + p.name;
+                //     //setPlayer(prevState => ({...prevState, p})) 
+                //     console.log('This is your page, so you can edit it');
+                //     setCanEdit(true);
+                // }
+                // else {
+                //     setError({ status: true, message: 'This user does not exist.' });
+                // }
+                // setIsLoaded(true);
+            }
+            if (sessionPlayer) {
+                if (sessionPlayer.email === p.email) {
                     console.log('This is your page, so you can edit it');
+                    setUnLinkedMatches(sessionPlayer.unLinkedMatches)
                     setCanEdit(true);
                 }
-                else {
-                    setError({ status: true, message: 'This user does not exist.' });
-                }
-                setIsLoaded(true);
             }
+            else if (!p) {
+                setError({ status: true, message: 'This user does not exist.' });
+            }
+            setIsLoaded(true);
 
             if (p)
                 document.title = 'My Tennis Space - ' + p.name;
@@ -159,7 +168,7 @@ function Profile(props) {
         })
         //}, []);  
     }, [params.userid]);
-    
+
 
     if (error.status) {
         return <div>Error: {error.message}</div>;
@@ -178,43 +187,65 @@ function Profile(props) {
                         <Card className='card profilePic' variation="elevated">
 
                             {/************ PROFILE PICTURE   *************/}
-                            <Avatar 
-                                {... userFunctions.stringAvatar(player, 150)} 
-                                className={`${canEdit ? " cursorHand" : null}`} 
-                                onClick={(e) => { openUserImagePicker(e) }} 
+                            <Avatar
+                                {...userFunctions.stringAvatar(player, 150)}
+                                className={`${canEdit ? " cursorHand" : null}`}
+                                onClick={(e) => { openUserImagePicker(e) }}
                             />
-                            
-                            <Modal
-                                title="Update profile picture"
-                                onClose={() => setShowImagePicker(false)} show={showImagePicker}
-                            >
-                                <View
-                                    name="profilePic"
-                                    as="input"
-                                    type="file"
-                                    id="imageInput"
-                                    text={player.name}
-                                    className="hiddenImageInput"
-                                    onChange={(e) => { updateProfilePic(e) }}
-                                />
 
-                                <Button>
-                                    <label htmlFor="imageInput" className='cursorHand'>
-                                        Select a profile picture.
-                                    </label>
-                                </Button>
+                            <Modal
+                                aria-labelledby="Update profile picture"
+                                onClose={() => setShowImagePicker(false)}
+                                open={showImagePicker}
+                            >
+                                <Box sx={helpers.modalStyle}>
+                                    <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={'1rem'}>
+                                        {`Update profile picture`}
+                                    </Typography>
+                                    <View
+                                        name="profilePic"
+                                        as="input"
+                                        type="file"
+                                        id="imageInput"
+                                        text={player.name}
+                                        className="hiddenImageInput"
+                                        onChange={(e) => { updateProfilePic(e) }}
+                                    />
+
+                                    <Button>
+                                        <label htmlFor="imageInput" className='cursorHand'>
+                                            Select a profile picture.
+                                        </label>
+                                    </Button>
+                                </Box>
                             </Modal>
                             {/************ NAME   *************/}
                             <Text fontSize='x-large'>{player.name}</Text>
                             {/************ EMAIL   *************/}
-                            <Text fontSize='small'>{isLoggedIn ? <a href={`mailto:${player.email}`}>{player.email}</a> : 'Email only visible to other players'}</Text>
+
+                            <Text fontSize='small'><AiOutlineMail />
+                                {isLoggedIn
+                                    ? <>&nbsp;<a href={`mailto:${player.email}`}>{player.email}</a></>
+                                    : <>&nbsp;Hidden</>
+                                }
+                            </Text>
                             {/************ PHONE   *************/}
-                            <PhoneNumber name="name" onNewNumber={handleUpdatedPhoneNumber} number={player.phone} editable={isEdit} />
+                            <Text fontSize='small'><AiOutlinePhone />
+                                {isLoggedIn
+                                    ?
+                                    <>&nbsp;
+                                        <PhoneNumber name="name" onNewNumber={handleUpdatedPhoneNumber} number={player.phone} editable={isEdit} />
+                                    </>
+                                    : <>&nbsp;Hidden</>
+                                }
+                            </Text>
                         </Card>
 
                         {/************ RIGHT CONTENT   *************/}
                         <Card className='card rightProfileContent' variation="elevated" flex="1">
-                            <Tabs defaultIndex={0}
+                            <Tabs
+                                currentIndex={tabIndex}
+                                onChange={(i) => setTabIndex(i)}
                                 justifyContent="flex-start">
                                 <TabItem title="General">
                                     {/************ EDIT TOOGLE   *************/}
@@ -233,7 +264,7 @@ function Profile(props) {
                                     </div>
                                     <Grid
                                         templateColumns="1fr 3fr"
-                                        templateRows="1fr 1fr 1fr 3fr"
+                                        templateRows="auto"
                                         paddingTop={"10px"}
                                     >
                                         {/************ NTRP   *************/}
@@ -270,15 +301,17 @@ function Profile(props) {
                                         {/************ LADDERS   *************/}
                                         <View>Ladders:</View>
                                         {/* <Ladders ladderList={player.ladders} player={player} /> */}
-                                        {player.ladders.items.map((item, i) => {
-                                            console.log(item)
-                                            return (
-                                                <Link to={`/ladders/${item.ladder.id}`} key={item.ladder.id}>{item.ladder.name}</Link>
-                                            )
-                                        })}
+                                        <Grid templateRows={"auto"}>
+                                            {player.ladders.items.map((item, i) => {
+                                                console.log(item)
+                                                return (
+                                                    <Link to={`/ladders/${item.ladder.id}`} key={item.ladder.id}>{item.ladder.name}</Link>
+                                                )
+                                            })}
+                                        </Grid>
 
                                         {/************ ABOUT   *************/}
-                                        <View><Text fontSize={'large'}>About:</Text></View>
+                                        <View><Text>About:</Text></View>
                                         <Editable
                                             text={player.about}
                                             isEditing={isEdit}>
@@ -305,22 +338,31 @@ function Profile(props) {
 
                     {/************ MATCHES   *************/}
                     <Flex direction="row" gap="1rem">
-                        <Card className='card' variation="elevated" style={{width:"100%"}}>
+                        <Card className='card' variation="elevated" style={{ width: "100%" }}>
+                            <UnlinkedMatches matches={unLinkedMatches} player={player} handleMatchAdded={handleUnlinkedMatchAdded} />
                             <Matches player={player} limit="5" allowDelete={player.isAdmin}></Matches>
-                            <Button label="Add new match"
-                                onClick={(e) => { toggleMatchEditor(e) }}
-                            >{showMatchEditor ? 'Cancel' : 'Add'}</Button>
-                            {/* 
-                            <Modal
-                                title="Add a match"
-                                onClose={() => setShowMatchEditor(false)} show={showMatchEditor}
-                            > */}
-                            <Suspense fallback={<h2><Loader />Loading...</h2>}>
-                                {showMatchEditor ?
-                                    <MatchEditor player={player} onSubmit={updateProfileData} />
-                                    : null}
-                            </Suspense>
-                            {/* </Modal> */}
+                            {canEdit &&
+                                <Button label="Add new match"
+                                    onClick={() => setShowMatchEditor(true)}
+                                // onClick={(e) => { toggleMatchEditor(e) }}
+                                >
+                                    {showMatchEditor ? 'Cancel' : 'Add'}
+                                </Button>
+                            }
+                            <Dialog
+                                onClose={() => setShowMatchEditor(false)}
+                                open={showMatchEditor}
+                                aria-labelledby={`Add a match`}
+                                aria-describedby="Add a new match"
+                                padding={'1rem'}
+                            >
+                                <DialogTitle>Add a new match</DialogTitle>
+                                <Box padding={'1rem'}>
+                                    <Suspense fallback={<h2><Loader />Loading...</h2>}>
+                                        <MatchEditor player={player} onSubmit={updateProfileData} />
+                                    </Suspense>
+                                </Box>
+                            </Dialog>
                         </Card>
                     </Flex>
                 </Flex>

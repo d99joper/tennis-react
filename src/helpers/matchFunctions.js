@@ -1,6 +1,7 @@
 import { API } from 'aws-amplify'
 import { 
     getMatch, 
+    getPlayerMatch, 
     getPlayerMatchByPlayer, 
     listComments
 } from "../graphql/queries"
@@ -10,7 +11,8 @@ import {
     deleteMatch as deleteMatchMutation,
     createComment,
     createPlayerMatch,
-    deletePlayerMatch
+    deletePlayerMatch,
+    updatePlayerMatch
 } from "../graphql/mutations"
 import { enums, helpers, ladderFunctions, userFunctions as uf } from 'helpers'
 import { qFindMatchByDetails, qGetPlayerMatchByPlayer } from 'graphql/customQueries'
@@ -95,7 +97,8 @@ const MatchFunctions = {
             })
 
             // update the ladder standings based on date
-            await ladderFunctions.UpdateStandings({id:match.ladderID}, playedOn)
+            if(match.ladderID !== '-1')
+                await ladderFunctions.CalculateStandings({id:match.ladderID}, playedOn)
 
             // if there's a comment, create it
             if (match.comment) {
@@ -153,15 +156,17 @@ const MatchFunctions = {
     UpdateMatch: async function (match) {
         try {
 
-            let inputData = {
-                name: match.name
-            };
+            // let inputData = {
+            //     id: match.id,
+            //     winnerID: match.winnerID,
+            //     loserID: match.loserID,
+            //     type: match.type
+            // };
 
             const result = await API.graphql({
                 query: updateMatchMutation,
                 variables: {
-                    input: inputData,
-                    conditions: { id: match.id } // required
+                    input: match
                 }
             })
 
@@ -171,6 +176,70 @@ const MatchFunctions = {
         }
         catch (e) {
             console.log("failed to update Match", e);
+            return null
+        }
+    },
+
+    DeleteAndRecreatePlayerMatch: async function (matchID, oldPlayerID, newPlayerID, matchType) {
+        try {
+            // get the PlayerMatch
+            const apiResponse = await API.graphql({
+                query: getPlayerMatch,
+                variables: {matchID: matchID, playerID: oldPlayerID, matchType: matchType}
+            })
+            let origPlayerMatch = apiResponse.data.getPlayerMatch
+            // create playerMatch
+            await API.graphql({
+                query: createPlayerMatch,
+                variables: { input: {
+                    playerID: newPlayerID,
+                    opponentID: origPlayerMatch.opponentID,
+                    matchID: origPlayerMatch.matchID,
+                    ladderID: origPlayerMatch.ladderID,
+                    playedOn: origPlayerMatch.playedOn,
+                    matchType: origPlayerMatch.matchType,
+                    win: origPlayerMatch.win,
+                    setsWon: origPlayerMatch.setsWon,
+                    setsLost: origPlayerMatch.setsLost,
+                    gamesWon: origPlayerMatch.gamesWon,
+                    gamesLost: origPlayerMatch.gamesLost,
+                    tiebreaksWon: origPlayerMatch.tiebreaksWon,
+                    tiebreaksLost: origPlayerMatch.tiebreaksLost,
+                    retired: origPlayerMatch.retired
+                } }
+            })
+            // delete playerMatch
+            await API.graphql({
+                query: deletePlayerMatch,
+                variables: {input: { matchID: matchID, playerID: oldPlayerID }}
+            })
+
+            console.log('Player Match deleted and recreated', )
+
+            return true
+        }
+        catch (e) {
+            console.log("failed to delete and recreate PlayerMatch", e);
+            return null
+        }
+    },
+
+    UpdatePlayerMatchOpponent: async function (playerMatch) {
+        try {
+
+            const result = await API.graphql({
+                query: updatePlayerMatch,
+                variables: {
+                    input: playerMatch
+                }
+            })
+
+            console.log('Player Match updated', result.data.updateMatch)
+
+            return result.data.updateMatch
+        }
+        catch (e) {
+            console.log("failed to update Player Match", e);
             return null
         }
     },
