@@ -10,7 +10,8 @@ import { SlUser } from 'react-icons/sl';
 import { AiOutlineMenuFold, AiOutlineMenuUnfold, AiOutlineHome, 
          AiOutlineQuestionCircle, AiOutlineMail, AiOutlineSetting, AiOutlineInfoCircle } from 'react-icons/ai'
 import {BiLogInCircle, BiLogOutCircle} from 'react-icons/bi'
-import bannerImage from '../../images/banner_tennis.jpg'
+// import bannerImage from '../../images/banner_tennis.jpg'
+import bannerImage from '../../images/tennisbanner.png'
 import './layout.css'
 import { GiWhistle } from 'react-icons/gi';
 
@@ -25,7 +26,7 @@ const MyMenu = (props) => {
         small: { open: { margin: 0, drawer: 200 }, close: { margin: 0, drawer: 0 } }
     }
     const initialUserScreen = userScreen <= smallScreen ? 'small' : userScreen <= mediumScreen ? 'medium' : 'large'
-    const [open, setOpen] = useState(true)
+    const [open, setOpen] = useState(initialUserScreen === 'small' ? false : true)
     const [screenSize, setScreenSize] = useState(initialUserScreen)
     const [drawerWidth, setDrawerWidth] = useState(marginSizes[initialUserScreen].open)
     //console.log(initialUserScreen)
