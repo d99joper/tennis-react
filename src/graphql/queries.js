@@ -221,6 +221,7 @@ export const searchPlayerMatches = /* GraphQL */ `
         tiebreaksLost
         retired
         playedOn
+        ignoredBy
         createdAt
         updatedAt
       }
@@ -425,6 +426,7 @@ export const getPlayer = /* GraphQL */ `
           tiebreaksLost
           retired
           playedOn
+          ignoredBy
           createdAt
           updatedAt
         }
@@ -737,6 +739,7 @@ export const getPlayerMatch = /* GraphQL */ `
       tiebreaksLost
       retired
       playedOn
+      ignoredBy
       createdAt
       updatedAt
     }
@@ -856,6 +859,7 @@ export const listPlayerMatches = /* GraphQL */ `
         tiebreaksLost
         retired
         playedOn
+        ignoredBy
         createdAt
         updatedAt
       }
@@ -993,6 +997,7 @@ export const getMatch = /* GraphQL */ `
           tiebreaksLost
           retired
           playedOn
+          ignoredBy
           createdAt
           updatedAt
         }
@@ -1142,6 +1147,7 @@ export const getLadder = /* GraphQL */ `
           tiebreaksLost
           retired
           playedOn
+          ignoredBy
           createdAt
           updatedAt
         }
@@ -1744,6 +1750,7 @@ export const getPlayerMatchByPlayer = /* GraphQL */ `
         tiebreaksLost
         retired
         playedOn
+        ignoredBy
         createdAt
         updatedAt
       }
@@ -1865,6 +1872,7 @@ export const getPlayerMatchByPlayerVs = /* GraphQL */ `
         tiebreaksLost
         retired
         playedOn
+        ignoredBy
         createdAt
         updatedAt
       }
@@ -1986,6 +1994,7 @@ export const getPlayerMatchByPlayerWithPartner = /* GraphQL */ `
         tiebreaksLost
         retired
         playedOn
+        ignoredBy
         createdAt
         updatedAt
       }
@@ -2107,6 +2116,7 @@ export const getPlayerMatchByPlayerDoublesOpponentPartner = /* GraphQL */ `
         tiebreaksLost
         retired
         playedOn
+        ignoredBy
         createdAt
         updatedAt
       }
@@ -2226,6 +2236,7 @@ export const getPlayerMatchByMatchID = /* GraphQL */ `
         tiebreaksLost
         retired
         playedOn
+        ignoredBy
         createdAt
         updatedAt
       }
@@ -2347,6 +2358,7 @@ export const getPlayerMatchByMatchType = /* GraphQL */ `
         tiebreaksLost
         retired
         playedOn
+        ignoredBy
         createdAt
         updatedAt
       }
@@ -2468,6 +2480,7 @@ export const getPlayerMatchByLadder = /* GraphQL */ `
         tiebreaksLost
         retired
         playedOn
+        ignoredBy
         createdAt
         updatedAt
       }

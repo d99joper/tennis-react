@@ -1,8 +1,8 @@
 import { API } from 'aws-amplify'
-import { 
-    getMatch, 
-    getPlayerMatch, 
-    getPlayerMatchByPlayer, 
+import {
+    getMatch,
+    getPlayerMatch,
+    getPlayerMatchByPlayer,
     listComments
 } from "../graphql/queries"
 import {
@@ -55,6 +55,19 @@ const MatchFunctions = {
 
     },
 
+    ignorePlayerMatch: async function (playerMatch, ignoreId) {
+        try {
+            await API.graphql({
+                query: updatePlayerMatch,
+                variables: { input: { matchID: playerMatch.matchID, playerID: playerMatch.playerID, ignoredBy: [ignoreId] } }
+            })
+            return true
+        }
+        catch (e) {
+            return false
+        }
+    },
+
     createMatch: async function (match, flipScoreOnLoss = false) {
 
         const playedOn = helpers.formatAWSDate(match.playedOn, 0)
@@ -97,8 +110,8 @@ const MatchFunctions = {
             })
 
             // update the ladder standings based on date
-            if(match.ladderID !== '-1')
-                await ladderFunctions.CalculateStandings({id:match.ladderID}, playedOn)
+            if (match.ladderID !== '-1')
+                await ladderFunctions.CalculateStandings({ id: match.ladderID }, playedOn)
 
             // if there's a comment, create it
             if (match.comment) {
@@ -145,7 +158,7 @@ const MatchFunctions = {
         const matches = await API.graphql({
             query: qFindMatchByDetails,
             variables: variables
-        })  
+        })
         //console.log(matches)
         if (matches.data.getMatchByDetails.items.length > 0)
             return matches.data.getMatchByDetails.items[0] //matches[0]
@@ -185,36 +198,38 @@ const MatchFunctions = {
             // get the PlayerMatch
             const apiResponse = await API.graphql({
                 query: getPlayerMatch,
-                variables: {matchID: matchID, playerID: oldPlayerID, matchType: matchType}
+                variables: { matchID: matchID, playerID: oldPlayerID, matchType: matchType }
             })
             let origPlayerMatch = apiResponse.data.getPlayerMatch
             // create playerMatch
             await API.graphql({
                 query: createPlayerMatch,
-                variables: { input: {
-                    playerID: newPlayerID,
-                    opponentID: origPlayerMatch.opponentID,
-                    matchID: origPlayerMatch.matchID,
-                    ladderID: origPlayerMatch.ladderID,
-                    playedOn: origPlayerMatch.playedOn,
-                    matchType: origPlayerMatch.matchType,
-                    win: origPlayerMatch.win,
-                    setsWon: origPlayerMatch.setsWon,
-                    setsLost: origPlayerMatch.setsLost,
-                    gamesWon: origPlayerMatch.gamesWon,
-                    gamesLost: origPlayerMatch.gamesLost,
-                    tiebreaksWon: origPlayerMatch.tiebreaksWon,
-                    tiebreaksLost: origPlayerMatch.tiebreaksLost,
-                    retired: origPlayerMatch.retired
-                } }
+                variables: {
+                    input: {
+                        playerID: newPlayerID,
+                        opponentID: origPlayerMatch.opponentID,
+                        matchID: origPlayerMatch.matchID,
+                        ladderID: origPlayerMatch.ladderID,
+                        playedOn: origPlayerMatch.playedOn,
+                        matchType: origPlayerMatch.matchType,
+                        win: origPlayerMatch.win,
+                        setsWon: origPlayerMatch.setsWon,
+                        setsLost: origPlayerMatch.setsLost,
+                        gamesWon: origPlayerMatch.gamesWon,
+                        gamesLost: origPlayerMatch.gamesLost,
+                        tiebreaksWon: origPlayerMatch.tiebreaksWon,
+                        tiebreaksLost: origPlayerMatch.tiebreaksLost,
+                        retired: origPlayerMatch.retired
+                    }
+                }
             })
             // delete playerMatch
             await API.graphql({
                 query: deletePlayerMatch,
-                variables: {input: { matchID: matchID, playerID: oldPlayerID }}
+                variables: { input: { matchID: matchID, playerID: oldPlayerID } }
             })
 
-            console.log('Player Match deleted and recreated', )
+            console.log('Player Match deleted and recreated',)
 
             return true
         }
@@ -254,12 +269,12 @@ const MatchFunctions = {
             // delete the winner's playerMatch
             await API.graphql({
                 query: deletePlayerMatch,
-                variables: {input: { matchID: id, playerID: deletedMatch.data.deleteMatch.winnerID }}
+                variables: { input: { matchID: id, playerID: deletedMatch.data.deleteMatch.winnerID } }
             })
             // delete the loser's playerMatch
             await API.graphql({
                 query: deletePlayerMatch,
-                variables: {input: {matchID: id, playerID: deletedMatch.data.deleteMatch.loserID }}
+                variables: { input: { matchID: id, playerID: deletedMatch.data.deleteMatch.loserID } }
             })
             return true
         }
@@ -269,33 +284,62 @@ const MatchFunctions = {
         }
     },
 
-    getMatchesForLadder: async function(ladder, startDate, endDate, findFilter=null, limit = 10, nextToken) {
-        
+    getMatchesForLadder: async function (ladder, startDate, endDate, findFilter = null, limit = 10, nextToken) {
+
     },
 
-    getMatchesForPlayer: async function (player, ladder, startDate, endDate, findFilter = null, limit = 10, nextToken) {
-
-        const apiData = await API.graphql({
-            query: qGetPlayerMatchByPlayer,
-            variables: {
-                playerID: player.id,
-                limit: limit,
-                sortDirection: 'DESC',
-                nextToken: nextToken
+    getMatchesForPlayer: async function (player, sortDirection = 'desc', limit = 10, page=1) {
+        try {
+            const apiData = await API.graphql({
+                query: qGetPlayerMatchByPlayer,
+                variables: {
+                    filter: { playerID: { eq: player.id } },
+                    limit: limit,
+                    from: (page-1)*limit,
+                    sort: { field: 'playedOn', direction: sortDirection }
+                }
+            })
+    
+            let data = {
+                // massage data to add winner and loser
+                //matches: setMatchWinnerLoserScore(apiData.data.getPlayerMatchByPlayer.items),
+                matches: apiData.data.searchPlayerMatches.items,
+                totalPages: apiData.data.searchPlayerMatches.total/limit
             }
-        })
-
-        let data = {
-            // massage data to add winner and loser
-            //matches: setMatchWinnerLoserScore(apiData.data.getPlayerMatchByPlayer.items),
-            matches: apiData.data.getPlayerMatchByPlayer.items,
-            nextToken: apiData.data.getPlayerMatchByPlayer.nextToken
+            //const matches = setMatchWinnerLoserScore(apiData.data.getPlayerMatchByPlayer.items)
+            console.log(data)
+            return data
         }
-        //const matches = setMatchWinnerLoserScore(apiData.data.getPlayerMatchByPlayer.items)
-        console.log(data)
+        catch(e) {
+            console.log(e)
+            throw(e)
+        }
 
-        return data
     },
+
+    // getMatchesForPlayer: async function (player, ladder, startDate, endDate, sortDirection = 'DESC', findFilter = null, limit = 10, nextToken) {
+
+    //     const apiData = await API.graphql({
+    //         query: qGetPlayerMatchByPlayer,
+    //         variables: {
+    //             playerID: player.id,
+    //             limit: limit,
+    //             sortDirection: sortDirection,
+    //             nextToken: nextToken
+    //         }
+    //     })
+
+    //     let data = {
+    //         // massage data to add winner and loser
+    //         //matches: setMatchWinnerLoserScore(apiData.data.getPlayerMatchByPlayer.items),
+    //         matches: apiData.data.getPlayerMatchByPlayer.items,
+    //         nextToken: apiData.data.getPlayerMatchByPlayer.nextToken
+    //     }
+    //     //const matches = setMatchWinnerLoserScore(apiData.data.getPlayerMatchByPlayer.items)
+    //     console.log(data)
+
+    //     return data
+    // },
 
     GetComments: async function (matchId) {
         const apiData = await API.graphql({

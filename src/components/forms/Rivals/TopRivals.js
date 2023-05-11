@@ -2,6 +2,7 @@ import { Badge, Card, Collection, Divider, Flex, Grid, Image, Loader, Text, View
 import React from "react";
 import { SlUser } from "react-icons/sl";
 import "./rivals.css"
+import { userFunctions as uf } from "helpers";
 
 const TopRivals = ({ data, ...props }) => {
 
@@ -27,12 +28,12 @@ const TopRivals = ({ data, ...props }) => {
                                             {rival.player.image ?
                                                 <Image
                                                     src={rival.player.imageUrl}
-                                                    alt={`visual aid for ${rival.player.name}`}
+                                                    alt={`visual aid for ${uf.SetPlayerName(rival.player)}`}
                                                     className={`profileImage`}
                                                 />
                                                 : <SlUser size='30' />}
                                         </View>
-                                        <Text>{rival.player.name}</Text>
+                                        <Text>{uf.SetPlayerName(rival.player)}</Text>
                                     </Flex>
                                 </Card>
                                 <Card>

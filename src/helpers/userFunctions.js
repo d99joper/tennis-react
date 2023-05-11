@@ -1,5 +1,5 @@
 import { API, Auth, DataStore, Storage } from 'aws-amplify';
-import { listPlayers } from "../graphql/queries";
+import { getPlayerMatchByPlayer, listPlayers } from "../graphql/queries";
 import {
     createPlayer as createPlayerMutation,
     updatePlayer as updatePlayerMutation,
@@ -164,7 +164,6 @@ const userFunctions = {
 
             if (typeof user !== 'undefined') {
                 const player = await this.getPlayerFromAPI(user.attributes.email, null, true)
-
                 return player
             }
             else return
@@ -176,8 +175,8 @@ const userFunctions = {
     getPlayer: async function (id) {
         try {
             const playerFromAPI = await this.getPlayerFromAPI(null, id, true)
-
-            return playerFromAPI;
+            playerFromAPI.name = playerFromAPI.name + (playerFromAPI.verified ? "" : "*") 
+            return playerFromAPI; 
         }
         catch (e) {
             console.log("failed to get player", e);
@@ -248,7 +247,7 @@ const userFunctions = {
             query: listPlayers
         })
 
-        return playersAPI.data.listPlayers.items;
+        return AddAsteriskToUnverifiedPlayers(playersAPI.data.listPlayers.items);
     },
 
     // getPlayers: async function () {
@@ -292,10 +291,13 @@ const userFunctions = {
                 variables: {
                     email: 'noEmail@mytennis.space', 
                     name: {eq: playerFromAPI.name },
-                    filter: {not: {id: {eq: '33'+ playerFromAPI.id}}}
+                    ignoredBy: playerFromAPI.id,
+                    filter: {not: {id: {eq: playerFromAPI.id}}}
                 }
             })
-            playerFromAPI.unLinkedMatches = unlinkedMatches.data?.playerByEmail?.items[0]?.playerMatches?.items
+            playerFromAPI.unLinkedMatches = unlinkedMatches.data?.playerByEmail?.items[0]
+            ?.playerMatches?.items
+            .sort((a,b) => {return a.playedOn-b.playedOn})
  
             //console.log("getPlayerFromAPI", playerFromAPI)
             return playerFromAPI;
@@ -333,13 +335,26 @@ const userFunctions = {
             .catch(err => console.log('err' + err))
     },
 
-    deletePlayer: async function (id) {
+    deletePlayer: async function (id, onlyDeleteIfNoMatches = true) {
         try {
-            await API.graphql({
-                query: deletePlayerMutation,
-                variables: { input: { id } },
-            });
-            return true
+            let doDelete = !onlyDeleteIfNoMatches
+            if(onlyDeleteIfNoMatches) {
+                // get player matches count
+                const playerMatches = await API.graphql({
+                    query: getPlayerMatchByPlayer,
+                    variables: {playerID: id}
+                })
+                doDelete = playerMatches.data?.getPlayerMatchByPlayer?.items.length > 0
+            }
+            if(doDelete) {
+                await API.graphql({
+                    query: deletePlayerMutation,
+                    variables: { input: { id } },
+                });
+                return true
+            }
+            else
+                return true
         }
         catch (e) {
             console.log("failed to delete player", e);
@@ -445,6 +460,10 @@ const userFunctions = {
                 player.imageUrl = url
             }
         }
+    },
+    
+    SetPlayerName: function(player) {
+        return player.name + (player.verified ? "" : "*") 
     }
 }
 
@@ -566,5 +585,10 @@ function CalcPercentage(val1, val2) {
     return val1 === 0 ? 0 : Math.round(100 * val1 / (val1 + val2), 2)
 }
 
+function AddAsteriskToUnverifiedPlayers(players) {
+    for(let player of players) {
+        player.name = player.verified ? player.name : player.name + '*'
+    }
+}
 
 export default userFunctions;

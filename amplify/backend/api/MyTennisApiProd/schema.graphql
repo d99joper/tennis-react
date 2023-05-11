@@ -69,6 +69,7 @@ type PlayerMatch @model @searchable {
   tiebreaksLost: Int! @default(value: "0")
   retired: Boolean @default(value: "false")
   playedOn: AWSDate!
+  ignoredBy: [ID]
 }
 
 type Match @model @searchable {

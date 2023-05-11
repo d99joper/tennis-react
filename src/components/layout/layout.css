@@ -32,6 +32,14 @@
     -o-transition: all 0.4s ease-in-out !important;   
     transition: all 0.4s ease-in-out !important;
   }
+
+  /* .MuiPopover-paper {
+    background-color: #ebffeb !important;
+  } */
+
+  .myPop {
+    background-color: aqua;
+  }
   
   .banner {
     /* background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../../images/banner_tennis.jpg); */

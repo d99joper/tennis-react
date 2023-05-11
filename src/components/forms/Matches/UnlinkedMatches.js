@@ -2,7 +2,7 @@ import { Button, Grid, View } from "@aws-amplify/ui-react"
 import { Box, Checkbox, Dialog, DialogTitle } from "@mui/material"
 import { useState } from "react"
 import { Match } from "../Match/Match"
-import { matchFunctions } from "helpers"
+import { matchFunctions, userFunctions } from "helpers"
 
 const UnlinkedMatches = ({
   matches,
@@ -14,51 +14,90 @@ const UnlinkedMatches = ({
   const [unLinkedMatches, setUnLinkedMatches] = useState(matches)
   const [showUnlinked, setShowUnlinked] = useState(false)
 
-  function handleIgnoreLinkedMatches() {
-    for (const match of unLinkedMatches) { 
-    }
-  }
-
-  async function updateLinkedMatch(match, unlinkedPlayerId) {
-    // check if it was a win or a loss
-    const isWin = unlinkedPlayerId === match.winner.id ? true : false
-      
-    // update match to reflect the new player
-    await matchFunctions.UpdateMatch({
-      id: match.id, 
-      winnerID: isWin ? player.id : match.winner.id,
-      loserID: isWin ? match.loser.id : player.id,
-      type: match.type,
-      ladderID: match.ladder.id,
-      playedOn: match.playedOn,
-      score: match.score
-    })
-
-    // delete and recreate the player's playerMatch
-    await matchFunctions.DeleteAndRecreatePlayerMatch(match.id, unlinkedPlayerId, player.id, match.type )
-
-    // update the opponent's playerMatch
-    await matchFunctions.UpdatePlayerMatchOpponent({
-      playerID: isWin ? match.loser.id : match.winner.id, 
-      opponentID: player.id, 
-      matchID: match.id,
-      matchType: match.type,
-      playedOn: match.playedOn
-    })
-  }
-
-  function handleLinkToProfile() {
+  async function ignoreMatch() {
+    let oldPlayerId, matchlist = []
     for (let x of unLinkedMatches) {
-      if(x.checked) 
-        updateLinkedMatch(x.match, x.playerID).then(() => {
-          x.checked = false
-          handleMatchAdded(x.match)
-          let newMatches = unLinkedMatches
-          newMatches[unLinkedMatches.findIndex(m => m.match.id === x.match.id)].checked = false
-          setUnLinkedMatches(newMatches.filter(elem => elem.match.id !== x.match.id))
+      if (x.checked) {
+        // Add user to ignore list
+        const retVal = await matchFunctions.ignorePlayerMatch({ matchID: x.match.id, playerID: x.playerID }, player.id)
+        if (retVal) // add the match to the match list
+          matchlist.push(x.match.id)
+      }
+    }
+    return { matchlist: matchlist, oldPlayerId: oldPlayerId }
+  }
+  function handleIgnoreLinkedMatches() {
+    ignoreMatch().then((data) => {
+      updateMatchList(data.matchlist, data.oldPlayerId)
+    })
+  }
+
+  async function updateLinkedMatches() {
+    let oldPlayerId, matchlist = []
+
+    for (let x of unLinkedMatches) {
+      oldPlayerId = x.playerID
+      if (x.checked) {
+        const match = x.match
+        // check if it was a win or a loss
+        const isWin = oldPlayerId === match.winner.id ? true : false
+
+        // update match to reflect the new player
+        await matchFunctions.UpdateMatch({
+          id: match.id,
+          winnerID: isWin ? player.id : match.winner.id,
+          loserID: isWin ? match.loser.id : player.id,
+          type: match.type,
+          ladderID: match.ladder.id,
+          playedOn: match.playedOn,
+          score: match.score
         })
+
+        // delete and recreate the player's playerMatch
+        await matchFunctions.DeleteAndRecreatePlayerMatch(match.id, oldPlayerId, player.id, match.type)
+
+        // update the opponent's playerMatch
+        await matchFunctions.UpdatePlayerMatchOpponent({
+          playerID: isWin ? match.loser.id : match.winner.id,
+          opponentID: player.id,
+          matchID: match.id,
+          matchType: match.type,
+          playedOn: match.playedOn
+        })
+
+        // add the match to the match list
+        matchlist.push(x.match.id)
+      }
+    }
+    return { matchlist: matchlist, oldPlayerId: oldPlayerId }
+  }
+  function handleLinkToProfile() {
+
+    updateLinkedMatches().then((data) => {
+      updateMatchList(data.matchlist, data.oldPlayerId)
+    })
+  }
+
+  function updateMatchList(matchlist, oldPlayerId) {
+    // set all checkboxes to false
+    let newMatches = unLinkedMatches.map((x) => {
+      x.checked = false
+      return x
+    })
+      // filter out the processed matches
+      .filter(elem => !matchlist.includes(elem.match.id))
+    // set the new value
+    setUnLinkedMatches(newMatches)
+
+    // call the parent function for adding the matches
+    handleMatchAdded()
+
+    // if there are no more matches, update the old user profile
+    if (newMatches.length === 0) {
+      userFunctions.deletePlayer(oldPlayerId)
     }
   }
+
 
   return (
     unLinkedMatches?.length > 0 &&
@@ -75,16 +114,20 @@ const UnlinkedMatches = ({
         <DialogTitle>Link matches</DialogTitle>
         <Box padding={'1rem'}>
           <Grid templateRows={"auto"}>
-            {unLinkedMatches?.map((m, i) => {
+            {unLinkedMatches?.map((x, i) => {
+              if (!x.checked) x.checked = false
               return (
                 <Grid templateColumns={"auto 1fr"} key={`unlinkedMatch_${i}`}>
-                  <Checkbox onClick={() => {
-                    let newMatches = unLinkedMatches
-                    newMatches[i].checked = !unLinkedMatches[i].checked
-
-                    setUnLinkedMatches(newMatches)
-                  }} />
-                  <Match match={m.match} backgroundColor={unLinkedMatches[i].checked ? 'white' : null} />
+                  <Checkbox
+                    checked={x.checked}
+                    //value={x.checked}
+                    onClick={() => {
+                      let newMatches = [...unLinkedMatches]
+                      newMatches[i].checked = !x.checked
+                      setUnLinkedMatches(newMatches)
+                    }}
+                  />
+                  <Match match={x.match} />
                 </Grid>
               )
             })}

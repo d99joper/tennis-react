@@ -34,6 +34,7 @@ export const createPlayer = /* GraphQL */ `
           tiebreaksLost
           retired
           playedOn
+          ignoredBy
           createdAt
           updatedAt
         }
@@ -117,6 +118,7 @@ export const updatePlayer = /* GraphQL */ `
           tiebreaksLost
           retired
           playedOn
+          ignoredBy
           createdAt
           updatedAt
         }
@@ -200,6 +202,7 @@ export const deletePlayer = /* GraphQL */ `
           tiebreaksLost
           retired
           playedOn
+          ignoredBy
           createdAt
           updatedAt
         }
@@ -470,6 +473,7 @@ export const createPlayerMatch = /* GraphQL */ `
       tiebreaksLost
       retired
       playedOn
+      ignoredBy
       createdAt
       updatedAt
     }
@@ -695,6 +699,7 @@ export const updatePlayerMatch = /* GraphQL */ `
       tiebreaksLost
       retired
       playedOn
+      ignoredBy
       createdAt
       updatedAt
     }
@@ -920,6 +925,7 @@ export const deletePlayerMatch = /* GraphQL */ `
       tiebreaksLost
       retired
       playedOn
+      ignoredBy
       createdAt
       updatedAt
     }
@@ -1058,6 +1064,7 @@ export const createMatch = /* GraphQL */ `
           tiebreaksLost
           retired
           playedOn
+          ignoredBy
           createdAt
           updatedAt
         }
@@ -1202,6 +1209,7 @@ export const updateMatch = /* GraphQL */ `
           tiebreaksLost
           retired
           playedOn
+          ignoredBy
           createdAt
           updatedAt
         }
@@ -1346,6 +1354,7 @@ export const deleteMatch = /* GraphQL */ `
           tiebreaksLost
           retired
           playedOn
+          ignoredBy
           createdAt
           updatedAt
         }
@@ -1421,6 +1430,7 @@ export const createLadder = /* GraphQL */ `
           tiebreaksLost
           retired
           playedOn
+          ignoredBy
           createdAt
           updatedAt
         }
@@ -1515,6 +1525,7 @@ export const updateLadder = /* GraphQL */ `
           tiebreaksLost
           retired
           playedOn
+          ignoredBy
           createdAt
           updatedAt
         }
@@ -1609,6 +1620,7 @@ export const deleteLadder = /* GraphQL */ `
           tiebreaksLost
           retired
           playedOn
+          ignoredBy
           createdAt
           updatedAt
         }
