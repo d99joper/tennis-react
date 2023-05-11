@@ -8,12 +8,13 @@ import { Heading, Loader } from '@aws-amplify/ui-react';
 import Login from './views/login'
 import Navbar from './components/layout/navbar';
 import MyMenu from './components/layout/menu';
-import { lazy } from 'react';
+import { lazy, useEffect } from 'react';
 import { Suspense } from 'react';
 import { userFunctions } from 'helpers';
 import { Player } from 'models';
 import { DataStore } from 'aws-amplify';
 import { Breadcrumbs, Typography } from '@mui/material';
+import { useNavigate } from "react-router-dom";
 
 function Home() {
   return <Heading level={2}>Home</Heading>;
@@ -33,8 +34,12 @@ const MyRouter = (props) => {
   
   const location = useLocation()
   const pathnames = location.pathname.split('/').filter((x) => x);
-  console.log(pathnames)
-  console.log(props)
+  let navigate = useNavigate()
+
+  useEffect(() => {
+    navigate(props.navigateTo)
+  }, [props.navigateTo])
+
   return (
     <>
     {/* <BrowserRouter key="MyMainBrowserRouter"> */}
@@ -52,7 +57,7 @@ const MyRouter = (props) => {
       <div className='Content'>
         <Suspense fallback={<h2><Loader/>Loading...</h2>}>
           <Routes key="MyMainRoutes">
-            <Route exact path="/" element={<Home />} />
+            <Route exact path="/" element={<AboutPage />} />
             <Route exact path="/home" element={<Home />} />
             <Route exact path="/about" element={<AboutPage isLoggedIn={props.isLoggedIn} />} />
             <Route exact path="/faq" element={<FAQPage />} />

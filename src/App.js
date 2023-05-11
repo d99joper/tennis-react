@@ -29,6 +29,7 @@ function App() {
   const [doReload, setDoReload] = useState(false); // reload if new user is created
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState({id:-1})
+  const [navigateTo, setNavigateTo] = useState()
 
   useEffect(() => { // useEffect hook
     Hub.listen('auth', (data) => {
@@ -39,27 +40,31 @@ function App() {
           // set signed in status
           setIsLoggedIn(true)
           userFunctions.getCurrentlyLoggedInPlayer()
-            .then((data) => {setCurrentUser(data)}) 
+            .then((data) => {
+              setCurrentUser(data)
+              setNavigateTo('/profile/')
+            }) 
 
           // check if a new user was just created
           if (newUser.current) {
             // create a new Player
             userFunctions.createPlayerIfNotExist().then(() => {
               newUser.current = false;
-              setDoReload(true)
+              setNavigateTo('/profile/')
               //window.location = '/Profile';
             })
           }
           break;
         case 'confirmSignUp':
           console.log('user confirmed');
+          setNavigateTo('/profile/')
           break;
         case 'cognitoHostedUI':
           console.log('cognitoHostedUI');
           // check if external user exist as a 'Player'
           // If not, create 'Player'
           userFunctions.createPlayerIfNotExist().then(() => {
-            setDoReload(true)
+            setNavigateTo('/profile/')
            //window.location = '/Profile';
           });
 
@@ -67,6 +72,7 @@ function App() {
         case 'signUp':
           console.log('user signed up');
           newUser.current = true;
+          setNavigateTo('/profile/')
           break;
         case 'signOut':
           console.log('user signed out');
@@ -123,7 +129,7 @@ function App() {
     <div className="App" id="app">
       <ThemeProvider theme={PrimaryMainTheme}>
         <BrowserRouter>
-          <MyRouter isLoggedIn={isLoggedIn} testing={true} reload={doReload} currentUser={currentUser} />
+          <MyRouter isLoggedIn={isLoggedIn} testing={true} navigateTo={navigateTo} currentUser={currentUser} />
           <Footer></Footer>
         </BrowserRouter>
       </ThemeProvider>

@@ -2,11 +2,12 @@ import { Badge, Card, Divider, Grid, Image, Loader, Table, TableBody, TableCell,
 import React from "react";
 import { SlUser } from "react-icons/sl";
 import './H2H.css'
+import { userFunctions as uf } from "helpers";
 
 const H2H = ({ data, ...props }) => {
     console.log("H2H", data)
     return (
-        data ?
+        data?.player1 ?
             <Grid gap="0.1rem"
                 templateColumns="1fr 1fr 1fr"
             >
@@ -16,12 +17,12 @@ const H2H = ({ data, ...props }) => {
                         {data.player1.image ?
                             <Image
                                 src={data.player1.imageUrl}
-                                alt={`visual aid for ${data.player1.name}`}
+                                alt={`visual aid for ${uf.SetPlayerName(data.player1)}`}
                                 className={`profileImage`}
                             />
                             : <SlUser size='100' />}
                     </View>
-                    <Text marginLeft={'.25rem'}>{data.player1.name}</Text>
+                    <Text marginLeft={'.25rem'}>{uf.SetPlayerName(data.player1)}</Text>
                 </Card>
 
                 {/*** vs ****/}
@@ -49,12 +50,12 @@ const H2H = ({ data, ...props }) => {
                         {data.player2.image ?
                             <Image
                                 src={data.player2.imageUrl}
-                                alt={`visual aid for ${data.player2.name}`}
+                                alt={`visual aid for ${uf.SetPlayerName(data.player2)}`}
                                 className={`profileImage`}
                             />
                             : <SlUser size='100' />}
                     </View>
-                    <Text marginLeft={'.25rem'}>{data.player2.name}</Text>
+                    <Text marginLeft={'.25rem'}>{uf.SetPlayerName(data.player2)}</Text>
                 </Card>
                 
                 {/*** Stats section ****/}

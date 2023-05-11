@@ -35,6 +35,8 @@ function Profile(props) {
     const [rivalsFetched, setRivalsFetched] = useState(false);
     const [tabIndex, setTabIndex] = useState(0)
     const [unLinkedMatches, setUnLinkedMatches] = useState()
+    const [loggedInPlayer, setLoggedInPlayer] = useState()
+    const [unLinkedMatchesAdded, setUnLinkedMatchesAdded] = useState(0)
 
     const handleUpdatedPhoneNumber = newNumber => {
         setPlayer({ ...player, phone: newNumber })
@@ -98,10 +100,7 @@ function Profile(props) {
     }
 
     function handleUnlinkedMatchAdded() {
-        setPlayer(prevVal => ({
-            ...prevVal,
-            matchesAdded: (prevVal.matchesAdded || 0) + 1
-        }))
+        setUnLinkedMatchesAdded(prevVal => {return prevVal + 1})
     }
 
     useEffect(() => {
@@ -119,6 +118,7 @@ function Profile(props) {
             let p = null;
 
             const sessionPlayer = await userFunctions.getCurrentlyLoggedInPlayer()
+            setLoggedInPlayer(sessionPlayer)
             // Check if userid param was provided
 
             if (params.userid) {
@@ -167,7 +167,7 @@ function Profile(props) {
             setPlayer(p)
         })
         //}, []);  
-    }, [params.userid]);
+    }, [params.userid, unLinkedMatchesAdded]);
 
 
     if (error.status) {
@@ -340,7 +340,7 @@ function Profile(props) {
                     <Flex direction="row" gap="1rem">
                         <Card className='card' variation="elevated" style={{ width: "100%" }}>
                             <UnlinkedMatches matches={unLinkedMatches} player={player} handleMatchAdded={handleUnlinkedMatchAdded} />
-                            <Matches player={player} limit="5" allowDelete={player.isAdmin}></Matches>
+                            <Matches player={player} limit="5" allowDelete={loggedInPlayer.isAdmin}></Matches>
                             {canEdit &&
                                 <Button label="Add new match"
                                     onClick={() => setShowMatchEditor(true)}

@@ -165,10 +165,11 @@ export const qGetUnlinkedMatches = /* GraphQL */ `
 query qGetPlayerByEmail(
   $email: AWSEmail!
   $name: ModelStringKeyConditionInput
-  $sortDirection: ModelSortDirection
+  $sortDirection: ModelSortDirection = ASC
   $filter: ModelPlayerFilterInput
   $limit: Int
   $nextToken: String
+  $ignoredBy: ID 
 ) {
   playerByEmail(
     email: $email
@@ -182,9 +183,11 @@ query qGetPlayerByEmail(
       email
       id
       name
-      playerMatches {
+      playerMatches (filter: {not: {ignoredBy: {contains: $ignoredBy}}})  {
         items {
           playerID
+          playedOn
+          ignoredBy
           match {
             id
             score
@@ -195,12 +198,14 @@ query qGetPlayerByEmail(
               email
               image
               name
+              verified
             }
             loser {
               id
               email
               image
               name
+              verified
             }
             ladder {
               id
@@ -292,6 +297,7 @@ export const qGetLadder = /* GraphQL */ `
             id
             name
             image
+            verified
           }
           winnerID
           ladder {
@@ -302,6 +308,7 @@ export const qGetLadder = /* GraphQL */ `
             id
             name
             image
+            verified
           }
           loserID
           score
@@ -391,12 +398,14 @@ export const qGetMatchByLadderID = /* GraphQL */ `
           id
           name
           image
+          verified
         }
         loserID
         loser {
           id
           name
           image
+          verified
         }
         score
       }
@@ -611,20 +620,20 @@ export const qFindMatchByDetails = /* GraphQL */ `
 `;
 export const qGetPlayerMatchByPlayer = /* GraphQL */ `
   query qGetPlayerMatchByPlayer(
-    $playerID: ID!
-    $playedOn: ModelStringKeyConditionInput
-    $sortDirection: ModelSortDirection
-    $filter: ModelPlayerMatchFilterInput
+    $filter: SearchablePlayerMatchFilterInput
+    $sort: [SearchablePlayerMatchSortInput]
     $limit: Int
     $nextToken: String
+    $from: Int
+    $aggregates: [SearchablePlayerMatchAggregationInput]
   ) {
-    getPlayerMatchByPlayer(
-      playerID: $playerID
-      playedOn: $playedOn
-      sortDirection: $sortDirection
+    searchPlayerMatches(
       filter: $filter
+      sort: $sort
       limit: $limit
       nextToken: $nextToken
+      from: $from
+      aggregates: $aggregates
     ) {
       items {
         match {
@@ -636,11 +645,15 @@ export const qGetPlayerMatchByPlayer = /* GraphQL */ `
           winner {
             id
             name
+            image
+            verified
           }
           loserID
           loser {
             id
             name
+            image
+            verified
           }
           score
           ladderID
@@ -659,10 +672,68 @@ export const qGetPlayerMatchByPlayer = /* GraphQL */ `
         playedOn
         
       }
-      nextToken
+      total
     }
   }
 `;
+// export const qGetPlayerMatchByPlayer_old = /* GraphQL */ `
+// query qGetPlayerMatchByPlayer(
+//   $playerID: ID!
+//   $playedOn: ModelStringKeyConditionInput
+//   $sortDirection: ModelSortDirection
+//   $filter: ModelPlayerMatchFilterInput
+//   $limit: Int
+//   $nextToken: String
+// ) {
+//   getPlayerMatchByPlayer(
+//     playerID: $playerID
+//     playedOn: $playedOn
+//     sortDirection: $sortDirection
+//     filter: $filter
+//     limit: $limit
+//     nextToken: $nextToken
+//   ) {
+//     items {
+//       match {
+//         id
+//         type
+//         playedOn
+//         year
+//         winnerID
+//         winner {
+//           id
+//           name
+//           image
+//           verified
+//         }
+//         loserID
+//         loser {
+//           id
+//           name
+//           image
+//           verified
+//         }
+//         score
+//         ladderID
+//         ladder {
+//           id
+//           name
+//         }
+//         createdAt
+//         updatedAt
+//         playerMatchesId
+//       }
+//       matchID
+//       matchType
+//       win
+//       retired
+//       playedOn
+      
+//     }
+//     nextToken
+//   }
+// }
+// `;
 export const mUpdatePlayer = /* GraphQL */ `
   mutation mUpdatePlayer(
     $input: UpdatePlayerInput!
