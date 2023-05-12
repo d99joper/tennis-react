@@ -30,11 +30,11 @@ const Ladder = ({
         .then(module => { return { default: module.MatchEditor } }))
 
     const [ladder, setLadder] = useState()
-    const [matches, setMatches] = useState({ nextToken: null, matches: [] })
+    //const [matches, setMatches] = useState({ nextToken: null, matches: [] })
     const [player, setPlayer] = useState()
     const [showChallangeModal, setShowChallangeModal] = useState(false)
     const [showAddMatchModal, setShowAddMatchModal] = useState(false)
-    const [nextMatchesToken, setNextMatchesToken] = useState()
+    //const [nextMatchesToken, setNextMatchesToken] = useState()
     const [displayedStandings, setDisplayedStandings] = useState()
     const [standingsAsOfDate, setStandingsAsOfDate] = useState()
 
@@ -55,7 +55,7 @@ const Ladder = ({
     // get latest standing
     useEffect(() => {
         async function getLadder() {
-            const l = await lf.GetLadder(id, nextMatchesToken)
+            const l = await lf.GetLadder(id)//, nextMatchesToken)
             //console.log(l)
             // parse the details JSON and set player images
             l.standings.details = await setPlayerImages(l.standings.details)
@@ -64,37 +64,24 @@ const Ladder = ({
 
         getLadder().then((data) => {
             // only refresh the ladder data if there is no nextMatchToken (meaining we've never fetched more matches)
-            if (!nextMatchesToken) {
+            //if (!nextMatchesToken) {
                 setLadder(data)
                 setDisplayedStandings(data.standings)
-            }
-            setMatches(oldMatches => ({ nextToken: data.matches.nextToken, matches: [...oldMatches.matches, ...data.matches.matches] }))
+            //}
+            //setMatches(oldMatches => ({ nextToken: data.matches.nextToken, matches: [...oldMatches.matches, ...data.matches.matches] }))
             console.log(data)
         })
-    }, [isPlayerInLadder, id, nextMatchesToken])
-
-    // function handleDisplayedStandings(ladder, standings) {
-    //     // find the correct cur standings in prev standings
-    //     let currentStandingIndex = ladder.previousStandings.findIndex(x => x.id == standings.id)
-    //     if (currentStandingIndex === -1) {
-    //         ladder.previousStandings.push(standings)
-    //         currentStandingIndex = ladder.previousStandings.findIndex(x => x.id == standings.id)
-    //     }
-    //     ladder.previousStandings[currentStandingIndex] = standings
-    //     return ladder.previousStandings[currentStandingIndex]
-    // }
-
-    useEffect(() => { }, [])
+    }, [isPlayerInLadder, id])
 
     function addMatches(nextToken) {
-        const compareToken = nextMatchesToken ?? ''
-        console.log(nextToken.substring(0, 40), compareToken.substring(0, 40))
-        if (compareToken == nextToken) return
-        else {
-            console.log('not equal')
-            setNextMatchesToken(nextToken)
-        }
-        return
+        // const compareToken = nextMatchesToken ?? ''
+        // console.log(nextToken.substring(0, 40), compareToken.substring(0, 40))
+        // if (compareToken == nextToken) return
+        // else {
+        //     console.log('not equal')
+        //     setNextMatchesToken(nextToken)
+        // }
+        // return
     }
 
     // async function updateDisplayedStandings(standings) {
@@ -105,6 +92,21 @@ const Ladder = ({
     //     }
 
     //     setDisplayedStandings(handleDisplayedStandings(ladder, standings))
+    // }
+    // function handleDisplayedStandings(ladder, standings) {
+    //     // find the correct cur standings in prev standings
+    //     let currentStandingIndex = ladder.previousStandings.findIndex(x => x.id == standings.id)
+    //     if (currentStandingIndex === -1) {
+    //         ladder.previousStandings.push(standings)
+    //         currentStandingIndex = ladder.previousStandings.findIndex(x => x.id == standings.id)
+    //     }
+    //     ladder.previousStandings[currentStandingIndex] = standings
+    //     return ladder.previousStandings[currentStandingIndex]
+    // }
+    // function handleStandingsChange(e) {
+    //     console.log(e.target.value)
+    //     let standings = e.target.value
+    //     updateDisplayedStandings(standings)
     // }
 
     async function updateDisplayedStandings2(date) {
@@ -117,22 +119,16 @@ const Ladder = ({
         //setDisplayedStandings(handleDisplayedStandings(ladder, standings))
         setDisplayedStandings(standings)
     }
-
-    // function handleStandingsChange(e) {
-    //     console.log(e.target.value)
-    //     let standings = e.target.value
-    //     updateDisplayedStandings(standings)
-    // }
     function handleStandingsChange2(date) {
         console.log(date)
         updateDisplayedStandings2(date)
     }
 
     function handleAddMatch(match) {
-        console.log(match)
-        console.log(ladder)
-        console.log(matches)
-        setMatches(oldMatches => ({ matches: [...oldMatches.matches, { match: match }] }))
+        // console.log(match)
+        // console.log(ladder)
+        //console.log(matches)
+        //setMatches(oldMatches => ({ matches: [...oldMatches.matches, { match: match }] }))
         setLadder(prevLadder => ({ ...prevLadder, matches: { matches: [...prevLadder.matches.matches, { match: match }] } }))
         setShowAddMatchModal(false)
         // show the details from todays date
@@ -270,7 +266,9 @@ const Ladder = ({
                                     </Select> */}
                                 </FormControl>
                                 <View>
-                                    <Button variation="primary" onClick={() => setShowAddMatchModal(true)}>Add a match</Button>
+                                    {isPlayerInLadder && 
+                                        <Button variation="primary" onClick={() => setShowAddMatchModal(true)}>Add a match</Button>
+                                    }
                                     <Dialog
                                         onClose={() => setShowAddMatchModal(false)}
                                         open={showAddMatchModal}
@@ -306,7 +304,8 @@ const Ladder = ({
                 </TabItem>
                 <TabItem title="Matches">
                     <Matches
-                        ladderMatches={matches}
+                        //ladderMatches={matches}
+                        ladder={ladder}
                         excludeColumns={['ladder']}
                         useColorCode={false}
                         sortDirection={'desc'}
