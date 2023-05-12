@@ -15,7 +15,7 @@ import {
     updatePlayerMatch
 } from "../graphql/mutations"
 import { enums, helpers, ladderFunctions, userFunctions as uf } from 'helpers'
-import { qFindMatchByDetails, qGetPlayerMatchByPlayer } from 'graphql/customQueries'
+import { qFindMatchByDetails, qGetMatchesByLadder, qGetMatchesByPlayer } from 'graphql/customQueries'
 
 
 const MatchFunctions = {
@@ -284,14 +284,38 @@ const MatchFunctions = {
         }
     },
 
-    getMatchesForLadder: async function (ladder, startDate, endDate, findFilter = null, limit = 10, nextToken) {
-
+    getMatchesForLadder: async function (ladderId, sortDirection = 'desc', limit = 10, page) {
+        try {
+            const apiData = await API.graphql({
+                query: qGetMatchesByLadder,
+                variables: {
+                    filter: { ladderID: { eq: ladderId } },
+                    limit: limit,
+                    from: (page-1)*limit,
+                    sort: { field: 'playedOn', direction: sortDirection }
+                }
+            })
+    
+            let data = {
+                // massage data to add winner and loser
+                //matches: setMatchWinnerLoserScore(apiData.data.getPlayerMatchByPlayer.items),
+                matches: apiData.data.searchMatches.items,
+                totalPages: Math.ceil(apiData.data.searchMatches.total/limit)
+            }
+            //const matches = setMatchWinnerLoserScore(apiData.data.getPlayerMatchByPlayer.items)
+            console.log(data)
+            return data
+        }
+        catch(e) {
+            console.log(e)
+            throw(e)
+        }
     },
 
     getMatchesForPlayer: async function (player, sortDirection = 'desc', limit = 10, page=1) {
         try {
             const apiData = await API.graphql({
-                query: qGetPlayerMatchByPlayer,
+                query: qGetMatchesByPlayer,
                 variables: {
                     filter: { playerID: { eq: player.id } },
                     limit: limit,
@@ -304,7 +328,7 @@ const MatchFunctions = {
                 // massage data to add winner and loser
                 //matches: setMatchWinnerLoserScore(apiData.data.getPlayerMatchByPlayer.items),
                 matches: apiData.data.searchPlayerMatches.items,
-                totalPages: apiData.data.searchPlayerMatches.total/limit
+                totalPages: Math.ceil(apiData.data.searchPlayerMatches.total/limit)
             }
             //const matches = setMatchWinnerLoserScore(apiData.data.getPlayerMatchByPlayer.items)
             console.log(data)
@@ -314,7 +338,6 @@ const MatchFunctions = {
             console.log(e)
             throw(e)
         }
-
     },
 
     // getMatchesForPlayer: async function (player, ladder, startDate, endDate, sortDirection = 'DESC', findFilter = null, limit = 10, nextToken) {

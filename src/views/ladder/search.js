@@ -115,92 +115,69 @@ const LadderSearch = () => {
     }
 
     return (
-        <>
-            <Tabs defaultIndex={0}
-                justifyContent="flex-start">
-                <TabItem title="Map search">
-                    <Grid templateColumns={'2fr auto'}>
+        <Grid templateColumns={'2fr auto'}>
 
-                        <div className="collectionContainer">
-                            <Collection
-                                type="list"
-                                items={ladders}
-                                direction='column'
-                                justifyContent={'space-between'}
-                            >
-                                {(item, index) => (
-                                    <ItemCard
-                                        key={`${item.id}_list${index}`}
-                                        footer={`${item.players.length ?? 0} players`}
-                                        header={item.name ?? 'No ladder found'}
-                                        description={item.description ?? ''}
-                                        footerRight={`Level: ${helpers.intToFloat(item.level.min)}${item.level.max !== item.level.min ? '-'+helpers.intToFloat(item.level.max) :''}`}
-                                    />
-                                )}
-                            </Collection>
-                            <p>
-                                <span>
-                                    Can't find a suitable ladder?
-                                    <Link to="/ladders/new">
-                                        <Button>Create a new ladder</Button>
-                                    </Link>
-                                </span>
-                            </p>
-                        </div>
-                        <div id="mapContainer" className="mapContainer" >
-                            <MapView
-                                initialViewState={{
-                                    latitude: mapCenter.latitude,
-                                    longitude: mapCenter.longitude,
-                                    zoom: 10
-                                }}
-                                onSourceData={updateMarkers}
-                            >
-                                <GeolocateControl position="bottom-right" />
-                                <ScaleControl />
-                                <NavigationControl position="bottom-right" showCompass={false} />
-                                <LocationSearch minLength='4' types={"locality"} countries='USA, SWE' showIcon='false' placeholder='City' />
+            <div className="collectionContainer">
+                <Collection
+                    type="list"
+                    items={ladders}
+                    direction='column'
+                    justifyContent={'space-between'}
+                >
+                    {(item, index) => (
+                        <ItemCard
+                            key={`${item.id}_list${index}`}
+                            footer={<>
+                                {`${item.players?.items?.length ?? 0} players`}<br />
+                                {`${item.matches?.items?.length ?? 0} matches`}
+                            </>
+                            }
+                            header={
+                                item.name ?
+                                    <Link to={`/ladders/${item.id}`}>{item.name}</Link>
+                                    : 'No ladder found'
+                            }
+                            description={item.description ?? ''}
+                            footerRight={`Level: ${helpers.intToFloat(item.level.min)}${item.level.max !== item.level.min ? '-' + helpers.intToFloat(item.level.max) : ''}`}
+                        />
+                    )}
+                </Collection>
+                <p>
+                    <span>
+                        Can't find a suitable ladder?
+                        <Link to="/ladders/new">
+                            <Button>Create a new ladder</Button>
+                        </Link>
+                    </span>
+                </p>
+            </div>
+            <div id="mapContainer" className="mapContainer" >
+                <MapView
+                    initialViewState={{
+                        latitude: mapCenter.latitude,
+                        longitude: mapCenter.longitude,
+                        zoom: 9
+                    }}
+                    onSourceData={updateMarkers}
+                >
+                    <GeolocateControl position="bottom-right" />
+                    <ScaleControl />
+                    <NavigationControl position="bottom-right" showCompass={false} />
+                    <LocationSearch minLength='4' types={"locality"} countries='USA, SWE' showIcon='false' placeholder='City' />
 
-                                {ladders.map(l => {
-                                    return (
-                                        <MarkerWithPopup
-                                            key={`${l.id}_marker`}
-                                            latitude={l.location.lat}
-                                            longitude={l.location.lon}
-                                            ladder={l}
-                                        />
-                                    )
-                                })}
-                            </MapView>
-                        </div>
-                    </Grid>
-                </TabItem>
-                <TabItem title="Text search">
-                    <Grid>
-                        <div className="form-group">
-                            <LocationSearch proximity={mapCenter} minLength='2' types={"locality"} countries='USA, SWE' showIcon='false' placeholder='City' />
-                        </div>
-                        {/* <Autocomplete
-                            id="city"
-                            name="city"
-                            required
-                            options={!places ? [{ name: 'Loading...', id: -1 }] : places}
-                            autoSelect={true}
-                            onChange={(e, value) => { setLocation(value) }}
-                            getOptionLabel={option => option.name}
-                            value={location}
-                            sx={{ width: 300 }}
-                            renderInput={(params) => (
-                                <div className="form-group">
-                                    <TextField {...params} label="city" type="text" name="city" placeholder="City" onChange={handleSearch} required />
-                                </div>
-                            )}
-                        /> */}
-                    </Grid>
-                </TabItem>
-            </Tabs>
-            
-        </>
+                    {ladders.map(l => {
+                        return (
+                            <MarkerWithPopup
+                                key={`${l.id}_marker`}
+                                latitude={l.location.lat}
+                                longitude={l.location.lon}
+                                ladder={l}
+                            />
+                        )
+                    })}
+                </MapView>
+            </div>
+        </Grid>
     )
 }
 

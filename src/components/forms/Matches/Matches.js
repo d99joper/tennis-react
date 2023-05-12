@@ -27,7 +27,7 @@ const Matches = ({
 
     const MatchEditor = lazy(() => import("../MatchEditor/MatchEditor").then(module => { return { default: module.MatchEditor } }))
 
-    const [matches, setMatches] = useState([{}])
+    const [matches, setMatches] = useState([])
     // const [sortField, setSortField] = useState(sortingField)
     // const [direction, setDirection] = useState(sortDirection)
     //const [{ sortField, direction }, setSort] = useState({ sortField: sortingField, direction: sortDirection })
@@ -75,9 +75,10 @@ const Matches = ({
             setShowLoader(false)
         }
         else if (ladder)
-            mf.getMatchesForLadder(ladder.id).then((data) => {
+            mf.getMatchesForLadder(ladder.id, null, 10, page).then((data) => {
                 setMatches(data.matches)
-                setNextToken(data.nextToken)
+                //setNextToken(data.nextToken)
+                setTotalPages(data.totalPages)
                 //setDataIsFetched(true)
                 setShowLoader(false)
             })

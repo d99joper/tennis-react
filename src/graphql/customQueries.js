@@ -618,8 +618,8 @@ export const qFindMatchByDetails = /* GraphQL */ `
     }
   }
 `;
-export const qGetPlayerMatchByPlayer = /* GraphQL */ `
-  query qGetPlayerMatchByPlayer(
+export const qGetMatchesByPlayer = /* GraphQL */ `
+  query qGetMatchesByPlayer(
     $filter: SearchablePlayerMatchFilterInput
     $sort: [SearchablePlayerMatchSortInput]
     $limit: Int
@@ -672,6 +672,56 @@ export const qGetPlayerMatchByPlayer = /* GraphQL */ `
         playedOn
         
       }
+      total
+    }
+  }
+`;
+export const qGetMatchesByLadder = /* GraphQL */ `
+  query qGetMatchesByLadder(
+    $filter: SearchableMatchFilterInput
+    $sort: [SearchableMatchSortInput]
+    $limit: Int
+    $nextToken: String
+    $from: Int
+    $aggregates: [SearchableMatchAggregationInput]
+  ) {
+    searchMatches(
+      filter: $filter
+      sort: $sort
+      limit: $limit
+      nextToken: $nextToken
+      from: $from
+      aggregates: $aggregates
+    ) {
+      items {
+          id
+          type
+          playedOn
+          year
+          winnerID
+          winner {
+            id
+            name
+            image
+            verified
+          }
+          loserID
+          loser {
+            id
+            name
+            image
+            verified
+          }
+          score
+          ladderID
+          ladder {
+            id
+            name
+          }
+          createdAt
+          updatedAt
+          playerMatchesId
+        }
       total
     }
   }
