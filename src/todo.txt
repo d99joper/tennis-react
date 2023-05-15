@@ -28,7 +28,13 @@ Search page
     [x] Add to menu
     [ ] Searches for different categories (ladder name/location/level, players name/location/level)
         [ ] Search for players
+            [ ] Name
+            [ ] Level
+            [ ] Location
         [ ] Search for ladders
+            [ ] Name
+            [ ] Level
+            [ ] Location
 
 About page  
     [x] About
