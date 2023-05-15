@@ -19,7 +19,6 @@ Overall design
             [x] getMatchesForPlayer
             [x] listComments
     [ ] Style and clean up
-    [ ] Search for players
     [x] Nicer menu
     [x] Add location library (geo) for ladder locations
     [x] Create a dynamic table 
@@ -28,10 +27,13 @@ Overall design
 Search page
     [x] Add to menu
     [ ] Searches for different categories (ladder name/location/level, players name/location/level)
+        [ ] Search for players
+        [ ] Search for ladders
 
 About page  
-    [ ] Rules
-    [ ] FAQ
+    [x] About
+    [x] Rules
+    [x] FAQ
 
 Profile page
     [ ] Style and clean up
@@ -79,20 +81,20 @@ Matches
     [ ] Separate doubles from singels
     [*] Allow practice matches outside of a ladder ('Other' ladder option?)
         [x] Add verified/unverified flag for players
-        [ ] Add new players as 'Unverified' (only available for 'Other' matches)
-        [*] Autocomplete search for all players
-            [*] All players (limit to 20)
-            [ ] Add option to add player if no match on name
+        [x] Add new players as 'Unverified' (only available for 'Other' matches)
+        [x] Autocomplete search for all players
+            [x] All players (limit to 20)
+            [x] Add option to add player if no match on name
     [ ] Post result to UTR
     [ ] Add comments
-    [ ] Calculate standings / ranking points
+    [x] Calculate standings / ranking points
     [x] Dynamic Sort
     [*] Reset forms
     [x] Update match list on profile
-    [ ] Add new Player if player does not exist and ladder is *Other.
+    [x] Add new Player if player does not exist and ladder is *Other.
 
 Player
-    [ ] Signup
+    [x] Signup
         [ ] Make sure email is unique when creating new player
         [ ] Check if name already exists, then suggest merging/signing up with that (unused) account. 
             If there is a real email on the other account, suggest merge (but that will be more complex with verification)
