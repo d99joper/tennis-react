@@ -3,7 +3,7 @@ import './PhoneNumber.css'
 
 function PhoneNumber(props) {
     //const {onNewNumber} = props
-    const [number, setNumber] = React.useState(props.number);
+    const [number, setNumber] = React.useState(props.number ?? '');
     let latestNumber = props.number
     const [error, setError] = React.useState(null);
 
@@ -38,7 +38,7 @@ function PhoneNumber(props) {
         }
     };
 
-    const formattedNumber = (number ?? '').replace(/[^0-9]/g, '').replace(
+    const formattedNumber = (number.length ? number : props.number ?? '').replace(/[^0-9]/g, '').replace(
         /^(\d{3})(\d{3})(\d{4})$/,
         '($1) $2-$3'
     );
@@ -58,7 +58,11 @@ function PhoneNumber(props) {
             </>
         );
     } else {
-        return <span>{formattedNumber}</span>;
+        return (
+            <span>
+                <a href={`tel:${formattedNumber}`}>{formattedNumber}</a>
+            </span>
+        )
     }
 }
 
