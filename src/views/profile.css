@@ -14,7 +14,31 @@
 }
 
 .rightProfileContent {
-    max-width: 710px;
+    /* max-width: 710px; */
+    min-width: 600px;
+}
+
+#profile > .contact {
+    grid-area: "contact";
+}
+#profile > .image {
+    grid-area: "image";
+}
+#profile > .name {
+    grid-area: "name";
+}
+
+@media only screen and (max-width: 768px) { 
+    #profileContact {
+        /* display: grid;
+        grid-template-areas: 
+            "image name"
+            "contact .";
+        grid-template-rows: "1fr auto";
+        grid-template-columns: "auto auto"; */
+        max-width: 230px;
+        text-align: center;
+    }
 }
 
 .hiddenImageInput {
