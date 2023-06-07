@@ -76,10 +76,12 @@
 }
 
 .drawer-puller {
-  background-color: #c8e6c9; /*#edfdf0; c8e6c9*/
+  background-color: rgba(200,233,201, 0) #c8e6c9; /*#edfdf0; c8e6c9*/
   display: block;
   cursor: pointer;
+  height: 65px;
   border-radius: 0 10px 10px 10px;
   width: 50px;
   padding: 5px;
+  padding-top: 15px;
 }

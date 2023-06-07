@@ -43,7 +43,7 @@ body {
 }
 
 .Content {
-  width: 60rem;
+  /* width: 60rem; */
   padding: 1rem;
 }
 
@@ -58,14 +58,15 @@ body {
 header {
   min-height: 2rem;
   background-color: #f6ffc3;
-  min-height: 85px;
 }
 
 footer {
   padding: 1rem;
   text-align: center;
+
 }
 
+<<<<<<< HEAD
 @media only screen and (max-width: 600px) { 
   .flex {
     flex-direction: column;
@@ -78,13 +79,42 @@ footer {
 }
 
 @media  screen and (max-width: 700px) {    
+=======
+@media only screen and (max-width: 768px) { 
+  .App {
+    /* margin-inline: auto; */
+    /* margin-top: 100px; */
+    max-width: 100%;
+    padding: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    grid-template-rows: 
+      auto
+      1fr
+      auto;
+    background-color: #fdfced;
+  }
+  header {
+    min-height: 2rem;
+    background-color: #f6ffc3;
+  }
+  /* .Content {
+    width: 30rem;
+    padding: 1rem;
+  } */
+  footer {
+    padding: 1rem;
+    text-align: center;
+  }
+>>>>>>> e4d1daa2073f1e5a9c0c706d58126e9966c12a55
   .mediaFlex {
     flex-direction: column !important;
 
   }
-  .amplify-card {
+  /* .amplify-card {
     max-width: 600px;
-  }
+  }  */
 }
 
 img {
@@ -106,7 +136,7 @@ img {
   color: rgb(224, 13, 13);
 }
 
-.App-header {
+/* .App-header {
   background-color: #282c34;
   min-height: 100vh;
   display: flex;
@@ -115,11 +145,11 @@ img {
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
-}
+} */
 
-.App-link {
+/* .App-link {
   color: #61dafb;
-}
+} */
 
 @keyframes App-logo-spin {
   from {
