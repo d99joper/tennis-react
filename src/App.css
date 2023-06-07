@@ -66,11 +66,17 @@ footer {
   text-align: center;
 }
 
-/* @media only screen and (max-width: 600px) { 
+@media only screen and (max-width: 600px) { 
   .flex {
     flex-direction: column;
   }
-} */
+  /* update banner */ 
+  /* Header font size */ 
+  /* Body font size */ 
+  /* Header, Body, Footer width */ 
+  /* Layout might need more than just .flex */
+}
+
 @media  screen and (max-width: 700px) {    
   .mediaFlex {
     flex-direction: column !important;
