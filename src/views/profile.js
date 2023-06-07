@@ -8,7 +8,8 @@ import { enums, helpers, userFunctions } from 'helpers'
 import { Editable, Matches, PhoneNumber, UserStats, TopRivals, Match, UnlinkedMatches } from '../components/forms/index.js'
 import './profile.css';
 import { Avatar, Modal, Box, Typography, Dialog, DialogTitle, Checkbox } from '@mui/material';
-import { AiOutlineMail, AiOutlinePhone } from 'react-icons/ai';
+import { AiOutlineEdit, AiOutlineMail, AiOutlinePhone, AiOutlineUndo } from 'react-icons/ai';
+import { MdOutlineCancel } from 'react-icons/md';
 
 function Profile(props) {
 
@@ -100,7 +101,7 @@ function Profile(props) {
     }
 
     function handleUnlinkedMatchAdded() {
-        setUnLinkedMatchesAdded(prevVal => {return prevVal + 1})
+        setUnLinkedMatchesAdded(prevVal => { return prevVal + 1 })
     }
 
     useEffect(() => {
@@ -116,23 +117,23 @@ function Profile(props) {
         async function getProfile() {
 
             let p = null;
-
+            setCanEdit(false)
             const sessionPlayer = await userFunctions.getCurrentlyLoggedInPlayer()
             setLoggedInPlayer(sessionPlayer)
             // Check if userid param was provided
 
             if (params.userid) {
-                console.log('userid provided');
+                console.log('userid provided')
                 // Get the user from the userid -> paramPlayer
                 p = await userFunctions.getPlayer(params.userid)
                 p = p ?? sessionPlayer
                 //setUnLinkedMatches(p.unLinkedMatches)
-                
+
             }
             else {
-                console.log('no userid provided, use sessionPlayer', sessionPlayer);
+                console.log('no userid provided, use sessionPlayer', sessionPlayer)
                 // if (sessionPlayer) {
-                p = sessionPlayer;
+                p = sessionPlayer
                 //     document.title = 'My Tennis Space - ' + p.name;
                 //     //setPlayer(prevState => ({...prevState, p})) 
                 //     console.log('This is your page, so you can edit it');
@@ -145,20 +146,20 @@ function Profile(props) {
             }
             if (sessionPlayer) {
                 if (sessionPlayer.email === p.email) {
-                    console.log('This is your page, so you can edit it');
+                    console.log('This is your page, so you can edit it')
                     setUnLinkedMatches(sessionPlayer.unLinkedMatches)
-                    setCanEdit(true);
+                    setCanEdit(true)
                 }
             }
             else if (!p) {
                 setError({ status: true, message: 'This user does not exist.' });
             }
-            setIsLoaded(true);
+            setIsLoaded(true)
 
             if (p)
-                document.title = 'My Tennis Space - ' + p.name;
+                document.title = 'My Tennis Space - ' + p.name
 
-            return p;
+            return p
 
         }
 
@@ -176,198 +177,210 @@ function Profile(props) {
         return <h2><Loader />Loading...</h2>;
     } else {
         return (
-            <>
-                <Flex direction="column" gap="1rem">
-                    <Flex as="form"
-                        direction="row"
-                        //gap="1rem" 
-                        onSubmit={updateProfileData}
-                        className="mediaFlex"
-                    >
-                        <Card className='card profilePic' variation="elevated">
+            <Flex direction="column" id="profile" gap="1rem">
+                <Flex as="form"
+                    direction="row"
+                    //gap="1rem" 
+                    onSubmit={updateProfileData}
+                    className="mediaFlex"
+                >
+                    <Card className='card' id="profileContact" variation="elevated">
 
-                            {/************ PROFILE PICTURE   *************/}
-                            <Avatar
-                                {...userFunctions.stringAvatar(player, 150)}
-                                className={`${canEdit ? " cursorHand" : null}`}
-                                onClick={(e) => { openUserImagePicker(e) }}
-                            />
+                        {/************ PROFILE PICTURE   *************/}
+                        <Avatar
+                            {...userFunctions.stringAvatar(player, 150)}
+                            className={`image ${canEdit ? " cursorHand" : null}`}
+                            onClick={(e) => { openUserImagePicker(e) }}
+                        />
+                        {/******** MODAL TO UPDATE PICTURE   *********/}
+                        <Modal
+                            aria-labelledby="Update profile picture"
+                            onClose={() => setShowImagePicker(false)}
+                            open={showImagePicker}
+                        >
+                            <Box sx={helpers.modalStyle}>
+                                <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={'1rem'}>
+                                    {`Update profile picture`}
+                                </Typography>
+                                <View
+                                    name="profilePic"
+                                    as="input"
+                                    type="file"
+                                    id="imageInput"
+                                    text={player.name}
+                                    className="hiddenImageInput"
+                                    onChange={(e) => { updateProfilePic(e) }}
+                                />
 
-                            <Modal
-                                aria-labelledby="Update profile picture"
-                                onClose={() => setShowImagePicker(false)}
-                                open={showImagePicker}
-                            >
-                                <Box sx={helpers.modalStyle}>
-                                    <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={'1rem'}>
-                                        {`Update profile picture`}
-                                    </Typography>
-                                    <View
-                                        name="profilePic"
-                                        as="input"
-                                        type="file"
-                                        id="imageInput"
-                                        text={player.name}
-                                        className="hiddenImageInput"
-                                        onChange={(e) => { updateProfilePic(e) }}
-                                    />
-
-                                    <Button>
-                                        <label htmlFor="imageInput" className='cursorHand'>
-                                            Select a profile picture.
-                                        </label>
-                                    </Button>
-                                </Box>
-                            </Modal>
-                            {/************ NAME   *************/}
-                            <Text fontSize='x-large'>{player.name}</Text>
+                                <Button>
+                                    <label htmlFor="imageInput" className='cursorHand'>
+                                        Select a profile picture.
+                                    </label>
+                                </Button>
+                            </Box>
+                        </Modal>
+                        {/************ NAME   *************/}
+                        <Text fontSize='x-large' className='name'>{player.name}</Text>
+                        <span className='contact'>
                             {/************ EMAIL   *************/}
-
-                            <Text fontSize='small'><AiOutlineMail />
+                            <Text fontSize='small'>
+                                <AiOutlineMail />
                                 {isLoggedIn
                                     ? <>&nbsp;<a href={`mailto:${player.email}`}>{player.email}</a></>
                                     : <>&nbsp;Hidden</>
                                 }
                             </Text>
                             {/************ PHONE   *************/}
-                            <Text fontSize='small'><AiOutlinePhone />
+                            <Text fontSize='small'>
+                                <AiOutlinePhone />
                                 {isLoggedIn
                                     ?
                                     <>&nbsp;
-                                        <PhoneNumber name="name" onNewNumber={handleUpdatedPhoneNumber} number={player.phone} editable={isEdit} />
+                                        <PhoneNumber name="name" onNewNumber={handleUpdatedPhoneNumber} number={player.phone} editable={isEdit && canEdit} />
                                     </>
                                     : <>&nbsp;Hidden</>
                                 }
                             </Text>
-                        </Card>
+                        </span>
+                    </Card>
 
-                        {/************ RIGHT CONTENT   *************/}
-                        <Card className='card rightProfileContent' variation="elevated" flex="1">
-                            <Tabs
-                                currentIndex={tabIndex}
-                                onChange={(i) => setTabIndex(i)}
-                                justifyContent="flex-start">
-                                <TabItem title="General">
-                                    {/************ EDIT TOOGLE   *************/}
-                                    <div style={{ float: 'right' }}>
-                                        {canEdit &&
-                                            <SwitchField
-                                                key={"editModeSwitch"}
-                                                isDisabled={false}
-                                                defaultChecked={false}
-                                                label="Edit Mode"
-                                                labelPosition="start"
-                                                isChecked={isEdit}
-                                                onChange={(e) => { setIsEdit(e.target.checked) }}
-                                            />
-                                        }
-                                    </div>
-                                    <Grid
-                                        templateColumns="1fr 3fr"
-                                        templateRows="auto"
-                                        paddingTop={"10px"}
-                                    >
-                                        {/************ NTRP   *************/}
-                                        <View><Text>NTRP rating:</Text></View>
-                                        <Flex direction={'row'} flex='1'>
-                                            <Editable
-                                                text={player.NTRP ?? '-'}
-                                                isEditing={isEdit}
-                                                direction="row"
-                                                gap="0.5rem"
-                                            >
-                                                <SelectField
-                                                    name="NTPR"
-                                                    size='small'
-                                                    defaultValue={player.NTRP ? player.NTRP : '2.0'}
-                                                    options={NTRPItems}
-                                                ></SelectField>
-
-                                            </Editable>
-                                            <Text fontSize={'smaller'}>
-                                                <a href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf' target='blank'>View the USTA NTPR guidelines</a>.
-                                            </Text>
-                                        </Flex>
-
-                                        {/************ UTR   *************/}
-                                        <View>UTR rating:</View>
-                                        <Editable
-                                            text={player.UTR ?? '-'}
-                                            isEditing={isEdit}
-                                        >
-                                            <TextField name="UTR" size='small' defaultValue={player.UTR}></TextField>
-                                        </Editable>
-
-                                        {/************ LADDERS   *************/}
-                                        <View>Ladders:</View>
-                                        {/* <Ladders ladderList={player.ladders} player={player} /> */}
-                                        <Grid templateRows={"auto"}>
-                                            {player.ladders.items.map((item, i) => {
-                                                console.log(item)
-                                                return (
-                                                    <Link to={`/ladders/${item.ladder.id}`} key={item.ladder.id}>{item.ladder.name}</Link>
-                                                )
-                                            })}
-                                        </Grid>
-
-                                        {/************ ABOUT   *************/}
-                                        <View><Text>About:</Text></View>
-                                        <Editable
-                                            text={player.about}
-                                            isEditing={isEdit}>
-                                            <TextAreaField name="about" defaultValue={player.about}></TextAreaField>
-                                        </Editable>
-                                        {isEdit &&
-                                            <Button type="submit" variation="primary">
-                                                Update
-                                            </Button>
-                                        }
-                                    </Grid>
-                                </TabItem>
-                                <TabItem title="Stats" onClick={handleStatsClick} >
-                                    {/************ STATS   *************/}
-                                    <UserStats stats={stats} statsFetched={statsFetched} paddingTop={10} />
-                                </TabItem>
-                                <TabItem title="Greatest Rivals" onClick={handleRivalsClick} >
-                                    {/************ RIVALS   *************/}
-                                    <TopRivals data={rivals} rivalsFetched={rivalsFetched} player={player} paddingTop={10} />
-                                </TabItem>
-                            </Tabs>
-                        </Card>
-                    </Flex>
-
-                    {/************ MATCHES   *************/}
-                    <Flex direction="row" gap="1rem">
-                        <Card className='card' variation="elevated" style={{ width: "100%" }}>
-                            <UnlinkedMatches matches={unLinkedMatches} player={player} handleMatchAdded={handleUnlinkedMatchAdded} />
-                            <Matches player={player} limit="5" allowDelete={loggedInPlayer.isAdmin}></Matches>
-                            {canEdit &&
-                                <Button label="Add new match"
-                                    onClick={() => setShowMatchEditor(true)}
-                                // onClick={(e) => { toggleMatchEditor(e) }}
+                    {/************ RIGHT CONTENT   *************/}
+                    <Card className='card rightProfileContent' variation="elevated" flex="1">
+                        <Tabs
+                            currentIndex={tabIndex}
+                            onChange={(i) => setTabIndex(i)}
+                            justifyContent="flex-start">
+                            <TabItem title="General">
+                                {/************ EDIT TOOGLE   *************/}
+                                <div style={{ float: 'right' }}>
+                                    
+                                    {canEdit && isEdit &&
+                                        <MdOutlineCancel 
+                                            onClick={() => setIsEdit(!isEdit)}
+                                            className='cursorHand' 
+                                        />
+                                    }
+                                    {canEdit && !isEdit &&
+                                        <AiOutlineEdit 
+                                        onClick={() => setIsEdit(!isEdit)}
+                                        className='cursorHand' 
+                                    />
+                                            
+                                        // <SwitchField
+                                        //     key={"editModeSwitch"}
+                                        //     isDisabled={false}
+                                        //     defaultChecked={false}
+                                        //     label="Edit Mode"
+                                        //     labelPosition="start"
+                                        //     isChecked={isEdit}
+                                        //     onChange={(e) => { setIsEdit(e.target.checked) }}
+                                        // />
+                                    }
+                                </div>
+                                <Grid
+                                    templateColumns="1fr 3fr"
+                                    templateRows="auto"
+                                    paddingTop={"10px"}
                                 >
-                                    {showMatchEditor ? 'Cancel' : 'Add'}
-                                </Button>
-                            }
-                            <Dialog
-                                onClose={() => setShowMatchEditor(false)}
-                                open={showMatchEditor}
-                                aria-labelledby={`Add a match`}
-                                aria-describedby="Add a new match"
-                                padding={'1rem'}
-                            >
-                                <DialogTitle>Add a new match</DialogTitle>
-                                <Box padding={'1rem'}>
-                                    <Suspense fallback={<h2><Loader />Loading...</h2>}>
-                                        <MatchEditor player={player} onSubmit={updateProfileData} />
-                                    </Suspense>
-                                </Box>
-                            </Dialog>
-                        </Card>
-                    </Flex>
+                                    {/************ NTRP   *************/}
+                                    <View><Text>NTRP rating:</Text></View>
+                                    <Flex direction={'row'} flex='1'>
+                                        <Editable
+                                            text={player.NTRP ?? '-'}
+                                            isEditing={isEdit}
+                                            direction="row"
+                                            gap="0.5rem"
+                                        >
+                                            <SelectField
+                                                name="NTPR"
+                                                size='small'
+                                                defaultValue={player.NTRP ? player.NTRP : '2.0'}
+                                                options={NTRPItems}
+                                            ></SelectField>
+
+                                        </Editable>
+                                        <Text fontSize={'smaller'}>
+                                            <a href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf' target='blank'>View the USTA NTPR guidelines</a>.
+                                        </Text>
+                                    </Flex>
+
+                                    {/************ UTR   *************/}
+                                    <View>UTR rating:</View>
+                                    <Editable
+                                        text={player.UTR ?? '-'}
+                                        isEditing={isEdit}
+                                    >
+                                        <TextField name="UTR" size='small' defaultValue={player.UTR}></TextField>
+                                    </Editable>
+
+                                    {/************ LADDERS   *************/}
+                                    <View>Ladders:</View>
+                                    {/* <Ladders ladderList={player.ladders} player={player} /> */}
+                                    <Grid templateRows={"auto"}>
+                                        {player.ladders.items.map((item, i) => {
+                                            console.log(item)
+                                            return (
+                                                <Link to={`/ladders/${item.ladder.id}`} key={item.ladder.id}>{item.ladder.name}</Link>
+                                            )
+                                        })}
+                                    </Grid>
+
+                                    {/************ ABOUT   *************/}
+                                    <View><Text>About:</Text></View>
+                                    <Editable
+                                        text={player.about}
+                                        isEditing={isEdit}>
+                                        <TextAreaField name="about" defaultValue={player.about}></TextAreaField>
+                                    </Editable>
+                                    {isEdit &&
+                                        <Button type="submit" variation="primary">
+                                            Update
+                                        </Button>
+                                    }
+                                </Grid>
+                            </TabItem>
+                            <TabItem title="Stats" onClick={handleStatsClick} >
+                                {/************ STATS   *************/}
+                                <UserStats stats={stats} statsFetched={statsFetched} paddingTop={10} />
+                            </TabItem>
+                            <TabItem title="Greatest Rivals" onClick={handleRivalsClick} >
+                                {/************ RIVALS   *************/}
+                                <TopRivals data={rivals} rivalsFetched={rivalsFetched} player={player} paddingTop={10} />
+                            </TabItem>
+                        </Tabs>
+                    </Card>
                 </Flex>
-                <Divider></Divider>
-            </>
+
+                {/************ MATCHES   *************/}
+                <Flex direction="row" gap="1rem">
+                    <Card className='card' variation="elevated" style={{ width: "100%" }}>
+                        <UnlinkedMatches matches={unLinkedMatches} player={player} handleMatchAdded={handleUnlinkedMatchAdded} />
+                        <Matches player={player} limit="5" allowDelete={loggedInPlayer.isAdmin}></Matches>
+                        {canEdit &&
+                            <Button label="Add new match"
+                                onClick={() => setShowMatchEditor(true)}
+                            // onClick={(e) => { toggleMatchEditor(e) }}
+                            >
+                                {showMatchEditor ? 'Cancel' : 'Add'}
+                            </Button>
+                        }
+                        <Dialog
+                            onClose={() => setShowMatchEditor(false)}
+                            open={showMatchEditor}
+                            aria-labelledby={`Add a match`}
+                            aria-describedby="Add a new match"
+                            padding={'1rem'}
+                        >
+                            <DialogTitle>Add a new match</DialogTitle>
+                            <Box padding={'1rem'}>
+                                <Suspense fallback={<h2><Loader />Loading...</h2>}>
+                                    <MatchEditor player={player} onSubmit={updateProfileData} />
+                                </Suspense>
+                            </Box>
+                        </Dialog>
+                    </Card>
+                </Flex>
+            </Flex>
         )
     }
 

@@ -96,8 +96,8 @@ const MyMenu = (props) => {
         <div className='banner'>
             {!open && screenSize === 'small' &&
                 <span className={'drawer-puller'} onClick={handleDrawerOpenClose} >
-                    <IconButton>
-                        <AiOutlineMenuUnfold size="1.5rem" />
+                    <IconButton >
+                        <AiOutlineMenuUnfold color='white' size="1.5rem" />
                     </IconButton>
                 </span>
             }
