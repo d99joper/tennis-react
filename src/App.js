@@ -5,9 +5,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import { userFunctions } from './helpers/index';
 import MyRouter from './routes';
-import Footer from './views/footer';
+import Footer from './components/layout/footer';
 import { green } from '@mui/material/colors';
 import { BrowserRouter } from 'react-router-dom';
+import Header from './components/layout/header';
 
 function App() {
   const PrimaryMainTheme = createTheme({
@@ -22,11 +23,9 @@ function App() {
 
     }
   });
-  const testing = useRef(false);
   const newUser = useRef(false);
 
   const [isLoading, setLoading] = useState(true); // Loading state
-  const [doReload, setDoReload] = useState(false); // reload if new user is created
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState({id:-1})
   const [navigateTo, setNavigateTo] = useState()
@@ -129,7 +128,10 @@ function App() {
     <div className="App" id="app">
       <ThemeProvider theme={PrimaryMainTheme}>
         <BrowserRouter>
-          <MyRouter isLoggedIn={isLoggedIn} testing={true} navigateTo={navigateTo} currentUser={currentUser} />
+          <Header isLoggedIn={isLoggedIn} testing={true} navigateTo={navigateTo} currentUser={currentUser}></Header>
+          <main className='content'>
+            <MyRouter isLoggedIn={isLoggedIn} testing={true} navigateTo={navigateTo} currentUser={currentUser} />
+          </main>
           <Footer></Footer>
         </BrowserRouter>
       </ThemeProvider>

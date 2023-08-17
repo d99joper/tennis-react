@@ -12,12 +12,12 @@ import { AiOutlineMenuFold, AiOutlineMenuUnfold, AiOutlineHome,
 import {BiLogInCircle, BiLogOutCircle} from 'react-icons/bi'
 // import bannerImage from '../../images/banner_tennis.jpg'
 import bannerImage from '../../images/tennisbanner.png'
-import './layout.css'
+//import './layout.css'
 import { GiWhistle } from 'react-icons/gi';
 
-const MyMenu = (props) => {
-
-    const smallScreen = 600
+const WebMenu = (props) => {
+console.log("webMenu")
+    const smallScreen = 768
     const mediumScreen = 900
     const userScreen = window.innerWidth
     const marginSizes = {
@@ -66,7 +66,7 @@ const MyMenu = (props) => {
     // const classes = popoverStyles()
 
     const handleDrawerOpenClose = () => {
-        //console.log('open-close', !open)
+        console.log('open-close', !open)
         setOpen(!open);
     }
 
@@ -93,24 +93,16 @@ const MyMenu = (props) => {
 
     return (
 
-        <div className='banner'>
+        <div 
+            // className='banner'
+        >
             {!open && screenSize === 'small' &&
-                <span className={'drawer-puller'} onClick={handleDrawerOpenClose} >
-                    <IconButton >
+                <div className={'drawer-puller'} onClick={handleDrawerOpenClose}>
+                    <IconButton>
                         <AiOutlineMenuUnfold color='white' size="1.5rem" />
                     </IconButton>
-                </span>
+                </div>
             }
-            <div className='banner-title'>
-                <h1>My Tennis Space</h1>
-            </div>
-            <div className='banner-settings'>
-            {props.isLoggedIn === true ?
-                <BiLogOutCircle title="Logout" size={'1.5rem'} className="cursorHand" onClick={userFunctions.signOut} />
-                :
-                <BiLogInCircle title="Login" size={'1.5rem'} className="cursorHand" component="Link" to="/login" />
-            }
-            </div>
             <Popover
                 id="mouse-over-popover"
                 PaperProps={{style:{backgroundColor: '#ebffeb'}}}
@@ -268,4 +260,4 @@ const MyMenu = (props) => {
     );
 }
 
-export default MyMenu;
+export default WebMenu;
