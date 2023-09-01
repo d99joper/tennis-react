@@ -6,8 +6,6 @@ import './layout.css'
 import { BiLogInCircle, BiLogOutCircle } from "react-icons/bi"
 import { userFunctions } from "helpers"
 import MobileMenu from "./menu-mobile"
-import MiniDrawer from "./test"
-import LargeMenu from "./menu-large"
 
 function Header(props) {
 
@@ -18,12 +16,27 @@ function Header(props) {
 
   return (
     <header>
-      
-      {isSmallScreen
-        ? <MobileMenu {...props} />
-        :  <LargeMenu {...props} />//<MiniDrawer /> // 
-      }
+      <AppBar className={"banner"}>
+        <Toolbar>
+          <div className='banner-title'>
+            <h1>My Tennis Space</h1>
+          </div>
+          {isSmallScreen
+            ? <MobileMenu {...props} />
+            : <WebMenu {...props} />
+          }
+
+          <div className='banner-settings'>
+            {props.isLoggedIn === true ?
+              <BiLogOutCircle title="Logout" size={'1.5rem'} className="cursorHand" onClick={userFunctions.signOut} />
+              :
+              <BiLogInCircle title="Login" size={'1.5rem'} className="cursorHand" onClick={() => console.log('poop')} component="Link" to="/login" />
+            }
+          </div>
+        </Toolbar>
+      </AppBar>
       <Toolbar />
+
 
       <Breadcrumbs className='breadcrumbs'>
         {pathnames.map((elem, index) => {

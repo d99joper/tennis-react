@@ -9,6 +9,8 @@ import Footer from './components/layout/footer';
 import { green } from '@mui/material/colors';
 import { BrowserRouter } from 'react-router-dom';
 import Header from './components/layout/header';
+import { Box, CssBaseline } from '@mui/material';
+import MiniDrawer from 'components/layout/test';
 
 function App() {
   const PrimaryMainTheme = createTheme({
@@ -27,7 +29,7 @@ function App() {
 
   const [isLoading, setLoading] = useState(true); // Loading state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState({id:-1})
+  const [currentUser, setCurrentUser] = useState({ id: -1 })
   const [navigateTo, setNavigateTo] = useState()
 
   useEffect(() => { // useEffect hook
@@ -42,7 +44,7 @@ function App() {
             .then((data) => {
               setCurrentUser(data)
               setNavigateTo('/profile/')
-            }) 
+            })
 
           // check if a new user was just created
           if (newUser.current) {
@@ -64,7 +66,7 @@ function App() {
           // If not, create 'Player'
           userFunctions.createPlayerIfNotExist().then(() => {
             setNavigateTo('/profile/')
-           //window.location = '/Profile';
+            //window.location = '/Profile';
           });
 
           break;
@@ -86,7 +88,7 @@ function App() {
         case 'configured':
           console.log('the Auth module is configured');
           break;
-        default: 
+        default:
           break;
       }
     });
@@ -94,7 +96,7 @@ function App() {
     async function getCurrentUser() {
       try {
         const isSignedIn = await userFunctions.CheckIfSignedIn()
-        if(isSignedIn) {
+        if (isSignedIn) {
           const user = await userFunctions.getCurrentlyLoggedInPlayer()
           setCurrentUser(user)
         }
@@ -105,7 +107,7 @@ function App() {
         console.log(e);
       }
     }
-    getCurrentUser()   
+    getCurrentUser()
 
   }, []);
 
@@ -125,17 +127,31 @@ function App() {
   }
 
   return (
-    <div className="App" id="app">
+    <Box className="App" id="app" sx={{ display: 'flex', flexDirection:'column'}}>
+      <CssBaseline />
       <ThemeProvider theme={PrimaryMainTheme}>
         <BrowserRouter>
           <Header isLoggedIn={isLoggedIn} testing={true} navigateTo={navigateTo} currentUser={currentUser}></Header>
-          <main className='content'>
+          <Box component="main" className='content'
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '2rem',
+              //backgroundColor: 'blueviolet',
+              flexGrow: 1, p: 3,
+              transition: 'flex-grow 0.2s ease',
+              overflowX: 'hidden', // Hide overflowing content
+            }}>
+            {/* <main className='content'> */}
+            {/* <MiniDrawer/> */}
             <MyRouter isLoggedIn={isLoggedIn} testing={true} navigateTo={navigateTo} currentUser={currentUser} />
-          </main>
-          <Footer></Footer>
+            {/* </main> */}
+          <Footer>
+          </Footer>
+          </Box>
         </BrowserRouter>
       </ThemeProvider>
-    </div>
+    </Box>
   );
 }
 

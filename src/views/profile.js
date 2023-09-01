@@ -7,9 +7,10 @@ import {
 import { enums, helpers, userFunctions } from 'helpers'
 import { Editable, Matches, PhoneNumber, UserStats, TopRivals, Match, UnlinkedMatches } from '../components/forms/index.js'
 import './profile.css';
-import { Avatar, Modal, Box, Typography, Dialog, DialogTitle, Checkbox } from '@mui/material';
+import { Avatar, Modal, Box, Typography, Dialog, DialogTitle, Checkbox, Toolbar } from '@mui/material';
 import { AiOutlineEdit, AiOutlineMail, AiOutlinePhone, AiOutlineUndo } from 'react-icons/ai';
 import { MdOutlineCancel } from 'react-icons/md';
+import { BiLogOutCircle } from 'react-icons/bi';
 
 function Profile(props) {
 
@@ -177,14 +178,45 @@ function Profile(props) {
         return <h2><Loader />Loading...</h2>;
     } else {
         return (
-            <Flex direction="column" id="profile" gap="1rem">
+            <Flex className='profile-main' id="profile">
+
+                <Toolbar className='icon-bar'>
+                    <BiLogOutCircle></BiLogOutCircle>
+                </Toolbar>
+
                 <Flex as="form"
-                    direction="row"
-                    //gap="1rem" 
+                    className='profile-form'
                     onSubmit={updateProfileData}
-                    className="mediaFlex"
                 >
-                    <Card className='card' id="profileContact" variation="elevated">
+                    {/******** MODAL TO UPDATE PICTURE   *********/}
+                    <Modal
+                        aria-labelledby="Update profile picture"
+                        onClose={() => setShowImagePicker(false)}
+                        open={showImagePicker}
+                    >
+                        <Box sx={helpers.modalStyle}>
+                            <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={'1rem'}>
+                                {`Update profile picture`}
+                            </Typography>
+                            <View
+                                name="profilePic"
+                                as="input"
+                                type="file"
+                                id="imageInput"
+                                text={player.name}
+                                className="hiddenImageInput"
+                                onChange={(e) => { updateProfilePic(e) }}
+                            />
+
+                            <Button>
+                                <label htmlFor="imageInput" className='cursorHand'>
+                                    Select a profile picture.
+                                </label>
+                            </Button>
+                        </Box>
+                    </Modal>
+
+                    <Card className='card profile-info' id="profileContact" variation="elevated">
 
                         {/************ PROFILE PICTURE   *************/}
                         <Avatar
@@ -192,56 +224,33 @@ function Profile(props) {
                             className={`image ${canEdit ? " cursorHand" : null}`}
                             onClick={(e) => { openUserImagePicker(e) }}
                         />
-                        {/******** MODAL TO UPDATE PICTURE   *********/}
-                        <Modal
-                            aria-labelledby="Update profile picture"
-                            onClose={() => setShowImagePicker(false)}
-                            open={showImagePicker}
-                        >
-                            <Box sx={helpers.modalStyle}>
-                                <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={'1rem'}>
-                                    {`Update profile picture`}
-                                </Typography>
-                                <View
-                                    name="profilePic"
-                                    as="input"
-                                    type="file"
-                                    id="imageInput"
-                                    text={player.name}
-                                    className="hiddenImageInput"
-                                    onChange={(e) => { updateProfilePic(e) }}
-                                />
 
-                                <Button>
-                                    <label htmlFor="imageInput" className='cursorHand'>
-                                        Select a profile picture.
-                                    </label>
-                                </Button>
-                            </Box>
-                        </Modal>
-                        {/************ NAME   *************/}
-                        <Text fontSize='x-large' className='name'>{player.name}</Text>
-                        <span className='contact'>
-                            {/************ EMAIL   *************/}
-                            <Text fontSize='small'>
-                                <AiOutlineMail />
-                                {isLoggedIn
-                                    ? <>&nbsp;<a href={`mailto:${player.email}`}>{player.email}</a></>
-                                    : <>&nbsp;Hidden</>
-                                }
-                            </Text>
-                            {/************ PHONE   *************/}
-                            <Text fontSize='small'>
-                                <AiOutlinePhone />
-                                {isLoggedIn
-                                    ?
-                                    <>&nbsp;
-                                        <PhoneNumber name="name" onNewNumber={handleUpdatedPhoneNumber} number={player.phone} editable={isEdit && canEdit} />
-                                    </>
-                                    : <>&nbsp;Hidden</>
-                                }
-                            </Text>
-                        </span>
+                        <div>
+                            {/************ NAME   *************/}
+                            <Text fontSize='x-large' className='name'>{player.name}</Text>
+
+                            <span className='profile-contact'>
+                                {/************ EMAIL   *************/}
+                                <Text fontSize='small'>
+                                    <AiOutlineMail />
+                                    {isLoggedIn
+                                        ? <>&nbsp;<a href={`mailto:${player.email}`}>{player.email}</a></>
+                                        : <>&nbsp;Hidden</>
+                                    }
+                                </Text>
+                                {/************ PHONE   *************/}
+                                <Text fontSize='small'>
+                                    <AiOutlinePhone />
+                                    {isLoggedIn
+                                        ?
+                                        <>&nbsp;
+                                            <PhoneNumber name="name" onNewNumber={handleUpdatedPhoneNumber} number={player.phone} editable={isEdit && canEdit} />
+                                        </>
+                                        : <>&nbsp;Hidden</>
+                                    }
+                                </Text>
+                            </span>
+                        </div>
                     </Card>
 
                     {/************ RIGHT CONTENT   *************/}
@@ -253,19 +262,19 @@ function Profile(props) {
                             <TabItem title="General">
                                 {/************ EDIT TOOGLE   *************/}
                                 <div style={{ float: 'right' }}>
-                                    
+
                                     {canEdit && isEdit &&
-                                        <MdOutlineCancel 
+                                        <MdOutlineCancel
                                             onClick={() => setIsEdit(!isEdit)}
-                                            className='cursorHand' 
+                                            className='cursorHand'
                                         />
                                     }
                                     {canEdit && !isEdit &&
-                                        <AiOutlineEdit 
-                                        onClick={() => setIsEdit(!isEdit)}
-                                        className='cursorHand' 
-                                    />
-                                            
+                                        <AiOutlineEdit
+                                            onClick={() => setIsEdit(!isEdit)}
+                                            className='cursorHand'
+                                        />
+
                                         // <SwitchField
                                         //     key={"editModeSwitch"}
                                         //     isDisabled={false}
