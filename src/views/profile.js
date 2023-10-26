@@ -9,7 +9,7 @@ import { Editable, Matches, PhoneNumber, UserStats, TopRivals, Match, UnlinkedMa
 import './profile.css';
 import { Avatar, Modal, Box, Typography, Dialog, DialogTitle, Checkbox, Toolbar } from '@mui/material';
 import { AiOutlineEdit, AiOutlineMail, AiOutlinePhone, AiOutlineUndo } from 'react-icons/ai';
-import { MdOutlineCancel } from 'react-icons/md';
+import { MdOutlineCancel, MdOutlineCheck, MdOutlineInfo } from 'react-icons/md';
 import { BiLogOutCircle } from 'react-icons/bi';
 
 function Profile(props) {
@@ -20,7 +20,11 @@ function Profile(props) {
     //    .then(module => { return { default: module.UserStats } }))
 
     const NTRPItems = ["-", "1.5", "2.0", "2.5", "3.0", "3.5", "4.0", "4.5", "5.0", "5.5"];
+    const [isLinkVisible, setIsLinkVisible] = useState(false);
 
+    const handleIconClick = () => {
+      setIsLinkVisible(!isLinkVisible);
+    };
     const params = useParams();
     const [error, setError] = useState({ status: false, message: null });
     const [isLoaded, setIsLoaded] = useState(false);
@@ -180,10 +184,6 @@ function Profile(props) {
         return (
             <Flex className='profile-main' id="profile">
 
-                <Toolbar className='icon-bar'>
-                    <BiLogOutCircle></BiLogOutCircle>
-                </Toolbar>
-
                 <Flex as="form"
                     className='profile-form'
                     onSubmit={updateProfileData}
@@ -216,6 +216,7 @@ function Profile(props) {
                         </Box>
                     </Modal>
 
+
                     <Card className='card profile-info' id="profileContact" variation="elevated">
 
                         {/************ PROFILE PICTURE   *************/}
@@ -226,8 +227,34 @@ function Profile(props) {
                         />
 
                         <div>
+                            {/************ EDIT TOOGLE   *************/}
+                            <div className="desktop-only"
+                                style={{ textAlign: 'right', float: 'right', paddingRight: '1rem' }}
+                            >
+                                {canEdit && isEdit &&
+                                    <>
+                                        <MdOutlineCheck
+                                            onClick={(e) => { setIsEdit(!isEdit) }}
+                                            className='cursorHand'
+                                        />
+                                        <MdOutlineCancel
+                                            onClick={() => setIsEdit(!isEdit)}
+                                            className='cursorHand'
+                                        />
+                                    </>
+                                }
+                                {canEdit && !isEdit &&
+                                    <AiOutlineEdit
+                                        onClick={() => setIsEdit(!isEdit)}
+                                        className='cursorHand'
+                                    />
+
+                                }
+                            </div>
                             {/************ NAME   *************/}
-                            <Text fontSize='x-large' className='name'>{player.name}</Text>
+                            <Text fontSize='x-large' className='name'>
+                                {player.name}
+                            </Text>
 
                             <span className='profile-contact'>
                                 {/************ EMAIL   *************/}
@@ -249,51 +276,10 @@ function Profile(props) {
                                         : <>&nbsp;Hidden</>
                                     }
                                 </Text>
-                            </span>
-                        </div>
-                    </Card>
-
-                    {/************ RIGHT CONTENT   *************/}
-                    <Card className='card rightProfileContent' variation="elevated" flex="1">
-                        <Tabs
-                            currentIndex={tabIndex}
-                            onChange={(i) => setTabIndex(i)}
-                            justifyContent="flex-start">
-                            <TabItem title="General">
-                                {/************ EDIT TOOGLE   *************/}
-                                <div style={{ float: 'right' }}>
-
-                                    {canEdit && isEdit &&
-                                        <MdOutlineCancel
-                                            onClick={() => setIsEdit(!isEdit)}
-                                            className='cursorHand'
-                                        />
-                                    }
-                                    {canEdit && !isEdit &&
-                                        <AiOutlineEdit
-                                            onClick={() => setIsEdit(!isEdit)}
-                                            className='cursorHand'
-                                        />
-
-                                        // <SwitchField
-                                        //     key={"editModeSwitch"}
-                                        //     isDisabled={false}
-                                        //     defaultChecked={false}
-                                        //     label="Edit Mode"
-                                        //     labelPosition="start"
-                                        //     isChecked={isEdit}
-                                        //     onChange={(e) => { setIsEdit(e.target.checked) }}
-                                        // />
-                                    }
-                                </div>
-                                <Grid
-                                    templateColumns="1fr 3fr"
-                                    templateRows="auto"
-                                    paddingTop={"10px"}
-                                >
-                                    {/************ NTRP   *************/}
-                                    <View><Text>NTRP rating:</Text></View>
-                                    <Flex direction={'row'} flex='1'>
+                                {/************ NTRP   *************/}
+                                <Text >
+                                    <Flex direction={'row'}>
+                                        NTRP:
                                         <Editable
                                             text={player.NTRP ?? '-'}
                                             isEditing={isEdit}
@@ -308,19 +294,74 @@ function Profile(props) {
                                             ></SelectField>
 
                                         </Editable>
-                                        <Text fontSize={'smaller'}>
-                                            <a href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf' target='blank'>View the USTA NTPR guidelines</a>.
+                                        <Text as="span" >
+                                            <MdOutlineInfo onClick={handleIconClick} className='cursor' />
+                                            <a
+                                                href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'
+                                                target='_blank'
+                                                style={{
+                                                    display: isLinkVisible ? 'block' : 'none',
+                                                    transition: 'transform 0.3s',
+                                                    transform: isLinkVisible ? 'scale(1.1)' : 'scale(1)',
+                                                }}
+                                            >
+                                                View the USTA NTPR guidelines
+                                            </a>
                                         </Text>
                                     </Flex>
-
-                                    {/************ UTR   *************/}
-                                    <View>UTR rating:</View>
+                                </Text>
+                                {/************ UTR   *************/}
+                                <Flex direction={'row'}>UTR rating:
                                     <Editable
                                         text={player.UTR ?? '-'}
                                         isEditing={isEdit}
                                     >
                                         <TextField name="UTR" size='small' defaultValue={player.UTR}></TextField>
                                     </Editable>
+                                    <MdOutlineInfo ></MdOutlineInfo>
+                                </Flex>
+                            </span>
+                        </div>
+
+                        {/************ EDIT TOOGLE   *************/}
+                        <div className="mobile-only" style={{ textAlign: 'right', paddingRight: '1rem', flexGrow: 1 }}>
+
+                            {canEdit && isEdit &&
+                                <>
+                                    <MdOutlineCheck
+                                        onClick={(e) => { setIsEdit(!isEdit); updateProfileData(e) }}
+                                        className='cursorHand'
+                                    />
+                                    <MdOutlineCancel
+                                        onClick={() => setIsEdit(!isEdit)}
+                                        className='cursorHand'
+                                    />
+                                </>
+                            }
+                            {canEdit && !isEdit &&
+                                <AiOutlineEdit
+                                    onClick={() => setIsEdit(!isEdit)}
+                                    className='cursorHand'
+                                />
+
+                            }
+                        </div>
+                    </Card>
+
+                    {/************ RIGHT CONTENT   *************/}
+                    <Card className='card rightProfileContent' variation="elevated" flex="1">
+                        <Tabs
+                            currentIndex={tabIndex}
+                            onChange={(i) => setTabIndex(i)}
+                            justifyContent="flex-start">
+                            <TabItem title="General">
+
+                                <Grid
+                                    templateColumns="1fr 3fr"
+                                    templateRows="auto"
+                                    paddingTop={"10px"}
+                                >
+
 
                                     {/************ LADDERS   *************/}
                                     <View>Ladders:</View>

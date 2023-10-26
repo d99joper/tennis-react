@@ -1,5 +1,6 @@
 Overall design
-    [ ] Mobile vs computer menu
+    [x] Mobile vs computer menu
+    [ ] Mobile first design
     [x] Custom-make queries to minimize data transfer
         [x] ladderFunctions
             [x] useLadderPlayersData

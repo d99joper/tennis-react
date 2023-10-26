@@ -4,9 +4,41 @@ import { MatchEditor } from "components/forms";
 import { ladderFunctions, matchFunctions, userFunctions } from "helpers";
 import React, { useEffect, useState } from "react";
 import XLSX, { read, utils, writeFile } from 'xlsx';
+//import {MongoClient} from 'mongodb'
 
 const AdminTasks = (() => {
 
+    //const { MongoClient, ServerApiVersion } = require('mongodb');
+    // if (typeof window !== 'undefined') {
+    //     const { MongoClient, ServerApiVersion } = require('mongodb');
+    //     const uri = "mongodb+srv://dbAdmin:6%LsnQiySa!H@tenniscluster0.4b5yryu.mongodb.net/?retryWrites=true&w=majority&appName=AtlasApp";
+    //     const mmm = new MongoClient(uri)
+    //     console.log('hello mongodb')
+    // }
+    
+    // // Create a MongoClient with a MongoClientOptions object to set the Stable API version
+    // const client = new MongoClient(uri, {
+    //   serverApi: {
+    //     version: ServerApiVersion.v1,
+    //     strict: true,
+    //     deprecationErrors: true,
+    //   }
+    // });
+    
+    // async function run() {
+    //   try {
+    //     // Connect the client to the server	(optional starting in v4.7)
+    //     await client.connect();
+    //     // Send a ping to confirm a successful connection
+    //     await client.db("admin").command({ ping: 1 });
+    //     console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    //   } finally {
+    //     // Ensures that the client will close when you finish/error
+    //     await client.close();
+    //   }
+    // }
+    // run().catch(console.dir);
+    
     const [playerName, setPlayerName] = useState('')
     const [ladders, setLadders] = useState([])
     const [players, setPlayers] = useState([])

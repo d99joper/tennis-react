@@ -31,7 +31,7 @@ const Matches = ({
     // const [sortField, setSortField] = useState(sortingField)
     // const [direction, setDirection] = useState(sortDirection)
     //const [{ sortField, direction }, setSort] = useState({ sortField: sortingField, direction: sortDirection })
-    const [nextToken, setNextToken] = useState("playedOn");
+    const [nextToken, setNextToken] = useState();
     const [page, setPage] = useState(1)
     const [totalPages, setTotalPages] = useState()
     const [showLoader, setShowLoader] = useState(true);
@@ -57,7 +57,7 @@ const Matches = ({
         //if(!dataIsFetched)
         //mf.listMatches(player, ladder, startDate, endDate).then((data) => {
         if (player) 
-            mf.getMatchesForPlayer(player, null, 10, page).then((data) => {
+            mf.getMatchesForPlayer(player, 'desc', 10, page).then((data) => {
                 //mf.getMatchesForPlayer(player, ladder, startDate, endDate, direction, null, 10, null).then((data) => {
                 setMatches(data.matches)
                 //setNextToken(data.nextToken)
@@ -74,10 +74,11 @@ const Matches = ({
             //setDataIsFetched(true)
             setShowLoader(false)
         }
-        else if (ladder)
-            mf.getMatchesForLadder(ladder.id, null, 10, page).then((data) => {
+        else 
+        if (ladder)
+            mf.getMatchesForLadder(ladder.id, 'DESC', nextToken, 10).then((data) => {
                 setMatches(data.matches)
-                //setNextToken(data.nextToken)
+                setNextToken(data.nextToken)
                 setTotalPages(data.totalPages)
                 //setDataIsFetched(true)
                 setShowLoader(false)
@@ -141,6 +142,14 @@ const Matches = ({
         setPage(newPageIndex)
     }
 
+    if (matches.length == 0) {
+        return (
+            <div>
+                No matches found
+            </div>
+        )
+    }
+    else 
     return (
         <section {...props}>
             {displayAs === enums.DISPLAY_MODE.Inline ?
@@ -210,7 +219,11 @@ const Matches = ({
             {displayAs === enums.DISPLAY_MODE.SimpleList ?
                 matches?.map((m, i) => {
                     return (
-                        <Grid key={i} templateColumns="auto 1fr 1fr 1fr 1fr 1fr 1fr" marginBottom={'1rem'}>
+                        <Grid key={i} 
+                            templateColumns="auto 1fr 1fr 1fr 1fr 1fr 1fr" 
+                            marginBottom={'1rem'}
+                            width={'250px'}
+                        >
                             <Text columnStart="1" columnEnd="-1" fontSize="0.8em" fontStyle="italic">{m.match?.playedOn}</Text>
                             <View columnStart="1" columnEnd="2">
                                 <Link to={`/profile/${m.match.winner.id}`} >{uf.SetPlayerName(m.match.winner)}</Link>

@@ -3,18 +3,18 @@ import { enums, helpers, ladderFunctions as lf, matchFunctions, userFunctions } 
 import React, { Suspense, lazy, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import './Ladder.css'
-import { Modal, Typography, Table, TableHead, TableCell, TableBody, Avatar, TableRow, CardHeader, Box, Select, MenuItem, FormControl, InputLabel, Dialog, DialogTitle, TextField } from "@mui/material"
+import { Modal, Typography, Table, TableHead, TableCell, TableBody, Avatar, TableRow, CardHeader, Box, Select, MenuItem, FormControl, InputLabel, Dialog, DialogTitle, TextField, CircularProgress } from "@mui/material"
 import '@fontsource/roboto/300.css'
 import '@fontsource/roboto/400.css'
 import '@fontsource/roboto/500.css'
 import '@fontsource/roboto/700.css'
-import { GiSwordsPower, GiTennisRacket } from "react-icons/gi";
-import { AiOutlineMail, AiOutlinePhone } from "react-icons/ai";
-import { MdOutlineSms } from "react-icons/md";
-import { Storage } from "aws-amplify";
+import { GiSwordsPower, GiTennisRacket } from "react-icons/gi"
+import { AiOutlineMail, AiOutlinePhone } from "react-icons/ai"
+import { MdOutlineSms } from "react-icons/md"
+import { Storage } from "aws-amplify"
 import { Matches } from "../../forms/index.js"
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers"
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 // import Modal from "components/layout/Modal/modal.js";
 // import { Modal, ModalClose, ModalDialog, Sheet } from "@mui/joy";
 
@@ -37,6 +37,18 @@ const Ladder = ({
     //const [nextMatchesToken, setNextMatchesToken] = useState()
     const [displayedStandings, setDisplayedStandings] = useState()
     const [standingsAsOfDate, setStandingsAsOfDate] = useState()
+    const [showProfileClickOptions, setShowProfileClickOptions] = useState(false)
+    const [selectedPlayer, setSelectedPlayer] = useState(0)
+    const [loadingPlayer, setLoadingPlayer] = useState(false)
+
+    const toggleProfileLink = (id) => {
+        console.log(id)
+        if (id != selectedPlayer)
+            setShowProfileClickOptions(true)
+        else
+            setShowProfileClickOptions(!showProfileClickOptions)
+        setSelectedPlayer(id)
+    }
 
     async function setPlayerImages(details) {
         if (typeof details === "string")
@@ -65,8 +77,8 @@ const Ladder = ({
         getLadder().then((data) => {
             // only refresh the ladder data if there is no nextMatchToken (meaining we've never fetched more matches)
             //if (!nextMatchesToken) {
-                setLadder(data)
-                setDisplayedStandings(data.standings)
+            setLadder(data)
+            setDisplayedStandings(data.standings)
             //}
             //setMatches(oldMatches => ({ nextToken: data.matches.nextToken, matches: [...oldMatches.matches, ...data.matches.matches] }))
             console.log(data)
@@ -83,31 +95,6 @@ const Ladder = ({
         // }
         // return
     }
-
-    // async function updateDisplayedStandings(standings) {
-    //     if (!standings.details) {
-    //         console.log(standings)
-    //         standings = await lf.GetStandingsDetails(standings.id)
-    //         standings.details = await setPlayerImages(standings.details)
-    //     }
-
-    //     setDisplayedStandings(handleDisplayedStandings(ladder, standings))
-    // }
-    // function handleDisplayedStandings(ladder, standings) {
-    //     // find the correct cur standings in prev standings
-    //     let currentStandingIndex = ladder.previousStandings.findIndex(x => x.id == standings.id)
-    //     if (currentStandingIndex === -1) {
-    //         ladder.previousStandings.push(standings)
-    //         currentStandingIndex = ladder.previousStandings.findIndex(x => x.id == standings.id)
-    //     }
-    //     ladder.previousStandings[currentStandingIndex] = standings
-    //     return ladder.previousStandings[currentStandingIndex]
-    // }
-    // function handleStandingsChange(e) {
-    //     console.log(e.target.value)
-    //     let standings = e.target.value
-    //     updateDisplayedStandings(standings)
-    // }
 
     async function updateDisplayedStandings2(date) {
         let standings = await lf.GetStandingsForDate(ladder.id, date, true)
@@ -136,21 +123,25 @@ const Ladder = ({
     }
 
     function handleChallenge(playerId) {
-        // get the player details
-        userFunctions.getPlayer(playerId).then((data) => {
-            // set the player data
-            console.log(data)
-            setPlayer(data)
-            // display a modal with details
-            setShowChallangeModal(true)
-        })
+
+        // display a modal with details
+        setShowChallangeModal(true)
+        if (!player || playerId != player.id) {
+            setPlayer()
+            // Start loading player data
+            setLoadingPlayer(true)
+            userFunctions.getPlayer(playerId).then((data) => {
+                // set the player data
+                console.log(data)
+                setPlayer(data)
+                // Stop loading player data
+                setLoadingPlayer(false)
+            })
+        }
     }
 
     return (
-        <Grid
-            templateRows={'1fr auto'}
-            gap={20}
-        >
+        <div>
             <View columnStart="1" columnEnd="-1">
                 <Typography variant="h4">{ladder?.name}</Typography>
                 <Typography variant="caption">{ladder?.description}</Typography>
@@ -170,6 +161,12 @@ const Ladder = ({
                         <Typography marginTop={'1rem'} marginBottom={'1rem'} >
                             You can challange {player?.name.split(' ')[0]} by
                         </Typography>
+                        {/* Render the spinner while loadingPlayer is true */}
+                        {loadingPlayer && (
+                            <div className="spinner">
+                                <CircularProgress size={50} />
+                            </div>
+                        )}
                         <Typography component={'div'} paddingLeft={'1rem'}>
                             {player?.phone && <div><a href={`tel:+${player?.phone}`}><AiOutlinePhone /> {player?.phone}</a></div>}
                             {player?.phone && <div><a href={`sms:+${player?.phone}?&body=Hi ${player?.name.split(' ')[0]}!%20I'd%20like%20to%20challange%20you%20to%20a%20ladder%20match`}><MdOutlineSms /> {player?.phone}</a></div>}
@@ -181,113 +178,109 @@ const Ladder = ({
             <Tabs>
                 <TabItem title="Standings">
                     {ladder &&
-                        <Grid
-                            templateColumns={'2fr 1fr'}
-                            gap={20}
-                        >
-                            <Table height="1px">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell></TableCell>
-                                        <TableCell>Name</TableCell>
-                                        <TableCell>Wins</TableCell>
-                                        <TableCell>Losses</TableCell>
-                                        <TableCell>Points</TableCell>
-                                        {isPlayerInLadder && <TableCell>Challenge</TableCell>}
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {displayedStandings?.details.map((s, i) => {
-                                        return (
-                                            <TableRow id='standing' key={i} hover>
-                                                <TableCell width="1px"><Typography variant="h6">{i + 1}.</Typography></TableCell>
-                                                <TableCell key={s.player.id}>
-                                                    <Link to={`../../profile/${s.player.id}`}>
+                        <div gap={10} id="ladderGrid">
+                            <div className="left">
+                                <div className="header">
+                                    <FormControl variant="standard" sx={{ m: 1, minWidth: 120, padding: 1 }}>
+                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                            <DatePicker
+                                                label="Standings as of"
+                                                required
+                                                maxDate={Date.now()}
+                                                value={standingsAsOfDate}
+                                                onChange={(newValue) => {
+                                                    setStandingsAsOfDate(newValue)
+                                                    handleStandingsChange2(newValue.$d)
+                                                }}
+                                                renderInput={(params) => <TextField required {...params} sx={{ width: 200 }} />}
+                                            />
+                                        </LocalizationProvider>
+                                    </FormControl>
+                                    <View className="matchButton desktop-only">
+                                        {isPlayerInLadder &&
+                                            <Button variation="primary" onClick={() => setShowAddMatchModal(true)}>Add a match</Button>
+                                        }
+                                        <Dialog
+                                            onClose={() => setShowAddMatchModal(false)}
+                                            open={showAddMatchModal}
+                                            aria-labelledby={`Add a match`}
+                                            aria-describedby="Add a new match"
+                                            padding={'1rem'}
+                                        >
+                                            <DialogTitle>Add a new match</DialogTitle>
+                                            <Box padding={'1rem'}>
+                                                <Suspense fallback={<h2><Loader />Loading...</h2>}>
+                                                    <MatchEditor
+                                                        ladderId={ladder.id}
+                                                        player={currentUser}
+                                                        onSubmit={(m) => handleAddMatch(m)}
+                                                    />
+                                                </Suspense>
+                                            </Box>
+                                        </Dialog>
+                                    </View>
+                                </div>
+
+                                <Table height="1px" id="standingsTable">
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell></TableCell>
+                                            <TableCell>Name</TableCell>
+                                            <TableCell>Wins</TableCell>
+                                            <TableCell>Losses</TableCell>
+                                            <TableCell>Points</TableCell>
+                                            {isPlayerInLadder &&
+                                                <TableCell className="desktop-only limit-width">
+                                                    Challenge
+                                                </TableCell>}
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {displayedStandings?.details.map((s, i) => {
+                                            return (
+                                                <TableRow id='standing' key={i} hover>
+                                                    <TableCell width="1px"><Typography variant="h6">{i + 1}.</Typography></TableCell>
+                                                    <TableCell key={s.player.id} className="cursorHand" onClick={e => { toggleProfileLink(s.player.id) }}>
+                                                        {/* <Link to={`../../profile/${s.player.id}`}> */}
                                                         <CardHeader sx={{ padding: 0 }}
                                                             avatar={<Avatar {...userFunctions.stringAvatar(s.player, 50)} />}
                                                             title={s.player.name}
                                                         />
-                                                    </Link>
-                                                </TableCell>
-                                                <TableCell>{s.wins ?? 0}</TableCell>
-                                                <TableCell>{s.losses ?? 0}</TableCell>
-                                                <TableCell>{`${s.points}p`}</TableCell>
-                                                {
-                                                    isPlayerInLadder && loggedInPlayerId !== s.player.id &&
-                                                    <TableCell align="center">
-                                                        <GiTennisRacket
-                                                            size="1.75em"
-                                                            color="maroon"
-                                                            className="cursorHand"
-                                                            onClick={() => handleChallenge(s.player.id)}
-                                                        />
+                                                        {showProfileClickOptions && selectedPlayer === s.player.id && (
+                                                            <div className="options">
+                                                                <Link to={`../../profile/${s.player.id}`}>Go to profile</Link>
+                                                                <Link onClick={(e) => { e.stopPropagation(); handleChallenge(s.player.id) }}>Challenge</Link>
+                                                            </div>
+                                                        )}
+                                                        {/* </Link> */}
                                                     </TableCell>
-                                                }
-                                            </TableRow>
-                                        )
-                                    })}
-                                </TableBody>
-                            </Table>
-                            {/* Make this a grid and add "Add Match in the middle" */}
+                                                    <TableCell>{s.wins ?? 0}</TableCell>
+                                                    <TableCell>{s.losses ?? 0}</TableCell>
+                                                    <TableCell>{`${s.points}p`}</TableCell>
+                                                    {isPlayerInLadder && loggedInPlayerId !== s.player.id &&
+                                                        <TableCell align="center" className="desktop-only limit-width">
+                                                            <GiTennisRacket
+                                                                size="1.75em"
+                                                                color="maroon"
+                                                                className="cursorHand"
+                                                                onClick={() => handleChallenge(s.player.id)}
+                                                            />
+                                                        </TableCell>
+                                                    }
+                                                </TableRow>
+                                            )
+                                        })}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                            {/* Only visable on larger screens */}
                             <Grid
                                 id='matches'
                                 templateRows={"auto"}
-                                textAlign='left' paddingRight='1rem' >
-                                <FormControl variant="standard" sx={{ m: 1, minWidth: 120, paddingBottom: '2rem' }}>
-                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                        <DatePicker
-                                            label="Standings as of"
-                                            required
-                                            maxDate={Date.now()}
-                                            value={standingsAsOfDate}
-                                            onChange={(newValue) => {
-                                                setStandingsAsOfDate(newValue)
-                                                handleStandingsChange2(newValue.$d)
-                                            }}
-                                            renderInput={(params) => <TextField required {...params} sx={{ width: 200 }} />}
-                                        />
-                                    </LocalizationProvider>
-                                    {/* <Select
-                                        value={displayedStandings}
-                                        onChange={(e) => handleStandingsChange(e)}
-                                        labelId="demo-simple-select-standard-label"
-                                        variant="standard"
-                                    >
-                                        {ladder?.previousStandings.length && ladder?.previousStandings.map((s, i) => {
-                                            //const postedOn = Date(s.postedOn).toISOString().split('T')[0]
-                                            const postedOn = s.postedOn.split('T')[0]
-                                            if (postedOn == "1900-01-01") return
-                                            return (
-                                                <MenuItem key={i} value={s}>
-                                                    {postedOn}
-                                                </MenuItem>
-                                            )
-                                        })}
-                                    </Select> */}
-                                </FormControl>
-                                <View>
-                                    {isPlayerInLadder && 
-                                        <Button variation="primary" onClick={() => setShowAddMatchModal(true)}>Add a match</Button>
-                                    }
-                                    <Dialog
-                                        onClose={() => setShowAddMatchModal(false)}
-                                        open={showAddMatchModal}
-                                        aria-labelledby={`Add a match`}
-                                        aria-describedby="Add a new match"
-                                        padding={'1rem'}
-                                    >
-                                        <DialogTitle>Add a new match</DialogTitle>
-                                        <Box padding={'1rem'}>
-                                            <Suspense fallback={<h2><Loader />Loading...</h2>}>
-                                                <MatchEditor
-                                                    ladderId={ladder.id}
-                                                    player={currentUser}
-                                                    onSubmit={(m) => handleAddMatch(m)}
-                                                />
-                                            </Suspense>
-                                        </Box>
-                                    </Dialog>
-                                </View>
+                                className="desktop-only"
+                                textAlign='left' 
+                                paddingRight='1rem' 
+                            >
                                 <View>
                                     <Typography variant="subtitle1">Lastest matches</Typography>
                                     <Matches
@@ -299,7 +292,7 @@ const Ladder = ({
                                     />
                                 </View>
                             </Grid>
-                        </Grid>
+                        </div>
                     }
                 </TabItem>
                 <TabItem title="Matches">
@@ -314,7 +307,7 @@ const Ladder = ({
                     />
                 </TabItem>
             </Tabs>
-        </Grid>
+        </div>
     )
 }
 

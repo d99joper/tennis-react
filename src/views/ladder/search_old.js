@@ -6,7 +6,7 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "@maplibre/maplibre-gl-geocoder/dist/maplibre-gl-geocoder.css";
 import "maplibre-gl-js-amplify/dist/public/amplify-geocoder.css"; // Optional CSS for Amplify recommended styling
-import { MapView, Button, Grid, TabItem, Tabs, LocationSearch, Collection } from "@aws-amplify/ui-react";
+import { Button, Grid, TabItem, Tabs, LocationSearch, Collection } from "@aws-amplify/ui-react";
 import { ScaleControl, NavigationControl, GeolocateControl, CircleLayer } from 'react-map-gl';
 import { Geo } from "aws-amplify"
 import { Link } from "react-router-dom";
@@ -15,6 +15,7 @@ import "./ladder.css"
 import MarkerWithPopup from "components/layout/MarkerWithPopup";
 import { ItemCard } from "components/forms";
 import mapboxgl from "!mapbox-gl";
+import { MapView } from "@aws-amplify/ui-react-geo";
 
 
 const LadderSearch = () => {
