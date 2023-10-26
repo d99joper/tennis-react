@@ -295,14 +295,21 @@ function Profile(props) {
 
                                         </Editable>
                                         <Text as="span" >
-                                            <MdOutlineInfo onClick={handleIconClick} className='cursor' />
+                                            <MdOutlineInfo onClick={handleIconClick} className='cursorHand' />
                                             <a
                                                 href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'
                                                 target='_blank'
                                                 style={{
                                                     display: isLinkVisible ? 'block' : 'none',
+                                                    position: 'absolute',
+                                                    //top: '30px', // Adjust the top position as needed
+                                                    //left: 0,
+                                                    background: 'white',
+                                                    padding: '10px',
+                                                    border: '1px solid #ccc',
+                                                    borderRadius: '5px',
+                                                    transform: 'scale(1.1)',
                                                     transition: 'transform 0.3s',
-                                                    transform: isLinkVisible ? 'scale(1.1)' : 'scale(1)',
                                                 }}
                                             >
                                                 View the USTA NTPR guidelines
