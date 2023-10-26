@@ -8,6 +8,7 @@
 .profile-info {
     flex-direction: row;
     display: flex;
+    gap: 1rem;
 }
 .profile-form {
     flex-direction: column;
@@ -18,7 +19,7 @@
 .rightProfileContent {
     min-width: 100%;
 }
-@media (min-width: 768px) {
+@media (min-width: 868px) {
     .profile-main {
         flex-direction: column;
         gap: 1rem;
@@ -62,7 +63,7 @@
     grid-area: "name";
 } */
 
-@media only screen and (max-width: 768px) { 
+@media only screen and (max-width: 868px) { 
     #___profileContact {
         /* display: grid;
         grid-template-areas: 
@@ -114,7 +115,7 @@
     border: solid 1px var(--amplify-colors-purple-100);
 }
 
-@media only screen and (min-width: 600px)   {
+@media only screen and (min-width: 868px)   {
     .profileWrapper {
       grid-template-columns: 1fr 2fr 2fr;
       grid-template-areas:

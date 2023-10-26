@@ -7,7 +7,8 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import "@maplibre/maplibre-gl-geocoder/dist/maplibre-gl-geocoder.css";
 import "maplibre-gl-js-amplify/dist/public/amplify-map.css";
 import "maplibre-gl-js-amplify/dist/public/amplify-geocoder.css"; // Optional CSS for Amplify recommended styling
-import { MapView, Button, Grid, TabItem, Tabs, LocationSearch, Collection, Flex } from "@aws-amplify/ui-react";
+import { Button, Grid, TabItem, Tabs, Collection, Flex } from "@aws-amplify/ui-react";
+import { LocationSearch, MapView } from "@aws-amplify/ui-react-geo";
 import { ScaleControl, NavigationControl, GeolocateControl, CircleLayer, Source, Layer } from 'react-map-gl';
 import { Geo } from "aws-amplify"
 import { Link } from "react-router-dom";

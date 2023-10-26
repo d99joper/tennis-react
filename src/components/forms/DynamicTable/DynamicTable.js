@@ -37,7 +37,7 @@ const DynamicTable = ({
         const index = match.winnerID + match.loserID
         if (!h2HData[index]) {
             userFunctions.getPlayerH2H(match.winner, match.loser).then((data) => {
-                setH2HData(prev => {return {... prev, [index]: data}})
+                setH2HData(prev => { return { ...prev, [index]: data } })
                 console.log(data)
                 setIsShowH2H(prevState => { return { ...prevState, [i]: true } })
             })
@@ -53,29 +53,29 @@ const DynamicTable = ({
             switch (element.name) {
                 case 'H2H':
                     //console.log(item)
-                    let match = item.match ?? item 
-                    if(!match)
-                    sets.push(
-                        <React.Fragment key={`Fragment_${i}`}>
-                            <GiCrossedSwords
-                                title="H2H"
-                                className="middleIcon"
-                                color="#3e3333"
-                                onClick={() => openH2HModal(item, i)}
-                            />
-                            <Dialog
-                                onClose={() => setIsShowH2H(prevState => { return { ...prevState, [i]: false } })}
-                                open={isShowH2H[i] ?? false}
-                                aria-labelledby={'Head to Head'}
-                                aria-describedby="Head to Head"
-                                padding={'1rem'}
-                            >
-                                <Box padding={'1rem'}>
-                                    <H2H key={`H2H_${i}`} data={h2HData[item.winnerID + item.loserID]} />
-                                </Box>
-                            </Dialog>
-                        </React.Fragment >
-                    )
+                    let match = item.match ?? item
+                    if (!match)
+                        sets.push(
+                            <React.Fragment key={`Fragment_${i}`}>
+                                <GiCrossedSwords
+                                    title="H2H"
+                                    className="middleIcon"
+                                    color="#3e3333"
+                                    onClick={() => openH2HModal(item, i)}
+                                />
+                                <Dialog
+                                    onClose={() => setIsShowH2H(prevState => { return { ...prevState, [i]: false } })}
+                                    open={isShowH2H[i] ?? false}
+                                    aria-labelledby={'Head to Head'}
+                                    aria-describedby="Head to Head"
+                                    padding={'1rem'}
+                                >
+                                    <Box padding={'1rem'}>
+                                        <H2H key={`H2H_${i}`} data={h2HData[item.winnerID + item.loserID]} />
+                                    </Box>
+                                </Dialog>
+                            </React.Fragment >
+                        )
                     break;
                 case 'Comments':
                     sets.push(
@@ -120,13 +120,18 @@ const DynamicTable = ({
                 break;
         }
         // set the text of the cell
-        if(obj[property]) { 
-            text = obj[property]
-            if (urlVals) {
-                if (urlVals.page === 'Profile')
-                    text = userFunctions.SetPlayerName(obj)
-                urlVals.value = obj[urlVals.type]
+        try {
+            if (obj[property]) {
+                text = obj[property]
+                if (urlVals) {
+                    if (urlVals.page === 'Profile')
+                        text = userFunctions.SetPlayerName(obj)
+                    urlVals.value = obj[urlVals.type]
+                }
             }
+        }
+        catch(e) {
+            text = "Missing data"
         }
         // to superscript the tiebreak scores
         text = text.split(', ').map((str, index) => {

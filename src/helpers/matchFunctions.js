@@ -1,6 +1,7 @@
 import { API } from 'aws-amplify'
 import {
     getMatch,
+    getMatchByLadderID,
     getPlayerMatch,
     getPlayerMatchByPlayer,
     listComments
@@ -284,23 +285,33 @@ const MatchFunctions = {
         }
     },
 
-    getMatchesForLadder: async function (ladderId, sortDirection = 'desc', limit = 10, page) {
+    getMatchesForLadder: async function (ladderId, sortDirection = 'DESC', nextToken, limit = 10, page) {
         try {
+            // const apiData = await API.graphql({
+            //     query: qGetMatchesByLadder,
+            //     variables: {
+            //         filter: { ladderID: { eq: ladderId } },
+            //         limit: limit,
+            //         from: (page-1)*limit,
+            //         sort: { field: 'playedOn', direction: sortDirection }
+            //     }
+            // })
             const apiData = await API.graphql({
-                query: qGetMatchesByLadder,
+                query: getMatchByLadderID,
                 variables: {
-                    filter: { ladderID: { eq: ladderId } },
+                    ladderID: ladderId,
                     limit: limit,
-                    from: (page-1)*limit,
-                    sort: { field: 'playedOn', direction: sortDirection }
+                    ... nextToken ? {nextToken: nextToken } :null,
+                    sortDirection: 'DESC'//sortDirection 
                 }
             })
     
             let data = {
                 // massage data to add winner and loser
                 //matches: setMatchWinnerLoserScore(apiData.data.getPlayerMatchByPlayer.items),
-                matches: apiData.data.searchMatches.items,
-                totalPages: Math.ceil(apiData.data.searchMatches.total/limit)
+                matches: apiData.data.getMatchByLadderID.items,//apiData.data.searchMatches.items,
+                totalPages: Math.ceil(apiData.data.getMatchByLadderID.items.length),//apiData.data.searchMatches.total/limit)
+                nextToken: apiData.data.getMatchByLadderID.nextToken
             }
             //const matches = setMatchWinnerLoserScore(apiData.data.getPlayerMatchByPlayer.items)
             console.log(data)
@@ -312,25 +323,35 @@ const MatchFunctions = {
         }
     },
 
-    getMatchesForPlayer: async function (player, sortDirection = 'desc', limit = 10, page=1) {
+    getMatchesForPlayer: async function (player, sortDirection = 'desc', limit = 10, page=1, nextToken = null) {
         try {
+            // const apiData = await API.graphql({
+            //     query: qGetMatchesByPlayer,
+            //     variables: {
+            //         filter: { playerID: { eq: player.id } },
+            //         limit: limit,
+            //         from: (page-1)*limit,
+            //         sort: { field: 'playedOn', direction: sortDirection }
+            //     }
+            // })
             const apiData = await API.graphql({
-                query: qGetMatchesByPlayer,
+                query: getPlayerMatchByPlayer,
                 variables: {
-                    filter: { playerID: { eq: player.id } },
+                    playerID: player.id,
                     limit: limit,
-                    from: (page-1)*limit,
-                    sort: { field: 'playedOn', direction: sortDirection }
+                    ... nextToken ? {nextToken: nextToken } :null,
+                    sortDirection: 'DESC'//sortDirection 
                 }
             })
     
             let data = {
                 // massage data to add winner and loser
                 //matches: setMatchWinnerLoserScore(apiData.data.getPlayerMatchByPlayer.items),
-                matches: apiData.data.searchPlayerMatches.items,
-                totalPages: Math.ceil(apiData.data.searchPlayerMatches.total/limit)
+                matches: apiData.data.getPlayerMatchByPlayer.items,
+                totalPages: Math.ceil(apiData.data.getPlayerMatchByPlayer.items.length)
             }
-            //const matches = setMatchWinnerLoserScore(apiData.data.getPlayerMatchByPlayer.items)
+
+            const matches = setMatchWinnerLoserScore(apiData.data.getPlayerMatchByPlayer.items)
             console.log(data)
             return data
         }
@@ -455,7 +476,10 @@ function setMatchWinnerLoserScore(matches) {
     matches.map((m) => {
         // set the winner and loser objects
         m.winner = m.win ? m.player : m.opponent
+        m.match.winner = m.win ? m.player : m.opponent
         m.loser = m.win ? m.opponent : m.player
+        m.match.loser = m.win ? m.opponent : m.player
+        m.match.ladder = m.ladder
         // flip the score if it's a loss
         if (!m.win) m.score = scoreToString(m.match.score.replace(/\s/g, '').split(','), true)
     })
