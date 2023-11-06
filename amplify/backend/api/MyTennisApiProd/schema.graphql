@@ -3,7 +3,7 @@
 # all models in this schema. Learn more about authorization rules here: https://docs.amplify.aws/cli/graphql/authorization-rules
 input AMPLIFY { globalAuthRule: AuthRule = { allow: public } } # FOR TESTING ONLY!
 
-type Player @model @searchable
+type Player @model 
   # @auth(rules: [{ allow: public, operations: [read]}]) 
 {
   id: ID! @primaryKey
@@ -22,7 +22,7 @@ type Player @model @searchable
   isAdmin: Boolean @default(value: "false")
 }
 
-type PlayerMatch @model @searchable {
+type PlayerMatch @model {
   player: Player @belongsTo(fields: ["playerID"])
   playerID: ID! @primaryKey(sortKeyFields: ["matchID"])
                 @index(
@@ -72,7 +72,7 @@ type PlayerMatch @model @searchable {
   ignoredBy: [ID]
 }
 
-type Match @model @searchable {
+type Match @model  {
   id: ID! @primaryKey
   type: matchType!
   playedOn: AWSDate! 
@@ -88,7 +88,7 @@ type Match @model @searchable {
   playerMatches: [PlayerMatch] @hasMany(indexName: "playerMatchByMatchID", fields: ["id"])
 }
 
-type Ladder @model @searchable {
+type Ladder @model {
   id: ID! @primaryKey
   matchType: matchType!  
   name: String! #@index(name: "byName", queryField: "getLadderByName")

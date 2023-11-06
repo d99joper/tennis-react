@@ -1,5 +1,5 @@
 // DynamicTable.js
-import { Button, Table, TableBody, TableCell, TableFoot, TableHead, TableRow } from "@aws-amplify/ui-react";
+import { Button, Table, TableBody, TableCell, TableFoot, TableHead, TableRow, View } from "@aws-amplify/ui-react";
 import { helpers, matchFunctions, userFunctions } from "helpers";
 import React, { useEffect, useState } from "react";
 import { GoTriangleDown, GoTriangleUp, GoCommentDiscussion } from 'react-icons/go';
@@ -27,24 +27,26 @@ const DynamicTable = ({
 
     const [sortField, setSortField] = useState(initialSortField)
     const [direction, setDirection] = useState(initialDirection)
+    const [isShowComments, setIsShowComments] = useState([])
     const [isShowH2H, setIsShowH2H] = useState([])
     const [h2HData, setH2HData] = useState({})
 
-    //console.log("dynamicTable",data, sortField, direction)
+    console.log("dynamicTable", data, sortField, direction)
 
     function openH2HModal(match, i) {
         //if (!isH2HDataFetched[i]) {
-        const index = match.winnerID + match.loserID
+        const index = match.winner[0].id + match.loser[0].id
         if (!h2HData[index]) {
-            userFunctions.getPlayerH2H(match.winner, match.loser).then((data) => {
+            userFunctions.getPlayerH2H(match.winner[0], match.loser[0]).then((data) => {
                 setH2HData(prev => { return { ...prev, [index]: data } })
                 console.log(data)
                 setIsShowH2H(prevState => { return { ...prevState, [i]: true } })
             })
         }
         else setIsShowH2H(prevState => { return { ...prevState, [i]: true } })
-
-
+    }
+    function openCommentsModal(match, i) {
+        setIsShowComments(prevState => { return { ...prevState, [i]: true } })
     }
 
     function createIconSets(item, i) {
@@ -53,8 +55,8 @@ const DynamicTable = ({
             switch (element.name) {
                 case 'H2H':
                     //console.log(item)
-                    let match = item.match ?? item
-                    if (!match)
+                    let match = item.match ?? item 
+                    if (match)
                         sets.push(
                             <React.Fragment key={`Fragment_${i}`}>
                                 <GiCrossedSwords
@@ -79,10 +81,26 @@ const DynamicTable = ({
                     break;
                 case 'Comments':
                     sets.push(
-                        <GoCommentDiscussion
+                        <React.Fragment key={`Fragment_${i}`}>
+                                <GoCommentDiscussion
                             key={`icon_${i}`}
                             color="#3e3333"
+                            className="cursorHand"
+                            onClick={() => openCommentsModal(item, i)}
                         />
+                                <Dialog
+                                    onClose={() => setIsShowComments(prevState => { return { ...prevState, [i]: false } })}
+                                    open={isShowComments[i] ?? false}
+                                    aria-labelledby={'Comments'}
+                                    aria-describedby="Comments"
+                                    padding={'1rem'}
+                                >
+                                    <Box padding={'1rem'}>
+                                        some comments here
+                                    </Box>
+                                </Dialog>
+                            </React.Fragment >
+                        
                     )
                     break;
                 default:
@@ -93,14 +111,16 @@ const DynamicTable = ({
         return sets
     }
 
+    // massage the data and add all content items to the output array (outArr)
     function setContent(item, column, i) {
-        let text, urlVals, obj, property
+        let outArr = [], text, urlVals, obj, property
         //console.log("setContent",item,column,i)
         if (column.link) {
             const urlSplit = column.link.split('/')
             urlVals = { page: urlSplit[0], type: urlSplit[1], value: 0 }
         }
         const x = column.accessor.split('.')
+        // set the object depending on how many property levels we need to drill down (eq winner.name)
         switch (column.parts) {
             case 3:
                 obj = item[x[0]][[x[1]]]
@@ -108,6 +128,7 @@ const DynamicTable = ({
                 break;
             case 2:
                 obj = item[x[0]]
+
                 property = x[1]
                 break;
             case 1:
@@ -119,21 +140,34 @@ const DynamicTable = ({
             default:
                 break;
         }
-        // set the text of the cell
+        
         try {
-            if (obj[property]) {
-                text = obj[property]
-                if (urlVals) {
-                    if (urlVals.page === 'Profile')
-                        text = userFunctions.SetPlayerName(obj)
-                    urlVals.value = obj[urlVals.type]
-                }
+            // if the text is in an array (as in two players playing doubles), extract each element
+            if (Array.isArray(obj)) {
+                obj.forEach((x, index) => {
+                  outArr.push(parseContent(x, property, urlVals))
+
+                  if (obj.length !== index + 1) 
+                    outArr.push(<View as='span'> / </View>)
+                })
+            }
+            // for non-array items
+            else if (obj[property]) {
+                outArr.push(parseContent(obj, property, urlVals))
             }
         }
-        catch(e) {
-            text = "Missing data"
+        catch (e) {
+            outArr.push(<View as='span'>"Data error"</View>)
         }
-        // to superscript the tiebreak scores
+
+        return outArr.map((elem) => elem)
+    }
+
+    function parseContent(obj, property, urlVals) {
+        let outArr=[], text = obj[property]
+
+        // For the score prop, set the tiebreak scores to superscript
+        if (property == 'score')
         text = text.split(', ').map((str, index) => {
             const [mainNum, superscriptNum] = str.split('(');
             return (
@@ -142,12 +176,29 @@ const DynamicTable = ({
                     {superscriptNum && <sup>({superscriptNum.slice(0, -1)})</sup>}
                     {index !== text.split(', ').length - 1 && ', '}
                 </React.Fragment>
-            );
-        });
+            )
+        })
+
+        // if there's an url specified, create a link
         if (urlVals) {
-            return (<Link to={'/' + urlVals.page + '/' + urlVals.value} onClick={() => props.onLinkClick(urlVals.value)} >{text}</Link>)
+            // the url value might be different than the text value (eq winner.name vs winner.id)
+            urlVals.value = obj[urlVals.type]
+            if (urlVals.page === 'Profile')
+                text = userFunctions.SetPlayerName(obj)
+            
+            outArr.push(
+                <Link to={'/' + urlVals.page + '/' + urlVals.value}
+                    onClick={() => props.onLinkClick(urlVals.value)}
+                >
+                    {text}
+                </Link>
+            )
         }
-        return text
+        // if no URL, just add the text in a span
+        else 
+            outArr.push(<View as='span'>{text}</View>)
+
+        return outArr
     }
 
     const handleSorting = (col, sortOrder) => {
@@ -192,7 +243,7 @@ const DynamicTable = ({
     }
 
     function setBackgroundColor(item) {
-        if (props.styleConditionVariable) {
+        if (props.styleConditionVariable) { 
             if (item[props.styleConditionVariable])
                 return { className: props.styleConditionColor[0] }
             return { className: props.styleConditionColor[1] }
@@ -201,7 +252,7 @@ const DynamicTable = ({
     }
 
     return (<div key={"dynamicTable" + props.key}>
-        {data &&
+        {data && data.length > 0 &&
             <>
                 <Table highlightOnHover={true} marginTop="1em" marginBottom=".2em" variation="striped" className={props.className} backgroundColor={props.backgroundColor ?? 'white'}>
                     <TableHead backgroundColor={props.headerBackgroundColor ?? 'blue.20'} >
