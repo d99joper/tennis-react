@@ -3,6 +3,7 @@ import React from "react";
 import { SlUser } from "react-icons/sl";
 import "./rivals.css"
 import { userFunctions as uf } from "helpers";
+import { Link } from "react-router-dom";
 
 const TopRivals = ({ data, ...props }) => {
 
@@ -24,16 +25,23 @@ const TopRivals = ({ data, ...props }) => {
                                     borderRadius={'medium'}>
                                     <Flex direction={'row'}>
                                         <Text>vs. </Text>
-                                        <View className={"profileImageContainer_small"}>
-                                            {rival.player.image ?
-                                                <Image
-                                                    src={rival.player.imageUrl}
-                                                    alt={`visual aid for ${uf.SetPlayerName(rival.player)}`}
-                                                    className={`profileImage`}
-                                                />
-                                                : <SlUser size='30' />}
-                                        </View>
-                                        <Text>{uf.SetPlayerName(rival.player)}</Text>
+                                        <Flex direction={'column'}>
+                                        {rival.player.map((p) =>
+                                        <Link to={"/profile/"+p.id}>
+                                                <View className={"profileImageContainer_small"}>
+                                                    {p.image ?
+                                                        <Image
+                                                            src={p.imageUrl}
+                                                            alt={`visual aid for ${uf.SetPlayerName(p)}`}
+                                                            className={`profileImage`}
+                                                        />
+                                                        : <SlUser size='30' />}
+                                                </View>
+                                                <Text as='span'> {uf.SetPlayerName(p)}</Text>
+                                                </Link>
+                                                )}
+                                                </Flex>
+
                                     </Flex>
                                 </Card>
                                 <Card>

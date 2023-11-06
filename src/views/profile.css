@@ -36,7 +36,7 @@
     }
 }
 
-.profileWrapper {
+/* .profileWrapper {
     grid-gap: 0.5rem;
     display: grid;
     background-color: #fff;
@@ -48,8 +48,8 @@
         "about"
         "matches"
     /*  templateColumns={{ base: '1fr', large: "1fr 2fr 2fr" }}
-        templateRows="1fr" */
-}
+        templateRows="1fr"
+} */
 
 
 
@@ -71,7 +71,7 @@
             "contact .";
         grid-template-rows: "1fr auto";
         grid-template-columns: "auto auto"; */
-        max-width: 230px;
+        /* max-width: 230px; */
         text-align: center;
     }
 }
@@ -109,13 +109,13 @@
 .profileImageContainer {
     background-color: var(--amplify-colors-purple-10);
     border-radius: 50%;
-    max-width: 150px;
+    /* max-width: 150px; */
     max-height: 150px;
     overflow: hidden;
     border: solid 1px var(--amplify-colors-purple-100);
 }
 
-@media only screen and (min-width: 868px)   {
+/* @media only screen and (min-width: 868px)   {
     .profileWrapper {
       grid-template-columns: 1fr 2fr 2fr;
       grid-template-areas:
@@ -123,6 +123,5 @@
       "profilePic stats stats"
       "about about about"
       "matches  matches  matches";
-      /* max-width: 600px; */
     }
-  }
+  } */

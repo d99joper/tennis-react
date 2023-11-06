@@ -21,18 +21,18 @@ const UserStats = ({ stats: data, ...props }) => {
 
         switch (col) {
             case "year":
-                data.sort((a, b) => (a.year > b.year ? 1 : -1) * (sortOrder === "asc" ? 1 : -1))
+                data.years.sort((a, b) => (a.year > b.year ? 1 : -1) * (sortOrder === "asc" ? 1 : -1))
                 break;
             default:
-                data.sort((a, b) => (a.stats[col]["percentage"] - b.stats[col]["percentage"]) * (sortOrder === "asc" ? 1 : -1))
+                data.years.sort((a, b) => (a.stats[col]["percentage"] - b.stats[col]["percentage"]) * (sortOrder === "asc" ? 1 : -1))
                 break;
         }
         data.sortField = col
     }
-    //console.log("userstats", data)
+    console.log("userstats", data)
     return (
         <>
-            {(props.statsFetched && data.length > 0) ?
+            {(props.statsFetched && data) ?
                 <div>
                     <Table highlightOnHover={true} marginTop="1em" variation="striped" backgroundColor={'white'}>
                         <TableHead backgroundColor={'blue.20'} >
@@ -64,7 +64,7 @@ const UserStats = ({ stats: data, ...props }) => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {data.map(({ year, stats: s }) =>
+                            {data.years.map(({ year, stats: s }) =>
                                 <TableRow key={year}>
                                     <TableCell>{year}</TableCell>
                                     <TableCell color={s.matches.percentage >= 50 ? 'green' : 'red'}>

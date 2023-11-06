@@ -11,6 +11,7 @@ import { Avatar, Modal, Box, Typography, Dialog, DialogTitle, Checkbox, Toolbar 
 import { AiOutlineEdit, AiOutlineMail, AiOutlinePhone, AiOutlineUndo } from 'react-icons/ai';
 import { MdOutlineCancel, MdOutlineCheck, MdOutlineInfo } from 'react-icons/md';
 import { BiLogOutCircle } from 'react-icons/bi';
+import { playerFunctions as pFunc, playerFunctions } from 'api/services/index.js';
 
 function Profile(props) {
 
@@ -23,7 +24,7 @@ function Profile(props) {
     const [isLinkVisible, setIsLinkVisible] = useState(false);
 
     const handleIconClick = () => {
-      setIsLinkVisible(!isLinkVisible);
+        setIsLinkVisible(!isLinkVisible);
     };
     const params = useParams();
     const [error, setError] = useState({ status: false, message: null });
@@ -40,6 +41,7 @@ function Profile(props) {
     const [rivals, setRivals] = useState({})
     const [rivalsFetched, setRivalsFetched] = useState(false);
     const [tabIndex, setTabIndex] = useState(0)
+    const [matchTabIndex, setMatchTabIndex] = useState(0)
     const [unLinkedMatches, setUnLinkedMatches] = useState()
     const [loggedInPlayer, setLoggedInPlayer] = useState()
     const [unLinkedMatchesAdded, setUnLinkedMatchesAdded] = useState(0)
@@ -50,7 +52,8 @@ function Profile(props) {
 
     const handleStatsClick = () => {
         if (!statsFetched) {
-            userFunctions.getPlayerStatsByYear(player.id, 'SINGLES')
+            //userFunctions.getPlayerStatsByYear(player.id, 'SINGLES')
+            playerFunctions.getPlayerStatsByYear(player.id, 'SINGLES')
                 .then((data) => {
                     setStats(data)
                     setStatsFetched(true)
@@ -60,7 +63,9 @@ function Profile(props) {
     }
     const handleRivalsClick = () => {
         if (!rivalsFetched) {
-            userFunctions.getGreatestRivals(player.id)
+            // userFunctions.getGreatestRivals(player.id)
+            playerFunctions.getGreatestRivals([player.id], enums.MATCH_TYPE.SINGLES)
+            //playerFunctions.getGreatestRivals([player.id,'abc'], enums.MATCH_TYPE.DOUBLES)
                 .then((data) => {
                     setRivals(data)
                     setRivalsFetched(true)
@@ -130,24 +135,15 @@ function Profile(props) {
             if (params.userid) {
                 console.log('userid provided')
                 // Get the user from the userid -> paramPlayer
-                p = await userFunctions.getPlayer(params.userid)
+                p = await pFunc.getPlayer(params.userid)
+                //p = await userFunctions.getPlayer(params.userid)
                 p = p ?? sessionPlayer
                 //setUnLinkedMatches(p.unLinkedMatches)
 
             }
             else {
                 console.log('no userid provided, use sessionPlayer', sessionPlayer)
-                // if (sessionPlayer) {
-                p = sessionPlayer
-                //     document.title = 'My Tennis Space - ' + p.name;
-                //     //setPlayer(prevState => ({...prevState, p})) 
-                //     console.log('This is your page, so you can edit it');
-                //     setCanEdit(true);
-                // }
-                // else {
-                //     setError({ status: true, message: 'This user does not exist.' });
-                // }
-                // setIsLoaded(true);
+                p = p = await pFunc.getPlayerByUserName(sessionPlayer.email)
             }
             if (sessionPlayer) {
                 if (sessionPlayer.email === p.email) {
@@ -225,134 +221,11 @@ function Profile(props) {
                             className={`image ${canEdit ? " cursorHand" : null}`}
                             onClick={(e) => { openUserImagePicker(e) }}
                         />
+                        {/************ NAME   *************/}
+                        <Text fontSize='x-large' className='name'>
+                            {player.name}
+                        </Text>
 
-                        <div>
-                            {/************ EDIT TOOGLE   *************/}
-                            <div className="desktop-only"
-                                style={{ textAlign: 'right', float: 'right', paddingRight: '1rem' }}
-                            >
-                                {canEdit && isEdit &&
-                                    <>
-                                        <MdOutlineCheck
-                                            onClick={(e) => { setIsEdit(!isEdit) }}
-                                            className='cursorHand'
-                                        />
-                                        <MdOutlineCancel
-                                            onClick={() => setIsEdit(!isEdit)}
-                                            className='cursorHand'
-                                        />
-                                    </>
-                                }
-                                {canEdit && !isEdit &&
-                                    <AiOutlineEdit
-                                        onClick={() => setIsEdit(!isEdit)}
-                                        className='cursorHand'
-                                    />
-
-                                }
-                            </div>
-                            {/************ NAME   *************/}
-                            <Text fontSize='x-large' className='name'>
-                                {player.name}
-                            </Text>
-
-                            <span className='profile-contact'>
-                                {/************ EMAIL   *************/}
-                                <Text fontSize='small'>
-                                    <AiOutlineMail />
-                                    {isLoggedIn
-                                        ? <>&nbsp;<a href={`mailto:${player.email}`}>{player.email}</a></>
-                                        : <>&nbsp;Hidden</>
-                                    }
-                                </Text>
-                                {/************ PHONE   *************/}
-                                <Text fontSize='small'>
-                                    <AiOutlinePhone />
-                                    {isLoggedIn
-                                        ?
-                                        <>&nbsp;
-                                            <PhoneNumber name="name" onNewNumber={handleUpdatedPhoneNumber} number={player.phone} editable={isEdit && canEdit} />
-                                        </>
-                                        : <>&nbsp;Hidden</>
-                                    }
-                                </Text>
-                                {/************ NTRP   *************/}
-                                <Text >
-                                    <Flex direction={'row'}>
-                                        NTRP:
-                                        <Editable
-                                            text={player.NTRP ?? '-'}
-                                            isEditing={isEdit}
-                                            direction="row"
-                                            gap="0.5rem"
-                                        >
-                                            <SelectField
-                                                name="NTPR"
-                                                size='small'
-                                                defaultValue={player.NTRP ? player.NTRP : '2.0'}
-                                                options={NTRPItems}
-                                            ></SelectField>
-
-                                        </Editable>
-                                        <Text as="span" >
-                                            <MdOutlineInfo onClick={handleIconClick} className='cursorHand' />
-                                            <a
-                                                href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'
-                                                target='_blank'
-                                                style={{
-                                                    display: isLinkVisible ? 'block' : 'none',
-                                                    position: 'absolute',
-                                                    //top: '30px', // Adjust the top position as needed
-                                                    //left: 0,
-                                                    background: 'white',
-                                                    padding: '10px',
-                                                    border: '1px solid #ccc',
-                                                    borderRadius: '5px',
-                                                    transform: 'scale(1.1)',
-                                                    transition: 'transform 0.3s',
-                                                }}
-                                            >
-                                                View the USTA NTPR guidelines
-                                            </a>
-                                        </Text>
-                                    </Flex>
-                                </Text>
-                                {/************ UTR   *************/}
-                                <Flex direction={'row'}>UTR rating:
-                                    <Editable
-                                        text={player.UTR ?? '-'}
-                                        isEditing={isEdit}
-                                    >
-                                        <TextField name="UTR" size='small' defaultValue={player.UTR}></TextField>
-                                    </Editable>
-                                    <MdOutlineInfo ></MdOutlineInfo>
-                                </Flex>
-                            </span>
-                        </div>
-
-                        {/************ EDIT TOOGLE   *************/}
-                        <div className="mobile-only" style={{ textAlign: 'right', paddingRight: '1rem', flexGrow: 1 }}>
-
-                            {canEdit && isEdit &&
-                                <>
-                                    <MdOutlineCheck
-                                        onClick={(e) => { setIsEdit(!isEdit); updateProfileData(e) }}
-                                        className='cursorHand'
-                                    />
-                                    <MdOutlineCancel
-                                        onClick={() => setIsEdit(!isEdit)}
-                                        className='cursorHand'
-                                    />
-                                </>
-                            }
-                            {canEdit && !isEdit &&
-                                <AiOutlineEdit
-                                    onClick={() => setIsEdit(!isEdit)}
-                                    className='cursorHand'
-                                />
-
-                            }
-                        </div>
                     </Card>
 
                     {/************ RIGHT CONTENT   *************/}
@@ -364,36 +237,168 @@ function Profile(props) {
                             <TabItem title="General">
 
                                 <Grid
-                                    templateColumns="1fr 3fr"
+                                    templateColumns="1fr 5fr"
                                     templateRows="auto"
                                     paddingTop={"10px"}
                                 >
+                                    {/************ EDIT TOOGLE   *************/}
+                                    <div className="desktop-only"
+                                        style={{ textAlign: 'right', float: 'right', paddingRight: '1rem' }}
+                                    >
+                                        {canEdit && isEdit &&
+                                            <>
+                                                <MdOutlineCheck
+                                                    onClick={(e) => { setIsEdit(!isEdit) }}
+                                                    className='cursorHand'
+                                                />
+                                                <MdOutlineCancel
+                                                    onClick={() => setIsEdit(!isEdit)}
+                                                    className='cursorHand'
+                                                />
+                                            </>
+                                        }
+                                        {canEdit && !isEdit &&
+                                            <AiOutlineEdit
+                                                onClick={() => setIsEdit(!isEdit)}
+                                                className='cursorHand'
+                                            />
 
+                                        }
+                                    </div>
 
+                                    <View className='profile-contact' columnStart="1" columnEnd={'-1'}>
+                                        {/************ EMAIL   *************/}
+                                        <Text fontSize='medium'>
+                                            <AiOutlineMail />
+                                            {isLoggedIn
+                                                ? <>&nbsp;<a href={`mailto:${player.email}`}>{player.email}</a></>
+                                                : <>&nbsp;Hidden</>
+                                            }
+                                        </Text>
+                                        {/************ PHONE   *************/}
+                                        <Text fontSize='medium'>
+                                            <AiOutlinePhone />
+                                            {isLoggedIn
+                                                ?
+                                                <>&nbsp;
+                                                    <PhoneNumber name="name" onNewNumber={handleUpdatedPhoneNumber} number={player.phone} editable={isEdit && canEdit} />
+                                                </>
+                                                : <>&nbsp;Hidden</>
+                                            }
+                                        </Text>
+
+                                    </View>
+
+                                    <View columnStart={'1'} columnEnd={'-1'}>
+                                        <Divider paddingBottom={'.5rem'} />
+                                    </View>
+
+                                    {/************ EDIT TOOGLE   *************/}
+                                    <div className="mobile-only" style={{ textAlign: 'right', paddingRight: '1rem', flexGrow: 1 }}>
+
+                                        {canEdit && isEdit &&
+                                            <>
+                                                <MdOutlineCheck
+                                                    onClick={(e) => { setIsEdit(!isEdit); updateProfileData(e) }}
+                                                    className='cursorHand'
+                                                />
+                                                <MdOutlineCancel
+                                                    onClick={() => setIsEdit(!isEdit)}
+                                                    className='cursorHand'
+                                                />
+                                            </>
+                                        }
+                                        {canEdit && !isEdit &&
+                                            <AiOutlineEdit
+                                                onClick={() => setIsEdit(!isEdit)}
+                                                className='cursorHand'
+                                            />
+
+                                        }
+                                    </div>
+                                    {/************ NTRP   *************/}
+                                    <View>NTRP:</View>
+                                    <div>
+                                        <Editable
+                                            text={player.NTRP ? <>{player.NTRP} <MdOutlineInfo onClick={handleIconClick} className='cursorHand' /></> : '-'}
+                                            isEditing={isEdit}
+                                            direction="row"
+                                            gap="0.5rem"
+                                        >
+                                            <SelectField
+                                                name="NTPR"
+                                                size='small'
+                                                defaultValue={player.NTRP ? player.NTRP : '2.0'}
+                                                options={NTRPItems}
+                                            ></SelectField>
+
+                                            <MdOutlineInfo onClick={handleIconClick} className='cursorHand' />
+                                        </Editable>
+
+                                        <a
+                                            href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'
+                                            target='_blank'
+                                            style={{
+                                                display: isLinkVisible ? 'block' : 'none',
+                                                position: 'absolute',
+                                                //top: '30px', // Adjust the top position as needed
+                                                //left: 0,
+                                                background: 'white',
+                                                padding: '10px',
+                                                border: '1px solid #ccc',
+                                                borderRadius: '5px',
+                                                transform: 'scale(1.1)',
+                                                transition: 'transform 0.3s',
+                                            }}
+                                        >
+                                            View the USTA NTPR guidelines
+                                        </a>
+                                    </div>
+                                    {/************ UTR   *************/}
+                                    <View>UTR rating:</View>
+                                    <View>
+                                        <Editable
+                                            text={player.UTR ? <>{player.UTR} <MdOutlineInfo ></MdOutlineInfo></> : '-'}
+                                            isEditing={isEdit}
+                                        >
+                                            <TextField name="UTR" size='small' defaultValue={player.UTR}></TextField>
+                                            <MdOutlineInfo ></MdOutlineInfo>
+                                        </Editable>
+                                    </View>
                                     {/************ LADDERS   *************/}
                                     <View>Ladders:</View>
                                     {/* <Ladders ladderList={player.ladders} player={player} /> */}
-                                    <Grid templateRows={"auto"}>
+                                    {/* <Grid templateRows={"auto"}>
                                         {player.ladders.items.map((item, i) => {
                                             console.log(item)
                                             return (
                                                 <Link to={`/ladders/${item.ladder.id}`} key={item.ladder.id}>{item.ladder.name}</Link>
                                             )
                                         })}
+                                    </Grid> */}
+                                    <Grid templateRows={"auto"}>
+                                        {player.ladders.map((ladder, i) => {
+                                            return (
+                                                <Link to={`/ladders/${ladder.id}`} key={ladder.id}>{ladder.name}</Link>
+                                            )
+                                        })}
                                     </Grid>
-
                                     {/************ ABOUT   *************/}
-                                    <View><Text>About:</Text></View>
-                                    <Editable
-                                        text={player.about}
-                                        isEditing={isEdit}>
-                                        <TextAreaField name="about" defaultValue={player.about}></TextAreaField>
-                                    </Editable>
-                                    {isEdit &&
+                                    {(player.about || isEdit === true) &&
+                                        <>
+                                            <View><Text>About:</Text></View>
+                                            <Editable
+                                                text={player.about}
+                                                isEditing={isEdit}>
+                                                <TextAreaField name="about" defaultValue={player.about}></TextAreaField>
+                                            </Editable>
+                                        </>
+                                    }
+                                    {/* {isEdit &&
                                         <Button type="submit" variation="primary">
                                             Update
                                         </Button>
-                                    }
+                                    } */}
                                 </Grid>
                             </TabItem>
                             <TabItem title="Stats" onClick={handleStatsClick} >
@@ -409,10 +414,23 @@ function Profile(props) {
                 </Flex>
 
                 {/************ MATCHES   *************/}
+
                 <Flex direction="row" gap="1rem">
                     <Card className='card' variation="elevated" style={{ width: "100%" }}>
-                        <UnlinkedMatches matches={unLinkedMatches} player={player} handleMatchAdded={handleUnlinkedMatchAdded} />
-                        <Matches player={player} limit="5" allowDelete={loggedInPlayer.isAdmin}></Matches>
+                        <Tabs
+                            currentIndex={matchTabIndex}
+                            onChange={(i) => setMatchTabIndex(i)}
+                            justifyContent="flex-start"
+                        >
+                            <TabItem title="Singles">
+                                <UnlinkedMatches matches={unLinkedMatches} player={player} handleMatchAdded={handleUnlinkedMatchAdded} />
+                                <Matches player={player} limit="5" type={enums.MATCH_TYPE.SINGLES} allowDelete={loggedInPlayer.isAdmin}></Matches>
+
+                            </TabItem>
+                            <TabItem title="Doubles">
+                                <Matches player={player} limit="5" type={enums.MATCH_TYPE.DOUBLES} allowDelete={loggedInPlayer.isAdmin}></Matches>
+                            </TabItem>
+                        </Tabs>
                         {canEdit &&
                             <Button label="Add new match"
                                 onClick={() => setShowMatchEditor(true)}

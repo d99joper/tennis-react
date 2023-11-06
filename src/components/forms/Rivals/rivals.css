@@ -6,4 +6,5 @@
     display: inline-block;
     overflow: hidden;
     border: solid 1px var(--amplify-colors-purple-100);
+    vertical-align: middle;
 }
