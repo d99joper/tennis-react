@@ -29,7 +29,7 @@ const UserStats = ({ stats: data, ...props }) => {
         }
         data.sortField = col
     }
-    console.log("userstats", data)
+    
     return (
         <>
             {(props.statsFetched && data) ?

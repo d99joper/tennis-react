@@ -134,7 +134,6 @@ const userFunctions = {
 		// check if the player already exists
 		const player = this.getPlayer
 
-
 		const loadData = {
 			name: name,
 			email: email,

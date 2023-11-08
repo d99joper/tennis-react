@@ -267,6 +267,11 @@ const ladderFunctions = {
     }
 
     return standings
+  },
+
+  // Add with 0 points, last place
+  addPlayerToLadder(playerId, ladderId) {
+
   }
 }
 
