@@ -136,6 +136,8 @@ function Profile(props) {
                 console.log('userid provided')
                 // Get the user from the userid -> paramPlayer
                 p = await pFunc.getPlayer(params.userid)
+                setStats(p.stats)
+                setStatsFetched(true)
                 //p = await userFunctions.getPlayer(params.userid)
                 p = p ?? sessionPlayer
                 //setUnLinkedMatches(p.unLinkedMatches)
@@ -143,7 +145,9 @@ function Profile(props) {
             }
             else {
                 console.log('no userid provided, use sessionPlayer', sessionPlayer)
-                p = p = await pFunc.getPlayerByUserName(sessionPlayer.email)
+                p = await pFunc.getPlayerByUserName(sessionPlayer.email)
+                if(p.error)
+                    setError({ status: true, message: p.error })
             }
             if (sessionPlayer) {
                 if (sessionPlayer.email === p.email) {
@@ -316,6 +320,10 @@ function Profile(props) {
 
                                         }
                                     </div>
+                                    <View>Add player</View>
+                                    <View>
+                                        <button onClick={() => pFunc.createPlayer({name:'Jonas Tester', email:'jonas@zooark.com', about:'something'})}>Add Player</button>
+                                    </View>
                                     {/************ NTRP   *************/}
                                     <View>NTRP:</View>
                                     <div>
@@ -377,7 +385,7 @@ function Profile(props) {
                                         })}
                                     </Grid> */}
                                     <Grid templateRows={"auto"}>
-                                        {player.ladders.map((ladder, i) => {
+                                        {player.ladders?.map((ladder, i) => {
                                             return (
                                                 <Link to={`/ladders/${ladder.id}`} key={ladder.id}>{ladder.name}</Link>
                                             )

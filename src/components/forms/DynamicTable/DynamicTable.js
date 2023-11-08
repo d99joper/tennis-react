@@ -58,7 +58,7 @@ const DynamicTable = ({
                     let match = item.match ?? item 
                     if (match)
                         sets.push(
-                            <React.Fragment key={`Fragment_${i}`}>
+                            <React.Fragment key={`FragmentH2H_${i}`}>
                                 <GiCrossedSwords
                                     title="H2H"
                                     className="middleIcon"
@@ -81,7 +81,7 @@ const DynamicTable = ({
                     break;
                 case 'Comments':
                     sets.push(
-                        <React.Fragment key={`Fragment_${i}`}>
+                        <React.Fragment key={`FragmentComment_${i}`}>
                                 <GoCommentDiscussion
                             key={`icon_${i}`}
                             color="#3e3333"
@@ -145,10 +145,10 @@ const DynamicTable = ({
             // if the text is in an array (as in two players playing doubles), extract each element
             if (Array.isArray(obj)) {
                 obj.forEach((x, index) => {
-                  outArr.push(parseContent(x, property, urlVals))
+                  outArr.push(parseContent(x, property, urlVals, i))
 
                   if (obj.length !== index + 1) 
-                    outArr.push(<View as='span'> / </View>)
+                    outArr.push(<View as='span' key={i+'_'+property}> / </View>)
                 })
             }
             // for non-array items
@@ -157,13 +157,13 @@ const DynamicTable = ({
             }
         }
         catch (e) {
-            outArr.push(<View as='span'>"Data error"</View>)
+            outArr.push(<View as='span' key={i+'_'+property}>Data error</View>)
         }
 
         return outArr.map((elem) => elem)
     }
 
-    function parseContent(obj, property, urlVals) {
+    function parseContent(obj, property, urlVals, i) {
         let outArr=[], text = obj[property]
 
         // For the score prop, set the tiebreak scores to superscript
@@ -171,7 +171,7 @@ const DynamicTable = ({
         text = text.split(', ').map((str, index) => {
             const [mainNum, superscriptNum] = str.split('(');
             return (
-                <React.Fragment key={index}>
+                <React.Fragment key={'score'+index}>
                     {mainNum}
                     {superscriptNum && <sup>({superscriptNum.slice(0, -1)})</sup>}
                     {index !== text.split(', ').length - 1 && ', '}
@@ -187,7 +187,7 @@ const DynamicTable = ({
                 text = userFunctions.SetPlayerName(obj)
             
             outArr.push(
-                <Link to={'/' + urlVals.page + '/' + urlVals.value}
+                <Link key={`${property}_${i}_content`} to={'/' + urlVals.page + '/' + urlVals.value}
                     onClick={() => props.onLinkClick(urlVals.value)}
                 >
                     {text}
@@ -196,7 +196,7 @@ const DynamicTable = ({
         }
         // if no URL, just add the text in a span
         else 
-            outArr.push(<View as='span'>{text}</View>)
+            outArr.push(<View as='span' key={`${property}_${i}_content`} >{text}</View>)
 
         return outArr
     }
@@ -259,7 +259,7 @@ const DynamicTable = ({
                         <TableRow>
                             {columns.map((col, i) =>
                                 <TableCell as="th"
-                                    key={col.accessor + '_' + i}
+                                    key={'th'+col.accessor + '_' + i}
                                     className={col.sortable ? "cursorHand" : null}
                                     onClick={col.sortable ? (e) => handleSortingChange(e, col) : null}
                                 >

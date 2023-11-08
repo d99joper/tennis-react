@@ -27,7 +27,7 @@ const TopRivals = ({ data, ...props }) => {
                                         <Text>vs. </Text>
                                         <Flex direction={'column'}>
                                         {rival.player.map((p) =>
-                                        <Link to={"/profile/"+p.id}>
+                                        <Link to={"/profile/"+p.id} key={p.id + '_' + index}>
                                                 <View className={"profileImageContainer_small"}>
                                                     {p.image ?
                                                         <Image

@@ -270,8 +270,8 @@ const playerFunctions = {
       rivals: [
         {
           player: [
-            { id: '123', name: 'Travis Carter' }, 
-            {id: '1262162a-9732-4222-8a93-c9925703c911', name: 'Jonas Persson', image: 'Jonas profile_1678827465141.jpg' }
+            { id: '123', name: 'Travis Carter' },
+            { id: '1262162a-9732-4222-8a93-c9925703c911', name: 'Jonas Persson', image: 'Jonas profile_1678827465141.jpg' }
           ],
           wins: 24,
           losses: 16,
@@ -279,8 +279,8 @@ const playerFunctions = {
         },
         {
           player: [
-            { id: 'abc', name: 'Scott Voelker' }, 
-            {id: '1262162a-9732-4222-8a93-c9925703c911', name: 'Jonas Persson', image: 'Jonas profile_1678827465141.jpg' }
+            { id: 'abc', name: 'Scott Voelker' },
+            { id: '1262162a-9732-4222-8a93-c9925703c911', name: 'Jonas Persson', image: 'Jonas profile_1678827465141.jpg' }
           ],
           wins: 1,
           losses: 1,
@@ -291,15 +291,37 @@ const playerFunctions = {
   ],
 
   getPlayer: async function (id) {
-    let player = this.playerDummyData.find((x) => x.id === id)
-    await userFunctions.SetPlayerImage(player)
-    return player
+    let response = await fetch(`https://mytennis-space.uw.r.appspot.com/players/${id}`)
+
+    if (response.ok)
+      return await response.json()
+    else {
+      let player = this.playerDummyData.find((x) => x.id === id)
+      await userFunctions.SetPlayerImage(player)
+      return player
+    }
   },
 
   getPlayerByUserName: async function (username) {
-    let player =  this.playerDummyData.find((x) => x.username === username)
-    await userFunctions.SetPlayerImage(player)
-    return player
+    let response = await fetch(`https://mytennis-space.uw.r.appspot.com/players/?filter=${username}`)
+
+    if (response.ok) {
+      const players = await response.json()
+      if (players.length > 0)
+        return players[0]
+      return { error: 'No Player Found' }
+    }
+    else {
+      let player = this.playerDummyData.find((x) => x.username === username)
+      await userFunctions.SetPlayerImage(player)
+      return player
+    }
+  },
+
+  getPlayers: async function (filter) {
+    const response = await fetch(`https://mytennis-space.uw.r.appspot.com/players/?filter=${filter}`)
+    if (response.ok)
+      return await response.json()
   },
 
   getPlayerStatsByYear: async function (id, type) {
@@ -321,16 +343,16 @@ const playerFunctions = {
       })
     }
     else {
-       data = this.playerRivalsDummyData.find((x) => {
+      data = this.playerRivalsDummyData.find((x) => {
         let p1 = x.player.find((p) => p.id === ids[0] && x.player.length === 1)
         if (p1) return true
         else return false
       })
     }
     // return the rivals (after mapping the potential player images)
-    if(data?.rivals)
-      return await Promise.all(data.rivals.map(async(x) => {
-        await Promise.all(x.player.map(async(p) => await userFunctions.SetPlayerImage(p)))
+    if (data?.rivals)
+      return await Promise.all(data.rivals.map(async (x) => {
+        await Promise.all(x.player.map(async (p) => await userFunctions.SetPlayerImage(p)))
         return x
       }))
     else
@@ -338,13 +360,26 @@ const playerFunctions = {
   },
 
   // I don't really care what comes back, just something to verify success or failure
-  createPlayer: async function(player) {
-    return {statusCode: 200, statusMessage: 'OK'}
+  createPlayer: async function (player) {
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Authorization': 'Bearer my-token'
+      },
+      body: JSON.stringify(player)
+    }
+
+    const response = await fetch('https://mytennis-space.uw.r.appspot.com/players/', requestOptions)
+    if(response.ok)
+      return await response.json()
+    else
+      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to create player' }
   },
 
   // partial player as input. Only provided fields get updated
-  updatePlayer: async function(player) {
-    return {statusCode: 200, statusMessage: 'OK'}
+  updatePlayer: async function (player) {
+    return { statusCode: 200, statusMessage: 'OK' }
   }
 }
 
