@@ -370,11 +370,88 @@ const playerFunctions = {
       body: JSON.stringify(player)
     }
 
-    const response = await fetch('https://mytennis-space.uw.r.appspot.com/players/', requestOptions)
+    const response = await fetch('https://mytennis-space.uw.r.appspot.com/players/create', requestOptions)
     if(response.ok)
       return await response.json()
     else
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to create player' }
+  },
+
+  addPlayerToLadder: async function(playerId) {
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Authorization': 'Bearer my-token'
+      },
+      body: JSON.stringify({player_id:playerId})
+    }
+
+    const response = await fetch('https://mytennis-space.uw.r.appspot.com/ladders/35a52e5b-d915-4b84-a4e0-22f2906305a6/add-player', requestOptions)
+    if(response.ok)
+      return await response.json()
+    else
+      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to create player' }
+  },
+
+  addMatch: async function() {
+    const singleMatch = {
+      winner: [
+      { id: '21c841d6-bb21-4766-bf4f-b204cc53dde7' }
+    ],
+    loser: [
+      { id: '4d2c332e-d5a1-4d35-8be8-3d9ee6407d0b' }
+    ],
+    ladder: { id: '35a52e5b-d915-4b84-a4e0-22f2906305a6' },
+    score: '6-3, 6-7(4), 6-4',
+    played_on: '2022-05-02',
+    comments: [
+      {
+        message: 'Hello',
+        posted_on: '2022-05-15'
+      }
+    ],
+    retired: false,
+    type: 'DOUBLES',
+    ignored_by: [{ id: '21c841d6-bb21-4766-bf4f-b204cc53dde7' }],
+  }
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Authorization': 'Bearer my-token'
+      },
+      body: JSON.stringify(
+        {
+          winner: [
+          { id: '21c841d6-bb21-4766-bf4f-b204cc53dde7' },
+          { id: 'bdc9391d-198e-4e78-aa9e-da65991e8686' }
+        ],
+        loser: [
+          { id: 'e3415350-6350-4fdf-be1a-b6349dc48b7b' },
+          { id: '4d2c332e-d5a1-4d35-8be8-3d9ee6407d0b' }
+        ],
+        ladder: { id: '35a52e5b-d915-4b84-a4e0-22f2906305a6' },
+        score: '6-3, 6-7(4), 6-1',
+        played_on: '2022-05-02',
+        comments: [
+          {
+            message: 'Hello',
+            posted_on: '2022-05-15'
+          }
+        ],
+        retired: false,
+        type: 'DOUBLES',
+        ignored_by: [{ id: '21c841d6-bb21-4766-bf4f-b204cc53dde7' }],
+      }
+      )
+    }
+
+    const response = await fetch('https://mytennis-space.uw.r.appspot.com/matches/create', requestOptions)
+    if(response.ok)
+      return await response.json()
+    else
+      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to create match' }
   },
 
   // partial player as input. Only provided fields get updated

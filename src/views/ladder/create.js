@@ -6,7 +6,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import "@maplibre/maplibre-gl-geocoder/dist/maplibre-gl-geocoder.css";
 import "maplibre-gl-js-amplify/dist/public/amplify-geocoder.css"; // Optional CSS for Amplify recommended styling
 import { Button, Flex, Grid } from "@aws-amplify/ui-react";
-import { LocationSearch } from "@aws-amplify/ui-react-geo";
+// import { LocationSearch } from "@aws-amplify/ui-react-geo";
 import "./ladder.css"
 import { Geo } from "aws-amplify"
 import { useState } from "react";

@@ -114,26 +114,64 @@ const matchFunctions = {
     return matches
   },
 
-  createMatch(match) {
-    // let testData = {
-    //   winner: [{ id: '1262162a-9732-4222-8a93-c9925703c911', name: 'Jonas Persson', verified: true }],
-    //   loser: [{ id: '4731b4c0-1938-439e-aa9b-28df1a2c78d1', name: 'Dwayne Vakatini', verified: true }],
-    //   score: '6-3, 6-4',
-    //   type: enums.MATCH_TYPE.SINGLES,
-    //   playedOn: new Date('2023-11-01'),
-    //   ladder: { id: '12be8efa-ea59-4ffd-ac67-96a1342b8dba' },
-    //   retired: false
-    // }
-    // calculate new ladder standings based on match
-    // ladderFunctions.updateStandings(match)
-    
-    // flatten the score 
-    //match.score = match.score.filter(Boolean).join(', ')
-    
-    let response = this.matchDummyData.matches.push(match) //(testData)
-    response = { statusCode: 200, statusMessage: 'OK' }
-    
-    return response
+  createMatch: async function (match) {
+    const singleMatch = {
+      winner: [
+        { id: '21c841d6-bb21-4766-bf4f-b204cc53dde7' }
+      ],
+      loser: [
+        { id: '4d2c332e-d5a1-4d35-8be8-3d9ee6407d0b' }
+      ],
+      ladder: { id: '35a52e5b-d915-4b84-a4e0-22f2906305a6' },
+      score: '6-3, 6-7(4), 6-4',
+      played_on: '2022-05-02',
+      comments: [
+        {
+          message: 'Hello',
+          posted_on: '2022-05-15'
+        }
+      ],
+      retired: false,
+      type: 'DOUBLES',
+      ignored_by: [{ id: '21c841d6-bb21-4766-bf4f-b204cc53dde7' }],
+    }
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Authorization': 'Bearer my-token'
+      },
+      body: JSON.stringify(
+        {
+          winner: [
+            { id: '21c841d6-bb21-4766-bf4f-b204cc53dde7' },
+            { id: 'bdc9391d-198e-4e78-aa9e-da65991e8686' }
+          ],
+          loser: [
+            { id: 'e3415350-6350-4fdf-be1a-b6349dc48b7b' },
+            { id: '4d2c332e-d5a1-4d35-8be8-3d9ee6407d0b' }
+          ],
+          ladder: { id: '35a52e5b-d915-4b84-a4e0-22f2906305a6' },
+          score: '6-3, 6-7(4), 6-1',
+          played_on: '2022-05-02',
+          comments: [
+            {
+              message: 'Hello',
+              posted_on: '2022-05-15'
+            }
+          ],
+          retired: false,
+          type: 'DOUBLES',
+          ignored_by: [{ id: '21c841d6-bb21-4766-bf4f-b204cc53dde7' }],
+        }
+      )
+    }
+
+    const response = await fetch('https://mytennis-space.uw.r.appspot.com/matches/create', requestOptions)
+    if (response.ok)
+      return await response.json()
+    else
+      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to create match' }
   },
 
   // Can't really see much of a use for this function. 

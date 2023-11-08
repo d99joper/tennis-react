@@ -8,7 +8,7 @@ import "@maplibre/maplibre-gl-geocoder/dist/maplibre-gl-geocoder.css";
 import "maplibre-gl-js-amplify/dist/public/amplify-map.css";
 import "maplibre-gl-js-amplify/dist/public/amplify-geocoder.css"; // Optional CSS for Amplify recommended styling
 import { Button, Grid, TabItem, Tabs, Collection, Flex } from "@aws-amplify/ui-react";
-import { LocationSearch, MapView } from "@aws-amplify/ui-react-geo";
+// import { LocationSearch, MapView } from "@aws-amplify/ui-react-geo";
 import { ScaleControl, NavigationControl, GeolocateControl, CircleLayer, Source, Layer } from 'react-map-gl';
 import { Geo } from "aws-amplify"
 import { Link } from "react-router-dom";
@@ -237,7 +237,7 @@ const LadderSearch = () => {
             >
                 <div>Search:</div>
                 <div>
-                    <LocationSearch minLength='4' types={"place"} limit="1" countries='USA, SWE' showIcon='false' placeholder='City' />
+                    {/* <LocationSearch minLength='4' types={"place"} limit="1" countries='USA, SWE' showIcon='false' placeholder='City' /> */}
                 </div>
                 <div>
                     <input type="text" placeholder="Name"></input>
@@ -261,37 +261,7 @@ const LadderSearch = () => {
                     <Button variation="primary">Search</Button>
                 </div>
                 <div id="mapContainer" className="mapContainer" >
-                    <MapView
-                        initialViewState={{
-                            latitude: mapCenter.latitude,
-                            longitude: mapCenter.longitude,
-                            zoom: 9
-                        }}
-                        minZoom={4}
-                        maxZoom={13}
-                        onZoomEnd={updateMap}
-                        onDragEnd={updateMap}
-                        onLoad={updateMap}
-                    //onSourceData={updateMarkers}
-                    >
-                        <GeolocateControl position="bottom-right" />
-                        <ScaleControl zoom={10} unit="km" />
-                        <NavigationControl position="bottom-right" showCompass={false} />
-                        {/* <LocationSearch minLength='4' types={"locality"} countries='USA, SWE' showIcon='false' placeholder='City' /> */}
-                        {/* <Source id="circle-source" type="geojson" cluster={true} data={circleSource.data}>
-                        <Layer {...circleLayer} source="circle-source" />
-                    </Source> */}
-                        {ladders?.map(l => {
-                            return (
-                                <MarkerWithPopup
-                                    key={`${l.id}_marker`}
-                                    latitude={l.location.lat}
-                                    longitude={l.location.lon}
-                                    ladder={l}
-                                />
-                            )
-                        })}
-                    </MapView>
+                    {/*  */}
                 </div>
             </Flex>
         </Flex>
