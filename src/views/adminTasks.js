@@ -1,7 +1,7 @@
 import { Button, Card, Grid, TabItem, Tabs } from "@aws-amplify/ui-react";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { MatchEditor } from "components/forms";
-import { ladderFunctions, matchFunctions, userFunctions } from "helpers";
+import { ladderHelper, matchFunctions, userFunctions } from "helpers";
 import React, { useEffect, useState } from "react";
 import XLSX, { read, utils, writeFile } from 'xlsx';
 
@@ -16,8 +16,8 @@ const AdminTasks = (() => {
 
     useEffect(() => {
         async function getData() {
-            const ladders = await ladderFunctions.GetLadders()
-            const players = await userFunctions.GetPlayers()
+            const ladders = await ladderHelper.GetLadders()
+            const players = await ladderHelper.GetPlayers()
 
             return {ladders: ladders, players: players}
         }
@@ -46,7 +46,7 @@ const AdminTasks = (() => {
     }
 
     function addPlayerToLadder() {
-        ladderFunctions.AddLadderPlayer(playerId, ladderId)
+        ladderHelper.AddLadderPlayer(playerId, ladderId)
     }
 
     function onMatchSubmit(e) {

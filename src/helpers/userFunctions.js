@@ -18,6 +18,7 @@ import {
 import { Match } from 'models';
 import { helpers } from './helpers';
 import { SlUser } from 'react-icons/sl';
+import { playerFunctions } from 'api/services';
 
 const userFunctions = {
 
@@ -162,7 +163,8 @@ const userFunctions = {
 			//console.log("getCurrentlyLoggedInPlayer", user);
 
 			if (typeof user !== 'undefined') {
-				const player = await this.getPlayerFromAPI(user.attributes.email, null, true)
+				// const player = await this.getPlayerFromAPI(user.attributes.email, null, true)
+				const player = await playerFunctions.getPlayerByUserName(user.attributes.email)
 				return player
 			}
 			else return
@@ -329,6 +331,7 @@ const userFunctions = {
 	},
 
 	signOut: function () {
+		localStorage.clear()
 		Auth.signOut()
 			.then(data => console.log(data))
 			.catch(err => console.log('err' + err))

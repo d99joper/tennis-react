@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { enums, helpers, ladderFunctions as lf } from "helpers";
+import { enums, helpers, ladderHelper as lf } from "helpers";
 import { createMap, drawPoints, createAmplifyGeocoder } from "maplibre-gl-js-amplify";
 //import { Marker, Popup } from 'react-map-gl';
 import maplibregl from "maplibre-gl";

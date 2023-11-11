@@ -14,11 +14,13 @@ import { SelectPlayer } from './MatchEditor/SelectPlayer'
 import TopRivals from './Rivals/TopRivals'
 import UnlinkedMatches from './Matches/UnlinkedMatches'
 import UserStats from './Stats/UserStats'
+import ErrorHandler from './Error/error'
 
 export {
     Comments, 
     DynamicTable,
     Editable, 
+    ErrorHandler,
     H2H,
     ItemCard,
     Ladder, 

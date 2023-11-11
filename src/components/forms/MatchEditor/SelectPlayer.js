@@ -5,7 +5,7 @@ import {
   Checkbox, FormControlLabel, Button, Typography, Popover, Modal, Box
 } from '@mui/material'; //https://mui.com/material-ui/react-autocomplete/
 import React, { useEffect, useRef, useState } from 'react';
-import { enums, helpers, ladderFunctions as lf, matchFunctions as mf, userFunctions } from '../../../helpers/index';
+import { enums, helpers, ladderHelper as lf, matchFunctions as mf, userFunctions } from '../../../helpers/index';
 import SetInput from './SetInput'
 import './MatchEditor.css';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';

@@ -15,7 +15,7 @@ import {
     deletePlayerMatch,
     updatePlayerMatch
 } from "../graphql/mutations"
-import { enums, helpers, ladderFunctions, userFunctions as uf } from 'helpers'
+import { enums, helpers, ladderHelper, userFunctions as uf } from 'helpers'
 import { qFindMatchByDetails, qGetMatchesByLadder, qGetMatchesByPlayer } from 'graphql/customQueries'
 
 
@@ -112,7 +112,7 @@ const MatchFunctions = {
 
             // update the ladder standings based on date
             if (match.ladderID !== '-1')
-                await ladderFunctions.CalculateStandings({ id: match.ladderID }, playedOn)
+                await ladderHelper.CalculateStandings({ id: match.ladderID }, playedOn)
 
             // if there's a comment, create it
             if (match.comment) {
