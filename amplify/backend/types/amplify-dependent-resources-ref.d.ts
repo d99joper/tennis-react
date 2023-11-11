@@ -18,13 +18,6 @@ export type AmplifyDependentResourcesAttributes = {
             "Region": "string"
         }
     },
-    "api": {
-        "MyTennisApiProd": {
-            "GraphQLAPIKeyOutput": "string",
-            "GraphQLAPIIdOutput": "string",
-            "GraphQLAPIEndpointOutput": "string"
-        }
-    },
     "geo": {
         "MyTennisGeoIndex": {
             "Name": "string",
