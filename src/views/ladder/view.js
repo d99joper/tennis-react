@@ -3,14 +3,14 @@ import { useParams } from 'react-router-dom';
 import { Button, Divider, Grid } from "@aws-amplify/ui-react";
 import { Link } from "react-router-dom";
 import { Ladder, Ladders } from "components/forms";
-import { enums, ladderFunctions, userFunctions } from "helpers";
+import { enums } from "helpers";
 import { Typography } from "@mui/material";
+import { ladderFunctions } from "api/services";
 
 
 const LadderView = (props) => {
 
     const params = useParams();
-    const [isPlayerInLadder, setIsPlayerInLadder] = useState()
     const [userId, setUserId] = useState(props.currentUser.id)
     const [playerLadders, setPlayerLadders] = useState([])
     const [nearbyLadders, setNearbyLadders] = useState([])
@@ -27,10 +27,10 @@ const LadderView = (props) => {
 
     useEffect(() => {
         async function GetUserInfo() {
-            const currentUser = await userFunctions.getCurrentlyLoggedInPlayer()
+            // const currentUser = await userFunctions.getCurrentlyLoggedInPlayer()
             console.log(currentUser)
             setUserId(currentUser?.id)
-            setIsPlayerInLadder(await ladderFunctions.IsPlayerInLadder(currentUser?.id, params.ladderId))
+            //setIsPlayerInLadder(await ladderFunctions.IsPlayerInLadder(currentUser?.id, params.ladderId))
             //setIsLoggedIn(await userFunctions.CheckIfSignedIn())
         }
         if (params.ladderId )//&& currentUser.id !== -1)
@@ -73,28 +73,19 @@ const LadderView = (props) => {
             //     GetPlayerLadders()
         }
 
-    }, [params.ladderId], isPlayerInLadder, userId)
-
-    function joinLadder() {
-        console.log('Join ladder')
-        ladderFunctions.AddLadderPlayer(userId, params.ladderId).then(() => {
-            setIsPlayerInLadder(true)
-        })
-    }
+    }, [params.ladderId], userId)
 
     if (params.ladderId)
         return (
             <>
-                {(isLoggedIn && !isPlayerInLadder) &&
-                    <Button onClick={joinLadder}>Join this ladder</Button>
-                }
+                
                 <Grid
                     templateRows={'1fr auto'}
                 >
                     {/* display the ladder */}
                     {params.ladderId &&
                         <div style={{ minHeight: '300px' }}>
-                            <Ladder id={params.ladderId} isPlayerInLadder={isPlayerInLadder} currentUser={currentUser} loggedInPlayerId={userId} />
+                            <Ladder id={params.ladderId} isLoggedIn={isLoggedIn} currentUser={currentUser} loggedInPlayerId={userId} />
                             {/* join/leave ladder button (if you leave, you lose all your points but obviously keep your matches) */}
                             {/* Maybe this should be on the profile page instead? Or, better here where you can see the ladder? */}
 

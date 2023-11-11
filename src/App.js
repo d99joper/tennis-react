@@ -43,6 +43,13 @@ function App() {
           userFunctions.getCurrentlyLoggedInPlayer()
             .then((data) => {
               setCurrentUser(data)
+              if (data.username)
+                localStorage.setItem('username', data.username)
+              if (data.id)
+                localStorage.setItem('user_id', data.id)
+              if (data.email)
+                localStorage.setItem('user_email', data.username)
+
               setNavigateTo('/profile/')
             })
 
@@ -127,7 +134,7 @@ function App() {
   }
 
   return (
-    <Box className="App" id="app" sx={{ display: 'flex', flexDirection:'column'}}>
+    <Box className="App" id="app" sx={{ display: 'flex', flexDirection: 'column' }}>
       <CssBaseline />
       <ThemeProvider theme={PrimaryMainTheme}>
         <BrowserRouter>
@@ -146,8 +153,8 @@ function App() {
             {/* <MiniDrawer/> */}
             <MyRouter isLoggedIn={isLoggedIn} testing={true} navigateTo={navigateTo} currentUser={currentUser} />
             {/* </main> */}
-          <Footer>
-          </Footer>
+            <Footer>
+            </Footer>
           </Box>
         </BrowserRouter>
       </ThemeProvider>

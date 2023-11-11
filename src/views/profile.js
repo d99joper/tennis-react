@@ -12,6 +12,7 @@ import { AiOutlineEdit, AiOutlineMail, AiOutlinePhone, AiOutlineUndo } from 'rea
 import { MdOutlineCancel, MdOutlineCheck, MdOutlineInfo } from 'react-icons/md';
 import { BiLogOutCircle } from 'react-icons/bi';
 import { playerFunctions as pFunc, playerFunctions } from 'api/services/index.js';
+import { LocalStorage } from 'services/index.js';
 
 function Profile(props) {
 
@@ -125,31 +126,60 @@ function Profile(props) {
 		setUnLinkedMatches()
 
 		async function getProfile() {
-
+			// async function getPlayer(id) {
+			//     const thisPlayer = await pFunc.getPlayer(id)
+			//     setStats(thisPlayer.stats)
+			//     setStatsFetched(true)
+			// }
 			let p = null;
 			setCanEdit(false)
-			const sessionPlayer = await userFunctions.getCurrentlyLoggedInPlayer()
-			console.log('sessionPlayer',sessionPlayer)
-			setLoggedInPlayer(sessionPlayer)
-			// Check if userid param was provided
+			let sessionPlayer = {}
+			const user_id = localStorage.getItem('user_id')
 
-			if (params.userid) {
-				console.log('userid provided')
-				// Get the user from the userid -> paramPlayer
-				p = await pFunc.getPlayer(params.userid)
-				setStats(p.stats)
-				setStatsFetched(true)
-				//p = await userFunctions.getPlayer(params.userid)
-				p = p ?? sessionPlayer
-				//setUnLinkedMatches(p.unLinkedMatches)
-
+			if (user_id) {
+				sessionPlayer = {
+					id: localStorage.getItem('user_id'),
+					username: localStorage.getItem('username'),
+					email: localStorage.getItem('user_email')
+				}
 			}
 			else {
-				console.log('no userid provided, use sessionPlayer', sessionPlayer)
-				p = await pFunc.getPlayerByUserName(sessionPlayer.email)
-				if (p.error)
-					setError({ status: true, message: p.error })
+				sessionPlayer = await userFunctions.getCurrentlyLoggedInPlayer()
+				localStorage.setItem('user_id', sessionPlayer.id)
+				localStorage.setItem('username', sessionPlayer.username)
+				localStorage.setItem('user_email', sessionPlayer.email)
 			}
+			console.log('sessionPlayer', sessionPlayer)
+			setLoggedInPlayer(sessionPlayer)
+			// Check if userid param was provided
+			let id = params.userid
+			if ((!id) && sessionPlayer)
+				id = sessionPlayer.id
+
+			p = await pFunc.getPlayer(id)
+			setStats(p.stats)
+			setStatsFetched(true)
+			if (p.error)
+				setError({ status: true, message: p.error })
+			// if (params.userid) {
+			// 	console.log('userid provided')
+			// 	// Get the user from the userid -> paramPlayer
+			// 	p = await pFunc.getPlayer(params.userid)
+			// 	setStats(p.stats)
+			// 	setStatsFetched(true)
+			// 	//p = await userFunctions.getPlayer(params.userid)
+			// 	p = p ?? sessionPlayer
+			// 	//setUnLinkedMatches(p.unLinkedMatches)
+
+			// }
+			// else {
+			// 	console.log('no userid provided, use sessionPlayer', sessionPlayer)
+			// 	if (sessionPlayer) {
+			// 		p = await pFunc.getPlayer(sessionPlayer.id)
+			// 		if (p.error)
+			// 			setError({ status: true, message: p.error })
+			// 	}
+			// }
 			if (sessionPlayer) {
 				if (sessionPlayer.email === p.email) {
 					console.log('This is your page, so you can edit it')
@@ -323,9 +353,9 @@ function Profile(props) {
 									</div>
 									<View>Add player</View>
 									<View>
-										<button onClick={() => pFunc.createPlayer({ name: 'Jonas Tester', email: 'jonas@zooark.com+test', about: 'something' })}>Add Player</button>
-										<button onClick={() => pFunc.addPlayerToLadder('f9029f37-f9f9-4fed-ba88-30726525e660')}>Add Player to ladder</button>
-										<button onClick={() => pFunc.addMatch()}>Add Match</button>
+										{/* <button onClick={() => pFunc.createPlayer({ name: 'Jonas Tester', email: 'jonas@zooark.com+test', about: 'something' })}>Add Player</button>
+										<button onClick={() => pFunc.addPlayerToLadder('f9029f37-f9f9-4fed-ba88-30726525e660')}>Add Player to ladder</button> */}
+										<button onClick={() => pFunc.login()}>Login</button>
 									</View>
 									{/************ NTRP   *************/}
 									<View>NTRP:</View>

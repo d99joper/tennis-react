@@ -1,5 +1,7 @@
 import { enums, userFunctions } from "helpers"
 
+const playersUrl = 'https://mytennis-space.uw.r.appspot.com/players/'
+
 const playerFunctions = {
 
   playerDummyData: [{
@@ -290,73 +292,98 @@ const playerFunctions = {
     }
   ],
 
-  getPlayer: async function (id) {
-    let response = await fetch(`https://mytennis-space.uw.r.appspot.com/players/${id}`)
+  login: async function(username, password) {
+    
+  },
 
-    if (response.ok)
-      return await response.json()
-    else {
-      let player = this.playerDummyData.find((x) => x.id === id)
-      await userFunctions.SetPlayerImage(player)
+  getPlayer: async function (id) {
+    let response = await fetch(playersUrl+id)
+
+    if (response.ok) {
+      const player = await response.json()
+      await this.setPlayerImage(player)
       return player
     }
+    else
+      return { status: response.status, statusCode: response.statusCode, statusText: response.statusText, error: 'No Player Found' }
   },
 
   getPlayerByUserName: async function (username) {
-    let response = await fetch(`https://mytennis-space.uw.r.appspot.com/players/?filter=${username}`)
+    let response = await fetch(`${playersUrl}?stats&filter=${username}`)
 
     if (response.ok) {
       const players = await response.json()
-      if (players.length > 0)
-        return players[0]
-      return { error: 'No Player Found' }
+      if (players.length > 0) {
+        let player = players[0]
+        this.setPlayerImage(player)
+        return await player
+      }
+      return { error: 'No players found' }
     }
-    else {
-      let player = this.playerDummyData.find((x) => x.username === username)
-      await userFunctions.SetPlayerImage(player)
-      return player
-    }
+    else
+      return { statusCode: response.statusCode, statusMessage: 'No players found' }
+    // else {
+    //   let player = this.playerDummyData.find((x) => x.username === username)
+    //   await userFunctions.SetPlayerImage(player)
+    //   return player
+    // }
   },
 
   getPlayers: async function (filter) {
-    const response = await fetch(`https://mytennis-space.uw.r.appspot.com/players/?filter=${filter}`)
-    if (response.ok)
-      return await response.json()
+    const response = await fetch(`${playersUrl}?filter=${filter}`)
+    if (response.ok) {
+      const players = await response.json()
+      players.array.forEach(p => {
+        this.setPlayerImage(p)
+      });
+      if (players.length > 0) {
+        return players
+      }
+      return { error: 'No players found' }
+    }
+    else
+      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get player' }
   },
 
-  getPlayerStatsByYear: async function (id, type) {
-    return this.playerStatsDummyData.find((x) => x.player.id === id)
-  },
+  // getPlayerStatsByYear: async function (id, type) {
+  //   return this.playerStatsDummyData.find((x) => x.player.id === id)
+  // },
 
   // ids as an array, since you can search for doubles pairs
   getGreatestRivals: async function (ids, type) {
-    let data
-    // if it's doubles, search for pairs
-    if (type === enums.MATCH_TYPE.DOUBLES && ids.length === 2) {
-      data = this.playerRivalsDummyData.find((x) => {
-        // try to find both players
-        const player = x.player.find((p) => p.id === ids[0])
-        const partner = x.player.find((p) => p.id === ids[1])
-        // if we find both players, success
-        if (player && partner) return true
-        else return false
-      })
+    const response = await fetch(`${playersUrl+ids[0]}/rivals`)
+    if (response.ok) {
+      return await response.json()
     }
-    else {
-      data = this.playerRivalsDummyData.find((x) => {
-        let p1 = x.player.find((p) => p.id === ids[0] && x.player.length === 1)
-        if (p1) return true
-        else return false
-      })
-    }
-    // return the rivals (after mapping the potential player images)
-    if (data?.rivals)
-      return await Promise.all(data.rivals.map(async (x) => {
-        await Promise.all(x.player.map(async (p) => await userFunctions.SetPlayerImage(p)))
-        return x
-      }))
     else
-      return []
+      throw new Error('Couldn\'t get player rivals. ')
+    // let data
+    // // if it's doubles, search for pairs
+    // if (type === enums.MATCH_TYPE.DOUBLES && ids.length === 2) {
+    //   data = this.playerRivalsDummyData.find((x) => {
+    //     // try to find both players
+    //     const player = x.player.find((p) => p.id === ids[0])
+    //     const partner = x.player.find((p) => p.id === ids[1])
+    //     // if we find both players, success
+    //     if (player && partner) return true
+    //     else return false
+    //   })
+    // }
+    // else {
+    //   data = this.playerRivalsDummyData.find((x) => {
+    //     let p1 = x.player.find((p) => p.id === ids[0] && x.player.length === 1)
+    //     if (p1) return true
+    //     else return false
+    //   })
+    // }
+    // // return the rivals (after mapping the potential player images)
+    // if (data?.rivals)
+    //   return await Promise.all(data.rivals.map(async (x) => {
+    //     await Promise.all(x.player.map(async (p) => await this.setPlayerImage(p)))
+    //     return x
+    //   }))
+    // else
+    //   return []
   },
 
   // I don't really care what comes back, just something to verify success or failure
@@ -370,94 +397,47 @@ const playerFunctions = {
       body: JSON.stringify(player)
     }
 
-    const response = await fetch('https://mytennis-space.uw.r.appspot.com/players/create', requestOptions)
+    const response = await fetch(playersUrl+'create', requestOptions)
     if(response.ok)
       return await response.json()
     else
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to create player' }
-  },
-
-  addPlayerToLadder: async function(playerId) {
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // 'Authorization': 'Bearer my-token'
-      },
-      body: JSON.stringify({player_id:playerId})
-    }
-
-    const response = await fetch('https://mytennis-space.uw.r.appspot.com/ladders/35a52e5b-d915-4b84-a4e0-22f2906305a6/add-player', requestOptions)
-    if(response.ok)
-      return await response.json()
-    else
-      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to create player' }
-  },
-
-  addMatch: async function() {
-    const singleMatch = {
-      winner: [
-      { id: '21c841d6-bb21-4766-bf4f-b204cc53dde7' }
-    ],
-    loser: [
-      { id: '4d2c332e-d5a1-4d35-8be8-3d9ee6407d0b' }
-    ],
-    ladder: { id: '35a52e5b-d915-4b84-a4e0-22f2906305a6' },
-    score: '6-3, 6-7(4), 6-4',
-    played_on: '2022-05-02',
-    comments: [
-      {
-        message: 'Hello',
-        posted_on: '2022-05-15'
-      }
-    ],
-    retired: false,
-    type: 'DOUBLES',
-    ignored_by: [{ id: '21c841d6-bb21-4766-bf4f-b204cc53dde7' }],
-  }
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // 'Authorization': 'Bearer my-token'
-      },
-      body: JSON.stringify(
-        {
-          winner: [
-          { id: '21c841d6-bb21-4766-bf4f-b204cc53dde7' },
-          { id: 'bdc9391d-198e-4e78-aa9e-da65991e8686' }
-        ],
-        loser: [
-          { id: 'e3415350-6350-4fdf-be1a-b6349dc48b7b' },
-          { id: '4d2c332e-d5a1-4d35-8be8-3d9ee6407d0b' }
-        ],
-        ladder: { id: '35a52e5b-d915-4b84-a4e0-22f2906305a6' },
-        score: '6-3, 6-7(4), 6-1',
-        played_on: '2022-05-02',
-        comments: [
-          {
-            message: 'Hello',
-            posted_on: '2022-05-15'
-          }
-        ],
-        retired: false,
-        type: 'DOUBLES',
-        ignored_by: [{ id: '21c841d6-bb21-4766-bf4f-b204cc53dde7' }],
-      }
-      )
-    }
-
-    const response = await fetch('https://mytennis-space.uw.r.appspot.com/matches/create', requestOptions)
-    if(response.ok)
-      return await response.json()
-    else
-      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to create match' }
   },
 
   // partial player as input. Only provided fields get updated
   updatePlayer: async function (player) {
-    return { statusCode: 200, statusMessage: 'OK' }
-  }
+    const requestOptions = {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Authorization': 'Bearer my-token'
+      },
+      body: JSON.stringify(player)
+    }
+    
+    const response = await fetch(playersUrl+'update', requestOptions)
+    if(response.ok)
+      return await response.json()
+    else
+      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to update player.' }
+  },
+
+  setPlayerImage: async function (player) {
+		if (player?.image) {
+			if (!player.imageUrl) {
+				const url = await Storage.get(player.image)
+				player.imageUrl = url
+			}
+		}
+	},
+
+	setPlayerName: function (player, lastnameOnly) {
+		let name = player.name
+		if (lastnameOnly)
+			name = name.split(' ').slice(-1)[0]
+		
+		return name + (player.verified ? "" : "*")
+	}
 }
 
 export default playerFunctions

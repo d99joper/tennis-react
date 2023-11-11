@@ -71,6 +71,10 @@ body,html {
   left: 0;
 }
 
+.error {
+  color: red;
+}
+
 .dropdown:hover .submenu {
   display: block;
 }

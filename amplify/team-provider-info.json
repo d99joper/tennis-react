@@ -21,9 +21,6 @@
       "geo": {
         "MyTennisGeoIndex": {},
         "MyTennisMap": {}
-      },
-      "api": {
-        "MyTennisApiProd": {}
       }
     }
   }

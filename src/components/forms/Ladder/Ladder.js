@@ -1,5 +1,5 @@
 import { Button, Grid, Loader, TabItem, Tabs, View } from "@aws-amplify/ui-react";
-import { enums, helpers, userFunctions } from "helpers"
+import { enums, helpers, ladderHelper, userFunctions } from "helpers"
 import React, { Suspense, lazy, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import './Ladder.css'
@@ -21,8 +21,8 @@ import { ladderFunctions, matchFunctions, playerFunctions } from "api/services";
 
 const Ladder = ({
   id,
-  isPlayerInLadder,
   loggedInPlayerId,
+  isLoggedIn,
   currentUser = null,
   ...props
 }) => {
@@ -33,6 +33,7 @@ const Ladder = ({
   const [ladder, setLadder] = useState()
   //const [matches, setMatches] = useState({ nextToken: null, matches: [] })
   const [player, setPlayer] = useState()
+  const [isPlayerInLadder, setIsPlayerInLadder] = useState()
   const [showChallangeModal, setShowChallangeModal] = useState(false)
   const [showAddMatchModal, setShowAddMatchModal] = useState(false)
   //const [nextMatchesToken, setNextMatchesToken] = useState()
@@ -51,11 +52,11 @@ const Ladder = ({
     setSelectedPlayer(id)
   }
 
-  async function setPlayerImages(details) {
-    if (typeof details === "string")
-      details = JSON.parse(details)
+  async function setPlayerImages(standings) {
+    if (typeof standings === "string")
+      standings = JSON.parse(standings)
 
-    return await Promise.all(details.map(async (s, i) => {
+    return await Promise.all(standings.map(async (s, i) => {
       userFunctions.SetPlayerImage(s.player)
       return s
     }))
@@ -68,8 +69,8 @@ const Ladder = ({
       // get the 5 latest matches for the ladder
       l.matches = await matchFunctions.getMatchesForLadder(id, 5)
       // parse the details JSON and set player images
-      l.standings.details = await setPlayerImages(l.standings.details)
-      
+      l.standings = await setPlayerImages(l.standings)
+
       console.log(l)
       return l
     }
@@ -77,9 +78,14 @@ const Ladder = ({
     getLadder().then((data) => {
       setLadder(data)
       setDisplayedStandings(data.standings)
+      // check if the user is part of the ladder
+      const isInLadder = ladderHelper.IsPlayerInLadder(currentUser?.id, data)
+      setIsPlayerInLadder(isInLadder)
       console.log(data)
+
     })
-  }, [isPlayerInLadder, id])
+
+  }, [id])
 
   function addMatches(nextToken) {
     // const compareToken = nextMatchesToken ?? ''
@@ -137,8 +143,22 @@ const Ladder = ({
     }
   }
 
+  function joinLadder() {
+    console.log('Join ladder')
+    ladderFunctions.addPlayerToLadder(currentUser?.id, ladder.id).then(() => {
+      setIsPlayerInLadder(true)
+      ladderFunctions.getLadder(ladder.id).then((data) => {
+        setLadder(data)
+        setDisplayedStandings(data.standings)
+      })
+    })
+  }
+
   return (
     <div>
+      {(isLoggedIn && !isPlayerInLadder) &&
+        <Button onClick={joinLadder}>Join this ladder</Button>
+      }
       <View columnStart="1" columnEnd="-1">
         <Typography variant="h4">{ladder?.name}</Typography>
         <Typography variant="caption">{ladder?.description}</Typography>
@@ -237,7 +257,7 @@ const Ladder = ({
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {displayedStandings?.details.map((s, i) => {
+                    {displayedStandings?.map((s, i) => {
                       return (
                         <TableRow id='standing' key={i} hover>
                           <TableCell width="1px"><Typography variant="h6">{i + 1}.</Typography></TableCell>
