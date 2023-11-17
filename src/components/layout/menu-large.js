@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import React, { useEffect, useState } from "react";
 import MuiAppBar from '@mui/material/AppBar';
 import MuiDrawer from '@mui/material/Drawer'
-import { userFunctions } from '../../helpers'
+import { userHelper } from '../../helpers'
 import {
     Box,
     CssBaseline,
@@ -32,7 +32,7 @@ import { BiLogInCircle, BiLogOutCircle } from 'react-icons/bi'
 import { GiWhistle } from 'react-icons/gi';
 
 const LargeMenu = (props) => {
-    console.log("largeMenu")
+    //console.log("largeMenu")
     //const theme = useTheme()
     const [open, setOpen] = useState(true);
     const drawerWidth = 240
@@ -211,7 +211,7 @@ const LargeMenu = (props) => {
                                 </ListItemButton>
                             }
                             {props.isLoggedIn === true &&
-                                <ListItemButton title="Logout" className='cursorHand' onClick={userFunctions.signOut}>
+                                <ListItemButton title="Logout" className='cursorHand' onClick={userHelper.signOut}>
                                     <ListItemIcon>
                                         <BiLogOutCircle size={'1.5rem'} />
                                     </ListItemIcon>
@@ -231,7 +231,7 @@ const LargeMenu = (props) => {
                 </div>
                 <div className='banner-settings'>
                     {props.isLoggedIn === true ?
-                        <BiLogOutCircle title="Logout" size={'1.5rem'} className="cursorHand" onClick={userFunctions.signOut} />
+                        <BiLogOutCircle title="Logout" size={'1.5rem'} className="cursorHand" onClick={userHelper.signOut} />
                         :
                         <BiLogInCircle title="Login" size={'1.5rem'} className="cursorHand" onClick={() => console.log('poop')} component="Link" to="/login" />
                     }

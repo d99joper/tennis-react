@@ -2,7 +2,7 @@ import { enums } from "helpers"
 
 const laddersUrl = 'https://mytennis-space.uw.r.appspot.com/ladders/'
 
-const ladderFunctions = {
+const ladderAPI = {
   /* DATA */
   // ladderDummyData: [
   //   {
@@ -240,11 +240,19 @@ const ladderFunctions = {
   /* API calls */
   getLadder: async function (id) {
 
-    const response = await fetch(laddersUrl+id)
-    if(response.ok)
+    const response = await fetch(laddersUrl + id)
+    if (response.ok)
       return await response.json()
     else
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get ladder' }
+  },
+
+  getLadders: async function () {
+    const response = await fetch(laddersUrl)
+    if (response.ok)
+      return await response.json()
+    else
+      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get ladders' }
   },
 
   createLadder: async function (ladder) {
@@ -257,8 +265,8 @@ const ladderFunctions = {
       body: JSON.stringify(ladder)
     }
 
-    const response = await fetch(laddersUrl+'create', requestOptions)
-    if(response.ok)
+    const response = await fetch(laddersUrl + 'create', requestOptions)
+    if (response.ok)
       return await response.json()
     else
       throw new Error(response.status + ': Failed to create ladder')
@@ -275,8 +283,8 @@ const ladderFunctions = {
       body: JSON.stringify(ladder)
     }
 
-    const response = await fetch(laddersUrl+'update', requestOptions)
-    if(response.ok)
+    const response = await fetch(laddersUrl + 'update', requestOptions)
+    if (response.ok)
       return await response.json()
     else
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to update ladder' }
@@ -302,22 +310,22 @@ const ladderFunctions = {
     return standings
   },
 
-  addPlayerToLadder: async function(playerId, ladderId) {
+  addPlayerToLadder: async function (playerId, ladderId) {
     const requestOptions = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         // 'Authorization': 'Bearer my-token'
       },
-      body: JSON.stringify({player_id:playerId})
+      body: JSON.stringify({ player_id: playerId })
     }
 
-    const response = await fetch(laddersUrl+ladderId+'/add-player', requestOptions)
-    if(response.ok)
+    const response = await fetch(laddersUrl + ladderId + '/add-player', requestOptions)
+    if (response.ok)
       return await response.json()
     else
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to add player to ladder.' }
   },
 }
 
-export default ladderFunctions
+export default ladderAPI

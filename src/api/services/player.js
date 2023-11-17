@@ -1,8 +1,9 @@
-import { enums, userFunctions } from "helpers"
+import { Storage } from "aws-amplify"
+import { enums, userHelper } from "helpers"
 
 const playersUrl = 'https://mytennis-space.uw.r.appspot.com/players/'
 
-const playerFunctions = {
+const playerAPI = {
 
   playerDummyData: [{
     id: '1262162a-9732-4222-8a93-c9925703c911',
@@ -306,9 +307,10 @@ const playerFunctions = {
     }
     else
       return { status: response.status, statusCode: response.statusCode, statusText: response.statusText, error: 'No Player Found' }
+    //this.playerDummyData.find((x) => x.id === id)//
   },
 
-  getPlayerByUserName: async function (username) {
+  getPlayerByFilter: async function (username) {
     let response = await fetch(`${playersUrl}?stats&filter=${username}`)
 
     if (response.ok) {
@@ -324,7 +326,7 @@ const playerFunctions = {
       return { statusCode: response.statusCode, statusMessage: 'No players found' }
     // else {
     //   let player = this.playerDummyData.find((x) => x.username === username)
-    //   await userFunctions.SetPlayerImage(player)
+    //   await userHelper.SetPlayerImage(player)
     //   return player
     // }
   },
@@ -333,57 +335,25 @@ const playerFunctions = {
     const response = await fetch(`${playersUrl}?filter=${filter}`)
     if (response.ok) {
       const players = await response.json()
-      players.array.forEach(p => {
+      await players.forEach(p => {
         this.setPlayerImage(p)
       });
-      if (players.length > 0) {
-        return players
-      }
-      return { error: 'No players found' }
+      return players
     }
     else
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get player' }
   },
 
-  // getPlayerStatsByYear: async function (id, type) {
-  //   return this.playerStatsDummyData.find((x) => x.player.id === id)
-  // },
-
   // ids as an array, since you can search for doubles pairs
   getGreatestRivals: async function (ids, type) {
     const response = await fetch(`${playersUrl+ids[0]}/rivals`)
     if (response.ok) {
-      return await response.json()
+      let rivals = await response.json()
+      await rivals.rivals.forEach(r => this.setPlayerImage(r.player))
+      return rivals
     }
     else
       throw new Error('Couldn\'t get player rivals. ')
-    // let data
-    // // if it's doubles, search for pairs
-    // if (type === enums.MATCH_TYPE.DOUBLES && ids.length === 2) {
-    //   data = this.playerRivalsDummyData.find((x) => {
-    //     // try to find both players
-    //     const player = x.player.find((p) => p.id === ids[0])
-    //     const partner = x.player.find((p) => p.id === ids[1])
-    //     // if we find both players, success
-    //     if (player && partner) return true
-    //     else return false
-    //   })
-    // }
-    // else {
-    //   data = this.playerRivalsDummyData.find((x) => {
-    //     let p1 = x.player.find((p) => p.id === ids[0] && x.player.length === 1)
-    //     if (p1) return true
-    //     else return false
-    //   })
-    // }
-    // // return the rivals (after mapping the potential player images)
-    // if (data?.rivals)
-    //   return await Promise.all(data.rivals.map(async (x) => {
-    //     await Promise.all(x.player.map(async (p) => await this.setPlayerImage(p)))
-    //     return x
-    //   }))
-    // else
-    //   return []
   },
 
   // I don't really care what comes back, just something to verify success or failure
@@ -415,7 +385,7 @@ const playerFunctions = {
       body: JSON.stringify(player)
     }
     
-    const response = await fetch(playersUrl+'update', requestOptions)
+    const response = await fetch(playersUrl+player.id+'/update', requestOptions)
     if(response.ok)
       return await response.json()
     else
@@ -429,6 +399,7 @@ const playerFunctions = {
 				player.imageUrl = url
 			}
 		}
+    console.log("player",player)
 	},
 
 	setPlayerName: function (player, lastnameOnly) {
@@ -440,4 +411,4 @@ const playerFunctions = {
 	}
 }
 
-export default playerFunctions
+export default playerAPI

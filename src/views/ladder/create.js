@@ -12,7 +12,7 @@ import { Geo } from "aws-amplify"
 import { useState } from "react";
 import { Autocomplete, TextField, Slider } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { ladderFunctions } from "api/services";
+import { ladderAPI } from "api/services";
 import { ErrorHandler } from "components/forms";
 
 const LadderCreate = () => {
@@ -100,7 +100,7 @@ const LadderCreate = () => {
 		console.log(ladder)
 		//ask to confirm
 		if (window.confirm("Are you sure you want to create this ladder?"))
-			ladderFunctions.createLadder(ladder).then((ladder) => {
+			ladderAPI.createLadder(ladder).then((ladder) => {
 				navigate('/ladders/' + ladder.id)
 			}).catch((e) => {
 				console.log(e)

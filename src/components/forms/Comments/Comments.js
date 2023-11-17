@@ -1,4 +1,4 @@
-import { matchFunctions as mf } from "helpers/index"
+import { matchHelper as mf } from "helpers/index"
 import React, { useEffect, useState } from "react"
 
 const Comments = ({ matchId, showComments }) => {

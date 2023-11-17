@@ -5,7 +5,7 @@ import {
   Checkbox, FormControlLabel, Button, Typography, Popover, Modal, Box
 } from '@mui/material'; //https://mui.com/material-ui/react-autocomplete/
 import React, { useEffect, useRef, useState } from 'react';
-import { enums, helpers, ladderHelper as lf, matchFunctions as mf, userFunctions } from '../../../helpers/index';
+import { enums, helpers, ladderHelper as lf, userHelper } from '../../../helpers/index';
 import SetInput from './SetInput'
 import './MatchEditor.css';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -15,7 +15,7 @@ import debounce from 'lodash.debounce'
 
 //import { Dayjs } from 'dayjs';
 
-const SelectPlayer = ({ ladderId, disabledPlayerList = [], disabled, player, onPlayerSelect, ...props }) => {
+const SelectPlayer = ({ ladderId, disabledPlayerList = [], disabled, player, ladderPlayers, onPlayerSelect, ...props }) => {
 
   const [newPlayer, setNewPlayer] = useState()
   const [searchInput, setSearchInput] = useState('')
@@ -29,7 +29,8 @@ const SelectPlayer = ({ ladderId, disabledPlayerList = [], disabled, player, onP
   const open = Boolean(anchorEl)
   const id = open ? 'simple-popover' : undefined
 
-  const ladderPlayers = lf.useLadderPlayersData(ladderId, searchInput)
+  if (!ladderPlayers)
+    ladderPlayers = lf.useLadderPlayersData(ladderId, searchInput)
 
   function handleSetPlayer(value) {
     onPlayerSelect(value)
@@ -48,8 +49,8 @@ const SelectPlayer = ({ ladderId, disabledPlayerList = [], disabled, player, onP
   }
 
   const createPlayer = async () => {
-    const player = await userFunctions.createPlayerIfNotExist(newPlayer, email)
-    if(player.alreadyExists) {
+    const player = await userHelper.createPlayerIfNotExist(newPlayer, email)
+    if (player.alreadyExists) {
       setErrorMessage(`A player (${player.name}) with the email ${email} already exists. `)
     } else {
       setShowModal(false)
@@ -61,14 +62,14 @@ const SelectPlayer = ({ ladderId, disabledPlayerList = [], disabled, player, onP
     console.log(newPlayer, email)
     const isValid = validateEmail(email)
     setIsValidEmail(isValid)
-    if(isValid)
+    if (isValid)
       createPlayer()
   }
 
   const validateEmail = (email) => {
     setHasChecked(true)
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if(!email) return true
+    if (!email) return true
     return regex.test(email)
   }
 
@@ -84,12 +85,20 @@ const SelectPlayer = ({ ladderId, disabledPlayerList = [], disabled, player, onP
         autoSelect={true}
         onChange={(e, value) => { handleSetPlayer(value) }}
         onInputChange={handleInputChange}
-        getOptionLabel={option => option.name}
-        value={player}
+        isOptionEqualToValue={(value, option) => value.id === option.id || option?.name === ''}
+        getOptionLabel={option => option.name ?? ''}
+        value={player || null}
         sx={{ width: 300 }}
+        renderOption={(props, option) => {
+          return (
+            <li {...props} key={option.id}>
+              {option.name}
+            </li>
+          )
+        }}
         renderInput={(params) => <TextField required variant='outlined' {...params} label={props.label} />}
         noOptionsText={
-          ladderId === "-1" ?
+          ladderId === 0 ?
             <div>
               The player "{newPlayer}" doesn't seem to exist. <br />
 
@@ -119,12 +128,12 @@ const SelectPlayer = ({ ladderId, disabledPlayerList = [], disabled, player, onP
             <TextField
               variant='standard'
               onBlur={e => setIsValidEmail(validateEmail(e.target.value))}
-              onChange={e => { 
+              onChange={e => {
                 const val = e.target.value
                 setErrorMessage('')
-                setEmail(val); 
-                if(hasChecked)
-                  setIsValidEmail(validateEmail(val)) 
+                setEmail(val);
+                if (hasChecked)
+                  setIsValidEmail(validateEmail(val))
               }}
               placeholder={`${newPlayer}'s email`}
               style={{ width: "20rem" }}

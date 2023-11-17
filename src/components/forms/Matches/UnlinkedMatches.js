@@ -2,7 +2,7 @@ import { Button, Grid, View } from "@aws-amplify/ui-react"
 import { Box, Checkbox, Dialog, DialogTitle } from "@mui/material"
 import { useState } from "react"
 import { Match } from "../Match/Match"
-import { matchFunctions, userFunctions } from "helpers"
+import { matchHelper, userHelper } from "helpers"
 
 const UnlinkedMatches = ({
   matches,
@@ -19,7 +19,7 @@ const UnlinkedMatches = ({
     for (let x of unLinkedMatches) {
       if (x.checked) {
         // Add user to ignore list
-        const retVal = await matchFunctions.ignorePlayerMatch({ matchID: x.match.id, playerID: x.playerID }, player.id)
+        const retVal = await matchHelper.ignorePlayerMatch({ matchID: x.match.id, playerID: x.playerID }, player.id)
         if (retVal) // add the match to the match list
           matchlist.push(x.match.id)
       }
@@ -43,7 +43,7 @@ const UnlinkedMatches = ({
         const isWin = oldPlayerId === match.winner.id ? true : false
 
         // update match to reflect the new player
-        await matchFunctions.UpdateMatch({
+        await matchHelper.UpdateMatch({
           id: match.id,
           winnerID: isWin ? player.id : match.winner.id,
           loserID: isWin ? match.loser.id : player.id,
@@ -54,10 +54,10 @@ const UnlinkedMatches = ({
         })
 
         // delete and recreate the player's playerMatch
-        await matchFunctions.DeleteAndRecreatePlayerMatch(match.id, oldPlayerId, player.id, match.type)
+        await matchHelper.DeleteAndRecreatePlayerMatch(match.id, oldPlayerId, player.id, match.type)
 
         // update the opponent's playerMatch
-        await matchFunctions.UpdatePlayerMatchOpponent({
+        await matchHelper.UpdatePlayerMatchOpponent({
           playerID: isWin ? match.loser.id : match.winner.id,
           opponentID: player.id,
           matchID: match.id,
@@ -94,7 +94,7 @@ const UnlinkedMatches = ({
 
     // if there are no more matches, update the old user profile
     if (newMatches.length === 0) {
-      userFunctions.deletePlayer(oldPlayerId)
+      userHelper.deletePlayer(oldPlayerId)
     }
   }
 

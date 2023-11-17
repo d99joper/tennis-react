@@ -15,11 +15,11 @@ import {
     deletePlayerMatch,
     updatePlayerMatch
 } from "../graphql/mutations"
-import { enums, helpers, ladderHelper, userFunctions as uf } from 'helpers'
+import { enums, helpers, ladderHelper, userHelper as uf } from 'helpers'
 import { qFindMatchByDetails, qGetMatchesByLadder, qGetMatchesByPlayer } from 'graphql/customQueries'
 
 
-const MatchFunctions = {
+const matchHelper = {
 
     createMatchesFromArray: async function (matches) {
         let counter = 0
@@ -486,4 +486,4 @@ function setMatchWinnerLoserScore(matches) {
     return matches
 }
 
-export default MatchFunctions;
+export default matchHelper;

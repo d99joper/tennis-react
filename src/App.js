@@ -3,7 +3,7 @@ import "@aws-amplify/ui-react/styles.css";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
-import { userFunctions } from './helpers/index';
+import { userHelper } from './helpers/index';
 import MyRouter from './routes';
 import Footer from './components/layout/footer';
 import { green } from '@mui/material/colors';
@@ -40,7 +40,7 @@ function App() {
           console.log('user signed in');
           // set signed in status
           setIsLoggedIn(true)
-          userFunctions.getCurrentlyLoggedInPlayer()
+          userHelper.getCurrentlyLoggedInPlayer()
             .then((data) => {
               setCurrentUser(data)
               if (data.username)
@@ -56,7 +56,7 @@ function App() {
           // check if a new user was just created
           if (newUser.current) {
             // create a new Player
-            userFunctions.createPlayerIfNotExist().then(() => {
+            userHelper.createPlayerIfNotExist().then(() => {
               newUser.current = false;
               setNavigateTo('/profile/')
               //window.location = '/Profile';
@@ -71,7 +71,7 @@ function App() {
           console.log('cognitoHostedUI');
           // check if external user exist as a 'Player'
           // If not, create 'Player'
-          userFunctions.createPlayerIfNotExist().then(() => {
+          userHelper.createPlayerIfNotExist().then(() => {
             setNavigateTo('/profile/')
             //window.location = '/Profile';
           });
@@ -85,7 +85,7 @@ function App() {
         case 'signOut':
           console.log('user signed out');
           setIsLoggedIn(false)
-          setCurrentUser({}) //userFunctions.getCurrentlyLoggedInPlayer()
+          setCurrentUser({}) //userHelper.getCurrentlyLoggedInPlayer()
           break;
         case 'signIn_failure':
           console.log('user sign in failed');
@@ -102,9 +102,9 @@ function App() {
 
     async function getCurrentUser() {
       try {
-        const isSignedIn = await userFunctions.CheckIfSignedIn()
+        const isSignedIn = await userHelper.CheckIfSignedIn()
         if (isSignedIn) {
-          const user = await userFunctions.getCurrentlyLoggedInPlayer()
+          const user = await userHelper.getCurrentlyLoggedInPlayer()
           setCurrentUser(user)
         }
         setIsLoggedIn(isSignedIn)

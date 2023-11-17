@@ -2,7 +2,7 @@ import { Menu, MenuItem, View } from '@aws-amplify/ui-react';
 import { Link } from 'react-router-dom';
 import React, { useEffect, useState } from "react";
 import MuiAppBar from '@mui/material/AppBar';
-import { userFunctions } from '../../helpers'
+import { userHelper } from '../../helpers'
 import { AppBar, Box, CssBaseline, Divider, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, makeStyles, Popover, styled, SwipeableDrawer, Toolbar, Typography, useTheme } from '@mui/material';
 import { Global } from '@emotion/react';
 import { BsLadder, BsSearch } from 'react-icons/bs'
@@ -122,7 +122,7 @@ const MobileMenu = (props) => {
                             </ListItemButton>
                         }
                         {props.isLoggedIn === true &&
-                            <ListItemButton title="Logout" className='cursorHand' onClick={userFunctions.signOut}>
+                            <ListItemButton title="Logout" className='cursorHand' onClick={userHelper.signOut}>
                                 <ListItemIcon>
                                     <BiLogOutCircle size={'1.5rem'} />
                                 </ListItemIcon>
@@ -140,7 +140,7 @@ const MobileMenu = (props) => {
                 </SwipeableDrawer>
                 <div className='banner-settings'>
                     {props.isLoggedIn === true ?
-                        <BiLogOutCircle title="Logout" size={'1.5rem'} className="cursorHand" onClick={userFunctions.signOut} />
+                        <BiLogOutCircle title="Logout" size={'1.5rem'} className="cursorHand" onClick={userHelper.signOut} />
                         :
                         <BiLogInCircle title="Login" size={'1.5rem'} className="cursorHand" onClick={() => console.log('poop')} component="Link" to="/login" />
                     }

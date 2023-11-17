@@ -82,8 +82,8 @@ const UserStats = ({ stats: data, ...props }) => {
               <TableFoot>
                 <TableRow key="foot">
                   <TableCell as="th">Total</TableCell>
-                  <TableCell as="th" color={data.totals.stats.matches.percentage >= .5 ? 'green' : 'red'}>
-                    {data.totals.stats.matches.wins}/{data.totals.stats.matches.total} ({data.totals.stats.matches.percentage*100}%)</TableCell>
+                  <TableCell as="th" color={data.totals.stats.matches.percentage >= 50 ? 'green' : 'red'}>
+                    {data.totals.stats.matches.wins}/{data.totals.stats.matches.total} ({data.totals.stats.matches.percentage}%)</TableCell>
                   <TableCell as="th" color={data.totals.stats.sets.percentage >= 50 ? 'green' : 'red'}>
                     {data.totals.stats.sets.wins}/{data.totals.stats.sets.total} ({data.totals.stats.sets.percentage}%)</TableCell>
                   <TableCell as="th" color={data.totals.stats.tiebreaks.percentage >= 50 ? 'green' : 'red'}>

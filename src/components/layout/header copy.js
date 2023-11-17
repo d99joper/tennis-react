@@ -4,7 +4,7 @@ import { AppBar, Breadcrumbs, Toolbar, Typography } from '@mui/material'
 import { useLocation } from "react-router-dom"
 import './layout.css'
 import { BiLogInCircle, BiLogOutCircle } from "react-icons/bi"
-import { userFunctions } from "helpers"
+import { userHelper } from "helpers"
 import MobileMenu from "./menu-mobile"
 
 function Header(props) {
@@ -28,7 +28,7 @@ function Header(props) {
 
           <div className='banner-settings'>
             {props.isLoggedIn === true ?
-              <BiLogOutCircle title="Logout" size={'1.5rem'} className="cursorHand" onClick={userFunctions.signOut} />
+              <BiLogOutCircle title="Logout" size={'1.5rem'} className="cursorHand" onClick={userHelper.signOut} />
               :
               <BiLogInCircle title="Login" size={'1.5rem'} className="cursorHand" onClick={() => console.log('poop')} component="Link" to="/login" />
             }

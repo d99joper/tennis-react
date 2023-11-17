@@ -2,7 +2,7 @@ import { Badge, Card, Divider, Grid, Image, Loader, Table, TableBody, TableCell,
 import React from "react";
 import { SlUser } from "react-icons/sl";
 import './H2H.css'
-import { userFunctions as uf } from "helpers";
+import { userHelper as uf } from "helpers";
 
 const H2H = ({ data, ...props }) => {
     console.log("H2H", data)
