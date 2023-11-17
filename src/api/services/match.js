@@ -1,9 +1,9 @@
 import { enums } from "helpers"
-import MatchFunctions from "helpers/matchFunctions"
+import matchHelper from "helpers/matchHelper"
 
 const matchesUrl = 'https://mytennis-space.uw.r.appspot.com/matches/'
 
-const matchFunctions = {
+const matchAPI = {
 
   matchDummyData: {
     totalCount: 23,
@@ -84,41 +84,43 @@ const matchFunctions = {
   },
 
   getMatch: async function (id) {
-    let response = await fetch(matchesUrl+id)
+    let response = await fetch(matchesUrl + id)
 
-    if (response.ok)
+    if (response.ok) {
       return await response.json()
+    }
     else
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get match' }
   },
 
-  getMatchesForPlayer: async function (playerId, type, limit, page, sortDirection, sortOrder) {
-    const matches = this.matchDummyData.matches
-      .sort((a, b) => new Date(b.playedOn) - new Date(a.playedOn))
-      .filter((x) => {
-        return x.type === type &&
-          (x.loser.find((z) => z.id === playerId) ||
-            x.winner.find(z => z.id === playerId)
-          )
-      })
-      // map the resulting matches to add a win attribute depending on if the player won or lost the match
-      .map((match) => {
-        const isWinner = match.winner.find((p) => p.id === playerId)
-        match.win = isWinner ? true : false
-        return match
-      })
-    matches.totalPages = Math.ceil(this.matchDummyData.totalCount / limit)
-    return matches
+  getMatchesForPlayer: async function (playerId, type, page, numPerPage, sortDirection, sortOrder) {
+    const url = matchesUrl
+      + '?player=' + playerId
+      + (type ? '&match-type=' + type : '')
+      + (page ? '&page=' + page : '')
+      + (numPerPage ? '&num-per-page=' + numPerPage : '')
+
+    let response = await fetch(url)
+
+    if (response.ok)
+      return await response.json()
+    else
+      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get matches' }
   },
 
-  getMatchesForLadder: async function (ladderId, limit, page, sortDirection, sortOrder) {
-    const matches = this.matchDummyData.matches
-      .sort((a, b) => new Date(b.playedOn) - new Date(a.playedOn))
-      .filter((x) => {
-        return x.ladder.id === ladderId
-      })
-    matches.totalPages = Math.ceil(this.matchDummyData.totalCount / limit)
-    return matches
+  getMatchesForLadder: async function (ladderId, type, page, numPerPage, sortDirection, sortOrder) {
+    const url = matchesUrl
+      + '?ladder=' + ladderId
+      + (type ? '&match-type=' + type : '')
+      + (page ? '&page=' + page : '')
+      + (numPerPage ? '&num-per-page=' + numPerPage : '')
+
+    let response = await fetch(matchesUrl + '?ladder=' + ladderId)
+
+    if (response.ok)
+      return await response.json()
+    else
+      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get matches' }
   },
 
   createMatch: async function (match) {
@@ -151,14 +153,14 @@ const matchFunctions = {
       body: JSON.stringify(match)
     }
 
-    const response = await fetch(matchesUrl+'create', requestOptions)
+    const response = await fetch(matchesUrl + 'create', requestOptions)
     if (response.ok)
       return await response.json()
     else
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to create match' }
   },
 
-  updateMatch: async function(match) {
+  updateMatch: async function (match) {
     const requestOptions = {
       method: 'POST',
       headers: {
@@ -168,7 +170,7 @@ const matchFunctions = {
       body: JSON.stringify(match)
     }
 
-    const response = await fetch(matchesUrl+'update', requestOptions)
+    const response = await fetch(matchesUrl + 'update', requestOptions)
     if (response.ok)
       return await response.json()
     else
@@ -177,4 +179,4 @@ const matchFunctions = {
 }
 
 
-export default matchFunctions
+export default matchAPI

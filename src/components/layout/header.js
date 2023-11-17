@@ -4,7 +4,7 @@ import { AppBar, Breadcrumbs, Toolbar, Typography } from '@mui/material'
 import { useLocation } from "react-router-dom"
 import './layout.css'
 import { BiLogInCircle, BiLogOutCircle } from "react-icons/bi"
-import { userFunctions } from "helpers"
+import { userHelper } from "helpers"
 import MobileMenu from "./menu-mobile"
 import MiniDrawer from "./test"
 import LargeMenu from "./menu-large"

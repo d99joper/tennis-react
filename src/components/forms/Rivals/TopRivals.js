@@ -2,22 +2,23 @@ import { Badge, Card, Collection, Divider, Flex, Grid, Image, Loader, Text, View
 import React from "react";
 import { SlUser } from "react-icons/sl";
 import "./rivals.css"
-import { userFunctions as uf } from "helpers";
+import { userHelper as uf } from "helpers";
 import { Link } from "react-router-dom";
+import { Avatar } from "@mui/material";
 
 const TopRivals = ({ data, ...props }) => {
 
 	console.log("TopRivals", data)
 	return (
 		props.rivalsFetched ?
-			data?.length > 0 ?
+			data?.rivals?.length > 0 ?
 				<>
 					<Grid
 						templateColumns={"3fr 5fr"}
 						rowGap='.5rem'
 						marginTop="1rem"
 					>
-						{data.map((rival, index) =>
+						{data.rivals.map((rival, index) =>
 							<React.Fragment key={index}>
 								<Card
 									backgroundColor={'blue.10'}
@@ -28,13 +29,15 @@ const TopRivals = ({ data, ...props }) => {
 										<Flex direction={'column'}>
 											<Link to={"/profile/" + rival.player.id} key={rival.player.id + '_' + index}>
 												<View className={"profileImageContainer_small"}>
-													{rival.player.image ?
-														<Image
-															src={rival.player.imageUrl}
-															alt={`visual aid for ${uf.SetPlayerName(rival.player)}`}
-															className={`profileImage`}
-														/>
-														: <SlUser size='30' />}
+													{/* //{rival.player.image ? */}
+														<Avatar {...uf.stringAvatar(rival.player, 40)} />
+														{/* // <Image
+														// 	src={rival.player.imageUrl}
+														// 	alt={`visual aid for ${uf.SetPlayerName(rival.player)}`}
+														// 	className={`profileImage`}
+														// />
+														// : <SlUser size='30' />
+													//:null} */}
 												</View>
 												<Text as='span'> {uf.SetPlayerName(rival.player)}</Text>
 											</Link>

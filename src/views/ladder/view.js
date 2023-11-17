@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { Ladder, Ladders } from "components/forms";
 import { enums } from "helpers";
 import { Typography } from "@mui/material";
-import { ladderFunctions } from "api/services";
+import { ladderAPI } from "api/services";
 
 
 const LadderView = (props) => {
@@ -27,11 +27,11 @@ const LadderView = (props) => {
 
     useEffect(() => {
         async function GetUserInfo() {
-            // const currentUser = await userFunctions.getCurrentlyLoggedInPlayer()
+            // const currentUser = await userHelper.getCurrentlyLoggedInPlayer()
             console.log(currentUser)
             setUserId(currentUser?.id)
             //setIsPlayerInLadder(await ladderFunctions.IsPlayerInLadder(currentUser?.id, params.ladderId))
-            //setIsLoggedIn(await userFunctions.CheckIfSignedIn())
+            //setIsLoggedIn(await userHelper.CheckIfSignedIn())
         }
         if (params.ladderId )//&& currentUser.id !== -1)
             GetUserInfo()
@@ -47,7 +47,7 @@ const LadderView = (props) => {
             }
         }
         async function GetPlayerLadders() {
-            const ladders = await ladderFunctions.GetPlayerLadders(currentUser.id)
+            const ladders = await ladderAPI.GetPlayerLadders(currentUser.id)
             setPlayerLadders(ladders)
             return ladders
         }
@@ -55,7 +55,7 @@ const LadderView = (props) => {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(x => {
                     // get the ids to exclude
-                    ladderFunctions.FindNearByLadders({ lat: x.coords.latitude, lng: x.coords.longitude }, 30, excludeList)
+                    ladderAPI.FindNearByLadders({ lat: x.coords.latitude, lng: x.coords.longitude }, 30, excludeList)
                         .then((ladders) => { setNearbyLadders(ladders); console.log(ladders) })
                     //{ latitude: x.coords.latitude, longitude: x.coords.longitude })
                     setAllowLocation(true)

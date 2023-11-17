@@ -3,7 +3,7 @@ import React, { useState } from "react";
 
 const SetInput = (props) => {
 
-    const [setScore, setSetScore] = useState()
+    const [setScore, setSetScore] = useState('')
     const [error, setError] = useState(false)
 
     const handleSetChange = (e) => {
@@ -42,6 +42,7 @@ const SetInput = (props) => {
 
     return (
         <TextField
+            id={props.id}
             label={props.label}
             FormHelperTextProps={{ className: "errorText" }}
             onChange={handleSetChange}
@@ -49,13 +50,11 @@ const SetInput = (props) => {
             //onChange={handleBlur}
             value={setScore}
             className="setBox"
-            id="set-search"
             required={!!props.required}
             error={error}
             helperText={error && "please enter a valid set score"}
             placeholder="X-X"
-            inputMode="numeric">
-        </TextField>
+            inputMode="numeric"/>
     )
 }
 

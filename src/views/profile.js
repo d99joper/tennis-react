@@ -4,15 +4,14 @@ import {
 	Button, Card, Flex, Grid, Text, TextField, SelectField, View,
 	TextAreaField, Divider, SwitchField, Loader, TabItem, Tabs
 } from "@aws-amplify/ui-react";
-import { enums, helpers, userFunctions } from 'helpers'
+import { enums, helpers, userHelper } from 'helpers'
 import { Editable, Matches, PhoneNumber, UserStats, TopRivals, Match, UnlinkedMatches } from '../components/forms/index.js'
 import './profile.css';
 import { Avatar, Modal, Box, Typography, Dialog, DialogTitle, Checkbox, Toolbar } from '@mui/material';
 import { AiOutlineEdit, AiOutlineMail, AiOutlinePhone, AiOutlineUndo } from 'react-icons/ai';
 import { MdOutlineCancel, MdOutlineCheck, MdOutlineInfo } from 'react-icons/md';
 import { BiLogOutCircle } from 'react-icons/bi';
-import { playerFunctions as pFunc, playerFunctions } from 'api/services/index.js';
-import { LocalStorage } from 'services/index.js';
+import { playerAPI } from 'api/services/index.js';
 
 function Profile(props) {
 
@@ -53,8 +52,8 @@ function Profile(props) {
 
 	const handleStatsClick = () => {
 		if (!statsFetched) {
-			//userFunctions.getPlayerStatsByYear(player.id, 'SINGLES')
-			playerFunctions.getPlayerStatsByYear(player.id, 'SINGLES')
+			//userHelper.getPlayerStatsByYear(player.id, 'SINGLES')
+			playerAPI.getPlayerStatsByYear(player.id, 'SINGLES')
 				.then((data) => {
 					setStats(data)
 					setStatsFetched(true)
@@ -64,8 +63,8 @@ function Profile(props) {
 	}
 	const handleRivalsClick = () => {
 		if (!rivalsFetched) {
-			// userFunctions.getGreatestRivals(player.id)
-			playerFunctions.getGreatestRivals([player.id], enums.MATCH_TYPE.SINGLES)
+			// userHelper.getGreatestRivals(player.id)
+			playerAPI.getGreatestRivals([player.id], enums.MATCH_TYPE.SINGLES)
 				//playerFunctions.getGreatestRivals([player.id,'abc'], enums.MATCH_TYPE.DOUBLES)
 				.then((data) => {
 					setRivals(data)
@@ -78,7 +77,7 @@ function Profile(props) {
 
 		const profilePic = Array.from(e.target.files)[0]
 		setIsLoaded(false)
-		const p = await userFunctions.UpdatePlayer(player, player.id, profilePic)
+		const p = await userHelper.UpdatePlayer(player, player.id, profilePic)
 		console.log("updateProfilePic", p)
 		setPlayer(prevState => ({ ...prevState, image: p.image, imageUrl: p.imageUrl }))
 		setIsLoaded(true)
@@ -89,7 +88,9 @@ function Profile(props) {
 		e.preventDefault();
 
 		setIsLoaded(false)
-		const form = new FormData(e.target);
+		console.log(e)
+		const form = new FormData(document.getElementById('profileForm'));
+		form.preventDefault()
 
 		const data = {
 			about: form.get("about"),
@@ -98,7 +99,7 @@ function Profile(props) {
 			phone: player.phone || '',
 		};
 
-		let p = await userFunctions.UpdatePlayer(data, player.id)
+		let p = await userHelper.UpdatePlayer(data, player.id)
 
 		// setPlayer(prevState => ({...prevState, p}))
 		setPlayer(p)
@@ -127,7 +128,7 @@ function Profile(props) {
 
 		async function getProfile() {
 			// async function getPlayer(id) {
-			//     const thisPlayer = await pFunc.getPlayer(id)
+			//     const thisPlayer = await playerAPI.getPlayer(id)
 			//     setStats(thisPlayer.stats)
 			//     setStatsFetched(true)
 			// }
@@ -144,7 +145,7 @@ function Profile(props) {
 				}
 			}
 			else {
-				sessionPlayer = await userFunctions.getCurrentlyLoggedInPlayer()
+				sessionPlayer = await userHelper.getCurrentlyLoggedInPlayer()
 				localStorage.setItem('user_id', sessionPlayer.id)
 				localStorage.setItem('username', sessionPlayer.username)
 				localStorage.setItem('user_email', sessionPlayer.email)
@@ -156,30 +157,12 @@ function Profile(props) {
 			if ((!id) && sessionPlayer)
 				id = sessionPlayer.id
 
-			p = await pFunc.getPlayer(id)
+			p = await playerAPI.getPlayer(id)
 			setStats(p.stats)
 			setStatsFetched(true)
 			if (p.error)
 				setError({ status: true, message: p.error })
-			// if (params.userid) {
-			// 	console.log('userid provided')
-			// 	// Get the user from the userid -> paramPlayer
-			// 	p = await pFunc.getPlayer(params.userid)
-			// 	setStats(p.stats)
-			// 	setStatsFetched(true)
-			// 	//p = await userFunctions.getPlayer(params.userid)
-			// 	p = p ?? sessionPlayer
-			// 	//setUnLinkedMatches(p.unLinkedMatches)
 
-			// }
-			// else {
-			// 	console.log('no userid provided, use sessionPlayer', sessionPlayer)
-			// 	if (sessionPlayer) {
-			// 		p = await pFunc.getPlayer(sessionPlayer.id)
-			// 		if (p.error)
-			// 			setError({ status: true, message: p.error })
-			// 	}
-			// }
 			if (sessionPlayer) {
 				if (sessionPlayer.email === p.email) {
 					console.log('This is your page, so you can edit it')
@@ -216,6 +199,7 @@ function Profile(props) {
 			<Flex className='profile-main' id="profile">
 
 				<Flex as="form"
+					id="profileForm"
 					className='profile-form'
 					onSubmit={updateProfileData}
 				>
@@ -250,9 +234,36 @@ function Profile(props) {
 
 					<Card className='card profile-info' id="profileContact" variation="elevated">
 
+						{/************ EDIT TOOGLE   *************/}
+						<div className="desktop-only editIconWrapper">
+							{canEdit && isEdit &&
+								<>
+									<MdOutlineCheck
+										size={25}
+										onClick={(e) => { updateProfileData(e) }}
+										className='cursorHand'
+									/>
+									<MdOutlineCancel
+										size={25}
+										onClick={() => setIsEdit(!isEdit)}
+										className='cursorHand'
+									/>
+								</>
+							}
+							{canEdit && !isEdit &&
+								<>
+									<AiOutlineEdit
+										size={25}
+										onClick={() => setIsEdit(!isEdit)}
+										className='cursorHand'
+									/>
+								</>
+
+							}
+						</div>
 						{/************ PROFILE PICTURE   *************/}
 						<Avatar
-							{...userFunctions.stringAvatar(player, 150)}
+							{...userHelper.stringAvatar(player, 150)}
 							className={`image ${canEdit ? " cursorHand" : null}`}
 							onClick={(e) => { openUserImagePicker(e) }}
 						/>
@@ -270,36 +281,11 @@ function Profile(props) {
 							onChange={(i) => setTabIndex(i)}
 							justifyContent="flex-start">
 							<TabItem title="General">
-
 								<Grid
 									templateColumns="1fr 5fr"
 									templateRows="auto"
 									paddingTop={"10px"}
 								>
-									{/************ EDIT TOOGLE   *************/}
-									<div className="desktop-only"
-										style={{ textAlign: 'right', float: 'right', paddingRight: '1rem' }}
-									>
-										{canEdit && isEdit &&
-											<>
-												<MdOutlineCheck
-													onClick={(e) => { setIsEdit(!isEdit) }}
-													className='cursorHand'
-												/>
-												<MdOutlineCancel
-													onClick={() => setIsEdit(!isEdit)}
-													className='cursorHand'
-												/>
-											</>
-										}
-										{canEdit && !isEdit &&
-											<AiOutlineEdit
-												onClick={() => setIsEdit(!isEdit)}
-												className='cursorHand'
-											/>
-
-										}
-									</div>
 
 									<View className='profile-contact' columnStart="1" columnEnd={'-1'}>
 										{/************ EMAIL   *************/}
@@ -334,7 +320,7 @@ function Profile(props) {
 										{canEdit && isEdit &&
 											<>
 												<MdOutlineCheck
-													onClick={(e) => { setIsEdit(!isEdit); updateProfileData(e) }}
+													onClick={(e) => { updateProfileData(e) }}
 													className='cursorHand'
 												/>
 												<MdOutlineCancel
@@ -351,12 +337,6 @@ function Profile(props) {
 
 										}
 									</div>
-									<View>Add player</View>
-									<View>
-										{/* <button onClick={() => pFunc.createPlayer({ name: 'Jonas Tester', email: 'jonas@zooark.com+test', about: 'something' })}>Add Player</button>
-										<button onClick={() => pFunc.addPlayerToLadder('f9029f37-f9f9-4fed-ba88-30726525e660')}>Add Player to ladder</button> */}
-										<button onClick={() => pFunc.login()}>Login</button>
-									</View>
 									{/************ NTRP   *************/}
 									<View>NTRP:</View>
 									<div>
@@ -465,11 +445,11 @@ function Profile(props) {
 						>
 							<TabItem title="Singles">
 								<UnlinkedMatches matches={unLinkedMatches} player={player} handleMatchAdded={handleUnlinkedMatchAdded} />
-								<Matches player={player} limit="5" type={enums.MATCH_TYPE.SINGLES} allowDelete={loggedInPlayer.isAdmin}></Matches>
+								<Matches player={player} pageSize="5" matchType={enums.MATCH_TYPE.SINGLES} allowDelete={loggedInPlayer.isAdmin}></Matches>
 
 							</TabItem>
 							<TabItem title="Doubles">
-								<Matches player={player} limit="5" type={enums.MATCH_TYPE.DOUBLES} allowDelete={loggedInPlayer.isAdmin}></Matches>
+								<Matches player={player} pageSize="5" matchType={enums.MATCH_TYPE.DOUBLES} allowDelete={loggedInPlayer.isAdmin}></Matches>
 							</TabItem>
 						</Tabs>
 						{canEdit &&
@@ -490,7 +470,11 @@ function Profile(props) {
 							<DialogTitle>Add a new match</DialogTitle>
 							<Box padding={'1rem'}>
 								<Suspense fallback={<h2><Loader />Loading...</h2>}>
-									<MatchEditor player={player} onSubmit={updateProfileData} />
+									<MatchEditor
+										player={player}
+										onSubmit={updateProfileData}
+										minDate={helpers.setDate(-90)}
+									/>
 								</Suspense>
 							</Box>
 						</Dialog>

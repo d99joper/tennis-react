@@ -1,5 +1,5 @@
 import { Button, Grid, Loader, TabItem, Tabs, View } from "@aws-amplify/ui-react";
-import { enums, helpers, ladderFunctions as lf, matchFunctions, userFunctions } from "helpers";
+import { enums, helpers, ladderFunctions as lf, matchHelper, userHelper } from "helpers";
 import React, { Suspense, lazy, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import './Ladder.css'
@@ -137,7 +137,7 @@ const Ladder = ({
 
     function handleChallenge(playerId) {
         // get the player details
-        userFunctions.getPlayer(playerId).then((data) => {
+        userHelper.getPlayer(playerId).then((data) => {
             // set the player data
             console.log(data)
             setPlayer(data)
@@ -204,7 +204,7 @@ const Ladder = ({
                                                 <TableCell key={s.player.id}>
                                                     <Link to={`../../profile/${s.player.id}`}>
                                                         <CardHeader sx={{ padding: 0 }}
-                                                            avatar={<Avatar {...userFunctions.stringAvatar(s.player, 50)} />}
+                                                            avatar={<Avatar {...userHelper.stringAvatar(s.player, 50)} />}
                                                             title={s.player.name}
                                                         />
                                                     </Link>

@@ -1,11 +1,11 @@
-import { Flex, Radio, RadioGroupField, TextAreaField, Text } from '@aws-amplify/ui-react';
+import { Flex, Radio, RadioGroupField, TextAreaField, Text, View } from '@aws-amplify/ui-react';
 import {
 	Autocomplete, Select, TextField,
 	MenuItem, InputLabel, FormControl,
 	Checkbox, FormControlLabel, Button, Typography
 } from '@mui/material'; //https://mui.com/material-ui/react-autocomplete/
 import React, { useEffect, useRef, useState } from 'react';
-import { enums, helpers, ladderHelper as lf, matchFunctions as mf } from '../../../helpers/index';
+import { enums, helpers, ladderHelper } from '../../../helpers/index';
 import SetInput from './SetInput'
 import './MatchEditor.css';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -13,13 +13,14 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { GrCircleInformation } from 'react-icons/gr'
 import debounce from 'lodash.debounce'
 import { SelectPlayer } from './SelectPlayer';
-import { matchFunctions } from 'api/services';
+import { matchAPI } from 'api/services';
 
 //import { Dayjs } from 'dayjs';
 
 const MatchEditor = (
 	{
 		ladder,
+		ladders,
 		player,
 		onSubmit,
 		isAdmin,
@@ -33,6 +34,7 @@ const MatchEditor = (
 	const [loser, setLoser] = useState({ name: '' })
 	const [newPlayer, setNewPlayer] = useState()
 	const [isWinner, setIsWinner] = useState(true)
+	const [isLadderMatch, setIsLadderMatch] = useState(false)
 	const [matchFormat, setMatchFormat] = useState(0)
 	const [scoreError, setScoreError] = useState(false)
 	const [retired, setRetired] = useState(false)
@@ -45,10 +47,11 @@ const MatchEditor = (
 	const [score, setScore] = useState(['', '', '', '', ''])
 
 	//const ladderPlayers = lf.GetLadderPlayers(ladderId)
+	if (!ladders)
+		ladders = player?.ladders
 
-	const playerLadders = lf.usePlayerLadders(player.id)
 	//https://stackoverflow.com/questions/40811535/delay-suggestion-time-in-mui-autocomplete
-	const ladderPlayers = lf.useLadderPlayersData(ladderId, searchInput)
+	const ladderPlayers = ladderHelper.useLadderPlayersData(ladderId, searchInput)
 
 	const handleSubmit = (event) => {
 		event.preventDefault();
@@ -59,23 +62,23 @@ const MatchEditor = (
 			loser: [loser],
 			score: score.filter(Boolean).join(', '),
 			type: type,
-			playedOn: playedOn,
-			ladder: { id: ladderId },
+			played_on: new Date(playedOn).toISOString().split('T')[0],
+			...ladderId != '0' ? {ladder: { id: ladderId }} : null,
 			retired: retired
 		}
 
 		if (comment.length > 0) {
 			const matchComment = {
 				content: comment,
-				postedByID: player.id,
+				posted_by: player.id,
 				private: true,
-				postedOn: helpers.formatAWSDate(Date.now)
+				posted_on: Date.now//helpers.formatAWSDate(Date.now)
 			}
 			match.comment = matchComment
 		}
 
 		//mf.createMatch(match).then((result) => {
-		matchFunctions.createMatch(match).then((result) => {
+		matchAPI.createMatch(match).then((result) => {
 			// Call the onSubmit prop and pass the result object
 			console.log(result)
 			onSubmit(match)
@@ -112,6 +115,13 @@ const MatchEditor = (
 		setIsWinner(didPlayerWin)
 	}
 
+	const handleLadderRadio = (e) => {
+		const isYes = e.target.value === 'true'
+		if (!isYes)
+			setLadderId(0)
+		setIsLadderMatch(isYes)
+	}
+
 	const handleSetChange = (newValue, set) => {
 		let newScore = [...score]
 		newScore[set - 1] = newValue
@@ -141,38 +151,51 @@ const MatchEditor = (
 				</>
 			}
 			<Flex direction={'column'} gap="1" marginTop={'1em'}>
+				{/* If this is opened from a player's profile, 
+						ask if it's a ladder match */}
+				{showLadderSelect ?
+					<>
+						<RadioGroupField
+							label="Was this match for a ladder?"
+							direction={'row'}
+							name="isLadderMatch"
+							value={isLadderMatch}
+							onChange={handleLadderRadio}
+						>
+							<Radio value={true}>Yes</Radio>
+							<Radio value={false} checked={!isLadderMatch}>No</Radio>
+						</RadioGroupField>
+						{/** If user chooses a ladder */}
+						{isLadderMatch &&
+							<View >
+								<InputLabel id="select-ladders-label">My ladders</InputLabel>
+								<Select
+									labelId='select-ladders-label'
+									autoWidth={true}
+									label="My Ladders"
+									id="ladder-select"
+									required
+									value={ladderId}
+									onChange={(e) => { 
+										setLadderId(e.target.value)
+										setWinner({name:''})
+										setLoser({name:''}) 
+									}}
+								>
+									<MenuItem key='0' value={0}>{"-- Select ladder --"}</MenuItem>
+									{ladders?.map(option => {
+										return (
+											<MenuItem key={option.id} value={option.id}>{option.name}</MenuItem>
+										)
+									})}
+								</Select>
+							</View>
+						}
+					</>
+					/** Else, it should be the ladder page, so elect the ladder  */
+					: <Typography variant='h6'>ladderPlayers.ladder.name</Typography>
+				}
 				<Flex direction={'row'} className={'mediaFlex'}>
-					{/* Set or display ladder */}
-					{showLadderSelect ?
-						<FormControl sx={{ minWidth: 120, width: 300 }}>
-							<InputLabel id="select-ladders-label">My ladders</InputLabel>
-							<Select
-								labelId='select-ladders-label'
-								label="My Ladders"
-								id="ladder-select"
-								required
-								value={ladderId}
-								onChange={(e) => { setLadderId(e.target.value) }}
-							>
-								{playerLadders?.map(option => {
-									return (
-										<MenuItem key={option.id} value={option.id}>{option.name}</MenuItem>
-									)
-								})}
-								{/* <MenuItem key="other_ladder" value="-1">Other *</MenuItem> */}
-							</Select>
-							{ladderId === '-1' ?
-								<Text fontSize=".75em" variation="info" fontWeight={'100'}>
-									<GrCircleInformation />
-									&nbsp;Use {`'<None>'`} for matches you want to track,
-									but that are not part of a Tennis Space ladder.
-								</Text>
-								: null
-							}
-						</FormControl>
-						:
-						<Typography variant='h6'>{ladderPlayers.ladder.name}</Typography>
-					}
 					{/* Date match was played */}
 					<LocalizationProvider dateAdapter={AdapterDayjs}>
 						<DatePicker
@@ -194,6 +217,7 @@ const MatchEditor = (
 					<SelectPlayer
 						label="Winner"
 						ladderId={ladderId}
+						ladderPlayers={ladderPlayers}
 						disabledPlayerList={[{ id: loser?.id }]}
 						disabled={isWinner && !isAdmin}
 						player={winner}
@@ -202,6 +226,7 @@ const MatchEditor = (
 					<SelectPlayer
 						label="Defeated"
 						ladderId={ladderId}
+						ladderPlayers={ladderPlayers}
 						disabledPlayerList={[{ id: winner?.id }]}
 						disabled={!isWinner}
 						player={loser}
@@ -232,26 +257,29 @@ const MatchEditor = (
 						<Flex gap={'1rem'} direction={'row'}>
 							<SetInput
 								label="set 1"
+								id="set1"
 								matchFormat={matchFormat}
 								required={!retired}
 								handleBlur={(newVal) => { handleSetChange(newVal, 1) }}
-								key="1"
+								key="set1"
 							/>
 							{![enums.MATCH_FORMATS.PRO_10.val, enums.MATCH_FORMATS.PRO_8.val].includes(matchFormat) &&
 								<>
 									<SetInput
 										label="set 2"
+										id="set2"
 										matchFormat={matchFormat}
 										required={!retired}
 										handleBlur={(newVal) => { handleSetChange(newVal, 2) }}
-										key="2"
+										key="set2"
 									/>
 									<SetInput
 										label="set 3"
+										id="set3"
 										matchFormat={matchFormat}
 										required={matchFormat === enums.MATCH_FORMATS.FAST4_5.val && !retired}
 										handleBlur={(newVal) => { handleSetChange(newVal, 3) }}
-										key="3"
+										key="set3"
 									/>
 								</>
 							}
@@ -261,15 +289,17 @@ const MatchEditor = (
 						<Flex gap={'1rem'} direction={'row'}>
 							<SetInput
 								label="set 4"
+								id="set4"
 								matchFormat={matchFormat}
 								handleBlur={(e) => { handleSetChange(e, 4) }}
-								key="4"
+								key="set4"
 							/>
 							<SetInput
 								label="set 5"
+								id="set5"
 								matchFormat={matchFormat}
 								handleBlur={(e) => { handleSetChange(e, 5) }}
-								key="5"
+								key="set5"
 							/>
 						</Flex>
 					}

@@ -1,19 +1,19 @@
 // Matches.js
 import { Button, Collection, Divider, Flex, Grid, Loader, Pagination, Text, View } from "@aws-amplify/ui-react";
-import { matchFunctions as mf, enums, userFunctions as uf } from "helpers";
+import { enums, userHelper as uf } from "helpers";
 import React, { Suspense, useState, lazy, useEffect } from "react";
 import { DynamicTable, Match } from "../index.js"
 import "./Matches.css"
 import { LinearProgress } from "@mui/material";
 import { Link } from "react-router-dom";
-import { matchFunctions } from "api/services/index.js"
+import { matchAPI } from "api/services/index.js"
 
 const Matches = ({
 	player,
 	startDate,
 	endDate,// = new Date(),
 	ladder,
-	type = enums.MATCH_TYPE.SINGLES,
+	matchType = enums.MATCH_TYPE.SINGLES,
 	ladderMatches,
 	onAddMatches,
 	showHeader = true,
@@ -22,8 +22,9 @@ const Matches = ({
 	allowDelete = false,
 	excludeColumns,
 	useColorCode = true,
-	sortingField = "playedOn",
+	sortingField = "played_on",
 	sortDirection = "DESC",
+	pageSize = 10,
 	...props
 }) => {
 
@@ -33,7 +34,6 @@ const Matches = ({
 	// const [sortField, setSortField] = useState(sortingField)
 	// const [direction, setDirection] = useState(sortDirection)
 	//const [{ sortField, direction }, setSort] = useState({ sortField: sortingField, direction: sortDirection })
-	const [nextToken, setNextToken] = useState();
 	const [page, setPage] = useState(1)
 	const [totalPages, setTotalPages] = useState()
 	const [showLoader, setShowLoader] = useState(true);
@@ -41,7 +41,7 @@ const Matches = ({
 	const useMatchPrefix = matches?.[0]?.hasOwnProperty('match') ? true : false
 
 	const tableHeaders = [
-		{ label: "Date", accessor: matchPrefix + "playedOn", sortable: false, parts: useMatchPrefix ? 2 : 1, link: 'Match/id' },
+		{ label: "Date", accessor: matchPrefix + "played_on", sortable: false, parts: useMatchPrefix ? 2 : 1, link: 'Match/id' },
 		{ label: "Winner", accessor: matchPrefix + "winner.name", sortable: false, parts: useMatchPrefix ? 3 : 2, link: 'Profile/id' },
 		{ label: "Loser", accessor: matchPrefix + "loser.name", sortable: false, parts: useMatchPrefix ? 3 : 2, link: 'Profile/id' },
 		{ label: "Score", accessor: matchPrefix + "score", sortable: false, parts: useMatchPrefix ? 2 : 1, link: 'Match/id' },
@@ -56,41 +56,28 @@ const Matches = ({
 	}
 
 	useEffect(() => {
-		//if(!dataIsFetched)
-		//mf.listMatches(player, ladder, startDate, endDate).then((data) => {
 		if (player) {
-			matchFunctions.getMatchesForPlayer(player.id, type, 10, 1, 'desc').then((data) => {
-				setMatches(data)
-				setTotalPages(data.totalPages)
+			matchAPI.getMatchesForPlayer(player.id, matchType, page, pageSize, 'desc').then((data) => {
+				setMatches(data.matches)
+				setTotalPages(Math.ceil(data.total_count / pageSize))
 				setShowLoader(false)
 			})
-			// mf.getMatchesForPlayer(player, 'desc', 10, page).then((data) => {
-			//     //mf.getMatchesForPlayer(player, ladder, startDate, endDate, direction, null, 10, null).then((data) => {
-			//     setMatches(data.matches)
-			//     //setNextToken(data.nextToken)
-			//     //setDataIsFetched(true)
-			//     //setCurrentPlayer(player)
-			//     setTotalPages(data.totalPages)
-			//     setShowLoader(false)
-			// })
 		}
 		else setShowLoader(false)
 
 		if (ladderMatches) {
-
-			setMatches(ladderMatches)
-			//setNextToken(ladderMatches.nextToken)
-			//setDataIsFetched(true)
+			setMatches(ladderMatches.matches)
+			setTotalPages(Math.ceil(ladderMatches.total_count / pageSize))
 			setShowLoader(false)
 		}
 		else
 			if (ladder) {
 				//mf.getMatchesForLadder(ladder.id, 'DESC', nextToken, 10).then((data) => {
-				matchFunctions.getMatchesForLadder(ladder.id, 10, 1, 'DESC', 'playedOn').then((data) => {
+				matchAPI.getMatchesForLadder(ladder.id, matchType, page, pageSize, 'DESC', 'playedOn').then((data) => {
 					console.log(data)
-					setMatches(data)
+					setMatches(data.matches)
 					//setNextToken(data.nextToken)
-					setTotalPages(data.totalPages)
+					setTotalPages(Math.ceil(data.total_count / pageSize))
 					//setDataIsFetched(true)
 					setShowLoader(false)
 				})
@@ -128,7 +115,6 @@ const Matches = ({
 	}
 
 	function SetPlayerName(players) {
-		console.log(players)
 		// only display lastnames if doubles, and add a / between names (i > 0)
 		const isDoubles = players.length > 1
 		return players.map((p, i) => {
@@ -217,13 +203,13 @@ const Matches = ({
 							allowDelete={allowDelete}
 							deleteFunc={(match) => {
 								console.log(match.id)
-								mf.deleteMatch(match.id)
+								matchAPI.deleteMatch(match.id)
 								setMatches(matches.filter(x => x.id !== match.id))
 							}}
 							// sortHandler={sortHandler}
 							// sortField={sortField}
 							// direction={direction}
-							data={matches}
+							data={matches?.slice((page - 1)* pageSize, page * pageSize)}
 							iconSet={[{ name: 'H2H' }, { name: 'Comments' }]}
 							//nextToken={nextToken}
 							nextText={"View more matches"}
@@ -231,6 +217,7 @@ const Matches = ({
 							onLinkClick={(p) => { if (p != player.id) setShowLoader(true) }}
 							styleConditionColor={useColorCode ? ['win-accent', 'lose-accent'] : null}
 							styleConditionVariable={useColorCode ? 'win' : null}
+							styleConditionVariable2={useColorCode ? player.id : null}
 						/>
 						<Pagination
 							currentPage={page}
@@ -250,7 +237,7 @@ const Matches = ({
 								marginBottom={'1rem'}
 								width={'250px'}
 							>
-								<Text columnStart="1" columnEnd="-1" fontSize="0.8em" fontStyle="italic">{m?.playedOn}</Text>
+								<Text columnStart="1" columnEnd="-1" fontSize="0.8em" fontStyle="italic">{m?.played_on}</Text>
 								<View columnStart="1" columnEnd="2">
 									{SetPlayerName(m.winner)}
 								</View>

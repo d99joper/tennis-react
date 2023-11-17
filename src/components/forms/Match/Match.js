@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Divider, Flex, Grid, Text, View } from "@aws-amplify/ui-react";
 import { GiCrossedSwords } from 'react-icons/gi';
 import { GoCommentDiscussion } from 'react-icons/go';
-import { helpers, enums, userFunctions } from "../../../helpers";
+import { helpers, enums, userHelper } from "../../../helpers";
 import { Link } from "react-router-dom";
 import "./Match.css"
 import { Comments, H2H } from "../index"
@@ -28,7 +28,7 @@ const Match = ({
     function openH2HModal() {
         if (!isH2HDataFetched) {
             console.log("openH2H", match.winner.id)
-            userFunctions.getPlayerH2H(match.winner, match.loser).then((data) => {
+            userHelper.getPlayerH2H(match.winner, match.loser).then((data) => {
                 setH2HData(data)
                 console.log(data)
             })
@@ -70,7 +70,7 @@ const Match = ({
                     : null
                 }
                 <Flex className="matchRow" backgroundColor={color}>
-                    <View className="date">{helpers.formatDate(match.playedOn)}</View>
+                    <View className="date">{helpers.formatDate(match.played_on)}</View>
                     <View className="playerName"><Link to={"/profile/" + match.winner.id}>{match.winner.name}</Link></View>
                     <View className="playerName"><Link to={"/profile/" + match.loser.id}>{match.loser.name}</Link></View>
                     <View className="score">{match.score}</View>
@@ -128,7 +128,7 @@ const Match = ({
                 marginBottom={'1rem'}
                 backgroundColor={props.backgroundColor ?? null}
             >
-                <Text columnStart="1" columnEnd="-1" fontSize="0.8em" fontStyle="italic">{match?.playedOn}</Text>
+                <Text columnStart="1" columnEnd="-1" fontSize="0.8em" fontStyle="italic">{match?.played_on}</Text>
                 <View columnStart="1" columnEnd="2">{match.winner.name}</View>
                 <Divider columnStart="1" columnEnd="-1" />
                 <View columnStart="1" columnEnd="2">{match.loser.name}</View>

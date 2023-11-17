@@ -1,5 +1,5 @@
 import { Button, Grid, Loader, TabItem, Tabs, View } from "@aws-amplify/ui-react";
-import { enums, helpers, ladderHelper, userFunctions } from "helpers"
+import { enums, helpers, ladderHelper, userHelper } from "helpers"
 import React, { Suspense, lazy, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import './Ladder.css'
@@ -15,7 +15,7 @@ import { Storage } from "aws-amplify"
 import { Matches } from "../../forms/index.js"
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers"
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { ladderFunctions, matchFunctions, playerFunctions } from "api/services";
+import { ladderAPI, matchAPI, playerAPI } from "api/services";
 // import Modal from "components/layout/Modal/modal.js";
 // import { Modal, ModalClose, ModalDialog, Sheet } from "@mui/joy";
 
@@ -53,11 +53,9 @@ const Ladder = ({
   }
 
   async function setPlayerImages(standings) {
-    if (typeof standings === "string")
-      standings = JSON.parse(standings)
 
     return await Promise.all(standings.map(async (s, i) => {
-      userFunctions.SetPlayerImage(s.player)
+      await userHelper.SetPlayerImage(s.player)
       return s
     }))
   }
@@ -65,13 +63,14 @@ const Ladder = ({
   useEffect(() => {
     async function getLadder() {
       //const l = await lf.GetLadder(id)//, nextMatchesToken)
-      const l = await ladderFunctions.getLadder(id)
+      const l = await ladderAPI.getLadder(id)
       // get the 5 latest matches for the ladder
-      l.matches = await matchFunctions.getMatchesForLadder(id, 5)
+      const matchData = await matchAPI.getMatchesForLadder(id, null, 1, 5)
+      l.matches = matchData//matchData.matches
+      //l.totalCount = matchData.totalCount
       // parse the details JSON and set player images
       l.standings = await setPlayerImages(l.standings)
 
-      console.log(l)
       return l
     }
 
@@ -81,7 +80,7 @@ const Ladder = ({
       // check if the user is part of the ladder
       const isInLadder = ladderHelper.IsPlayerInLadder(currentUser?.id, data)
       setIsPlayerInLadder(isInLadder)
-      console.log(data)
+      console.log("Ladder", data)
 
     })
 
@@ -99,7 +98,7 @@ const Ladder = ({
   }
 
   async function updateDisplayedStandings2(date) {
-    let standings = await ladderFunctions.getStandingsForDate(ladder.id, date)//await lf.GetStandingsForDate(ladder.id, date, true)
+    let standings = await ladderAPI.getStandingsForDate(ladder.id, date)//await lf.GetStandingsForDate(ladder.id, date, true)
     if (typeof standings.details === "string") {
       standings.details = JSON.parse(standings.details)
       standings.details = await setPlayerImages(standings.details)
@@ -132,8 +131,8 @@ const Ladder = ({
       setPlayer({})
       // Start loading player data
       setLoadingPlayer(true)
-      // userFunctions.getPlayer(playerId).then((data) => {
-      playerFunctions.getPlayer(playerId).then((data) => {
+      // userHelper.getPlayer(playerId).then((data) => {
+      playerAPI.getPlayer(playerId).then((data) => {
         // set the player data
         console.log(data)
         setPlayer(data)
@@ -145,9 +144,9 @@ const Ladder = ({
 
   function joinLadder() {
     console.log('Join ladder')
-    ladderFunctions.addPlayerToLadder(currentUser?.id, ladder.id).then(() => {
+    ladderAPI.addPlayerToLadder(currentUser?.id, ladder.id).then(() => {
       setIsPlayerInLadder(true)
-      ladderFunctions.getLadder(ladder.id).then((data) => {
+      ladderAPI.getLadder(ladder.id).then((data) => {
         setLadder(data)
         setDisplayedStandings(data.standings)
       })
@@ -264,7 +263,7 @@ const Ladder = ({
                           <TableCell key={s.player.id} className="cursorHand" onClick={e => { toggleProfileLink(s.player.id) }}>
                             {/* <Link to={`../../profile/${s.player.id}`}> */}
                             <CardHeader sx={{ padding: 0 }}
-                              avatar={<Avatar {...userFunctions.stringAvatar(s.player, 50)} />}
+                              avatar={<Avatar {...userHelper.stringAvatar(s.player, 50)} />}
                               title={s.player.name}
                             />
                             {showProfileClickOptions && selectedPlayer === s.player.id && (
@@ -309,7 +308,6 @@ const Ladder = ({
                     key="last5Matches"
                     displayAs={enums.DISPLAY_MODE.SimpleList}
                     onAddMatches={() => { console.log('add matches click') }}
-                    limit="10"
                   />
                 </View>
               </Grid>
@@ -323,8 +321,9 @@ const Ladder = ({
             excludeColumns={['ladder']}
             useColorCode={false}
             sortDirection={'desc'}
-            sortingField={"playedOn"}
+            sortingField={"played_on"}
             onAddMatches={addMatches}
+            pageSize={3}
           />
         </TabItem>
       </Tabs>

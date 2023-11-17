@@ -1,6 +1,12 @@
 
 const helpers = {
     
+    setDate: (days) => {
+        let d = new Date()
+        d.setDate(d.getDate()+days)
+        return d
+    },
+
     truncate: (text, len) => {
         if(text.length > len) 
             return text.substring(0,len) + '...'
@@ -18,7 +24,7 @@ const helpers = {
     },
     
     formatDate: (date) => {
-        date = new Date(date);
+        date = new Date(date)
         if(Object.prototype.toString.call(date) === '[object Date]')
             return date.toLocaleDateString('en-us',{ year:"numeric", month:"short", day:"numeric"})
 

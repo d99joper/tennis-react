@@ -14,6 +14,11 @@ export const enums = {
         SimpleList: 'simpleList'
     },
 
+    PLAYER_EXISTS: {
+        Username: 'username',
+        Name: 'name'
+    },
+
     STANDINGS_ID: {
         Current: 'cur',
         Old: 'old'

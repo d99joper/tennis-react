@@ -2,34 +2,45 @@
     background-color: blanchedalmond;
     max-width: 100%;
 }
+
 .profile-main {
     flex-direction: column;
 }
+
 .profile-info {
     flex-direction: row;
     display: flex;
     gap: 1rem;
 }
+
 .profile-form {
     flex-direction: column;
 }
+
 .profile-contact {
     display: block;
 }
+
 .rightProfileContent {
     min-width: 100%;
 }
+
 @media (min-width: 868px) {
     .profile-main {
         flex-direction: column;
         gap: 1rem;
     }
+
     .profile-form {
         flex-direction: row;
     }
+
     .profile-info {
         flex-direction: column;
+        position: relative; 
+        align-self: flex-start;
     }
+
     .rightProfileContent {
         /* max-width: 710px; */
         min-width: 600px;
@@ -63,7 +74,7 @@
     grid-area: "name";
 } */
 
-@media only screen and (max-width: 868px) { 
+@media only screen and (max-width: 868px) {
     #___profileContact {
         /* display: grid;
         grid-template-areas: 
@@ -103,7 +114,15 @@
 }
 
 .profileImage {
-    width: 150px; 
+    width: 150px;
+}
+
+.editIconWrapper {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    overflow: auto;
+    z-index: 1;
 }
 
 .profileImageContainer {

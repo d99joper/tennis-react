@@ -1,7 +1,7 @@
-import userFunctions from "./userFunctions";
+import userHelper from "./userHelper";
 import ladderHelper from "./ladderHelper";
-import matchFunctions from "./matchFunctions";
+import matchHelper from "./matchHelper";
 import { helpers } from "./helpers";
 import { enums } from "./const";
 
-export {userFunctions, ladderHelper, matchFunctions, helpers, enums}
+export {userHelper, ladderHelper, matchHelper, helpers, enums}
