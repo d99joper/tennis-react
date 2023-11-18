@@ -88,9 +88,7 @@ function Profile(props) {
 		e.preventDefault();
 
 		setIsLoaded(false)
-		console.log(e)
-		const form = new FormData(document.getElementById('profileForm'));
-		form.preventDefault()
+		const form = new FormData(document.getElementById('profileForm'))
 
 		const data = {
 			about: form.get("about"),
