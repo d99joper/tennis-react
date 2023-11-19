@@ -334,11 +334,11 @@ const playerAPI = {
   getPlayers: async function (filter) {
     const response = await fetch(`${playersUrl}?filter=${filter}`)
     if (response.ok) {
-      const players = await response.json()
-      await players.forEach(p => {
+      const data = await response.json()
+      await data.players.forEach(p => {
         this.setPlayerImage(p)
       });
-      return players
+      return data
     }
     else
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get player' }
@@ -348,9 +348,9 @@ const playerAPI = {
   getGreatestRivals: async function (ids, type) {
     const response = await fetch(`${playersUrl+ids[0]}/rivals`)
     if (response.ok) {
-      let rivals = await response.json()
-      await rivals.rivals.forEach(r => this.setPlayerImage(r.player))
-      return rivals
+      let data = await response.json()
+      await data.rivals.forEach(r => this.setPlayerImage(r.player))
+      return data
     }
     else
       throw new Error('Couldn\'t get player rivals. ')
