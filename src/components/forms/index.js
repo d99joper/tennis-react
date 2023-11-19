@@ -16,7 +16,6 @@ import UnlinkedMatches from './Matches/UnlinkedMatches'
 import UserStats from './Stats/UserStats'
 import ErrorHandler from './Error/error'
 import AutoCompletePlaces from './AutocompletePlaces/AutocompletePlaces'
-import GoogleMapsComponent from './AutocompletePlaces/MapComponent'
 
 export {
     AutoCompletePlaces,
@@ -36,6 +35,5 @@ export {
     SelectPlayer,
     TopRivals,
     UnlinkedMatches,
-    UserStats,
-    GoogleMapsComponent
+    UserStats
 }

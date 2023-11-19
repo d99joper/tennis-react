@@ -9,6 +9,23 @@ const AutoCompletePlaces = () => {
     fields: ["geometry.location", "name", "formatted_address", "url"], //"address_components", 
     types: ['(cities)'],
   }
+
+  function updateMap(lat=38.55, lng=-121.73) {
+    const myLatLng = { lat: lat, lng: lng };
+    const map = new window.google.maps.Map(document.getElementById("map"), {
+      zoom: 12,
+      center: myLatLng,
+    });
+  
+    new window.google.maps.Marker({
+      position: myLatLng,
+      map,
+      title: "Hello World!",
+    });
+  }
+  
+  //window.initMap = initMap;
+
   useEffect(() => {
     autoCompleteRef.current = new window.google.maps.places.Autocomplete(
       inputRef.current,
@@ -16,13 +33,18 @@ const AutoCompletePlaces = () => {
     )
     autoCompleteRef.current.addListener("place_changed", async function () {
       const place = await autoCompleteRef.current.getPlace()
-      console.log({ place })
+      console.log(place)
+      
+      updateMap(place.geometry.location.lat(),place.geometry.location.lng())
+      console.log(place)
     })
+    updateMap()
   }, [])
   return (
     <div>
       <label>enter address: </label>
       <input ref={inputRef} />
+      <div id="map" style={{minHeight: '500px', minWidth: '600px', border: '1px solid black'}}></div>
     </div>
   )
 }
