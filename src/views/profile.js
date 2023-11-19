@@ -87,7 +87,7 @@ function Profile(props) {
 	async function updateProfileData(e) {
 		e.preventDefault();
 
-		setIsLoaded(false)
+		//setIsLoaded(false)
 		const form = new FormData(document.getElementById('profileForm'))
 
 		const data = {
@@ -101,7 +101,7 @@ function Profile(props) {
 
 		// setPlayer(prevState => ({...prevState, p}))
 		setPlayer(p)
-		setIsLoaded(true)
+		//setIsLoaded(true)
 		setIsEdit((isEdit) => !isEdit)
 	}
 

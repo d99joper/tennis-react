@@ -21,7 +21,8 @@ const ladderHelper = {
 				}
 				else {
 					ladder = {}
-					players = await playerAPI.getPlayers(searchInput)
+					players = (await playerAPI.getPlayers(searchInput)).players
+
 				}
 				
 				players = players
