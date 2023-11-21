@@ -54,6 +54,8 @@ Search page
             [ ] Name
             [ ] Level
             [ ] Location
+[ ] Login 
+    [ ] User email / password already exists {"non_field_errors":["User is already registered with this e-mail address."]}
 
 About page  
     [x] About
