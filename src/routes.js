@@ -3,7 +3,8 @@ import {
   Route
 } from 'react-router-dom';
 import { Loader } from '@aws-amplify/ui-react';
-import Login from './views/login'
+// import Login from './views/login'
+import Login from './views/login_django'
 import { lazy, useEffect } from 'react';
 import { Suspense } from 'react';
 import { useNavigate } from "react-router-dom";

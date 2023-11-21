@@ -1,5 +1,6 @@
 import { Storage } from "aws-amplify"
 import { enums, userHelper } from "helpers"
+import { authAPI } from "."
 
 const playersUrl = 'https://mytennis-space.uw.r.appspot.com/players/'
 
@@ -298,7 +299,17 @@ const playerAPI = {
   },
 
   getPlayer: async function (id) {
-    let response = await fetch(playersUrl+id)
+    const bearer = authAPI.getToken()
+    console.log(bearer)
+    const requestOptions = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Token ' + bearer
+      },
+      //body: JSON.stringify(player)
+    }
+    let response = await fetch(playersUrl+id, requestOptions)
 
     if (response.ok) {
       const player = await response.json()
