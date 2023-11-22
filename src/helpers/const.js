@@ -6,6 +6,13 @@ export const enums = {
         FAST4_3: {val:3,desc:"Fast4 best of 3 sets"},
         FAST4_5: {val:4,desc:"Fast4 best of 5 sets"},
     },
+    
+    LOGIN_MODES : {
+        UsernamePwd: "login",
+        Google: "google",
+        Facebook: "facebook",
+        Amazon: "amazon"
+    },
 
     DISPLAY_MODE: {
         Card: 'card',

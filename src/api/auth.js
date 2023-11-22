@@ -1,70 +1,82 @@
+import { enums } from "helpers"
+
 const authUrl = 'https://mytennis-space.uw.r.appspot.com/rest-auth/'
 
 const authAPI = {
 	getUser: async function (key) {
-		console.log(key)
 		const requestOptions = {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
 				'Authorization': 'Token ' + key
-			},
-			//body: JSON.stringify(player)
+			}
 		}
-		let response = await fetch(authUrl+'user/', requestOptions)
+		let response = await fetch(authUrl + 'user/', requestOptions)
 
 		if (response.ok) {
 			const user = await response.json()
 			return user
 		}
 		else
-			return { status: response.status, statusCode: response.statusCode, statusText: response.statusText, error: 'No Player Found' }
-		//this.playerDummyData.find((x) => x.id === id)//
+			return { status: response.status, statusCode: response.statusCode, statusText: response.statusText, error: 'Failed to get user' }
 	},
 
-	login: async function(username, pwd) {
-		let res = fetch(authUrl+"login/", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ password: 'tennis5', email: 'jonas@zooark.com' })
-    })
-		setUser(res)
+	login: async function (username, password) {
+		handleLogin(authUrl + "login/", { email: username, password: password })
 	},
-// merge accounts, use google/connect/ send token
-	googleLogin: async function(accesstoken) {
-    let res = await fetch(authUrl+"google/", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // 'Authorization': 'Bearer my-token'
-      },
-      body: JSON.stringify({ access_token: accesstoken })
-    })
-    setUser(res)
-    return await res.status;
-  },
 
-	getToken: function() {
+	// todo: merge accounts, send token to google/connect/ 
+
+	googleLogin: async function (accesstoken) {
+		handleLogin(authUrl + "google/", { access_token: accesstoken })
+	},
+
+	getToken: function () {
 		const userId = localStorage.getItem('user_id')
-		return localStorage.getItem('bearer_'+userId)
+		return localStorage.getItem('bearer_' + userId)
 	}
 
 }
 
-async function setUser(res) {
-	const data = await res.json()
-    console.log(data.key);
-    const user = await authAPI.getUser(data.key)
-    
-    console.log(user)
-    //playerAPI.getPlayer('21c841d6-bb21-4766-bf4f-b204cc53dde7')
+// Sets the user information in localStorage
+async function setUser(user, key) {
 
-    localStorage.setItem('user_id', user.pk)
-    localStorage.setItem('username', user.username)
-    localStorage.setItem('useremail', user.email)
-    localStorage.setItem('bearer_'+user.pk, data.key)
+	// store the user information and the key
+	localStorage.setItem('user_id', user.pk)
+	localStorage.setItem('username', user.username)
+	localStorage.setItem('useremail', user.email)
+	localStorage.setItem('bearer_' + user.pk, key)
+}
+
+// handles the login logic 
+async function handleLogin(url, body) {
+	try {
+		// since it's a new login, clear the localStorage
+		localStorage.clear()
+
+		// post the login request
+		let response = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(body)
+		})
+
+		// if the login was successful
+		if (response.ok) {
+			const objKey = await response.json()
+			// Get the user 
+			const user = await authAPI.getUser(objKey.key)
+			//set the user info in localStorage
+			setUser(user, objKey.key)
+		}
+		else
+			throw new Error('Failed to login')
+	}
+	catch (e) {
+		throw e
+	}
 }
 
 export default authAPI

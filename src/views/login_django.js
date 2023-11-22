@@ -1,11 +1,13 @@
-import { Flex } from '@aws-amplify/ui-react';
+import { Flex } from '@aws-amplify/ui-react'
 import { GoogleLogin } from '@react-oauth/google'
 import { GoogleOAuthProvider } from '@react-oauth/google'
-import { authAPI, playerAPI } from 'api/services';
+import { authAPI } from 'api/services'
 
 function Login() {
 
-  
+  const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID
+  console.log(clientId)
+
   function userLogin(e) {
     e.preventDefault()
     const form = new FormData(document.getElementById('loginForm'))
@@ -13,15 +15,14 @@ function Login() {
     const pwd = form.get("password")
     console.log(username, pwd)
     authAPI.login(username, pwd)
-
   }
 
   return (
-    <>
-      <GoogleOAuthProvider clientId='107267563456-g2ceh5s5t31a5veq8j203rr7qtd00l41.apps.googleusercontent.com'>
+    <Flex className='loginBox' direction={'column'} gap={'2rem'}>
+      <GoogleOAuthProvider clientId={clientId}>
         <GoogleLogin
           onSuccess={credentialResponse => {
-            console.log(credentialResponse);
+            //console.log(credentialResponse);
             authAPI.googleLogin(credentialResponse.credential)
           }}
           onError={() => {
@@ -32,11 +33,11 @@ function Login() {
       </GoogleOAuthProvider>
       <Flex id="loginForm" direction={'column'} as="form"
         onSubmit={userLogin}>
-        Username: <input id="username" />
-        password: <input id="password" />
+        Username: <input name="username" />
+        password: <input name="password" />
         <input type='submit' value="Go"/>
       </Flex>
-    </>
+    </Flex>
   )
 }
 
