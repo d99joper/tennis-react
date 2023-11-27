@@ -2,11 +2,12 @@ import { Flex } from '@aws-amplify/ui-react'
 import { GoogleLogin } from '@react-oauth/google'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { authAPI } from 'api/services'
+import './login.css'
+import { Button } from '@mui/material'
 
 function Login() {
 
   const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID
-  console.log(clientId)
 
   function userLogin(e) {
     e.preventDefault()
@@ -28,14 +29,31 @@ function Login() {
           onError={() => {
             console.log('Login Failed');
           }}
-          useOneTap
+          // text="continue_with"
+          theme="outline"
+          //useOneTap
         />
       </GoogleOAuthProvider>
       <Flex id="loginForm" direction={'column'} as="form"
         onSubmit={userLogin}>
-        Username: <input name="username" />
-        password: <input name="password" />
-        <input type='submit' value="Go"/>
+        Email: <input name="username" placeholder='Email' />
+        Password: <input name="password" placeholder='Password' />
+        <Button
+          color='info'
+          sx={
+            {
+              backgroundColor: 'login.main',
+              color: 'login.text',
+              ':hover': {
+                backgroundColor: 'login.hover',
+                //color: 'white'
+              }
+            }}
+          variant='outlined'
+          type='submit'
+        >
+          Login
+        </Button>
       </Flex>
     </Flex>
   )

@@ -1,4 +1,5 @@
 import { enums } from "helpers"
+import { authAPI } from "."
 
 const laddersUrl = 'https://mytennis-space.uw.r.appspot.com/ladders/'
 
@@ -239,8 +240,9 @@ const ladderAPI = {
 
   /* API calls */
   getLadder: async function (id) {
+    const requestOptions = authAPI.getRequestOptions('GET')
 
-    const response = await fetch(laddersUrl + id)
+    const response = await fetch(laddersUrl + id, requestOptions)
     if (response.ok)
       return await response.json()
     else
@@ -248,22 +250,25 @@ const ladderAPI = {
   },
 
   getLadders: async function () {
-    const response = await fetch(laddersUrl)
+    const requestOptions = authAPI.getRequestOptions('GET')
+    const response = await fetch(laddersUrl, requestOptions)
     if (response.ok)
       return await response.json()
     else
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get ladders' }
   },
 
+  searchLadderByGeo: async function (latlng, radius=15) {
+    const requestOptions = authAPI.getRequestOptions('GET')
+    const response = await fetch(`${laddersUrl}?geo=${latlng.lat},${latlng.lng},${radius}`, requestOptions)
+    if (response.ok)
+      return response.json()
+    else
+      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get ladders by geo' }
+  },
+
   createLadder: async function (ladder) {
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // 'Authorization': 'Bearer my-token'
-      },
-      body: JSON.stringify(ladder)
-    }
+    const requestOptions = authAPI.getRequestOptions('POST', ladder)
 
     const response = await fetch(laddersUrl + 'create', requestOptions)
     if (response.ok)
@@ -274,14 +279,7 @@ const ladderAPI = {
 
   // partial ladder as input. Only provided fields get updated
   updateLadder: async function (ladder) {
-    const requestOptions = {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        // 'Authorization': 'Bearer my-token'
-      },
-      body: JSON.stringify(ladder)
-    }
+    const requestOptions = authAPI.getRequestOptions('PATCH', ladder)
 
     const response = await fetch(laddersUrl + 'update', requestOptions)
     if (response.ok)
@@ -290,35 +288,28 @@ const ladderAPI = {
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to update ladder' }
   },
 
-  getStandingsForDate: async function (ladderId, postedOn) {
-    // get the standings at the specific playedOn date, or the closest earlier date
-    let standings = this.dummyStandings
-      // sort on date
-      .sort((a, b) => new Date(b.postedOn) - new Date(a.postedOn))
-      // find 
-      .find((x) => x.ladderID === ladderId && new Date(x.postedOn) <= new Date(postedOn))
+  // getStandingsForDate: async function (ladderId, postedOn) {
+  //   // get the standings at the specific playedOn date, or the closest earlier date
+  //   let standings = this.dummyStandings
+  //     // sort on date
+  //     .sort((a, b) => new Date(b.postedOn) - new Date(a.postedOn))
+  //     // find 
+  //     .find((x) => x.ladderID === ladderId && new Date(x.postedOn) <= new Date(postedOn))
 
-    // if there are no earlier standings, get the closest later standings
-    if (!standings) {
-      standings = this.dummyStandings
-        // sort on date
-        .sort((a, b) => new Date(b.postedOn) - new Date(a.postedOn))
-        // find 
-        .find((x) => x.ladderID === ladderId && new Date(x.postedOn) > new Date(postedOn))
-    }
+  //   // if there are no earlier standings, get the closest later standings
+  //   if (!standings) {
+  //     standings = this.dummyStandings
+  //       // sort on date
+  //       .sort((a, b) => new Date(b.postedOn) - new Date(a.postedOn))
+  //       // find 
+  //       .find((x) => x.ladderID === ladderId && new Date(x.postedOn) > new Date(postedOn))
+  //   }
 
-    return standings
-  },
+  //   return standings
+  // },
 
   addPlayerToLadder: async function (playerId, ladderId) {
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // 'Authorization': 'Bearer my-token'
-      },
-      body: JSON.stringify({ player_id: playerId })
-    }
+    const requestOptions = authAPI.getRequestOptions('POST', { player_id: playerId })
 
     const response = await fetch(laddersUrl + ladderId + '/add-player', requestOptions)
     if (response.ok)

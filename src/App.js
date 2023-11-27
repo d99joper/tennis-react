@@ -6,20 +6,26 @@ import './App.css';
 import { userHelper } from './helpers/index';
 import MyRouter from './routes';
 import Footer from './components/layout/footer';
-import { green } from '@mui/material/colors';
+import { green, blue, red, purple } from '@mui/material/colors';
 import { BrowserRouter } from 'react-router-dom';
 import Header from './components/layout/header';
 import { Box, CssBaseline } from '@mui/material';
 import MiniDrawer from 'components/layout/test';
+import authAPI from 'api/auth';
 
 function App() {
   const PrimaryMainTheme = createTheme({
     palette: {
-      // palette values for dark mode
-      primary: green,
+      primary: {main: green[100]},
+      success: blue,
+      secondary: {main: purple[100]},
+      login: {main: green[700], hover: green[300], text: '#FFF'},
+      info: blue,
       divider: green[300],
       background: {
         default: green[10],
+        secondary: blue[10],
+        success: blue[100],
         paper: green[100],
       }
 
@@ -29,7 +35,7 @@ function App() {
 
   const [isLoading, setLoading] = useState(true); // Loading state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState({ id: -1 })
+  const [currentUser, setCurrentUser] = useState({ })// id: -1 })
   const [navigateTo, setNavigateTo] = useState()
 
   useEffect(() => { // useEffect hook
@@ -102,9 +108,10 @@ function App() {
 
     async function getCurrentUser() {
       try {
-        const isSignedIn = await userHelper.CheckIfSignedIn()
+        const user = authAPI.getCurrentUser()
+        console.log(user)
+        const isSignedIn = typeof user === 'object' ? true : false
         if (isSignedIn) {
-          const user = await userHelper.getCurrentlyLoggedInPlayer()
           setCurrentUser(user)
         }
         setIsLoggedIn(isSignedIn)

@@ -34,6 +34,32 @@ const authAPI = {
 	getToken: function () {
 		const userId = localStorage.getItem('user_id')
 		return localStorage.getItem('bearer_' + userId)
+	},
+
+	getCurrentUser: function () {
+		let user
+		if (localStorage.getItem('user_id')) {
+			user = {
+				id: localStorage.getItem('user_id'),
+				username: localStorage.getItem('username'),
+				email: localStorage.getItem('user_email')
+			}
+		}
+		return user
+	},
+
+	// gets the request options for API calls
+	getRequestOptions: function(method, body) {
+		const bearer = this.getToken()
+		const jsonBody = body ? JSON.stringify(body) : null
+		return {
+			method: method,
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Token ' + bearer
+			},
+			body: jsonBody
+		}
 	}
 
 }
@@ -44,7 +70,7 @@ async function setUser(user, key) {
 	// store the user information and the key
 	localStorage.setItem('user_id', user.pk)
 	localStorage.setItem('username', user.username)
-	localStorage.setItem('useremail', user.email)
+	localStorage.setItem('user_email', user.email)
 	localStorage.setItem('bearer_' + user.pk, key)
 }
 

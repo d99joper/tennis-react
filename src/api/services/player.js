@@ -294,22 +294,9 @@ const playerAPI = {
     }
   ],
 
-  login: async function(username, password) {
-    
-  },
-
   getPlayer: async function (id) {
-    const bearer = authAPI.getToken()
-    console.log(bearer)
-    const requestOptions = {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Token ' + bearer
-      },
-      //body: JSON.stringify(player)
-    }
-    let response = await fetch(playersUrl+id, requestOptions)
+    const requestOptions = authAPI.getRequestOptions('GET')
+    let response = await fetch(playersUrl + id, requestOptions)
 
     if (response.ok) {
       const player = await response.json()
@@ -322,7 +309,8 @@ const playerAPI = {
   },
 
   getPlayerByFilter: async function (username) {
-    let response = await fetch(`${playersUrl}?stats&filter=${username}`)
+    const requestOptions = authAPI.getRequestOptions('GET')
+    let response = await fetch(`${playersUrl}?stats&filter=${username}`, requestOptions)
 
     if (response.ok) {
       const players = await response.json()
@@ -343,7 +331,8 @@ const playerAPI = {
   },
 
   getPlayers: async function (filter) {
-    const response = await fetch(`${playersUrl}?filter=${filter}`)
+    const requestOptions = authAPI.getRequestOptions('GET')
+    const response = await fetch(`${playersUrl}?filter=${filter}`, requestOptions)
     if (response.ok) {
       const data = await response.json()
       await data.players.forEach(p => {
@@ -357,7 +346,8 @@ const playerAPI = {
 
   // ids as an array, since you can search for doubles pairs
   getGreatestRivals: async function (ids, type) {
-    const response = await fetch(`${playersUrl+ids[0]}/rivals`)
+    const requestOptions = authAPI.getRequestOptions('GET')
+    const response = await fetch(`${playersUrl + ids[0]}/rivals`, requestOptions)
     if (response.ok) {
       let data = await response.json()
       await data.rivals.forEach(r => this.setPlayerImage(r.player))
@@ -369,17 +359,10 @@ const playerAPI = {
 
   // I don't really care what comes back, just something to verify success or failure
   createPlayer: async function (player) {
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // 'Authorization': 'Bearer my-token'
-      },
-      body: JSON.stringify(player)
-    }
+    const requestOptions = authAPI.getRequestOptions('POST', player)
 
-    const response = await fetch(playersUrl+'create', requestOptions)
-    if(response.ok)
+    const response = await fetch(playersUrl + 'create', requestOptions)
+    if (response.ok)
       return await response.json()
     else
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to create player' }
@@ -387,39 +370,32 @@ const playerAPI = {
 
   // partial player as input. Only provided fields get updated
   updatePlayer: async function (player) {
-    const requestOptions = {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        // 'Authorization': 'Bearer my-token'
-      },
-      body: JSON.stringify(player)
-    }
-    
-    const response = await fetch(playersUrl+player.id+'/update', requestOptions)
-    if(response.ok)
+    const requestOptions = authAPI.getRequestOptions('PATCH', player)
+    console.log(requestOptions)
+    const response = await fetch(playersUrl + player.id + '/update', requestOptions)
+    if (response.ok)
       return await response.json()
     else
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to update player.' }
   },
 
   setPlayerImage: async function (player) {
-		if (player?.image) {
-			if (!player.imageUrl) {
-				const url = await Storage.get(player.image)
-				player.imageUrl = url
-			}
-		}
-    console.log("player",player)
-	},
+    if (player?.image) {
+      if (!player.imageUrl) {
+        const url = await Storage.get(player.image)
+        player.imageUrl = url
+      }
+    }
+    console.log("player", player)
+  },
 
-	setPlayerName: function (player, lastnameOnly) {
-		let name = player.name
-		if (lastnameOnly)
-			name = name.split(' ').slice(-1)[0]
-		
-		return name + (player.verified ? "" : "*")
-	}
+  setPlayerName: function (player, lastnameOnly) {
+    let name = player.name
+    if (lastnameOnly)
+      name = name.split(' ').slice(-1)[0]
+
+    return name + (player.verified ? "" : "*")
+  }
 }
 
-export default playerAPI
+  export default playerAPI

@@ -1,5 +1,6 @@
 import { enums } from "helpers"
 import matchHelper from "helpers/matchHelper"
+import { authAPI } from "."
 
 const matchesUrl = 'https://mytennis-space.uw.r.appspot.com/matches/'
 
@@ -84,7 +85,8 @@ const matchAPI = {
   },
 
   getMatch: async function (id) {
-    let response = await fetch(matchesUrl + id)
+    const requestOptions = authAPI.getRequestOptions('GET')
+    let response = await fetch(matchesUrl + id, requestOptions)
 
     if (response.ok) {
       return await response.json()
@@ -94,13 +96,14 @@ const matchAPI = {
   },
 
   getMatchesForPlayer: async function (playerId, type, page, numPerPage, sortDirection, sortOrder) {
+    const requestOptions = authAPI.getRequestOptions('GET')
     const url = matchesUrl
       + '?player=' + playerId
       + (type ? '&match-type=' + type : '')
       + (page ? '&page=' + page : '')
       + (numPerPage ? '&num-per-page=' + numPerPage : '')
 
-    let response = await fetch(url)
+    let response = await fetch(url, requestOptions)
 
     if (response.ok)
       return await response.json()
@@ -109,13 +112,14 @@ const matchAPI = {
   },
 
   getMatchesForLadder: async function (ladderId, type, page, numPerPage, sortDirection, sortOrder) {
+    const requestOptions = authAPI.getRequestOptions('GET')
     const url = matchesUrl
       + '?ladder=' + ladderId
       + (type ? '&match-type=' + type : '')
       + (page ? '&page=' + page : '')
       + (numPerPage ? '&num-per-page=' + numPerPage : '')
 
-    let response = await fetch(matchesUrl + '?ladder=' + ladderId)
+    let response = await fetch(matchesUrl + '?ladder=' + ladderId, requestOptions)
 
     if (response.ok)
       return await response.json()
@@ -124,35 +128,8 @@ const matchAPI = {
   },
 
   createMatch: async function (match) {
-    // const singleMatch = {
-    //   winner: [
-    //     { id: '21c841d6-bb21-4766-bf4f-b204cc53dde7' }
-    //   ],
-    //   loser: [
-    //     { id: '4d2c332e-d5a1-4d35-8be8-3d9ee6407d0b' }
-    //   ],
-    //   ladder: { id: '35a52e5b-d915-4b84-a4e0-22f2906305a6' },
-    //   score: '6-3, 6-7(4), 6-4',
-    //   played_on: '2022-05-02',
-    //   comments: [
-    //     {
-    //       message: 'Hello',
-    //       posted_on: '2022-05-15'
-    //     }
-    //   ],
-    //   retired: false,
-    //   type: 'DOUBLES',
-    //   ignored_by: [{ id: '21c841d6-bb21-4766-bf4f-b204cc53dde7' }],
-    // }
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // 'Authorization': 'Bearer my-token'
-      },
-      body: JSON.stringify(match)
-    }
-
+    const requestOptions = authAPI.getRequestOptions('POST', match)
+    
     const response = await fetch(matchesUrl + 'create', requestOptions)
     if (response.ok)
       return await response.json()
@@ -161,14 +138,7 @@ const matchAPI = {
   },
 
   updateMatch: async function (match) {
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // 'Authorization': 'Bearer my-token'
-      },
-      body: JSON.stringify(match)
-    }
+    const requestOptions = authAPI.getRequestOptions('PATCH', match)
 
     const response = await fetch(matchesUrl + 'update', requestOptions)
     if (response.ok)
