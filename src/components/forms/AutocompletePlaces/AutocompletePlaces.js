@@ -1,7 +1,8 @@
 import { useRef, useEffect } from "react"
 import "./AutocompletePlaces.css"
+import { Flex } from "@aws-amplify/ui-react"
 
-const AutoCompletePlaces = () => {
+const AutoCompletePlaces = ({ onPlaceChanged, ...props }) => {
   const autoCompleteRef = useRef()
   const inputRef = useRef()
   const options = {
@@ -17,6 +18,8 @@ const AutoCompletePlaces = () => {
       zoom: 12,
       center: myLatLng,
     });
+
+    onPlaceChanged(myLatLng)
 
     new window.google.maps.Marker({
       position: myLatLng,
@@ -37,12 +40,13 @@ const AutoCompletePlaces = () => {
   useEffect(() => {
     // check if script was already created
     let script = document.getElementById("placesScript")
-    
+
     if (!script) {
       script = document.createElement("script")
       const apiKey = process.env.REACT_APP_PLACES_API_KEY
+
       script.src =
-        "https://maps.googleapis.com/maps/api/js?key="+apiKey+"&libraries=places&callback=initMap"
+        "https://maps.googleapis.com/maps/api/js?key=" + apiKey + "&libraries=places&callback=initMap"
       script.id = 'placesScript'
       script.async = false
 
@@ -66,7 +70,7 @@ const AutoCompletePlaces = () => {
     else
       setAutoCompleteRef()
 
-    function setAutoCompleteRef () {
+    function setAutoCompleteRef() {
       autoCompleteRef.current = new window.google.maps.places.Autocomplete(
         inputRef.current,
         options
@@ -82,11 +86,13 @@ const AutoCompletePlaces = () => {
   }, [])
 
   return (
-    <div>
-      <label>enter address: </label>
-      <input ref={inputRef} />
+    <Flex direction={"column"} gap="1rem">
+      <div>
+        <label>enter address: </label>
+        <input ref={inputRef} />
+      </div>
       <div id="map" style={{ minHeight: '500px', minWidth: '600px', border: '1px solid black' }}></div>
-    </div>
+    </Flex>
   )
 }
 export default AutoCompletePlaces
