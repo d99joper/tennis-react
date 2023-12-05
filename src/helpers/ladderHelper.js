@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
-import { userHelper } from 'helpers'
 import { ladderAPI, playerAPI } from 'api/services'
-import { GiFamilyHouse } from 'react-icons/gi'
 
 const ladderHelper = {
 
@@ -22,7 +20,6 @@ const ladderHelper = {
 				else {
 					ladder = {}
 					players = (await playerAPI.getPlayers(searchInput)).players
-
 				}
 				
 				players = players
@@ -62,7 +59,7 @@ const ladderHelper = {
 
 	IsPlayerInLadder: function (playerId, ladder) {
 		try {
-			let isInLadder = GiFamilyHouse
+			let isInLadder = false
 			const player = ladder.standings.find((x) => x.player.id === playerId)
 
 			if (player)
@@ -105,14 +102,14 @@ const ladderHelper = {
 	},
 
 
-	setDefaultPlayerSettings: function (player, playerTemplate) {
-		player.wins ??= 0
-		player.losses ??= 0
-		userHelper.SetPlayerImage(playerTemplate)
+	// setDefaultPlayerSettings: function (player, playerTemplate) {
+	// 	player.wins ??= 0
+	// 	player.losses ??= 0
+	// 	userHelper.SetPlayerImage(playerTemplate)
 
-		if (playerTemplate.imageUrl)
-			player.imageUrl = playerTemplate.imageUrl
-	},
+	// 	if (playerTemplate.image)
+	// 		player.image = playerTemplate.image
+	// },
 
 }
 

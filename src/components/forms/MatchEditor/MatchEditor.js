@@ -30,9 +30,8 @@ const MatchEditor = (
 	}) => {
 	// Initialize the state for the player names and the selected match format
 	const [playedOn, setPlayedOn] = useState(null);
-	const [winner, setWinner] = useState(player)
-	const [loser, setLoser] = useState({ name: '' })
-	const [newPlayer, setNewPlayer] = useState()
+	const [winner, setWinner] = useState([{...player}])
+	const [loser, setLoser] = useState([{ name: '' }])
 	const [isWinner, setIsWinner] = useState(true)
 	const [isLadderMatch, setIsLadderMatch] = useState(false)
 	const [matchFormat, setMatchFormat] = useState(0)
@@ -58,8 +57,8 @@ const MatchEditor = (
 
 		// Create an object with the match result data
 		let match = {
-			winner: [winner],
-			loser: [loser],
+			winner: [{...winner[0]}],
+			loser: [{...loser[0]}],
 			score: score.filter(Boolean).join(', '),
 			type: type,
 			played_on: new Date(playedOn).toISOString().split('T')[0],
@@ -93,8 +92,8 @@ const MatchEditor = (
 		// setSet3('')
 		// setSet4('')
 		// setSet5('')
-		setLoser()
-		setWinner(player)
+		setLoser([{name:''}])
+		setWinner([{...player}])
 		setComment('')
 		setPlayedOn(null)
 		setLadderId(props.ladderId || 0)
@@ -105,12 +104,12 @@ const MatchEditor = (
 
 		// set and switch the winner/loser
 		if (didPlayerWin) {
-			setLoser(winner)
-			setWinner(player)
+			setLoser([{...winner}])
+			setWinner([{...player}])
 		}
 		else {
-			setWinner(loser)
-			setLoser(player)
+			setWinner([{...loser}])
+			setLoser([{...player}])
 		}
 		setIsWinner(didPlayerWin)
 	}
@@ -218,19 +217,19 @@ const MatchEditor = (
 						label="Winner"
 						ladderId={ladderId}
 						ladderPlayers={ladderPlayers}
-						disabledPlayerList={[{ id: loser?.id }]}
+						disabledPlayerList={[{ id: loser[0]?.id }]}
 						disabled={isWinner && !isAdmin}
-						player={winner}
-						onPlayerSelect={p => setWinner(p)}
+						player={winner[0]}
+						onPlayerSelect={p => setWinner([{...p}])}
 					/>
 					<SelectPlayer
 						label="Defeated"
 						ladderId={ladderId}
 						ladderPlayers={ladderPlayers}
-						disabledPlayerList={[{ id: winner?.id }]}
+						disabledPlayerList={[{ id: winner[0]?.id }]}
 						disabled={!isWinner}
-						player={loser}
-						onPlayerSelect={p => setLoser(p)}
+						player={loser[0]}
+						onPlayerSelect={p => setLoser([{...p}])}
 					/>
 				</Flex>
 				<Flex className='mediaFlex' direction={'row'}>
@@ -323,9 +322,9 @@ const MatchEditor = (
 					placeholder={`Any comments about the match? You can also add tiebreak scores here.`}
 				/>
 				<label className="summary">
-					{(winner.name && loser.name) && winner.name + " beats " + loser.name + " with " + score.filter(Boolean).join(', ')}
+					{(winner[0].name && loser[0].name) && winner[0].name + " beats " + loser[0].name + " with " + score.filter(Boolean).join(', ')}
 				</label>
-				<Button type="submit">Add result</Button>
+				<Button type="submit" variant='submit'>Add result</Button>
 			</Flex>
 		</form>
 	);

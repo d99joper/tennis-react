@@ -9,6 +9,7 @@ import H2H from "../H2H/H2H";
 import { BsArrowBarDown, BsChevronCompactDown, BsChevronDoubleDown } from "react-icons/bs";
 import { AiOutlineDelete } from "react-icons/ai";
 import { Box, Dialog, DialogTitle, Modal, Typography } from "@mui/material";
+import { playerAPI } from "api/services";
 //import "./Matches.css"
 
 const DynamicTable = ({
@@ -35,16 +36,18 @@ const DynamicTable = ({
 
 	function openH2HModal(match, i) {
 		//if (!isH2HDataFetched[i]) {
-		const index = match.winner[0].id + match.loser[0].id
-		if (!h2HData[index]) {
-			userHelper.getPlayerH2H(match.winner[0], match.loser[0]).then((data) => {
-				setH2HData(prev => { return { ...prev, [index]: data } })
-				console.log(data)
-				setIsShowH2H(prevState => { return { ...prevState, [i]: true } })
-			})
-		}
-		else setIsShowH2H(prevState => { return { ...prevState, [i]: true } })
+		// const index = match.winner[0].id + match.loser[0].id
+		// if (!h2HData[index]) {
+		// 	playerAPI.getPlayerH2H(match.winner[0], match.loser[0]).then((data) => {
+		// 		setH2HData(prev => { return { ...prev, [index]: data } })
+		// 		console.log(data)
+		// 		setIsShowH2H(prevState => { return { ...prevState, [i]: true } })
+		// 	})
+		// }
+		// else 
+			setIsShowH2H(prevState => { return { ...prevState, [i]: true } })
 	}
+
 	function openCommentsModal(match, i) {
 		setIsShowComments(prevState => { return { ...prevState, [i]: true } })
 	}
@@ -73,7 +76,7 @@ const DynamicTable = ({
 									padding={'1rem'}
 								>
 									<Box padding={'1rem'}>
-										<H2H key={`H2H_${i}`} data={h2HData[item.winnerID + item.loserID]} />
+										<H2H key={`H2H_${i}`} winners={match.winner} losers={match.loser} />
 									</Box>
 								</Dialog>
 							</React.Fragment >

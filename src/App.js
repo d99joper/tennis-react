@@ -1,17 +1,15 @@
-import { Hub } from 'aws-amplify';
 import "@aws-amplify/ui-react/styles.css";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
-import { userHelper } from './helpers/index';
 import MyRouter from './routes';
 import Footer from './components/layout/footer';
 import { green, blue, red, purple } from '@mui/material/colors';
 import { BrowserRouter } from 'react-router-dom';
 import Header from './components/layout/header';
 import { Box, CssBaseline } from '@mui/material';
-import MiniDrawer from 'components/layout/test';
 import authAPI from 'api/auth';
+import { ProfileImageProvider } from "components/forms";
 
 function App() {
   const PrimaryMainTheme = createTheme({
@@ -21,6 +19,7 @@ function App() {
       secondary: {main: purple[100]},
       login: {main: green[700], hover: green[300], text: '#FFF'},
       info: blue,
+      submit: {main: green[100]},
       divider: green[300],
       background: {
         default: green[10],
@@ -28,103 +27,50 @@ function App() {
         success: blue[100],
         paper: green[100],
       }
-
     }
   });
-  const newUser = useRef(false);
 
   const [isLoading, setLoading] = useState(true); // Loading state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState({ })// id: -1 })
-  const [navigateTo, setNavigateTo] = useState()
+  const [currentUser, setCurrentUser] = useState({ })
 
   useEffect(() => { // useEffect hook
-    Hub.listen('auth', (data) => {
-      console.log(data);
-      switch (data.payload.event) {
-        case 'signIn':
-          console.log('user signed in');
-          // set signed in status
-          setIsLoggedIn(true)
-          userHelper.getCurrentlyLoggedInPlayer()
-            .then((data) => {
-              setCurrentUser(data)
-              if (data.username)
-                localStorage.setItem('username', data.username)
-              if (data.id)
-                localStorage.setItem('user_id', data.id)
-              if (data.email)
-                localStorage.setItem('user_email', data.username)
-
-              setNavigateTo('/profile/')
-            })
-
-          // check if a new user was just created
-          if (newUser.current) {
-            // create a new Player
-            userHelper.createPlayerIfNotExist().then(() => {
-              newUser.current = false;
-              setNavigateTo('/profile/')
-              //window.location = '/Profile';
-            })
-          }
-          break;
-        case 'confirmSignUp':
-          console.log('user confirmed');
-          setNavigateTo('/profile/')
-          break;
-        case 'cognitoHostedUI':
-          console.log('cognitoHostedUI');
-          // check if external user exist as a 'Player'
-          // If not, create 'Player'
-          userHelper.createPlayerIfNotExist().then(() => {
-            setNavigateTo('/profile/')
-            //window.location = '/Profile';
-          });
-
-          break;
-        case 'signUp':
-          console.log('user signed up');
-          newUser.current = true;
-          setNavigateTo('/profile/')
-          break;
-        case 'signOut':
-          console.log('user signed out');
-          setIsLoggedIn(false)
-          setCurrentUser({}) //userHelper.getCurrentlyLoggedInPlayer()
-          break;
-        case 'signIn_failure':
-          console.log('user sign in failed');
-          setIsLoggedIn(false)
-          setCurrentUser({})
-          break;
-        case 'configured':
-          console.log('the Auth module is configured');
-          break;
-        default:
-          break;
-      }
-    });
-
+    
+    function handleLoginLogout(e) {
+      console.log(e)
+      getCurrentUser()
+    }
+     
     async function getCurrentUser() {
       try {
+        // get the current user (it's okay if it's null)
         const user = authAPI.getCurrentUser()
-        console.log(user)
+        setCurrentUser(user)
+        
+        // check if there is a user and set the isLoggedIn flag
         const isSignedIn = typeof user === 'object' ? true : false
-        if (isSignedIn) {
-          setCurrentUser(user)
-        }
         setIsLoggedIn(isSignedIn)
-        setLoading(false); //set loading state
+        
+        // loading complete
+        setLoading(false)
       }
       catch (e) {
-        console.log(e);
+        console.log(e)
       }
     }
     getCurrentUser()
 
-  }, []);
+    // Register the event listeners for login and logout
+    window.addEventListener("login", handleLoginLogout)
+    window.addEventListener("logout", handleLoginLogout)
 
+    // Unregister the event listeners when the component is unmounted
+    return () => {
+      window.removeEventListener("login", handleLoginLogout)
+      window.removeEventListener("logout", handleLoginLogout)
+    }
+
+  }, [])
 
   if (isLoading) {
     return (
@@ -137,15 +83,16 @@ function App() {
       }}>
         Loading the data {console.log("loading state")}
       </div>
-    );
+    )
   }
 
   return (
+    <ProfileImageProvider>
     <Box className="App" id="app" sx={{ display: 'flex', flexDirection: 'column' }}>
       <CssBaseline />
       <ThemeProvider theme={PrimaryMainTheme}>
         <BrowserRouter>
-          <Header isLoggedIn={isLoggedIn} testing={true} navigateTo={navigateTo} currentUser={currentUser}></Header>
+          <Header isLoggedIn={isLoggedIn} currentUser={currentUser}></Header>
           <Box component="main" className='content'
             sx={{
               display: 'flex',
@@ -158,7 +105,7 @@ function App() {
             }}>
             {/* <main className='content'> */}
             {/* <MiniDrawer/> */}
-            <MyRouter isLoggedIn={isLoggedIn} testing={true} navigateTo={navigateTo} currentUser={currentUser} />
+            <MyRouter isLoggedIn={isLoggedIn} currentUser={currentUser} />
             {/* </main> */}
             <Footer>
             </Footer>
@@ -166,7 +113,8 @@ function App() {
         </BrowserRouter>
       </ThemeProvider>
     </Box>
-  );
+    </ProfileImageProvider>
+  )
 }
 
-export default App;
+export default App

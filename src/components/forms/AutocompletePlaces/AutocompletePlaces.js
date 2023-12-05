@@ -1,8 +1,11 @@
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 import "./AutocompletePlaces.css"
 import { Flex } from "@aws-amplify/ui-react"
+import { Button, MenuItem, Select } from "@mui/material"
 
 const AutoCompletePlaces = ({ onPlaceChanged, ...props }) => {
+  const [radius, setRadius] = useState(15)
+  const [mapCenter, setMapCenter] = useState({ lat: 0, lng: 0 })
   const autoCompleteRef = useRef()
   const inputRef = useRef()
   const options = {
@@ -12,27 +15,47 @@ const AutoCompletePlaces = ({ onPlaceChanged, ...props }) => {
   }
   let map
 
-  function updateMap(lat = 38.55, lng = -121.73) {
-    const myLatLng = { lat: lat, lng: lng };
+  function updateSearch() {//lat = 38.55, lng = -121.73) {
+    //const myLatLng = { lat: lat, lng: lng };
     map = new window.google.maps.Map(document.getElementById("map"), {
-      zoom: 12,
-      center: myLatLng,
+      zoom: radius === 15 ? 12 : radius === 25 ? 11 : radius === 50 ? 10 : 9,
+      center: mapCenter,
     });
 
-    onPlaceChanged(myLatLng)
+    onPlaceChanged(mapCenter, radius)
 
     new window.google.maps.Marker({
-      position: myLatLng,
+      position: mapCenter,
       map,
       title: "Hello World!",
     });
   }
 
-  function initMap() {
+  function getCurrentPosition() {
+    return new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(
+        position => resolve(position),
+        error => reject(error)
+      )
+    })
+  }
+
+  async function initMap() {
     console.log('hello initMap')
+    let myLngLat = {lat: 38.54422591158026, lng:-121.74365619216327}
+    if (navigator.geolocation) {
+      const position = await getCurrentPosition()
+      console.log(position)
+      myLngLat = { lat: position.coords.latitude, lng: position.coords.longitude }
+      setMapCenter(myLngLat)
+      // });
+    } else {
+      console.log("Geolocation is not supported by this browser. Set San Fran as default")
+    }
+
     map = new window.google.maps.Map(document.getElementById("map"), {
-      zoom: 12,
-      center: { lat: 38, lng: -121 },
+      zoom: 10,
+      center: myLngLat,
     });
   }
   window.initMap = initMap;
@@ -54,7 +77,7 @@ const AutoCompletePlaces = ({ onPlaceChanged, ...props }) => {
       //   "sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
 
       script.crossOrigin = "anonymous"
-      console.log(script)
+      //console.log(script)
       //head.insertBefore(script, head.firstChild);
       document.body.appendChild(script)
 
@@ -78,19 +101,46 @@ const AutoCompletePlaces = ({ onPlaceChanged, ...props }) => {
       autoCompleteRef.current.addListener("place_changed", async function () {
         const place = await autoCompleteRef.current.getPlace()
         console.log(place)
-
-        updateMap(place.geometry.location.lat(), place.geometry.location.lng())
+        setMapCenter({ lat: place.geometry.location.lat(), lng: place.geometry.location.lng() })
       })
-      updateMap()
+      //updateSearch()
     }
-  }, [])
+  }, [mapCenter])
+
+  const handleChange = (event) => {
+    setRadius(event.target.value)
+  }
+
+  function filterSearch() {
+    updateSearch()
+  }
 
   return (
-    <Flex direction={"column"} gap="1rem">
-      <div>
-        <label>enter address: </label>
-        <input ref={inputRef} />
-      </div>
+    <Flex direction={"column"} gap="1rem" paddingTop={'1rem'} >
+      <Flex direction={"column"}>
+        <div>
+          <label>City: </label>
+          <input ref={inputRef} />
+        </div>
+        <div>
+          Radius: &nbsp;
+          <Select
+            variant="standard"
+            value={radius}
+            id="radiusSelect"
+            onChange={handleChange}
+          >
+            <MenuItem value={15}>15 miles</MenuItem>
+            <MenuItem value={25}>25 miles</MenuItem>
+            <MenuItem value={50}>50 miles</MenuItem>
+            <MenuItem value={75}>75 miles</MenuItem>
+            <MenuItem value={100}>100 miles</MenuItem>
+          </Select>
+        </div>
+        <div>
+          <Button onClick={filterSearch}>Search</Button>
+        </div>
+      </Flex>
       <div id="map" style={{ minHeight: '500px', minWidth: '600px', border: '1px solid black' }}></div>
     </Flex>
   )

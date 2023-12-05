@@ -5,13 +5,13 @@ import {
 	TextAreaField, Divider, SwitchField, Loader, TabItem, Tabs
 } from "@aws-amplify/ui-react";
 import { enums, helpers, userHelper } from 'helpers'
-import { Editable, Matches, PhoneNumber, UserStats, TopRivals, Match, UnlinkedMatches } from '../components/forms/index.js'
+import { Editable, Matches, PhoneNumber, UserStats, TopRivals, Match, UnlinkedMatches, ProfileImage } from '../components/forms/index.js'
 import './profile.css';
 import { Avatar, Modal, Box, Typography, Dialog, DialogTitle, Checkbox, Toolbar } from '@mui/material';
 import { AiOutlineEdit, AiOutlineMail, AiOutlinePhone, AiOutlineUndo } from 'react-icons/ai';
 import { MdOutlineCancel, MdOutlineCheck, MdOutlineInfo } from 'react-icons/md';
 import { BiLogOutCircle } from 'react-icons/bi';
-import { playerAPI } from 'api/services/index.js';
+import { authAPI, playerAPI } from 'api/services/index.js';
 
 function Profile(props) {
 
@@ -45,6 +45,7 @@ function Profile(props) {
 	const [unLinkedMatches, setUnLinkedMatches] = useState()
 	const [loggedInPlayer, setLoggedInPlayer] = useState()
 	const [unLinkedMatchesAdded, setUnLinkedMatchesAdded] = useState(0)
+	const [randomImageNumber, setRandomImageNumber] = useState(0)
 
 	const handleUpdatedPhoneNumber = newNumber => {
 		setPlayer({ ...player, phone: newNumber })
@@ -75,13 +76,20 @@ function Profile(props) {
 
 	async function updateProfilePic(e) {
 
-		const profilePic = Array.from(e.target.files)[0]
 		setIsLoaded(false)
-		const p = await userHelper.UpdatePlayer(player, player.id, profilePic)
-		console.log("updateProfilePic", p)
-		setPlayer(prevState => ({ ...prevState, image: p.image, imageUrl: p.imageUrl }))
+		const origImage = Array.from(e.target.files)[0]
+		//console.log(origImage)
+		const smallImage = await helpers.resizeImage(origImage, 800)
+		//console.log(smallImage)
+		let p = await playerAPI.updatePlayerImage(player.id, smallImage)
+		//console.log("updateProfilePic", p)
+		// update the localstorage cache
+		localStorage.setItem(`profile_image_${player.id}`, `${player.image}?dummy=${Math.random()}`)
+		setPlayer(prevState => ({ ...prevState, image: p.image }))
 		setIsLoaded(true)
 		setShowImagePicker(false)
+		// to avoid caching images, set a random number to add to the url
+		//setRandomImageNumber(Math.floor(Math.random() * 1000000))
 	}
 
 	async function updateProfileData(e) {
@@ -123,31 +131,14 @@ function Profile(props) {
 		setStats({})
 		setTabIndex(0)
 		setUnLinkedMatches()
+		setRandomImageNumber(Math.floor(Math.random() * 1000000))
 
 		async function getProfile() {
-			// async function getPlayer(id) {
-			//     const thisPlayer = await playerAPI.getPlayer(id)
-			//     setStats(thisPlayer.stats)
-			//     setStatsFetched(true)
-			// }
+
 			let p = null;
 			setCanEdit(false)
-			let sessionPlayer = {}
-			const user_id = localStorage.getItem('user_id')
+			let sessionPlayer = authAPI.getCurrentUser()
 
-			if (user_id) {
-				sessionPlayer = {
-					id: localStorage.getItem('user_id'),
-					username: localStorage.getItem('username'),
-					email: localStorage.getItem('user_email')
-				}
-			}
-			else {
-				sessionPlayer = await userHelper.getCurrentlyLoggedInPlayer()
-				localStorage.setItem('user_id', sessionPlayer.id)
-				localStorage.setItem('username', sessionPlayer.username)
-				localStorage.setItem('user_email', sessionPlayer.email)
-			}
 			console.log('sessionPlayer', sessionPlayer)
 			setLoggedInPlayer(sessionPlayer)
 			// Check if userid param was provided
@@ -155,11 +146,13 @@ function Profile(props) {
 			if ((!id) && sessionPlayer)
 				id = sessionPlayer.id
 
-			p = await playerAPI.getPlayer(id)
-			setStats(p.stats)
-			setStatsFetched(true)
-			if (p.error)
-				setError({ status: true, message: p.error })
+			if (id) {
+				p = await playerAPI.getPlayer(id)
+				setStats(p.stats)
+				setStatsFetched(true)
+				if (p.error)
+					setError({ status: true, message: p.error })
+			}
 
 			if (sessionPlayer) {
 				if (sessionPlayer.email === p.email) {
@@ -215,6 +208,7 @@ function Profile(props) {
 								name="profilePic"
 								as="input"
 								type="file"
+								accept='image/*'
 								id="imageInput"
 								text={player.name}
 								className="hiddenImageInput"
@@ -260,8 +254,7 @@ function Profile(props) {
 							}
 						</div>
 						{/************ PROFILE PICTURE   *************/}
-						<Avatar
-							{...userHelper.stringAvatar(player, 150)}
+						<ProfileImage player={player} size={150}
 							className={`image ${canEdit ? " cursorHand" : null}`}
 							onClick={(e) => { openUserImagePicker(e) }}
 						/>
@@ -437,17 +430,18 @@ function Profile(props) {
 				<Flex direction="row" gap="1rem">
 					<Card className='card' variation="elevated" style={{ width: "100%" }}>
 						<Tabs
+							autoSave=''
 							currentIndex={matchTabIndex}
 							onChange={(i) => setMatchTabIndex(i)}
 							justifyContent="flex-start"
 						>
 							<TabItem title="Singles">
 								<UnlinkedMatches matches={unLinkedMatches} player={player} handleMatchAdded={handleUnlinkedMatchAdded} />
-								<Matches player={player} pageSize="5" matchType={enums.MATCH_TYPE.SINGLES} allowDelete={loggedInPlayer.isAdmin}></Matches>
+								<Matches player={player} pageSize="5" matchType={enums.MATCH_TYPE.SINGLES} allowDelete={loggedInPlayer?.isAdmin}></Matches>
 
 							</TabItem>
 							<TabItem title="Doubles">
-								<Matches player={player} pageSize="5" matchType={enums.MATCH_TYPE.DOUBLES} allowDelete={loggedInPlayer.isAdmin}></Matches>
+								<Matches player={player} pageSize="5" matchType={enums.MATCH_TYPE.DOUBLES} allowDelete={loggedInPlayer?.isAdmin}></Matches>
 							</TabItem>
 						</Tabs>
 						{canEdit &&

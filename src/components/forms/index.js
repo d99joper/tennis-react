@@ -16,6 +16,7 @@ import UnlinkedMatches from './Matches/UnlinkedMatches'
 import UserStats from './Stats/UserStats'
 import ErrorHandler from './Error/error'
 import AutoCompletePlaces from './AutocompletePlaces/AutocompletePlaces'
+import { ProfileImage, ProfileImageProvider } from './ProfileImage'
 
 export {
     AutoCompletePlaces,
@@ -32,6 +33,8 @@ export {
     MatchEditor, 
     Matches, 
     PhoneNumber,
+    ProfileImage,
+    ProfileImageProvider,
     SelectPlayer,
     TopRivals,
     UnlinkedMatches,

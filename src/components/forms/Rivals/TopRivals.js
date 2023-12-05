@@ -1,14 +1,14 @@
-import { Badge, Card, Collection, Divider, Flex, Grid, Image, Loader, Text, View } from "@aws-amplify/ui-react";
+import { Badge, Card, Flex, Grid, Loader, Text, View } from "@aws-amplify/ui-react";
 import React from "react";
-import { SlUser } from "react-icons/sl";
 import "./rivals.css"
 import { userHelper as uf } from "helpers";
 import { Link } from "react-router-dom";
 import { Avatar } from "@mui/material";
+import {ProfileImage} from "../index";
 
 const TopRivals = ({ data, ...props }) => {
 
-	console.log("TopRivals", data)
+	//console.log("TopRivals", data)
 	return (
 		props.rivalsFetched ?
 			data?.rivals?.length > 0 ?
@@ -29,15 +29,8 @@ const TopRivals = ({ data, ...props }) => {
 										<Flex direction={'column'}>
 											<Link to={"/profile/" + rival.player.id} key={rival.player.id + '_' + index}>
 												<View className={"profileImageContainer_small"}>
-													{/* //{rival.player.image ? */}
-														<Avatar {...uf.stringAvatar(rival.player, 40)} />
-														{/* // <Image
-														// 	src={rival.player.imageUrl}
-														// 	alt={`visual aid for ${uf.SetPlayerName(rival.player)}`}
-														// 	className={`profileImage`}
-														// />
-														// : <SlUser size='30' />
-													//:null} */}
+														<ProfileImage player={rival.player} size={40} />
+														
 												</View>
 												<Text as='span'> {uf.SetPlayerName(rival.player)}</Text>
 											</Link>

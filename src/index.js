@@ -18,29 +18,29 @@ const isLocalhost = Boolean(
  );
   
  // Assuming you have two redirect URIs, and the first is for production and second is for localhost
- const [
-   productionRedirectSignIn,
-   localRedirectSignIn
- ] = awsconfig.oauth.redirectSignIn.split(",");
+//  const [
+//    productionRedirectSignIn,
+//    localRedirectSignIn
+//  ] = awsconfig.oauth.redirectSignIn.split(",");
  
- const [
-   productionRedirectSignOut,
-   localRedirectSignOut
- ] = awsconfig.oauth.redirectSignOut.split(",");
+//  const [
+//    productionRedirectSignOut,
+//    localRedirectSignOut
+//  ] = awsconfig.oauth.redirectSignOut.split(",");
  
- //console.log(isLocalhost ? localRedirectSignIn : productionRedirectSignIn);
+//  //console.log(isLocalhost ? localRedirectSignIn : productionRedirectSignIn);
  
- const updatedAwsConfig = {
-   ...awsconfig,
-   oauth: {
-     ...awsconfig.oauth,
-     redirectSignIn: isLocalhost ? localRedirectSignIn : productionRedirectSignIn,
-     redirectSignOut: isLocalhost ? localRedirectSignOut : productionRedirectSignOut,
-   }
- }
- //console.log(updatedAwsConfig);
+//  const updatedAwsConfig = {
+//    ...awsconfig,
+//    oauth: {
+//      ...awsconfig.oauth,
+//      redirectSignIn: isLocalhost ? localRedirectSignIn : productionRedirectSignIn,
+//      redirectSignOut: isLocalhost ? localRedirectSignOut : productionRedirectSignOut,
+//    }
+//  }
+//  //console.log(updatedAwsConfig);
  
- Amplify.configure(updatedAwsConfig);
+//  Amplify.configure(updatedAwsConfig);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
