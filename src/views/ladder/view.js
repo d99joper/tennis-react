@@ -11,7 +11,7 @@ import { ladderAPI } from "api/services";
 const LadderView = (props) => {
 
     const params = useParams();
-    const [userId, setUserId] = useState(props.currentUser.id)
+    const [userId, setUserId] = useState(props.currentUser?.id)
     const [playerLadders, setPlayerLadders] = useState([])
     const [nearbyLadders, setNearbyLadders] = useState([])
     const [allowLocation, setAllowLocation] = useState(false)
@@ -47,7 +47,7 @@ const LadderView = (props) => {
             }
         }
         async function GetPlayerLadders() {
-            const ladders = await ladderAPI.GetPlayerLadders(currentUser.id)
+            const ladders = await ladderAPI.GetPlayerLadders(currentUser?.id)
             setPlayerLadders(ladders)
             return ladders
         }

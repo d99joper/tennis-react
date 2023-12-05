@@ -22,13 +22,22 @@ const authAPI = {
 	},
 
 	login: async function (username, password) {
-		handleLogin(authUrl + "login/", { email: username, password: password })
+		return handleLogin(authUrl + "login/", { email: username, password: password })
 	},
 
 	// todo: merge accounts, send token to google/connect/ 
 
 	googleLogin: async function (accesstoken) {
-		handleLogin(authUrl + "google/", { access_token: accesstoken })
+		return handleLogin(authUrl + "google/", { access_token: accesstoken })
+	},
+
+	signOut: function () {
+		// clear the local storage
+		localStorage.clear()
+
+		// create and trigger a custom event for logging out
+		const myEvent = new CustomEvent('logout', { detail: "User has been logged out" })
+		window.dispatchEvent(myEvent)
 	},
 
 	getToken: function () {
@@ -42,14 +51,15 @@ const authAPI = {
 			user = {
 				id: localStorage.getItem('user_id'),
 				username: localStorage.getItem('username'),
-				email: localStorage.getItem('user_email')
+				email: localStorage.getItem('user_email'),
+				name: localStorage.getItem('user_name')
 			}
 		}
 		return user
 	},
 
 	// gets the request options for API calls
-	getRequestOptions: function(method, body) {
+	getRequestOptions: function (method, body) {
 		const bearer = this.getToken()
 		const jsonBody = body ? JSON.stringify(body) : null
 		return {
@@ -60,7 +70,21 @@ const authAPI = {
 			},
 			body: jsonBody
 		}
-	}
+	}, 
+
+	getRequestOptionsFormData: function (method, file) {
+		const bearer = this.getToken()
+		const formData = new FormData()
+		formData.append('image', file)
+		let options = {
+			method: method,
+			headers: {
+				'Authorization': 'Token ' + bearer
+			},
+			body: formData
+		}
+		return options
+	},
 
 }
 
@@ -72,6 +96,7 @@ async function setUser(user, key) {
 	localStorage.setItem('username', user.username)
 	localStorage.setItem('user_email', user.email)
 	localStorage.setItem('bearer_' + user.pk, key)
+	localStorage.setItem('user_name', user.first_name + ' ' + user.last_name)
 }
 
 // handles the login logic 
@@ -96,6 +121,13 @@ async function handleLogin(url, body) {
 			const user = await authAPI.getUser(objKey.key)
 			//set the user info in localStorage
 			setUser(user, objKey.key)
+
+			// create and trigger a custom event for logging in
+			const myEvent = new CustomEvent('login', { detail: user })
+			window.dispatchEvent(myEvent)
+			
+			// return the newly logged in user
+			return user
 		}
 		else
 			throw new Error('Failed to login')

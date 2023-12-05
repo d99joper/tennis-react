@@ -12,7 +12,7 @@ import { GiSwordsPower, GiTennisRacket } from "react-icons/gi"
 import { AiOutlineMail, AiOutlinePhone } from "react-icons/ai"
 import { MdOutlineSms } from "react-icons/md"
 import { Storage } from "aws-amplify"
-import { Matches } from "../../forms/index.js"
+import { Matches, ProfileImage } from "../../forms/index.js"
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers"
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { ladderAPI, matchAPI, playerAPI } from "api/services";
@@ -52,13 +52,13 @@ const Ladder = ({
     setSelectedPlayer(id)
   }
 
-  async function setPlayerImages(standings) {
+  // async function setPlayerImages(standings) {
 
-    return await Promise.all(standings.map(async (s, i) => {
-      await userHelper.SetPlayerImage(s.player)
-      return s
-    }))
-  }
+  //   return await Promise.all(standings.map(async (s, i) => {
+  //     await userHelper.SetPlayerImage(s.player)
+  //     return s
+  //   }))
+  // }
   // get latest standing
   useEffect(() => {
     async function getLadder() {
@@ -69,7 +69,7 @@ const Ladder = ({
       l.matches = matchData//matchData.matches
       //l.totalCount = matchData.totalCount
       // parse the details JSON and set player images
-      l.standings = await setPlayerImages(l.standings)
+      //l.standings = await setPlayerImages(l.standings)
 
       return l
     }
@@ -97,30 +97,34 @@ const Ladder = ({
     // return
   }
 
-  async function updateDisplayedStandings2(date) {
-    let standings = await ladderAPI.getStandingsForDate(ladder.id, date)//await lf.GetStandingsForDate(ladder.id, date, true)
-    if (typeof standings.details === "string") {
-      standings.details = JSON.parse(standings.details)
-      standings.details = await setPlayerImages(standings.details)
-    }
-    standings.details = standings.details.sort((a, b) => { return b.points - a.points })
-    //setDisplayedStandings(handleDisplayedStandings(ladder, standings))
-    setDisplayedStandings(standings)
-  }
-  function handleStandingsChange2(date) {
-    console.log(date)
-    updateDisplayedStandings2(date)
-  }
+  // async function updateDisplayedStandings2(date) {
+  //   let standings = await ladderAPI.getStandingsForDate(ladder.id, date)//await lf.GetStandingsForDate(ladder.id, date, true)
+  //   if (typeof standings.details === "string") {
+  //     standings.details = JSON.parse(standings.details)
+  //     //standings.details = await setPlayerImages(standings.details)
+  //   }
+  //   standings.details = standings.details.sort((a, b) => { return b.points - a.points })
+  //   //setDisplayedStandings(handleDisplayedStandings(ladder, standings))
+  //   setDisplayedStandings(standings)
+  // }
+  // function handleStandingsChange2(date) {
+  //   console.log(date)
+  //   updateDisplayedStandings2(date)
+  // }
 
   function handleAddMatch(match) {
     // console.log(match)
     // console.log(ladder)
     //console.log(matches)
     //setMatches(oldMatches => ({ matches: [...oldMatches.matches, { match: match }] }))
-    setLadder(prevLadder => ({ ...prevLadder, matches: { matches: [...prevLadder.matches.matches, { match: match }] } }))
-    setShowAddMatchModal(false)
+    ladderAPI.getLadder(ladder.id).then((l) => {
+      console.log(l, match)
+      setLadder((prevLadder) => ({ ...l, matches: { matches: [...prevLadder.matches.matches, match] } }))
+      setDisplayedStandings(l.standings)
+      setShowAddMatchModal(false)
+    })
     // show the details from todays date
-    updateDisplayedStandings2(Date.now())
+    //updateDisplayedStandings2(Date.now())
   }
 
   function handleChallenge(playerId) {
@@ -199,7 +203,7 @@ const Ladder = ({
               <div className="left">
                 <div className="header">
                   {/** Pick date for older standings */}
-                  <FormControl variant="standard" sx={{ m: 1, minWidth: 120, padding: 1 }}>
+                  {/* <FormControl variant="standard" sx={{ m: 1, minWidth: 120, padding: 1 }}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
                         label="Standings as of"
@@ -213,7 +217,7 @@ const Ladder = ({
                         renderInput={(params) => <TextField required {...params} sx={{ width: 200 }} />}
                       />
                     </LocalizationProvider>
-                  </FormControl>
+                  </FormControl> */}
                   {/** Add a match button and dialog */}
                   <View className="matchButton desktop-only">
                     {isPlayerInLadder &&
@@ -263,7 +267,8 @@ const Ladder = ({
                           <TableCell key={s.player.id} className="cursorHand" onClick={e => { toggleProfileLink(s.player.id) }}>
                             {/* <Link to={`../../profile/${s.player.id}`}> */}
                             <CardHeader sx={{ padding: 0 }}
-                              avatar={<Avatar {...userHelper.stringAvatar(s.player, 50)} />}
+                              //avatar={<Avatar {...userHelper.stringAvatar(s.player, 50)} />}
+                              avatar={<ProfileImage player={s.player} size={50} />}
                               title={s.player.name}
                             />
                             {showProfileClickOptions && selectedPlayer === s.player.id && (

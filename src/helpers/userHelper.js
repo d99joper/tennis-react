@@ -42,48 +42,67 @@ const userHelper = {
 		return player
 	},
 
-	UpdatePlayer: async function (player, userId, image) {
+	// UpdatePlayer: async function (player, userId, image) {
 
+	// 	try {
+	// 		const arrayBuffer = await image.arrayBuffer()
+	// 		const text = await image.text()
+	// 		console.log(arrayBuffer)
+	// 		console.log(text)
+	// // 		var reader = new FileReader();
+  // // reader.onload = function() {
+
+  // //   var arrayBuffer = this.result,
+  // //     array = new Uint8Array(arrayBuffer),
+  // //     binaryString = String.fromCharCode.apply(null, array);
+
+  // //   console.log(binaryString);
+
+  // // }
+  // // reader.readAsArrayBuffer(image);
+
+	// 		let imageName = (!!player.image ? player.image.name : undefined)
+	// 		if (image) {
+	// 			const nameArr = image.name.split('.')
+	// 			imageName = nameArr[0] + '_' + Date.now() + '.' + nameArr.pop()
+	// 		}
+
+	// 		let inputData = {
+	// 			id: userId,
+	// 			...(player.name && { name: player.name }),
+	// 			...(image && { image: imageName }),
+	// 			...(player.phone && { phone: player.phone }),
+	// 			about: player.about,
+	// 			NTRP: player.NTRP,
+	// 			UTR: player.UTR
+	// 		};
+
+	// 		if (!!(inputData.image && image)) {
+	// 			// add the new image
+	// 			await Storage.put(imageName, image);
+	// 			// remove the old image
+	// 			if (!!player.image)
+	// 				Storage.remove(player.image)
+	// 		}
+
+	// 		const updatedPlayer = await playerAPI.updatePlayer(inputData)
+
+	// 		// set the image url and return the player
+	// 		//updatedPlayer.image = await Storage.get(updatedPlayer.image);
+
+	// 		return updatedPlayer
+	// 	}
+	// 	catch (e) {
+	// 		console.log("failed to update players", e);
+	// 		return {error: 'Failed to update player'}
+	// 	}
+	// },
+
+	stringAvatar: function (player, size, randomNumber) {
 		try {
-			let imageName = (!!player.image ? player.image.name : undefined)
-			if (image) {
-				const nameArr = image.name.split('.')
-				imageName = nameArr[0] + '_' + Date.now() + '.' + nameArr.pop()
-			}
-
-			let inputData = {
-				id: userId,
-				...(player.name && { name: player.name }),
-				...(image && { image: imageName }),
-				...(player.phone && { phone: player.phone }),
-				about: player.about,
-				NTRP: player.NTRP,
-				UTR: player.UTR
-			};
-
-			if (!!(inputData.image && image)) {
-				// add the new image
-				await Storage.put(imageName, image);
-				// remove the old image
-				if (!!player.image)
-					Storage.remove(player.image)
-			}
-
-			const updatedPlayer = await playerAPI.updatePlayer(inputData)
-
-			// set the image url and return the player
-			updatedPlayer.imageUrl = await Storage.get(updatedPlayer.image);
-
-			return updatedPlayer
-		}
-		catch (e) {
-			console.log("failed to update players", e);
-			return {error: 'Failed to update player'}
-		}
-	},
-
-	stringAvatar: function (player, size) {
-		try {
+			// create a random number to avoid image being cached
+			if(!randomNumber)
+				randomNumber = Math.floor(Math.random() * 1000000);
 			const jsonObj = {
 				sx: {
 					...player ? { bgcolor: helpers.stringToColor(player.name) } : null,
@@ -91,8 +110,8 @@ const userHelper = {
 					height: size,
 					border: 1
 				},
-				...player && player.imageUrl
-					? { src: player.imageUrl }
+				...player && player.image
+					? { src: player.image+'?dummy='+randomNumber}
 					: { children: <SlUser {...size ? { size: size * 0.65 } : null} /> }
 			}
 
@@ -304,9 +323,9 @@ const userHelper = {
 
 	signOut: function () {
 		localStorage.clear()
-		Auth.signOut()
-			.then(data => console.log(data))
-			.catch(err => console.log('err' + err))
+		// Auth.signOut()
+		// 	.then(data => console.log(data))
+		// 	.catch(err => console.log('err' + err))
 	},
 
 	// deletePlayer: async function (id, onlyDeleteIfNoMatches = true) {
@@ -427,14 +446,14 @@ const userHelper = {
 	// 	return years.sort((a, b) => (b.year - a.year))
 	// },
 
-	SetPlayerImage: async function (player) {
-		if (player?.image) {
-			if (!player.imageUrl) {
-				const url = await Storage.get(player.image)
-				player.imageUrl = url
-			}
-		}
-	},
+	// SetPlayerImage: async function (player) {
+	// 	if (player?.image) {
+	// 		if (!player.imageUrl) {
+	// 			const url = await Storage.get(player.image)
+	// 			player.imageUrl = url
+	// 		}
+	// 	}
+	// },
 
 	SetPlayerName: function (player, lastnameOnly) {
 		let name = player.name

@@ -4,18 +4,28 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 import { authAPI } from 'api/services'
 import './login.css'
 import { Button } from '@mui/material'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
-function Login() {
+function Login(props) {
 
   const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
 
   function userLogin(e) {
     e.preventDefault()
     const form = new FormData(document.getElementById('loginForm'))
     const username = form.get("username")
     const pwd = form.get("password")
-    console.log(username, pwd)
-    authAPI.login(username, pwd)
+    
+    authAPI.login(username, pwd).then(() => {
+      redirect()
+    })
+  }
+
+  function redirect() {
+    const redirectTo = searchParams.get("redirectTo")
+    navigate(redirectTo == null ? "/" : redirectTo,{replace:true})
   }
 
   return (
@@ -24,7 +34,10 @@ function Login() {
         <GoogleLogin
           onSuccess={credentialResponse => {
             //console.log(credentialResponse);
-            authAPI.googleLogin(credentialResponse.credential)
+            authAPI.googleLogin(credentialResponse.credential).then((user) =>
+            {
+              redirect()
+            })
           }}
           onError={() => {
             console.log('Login Failed');
@@ -37,7 +50,7 @@ function Login() {
       <Flex id="loginForm" direction={'column'} as="form"
         onSubmit={userLogin}>
         Email: <input name="username" placeholder='Email' />
-        Password: <input name="password" placeholder='Password' />
+        Password: <input type="password" name="password" placeholder='Password' />
         <Button
           color='info'
           sx={

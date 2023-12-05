@@ -1,51 +1,8 @@
 {
   "api": {},
-  "auth": {
-    "tennisreact": {
-      "customAuth": false,
-      "dependsOn": [],
-      "frontendAuthConfig": {
-        "mfaConfiguration": "OFF",
-        "mfaTypes": [
-          "SMS"
-        ],
-        "passwordProtectionSettings": {
-          "passwordPolicyCharacters": [
-            "REQUIRES_LOWERCASE",
-            "REQUIRES_NUMBERS",
-            "REQUIRES_SYMBOLS",
-            "REQUIRES_UPPERCASE"
-          ],
-          "passwordPolicyMinLength": 8
-        },
-        "signupAttributes": [
-          "NAME",
-          "EMAIL"
-        ],
-        "socialProviders": [
-          "FACEBOOK",
-          "GOOGLE",
-          "AMAZON"
-        ],
-        "usernameAttributes": [
-          "EMAIL"
-        ],
-        "verificationMechanisms": [
-          "EMAIL"
-        ]
-      },
-      "providerPlugin": "awscloudformation",
-      "service": "Cognito"
-    }
-  },
+  "auth": {},
   "function": {},
-  "storage": {
-    "profilePics": {
-      "dependsOn": [],
-      "providerPlugin": "awscloudformation",
-      "service": "S3"
-    }
-  },
+  "storage": {},
   "geo": {
     "MyTennisSpaceGEO": {
       "isDefault": true,
@@ -53,39 +10,6 @@
       "service": "PlaceIndex",
       "dataProvider": "Here",
       "dataSourceIntendedUse": "SingleUse",
-      "accessType": "AuthorizedAndGuestUsers",
-      "dependsOn": [
-        {
-          "category": "auth",
-          "resourceName": "tennisreact",
-          "attributes": [
-            "UserPoolId"
-          ]
-        }
-      ]
-    },
-    "MyTennisGeoIndex": {
-      "isDefault": true,
-      "providerPlugin": "awscloudformation",
-      "service": "PlaceIndex",
-      "dataProvider": "HERE",
-      "dataSourceIntendedUse": "SingleUse",
-      "accessType": "AuthorizedUsers",
-      "dependsOn": [
-        {
-          "category": "auth",
-          "resourceName": "tennisreact",
-          "attributes": [
-            "UserPoolId"
-          ]
-        }
-      ]
-    },
-    "MyTennisMap": {
-      "isDefault": true,
-      "providerPlugin": "awscloudformation",
-      "service": "Map",
-      "mapStyle": "VectorEsriStreets",
       "accessType": "AuthorizedAndGuestUsers",
       "dependsOn": [
         {

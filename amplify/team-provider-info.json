@@ -10,18 +10,6 @@
       "StackName": "amplify-tennisreact-master-224847",
       "StackId": "arn:aws:cloudformation:us-west-1:781466862382:stack/amplify-tennisreact-master-224847/63b75590-3936-11ed-8edf-028f248a41f5",
       "AmplifyAppId": "d3b40aa52kf7sa"
-    },
-    "categories": {
-      "auth": {
-        "tennisreact": {}
-      },
-      "storage": {
-        "profilePics": {}
-      },
-      "geo": {
-        "MyTennisGeoIndex": {},
-        "MyTennisMap": {}
-      }
     }
   }
 }

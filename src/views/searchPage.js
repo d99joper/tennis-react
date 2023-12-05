@@ -13,7 +13,7 @@ const SearchPage = (props) => {
       defaultIndex={0}
       justifyContent="flex-start"
     >
-      <TabItem title="Search for ladders">
+      <TabItem title="Search for ladders" >
         {/* Search for ladder */}
         <LadderSearch />
 

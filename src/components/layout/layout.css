@@ -29,6 +29,15 @@
   .active {
     text-decoration: underline;
   }
+  .bannerLink {
+    color: white;
+  }
+  a.bannerLink {
+    color: white;
+  }
+  a.bannerLink:hover {
+    color: #c8e6c9;
+  }
 
   /* .MuiPaper-root {
     -webkit-transition: all 0.4s ease-in-out !important;
