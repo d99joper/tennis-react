@@ -1,25 +1,3 @@
 {
-  "api": {},
-  "auth": {},
-  "function": {},
-  "storage": {},
-  "geo": {
-    "MyTennisSpaceGEO": {
-      "isDefault": true,
-      "providerPlugin": "awscloudformation",
-      "service": "PlaceIndex",
-      "dataProvider": "Here",
-      "dataSourceIntendedUse": "SingleUse",
-      "accessType": "AuthorizedAndGuestUsers",
-      "dependsOn": [
-        {
-          "category": "auth",
-          "resourceName": "tennisreact",
-          "attributes": [
-            "UserPoolId"
-          ]
-        }
-      ]
-    }
-  }
+  
 }
