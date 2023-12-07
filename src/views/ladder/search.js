@@ -26,10 +26,10 @@ const LadderSearch = () => {
 	async function initMap() {
 		//console.log('hello initMap')
 		// set the 
-		map = new window.google.maps.Map(document.getElementById("map"), {
-			zoom: 10,
-			center: mapCenter,
-		});
+		// map = new window.google.maps.Map(document.getElementById("map"), {
+		// 	zoom: 10,
+		// 	center: mapCenter,
+		// })
 	}
 	window.initMap = initMap;
 
@@ -88,6 +88,7 @@ const LadderSearch = () => {
 				zoom: 10,
 				center: myLngLat,
 			});
+			updateSearch(myLngLat)
 		}
 
 		// check if script was already created
@@ -125,28 +126,48 @@ const LadderSearch = () => {
 		}
 	}, [])
 
-	function updateSearch() { //lat = 38.55, lng = -121.73) {
+	function updateSearch(myLngLat) { //lat = 38.55, lng = -121.73) {
+		if(!myLngLat?.lat)
+		myLngLat = mapCenter
 
 		map = new window.google.maps.Map(document.getElementById("map"), {
-			zoom: radius === 15 ? 11 : radius === 25 ? 10 : radius === 50 ? 9 : radius === 75 ? 9 : 8,
-			center: mapCenter,
+			zoom: radius === 15 ? 10 : radius === 25 ? 9 : radius === 50 ? 8 : radius === 75 ? 7 : 7,
+			center: myLngLat,
 		});
 		let filter = [
-			...mapCenter ? [{ name: 'geo', point: mapCenter, radius: radius }] : [],
+			...myLngLat ? [{ name: 'geo', point: myLngLat, radius: radius }] : [],
 			...matchType ? [{ name: 'match_type', matchType: matchType }] : [],
 			...level ? [{ name: 'level', level_min: level[0], level_max: level[1] }] : []
 		]
-
+		console.log(filter)
 		ladderAPI.getLadders(filter).then((ladderResults) => {
 			setLadders(ladderResults.ladders)
 			setTotalCount(ladderResults.total_count)
 			//console.log(ladderResults)
 			// for each ladder, set a marker on the map
-			new window.google.maps.Marker({
-				position: mapCenter,
+			ladderResults.ladders.forEach(l => {
+				if(l.lng && l.lat) {
+					new window.google.maps.Marker({
+						position: {lat: parseFloat(l.lat), lng: parseFloat(l.lng)},
+						map: map,
+						title: l.name,
+						icon: {
+							url: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png', 
+							scaledSize: new window.google.maps.Size(40, 40), 
+						}
+					})
+				}
+			})
+			new window.google.maps.Circle({
+				strokeColor: 'green', // Red outline color
+				strokeOpacity: 0.8,
+				strokeWeight: 2,
+				fillColor: 'green', // Red fill color
+				fillOpacity: 0.25,
 				map: map,
-				title: 'Marker Title', // Optional: Add a title to the marker
-			});
+				center: myLngLat,
+				radius: radius * 1609.34,
+			})
 		})
 	}
 	const handleRadiusChange = (event) => {
@@ -202,7 +223,7 @@ const LadderSearch = () => {
 						<Button variant="contained" onClick={updateSearch}>Search</Button>
 					</div>
 				</Flex>
-				<div id="map" style={{ minHeight: '500px', minWidth: '600px', border: '1px solid black' }}></div>
+				<div id="map" style={{ minHeight: '400px', minWidth: '400px', border: '1px solid black' }}></div>
 			</Flex>
 
 			<Flex direction={"column"}>
