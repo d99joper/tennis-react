@@ -1,9 +1,10 @@
 .loginBox {
-  width:50%;
+  width: 90%;
   background-color: rgb(225, 255, 222);
   padding: 2rem;
   align-items: center;
   border: 1px solid black;
+  margin: auto;
 }
 
 .loginBox input {

@@ -2,54 +2,78 @@ import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
 	Button, Card, Flex, Grid, Text, TextField, SelectField, View,
-	TextAreaField, Divider, SwitchField, Loader, TabItem, Tabs
+	TextAreaField, Divider, Loader, TabItem, Tabs
 } from "@aws-amplify/ui-react";
-import { enums, helpers, userHelper } from 'helpers'
-import { Editable, Matches, PhoneNumber, UserStats, TopRivals, Match, UnlinkedMatches, ProfileImage } from '../components/forms/index.js'
+import { enums, helpers } from 'helpers'
+import { Editable, Matches, PhoneNumber, UserStats, TopRivals, UnlinkedMatches, ProfileImage } from '../components/forms/index.js'
 import './profile.css';
-import { Avatar, Modal, Box, Typography, Dialog, DialogTitle, Checkbox, Toolbar } from '@mui/material';
-import { AiOutlineEdit, AiOutlineMail, AiOutlinePhone, AiOutlineUndo } from 'react-icons/ai';
-import { MdOutlineCancel, MdOutlineCheck, MdOutlineInfo } from 'react-icons/md';
-import { BiLogOutCircle } from 'react-icons/bi';
+import { Modal, Box, Typography, Dialog, DialogTitle, Popover } from '@mui/material';
+import { AiOutlineEdit, AiOutlineMail, AiOutlinePhone } from 'react-icons/ai';
+import { MdOutlineCancel, MdOutlineCheck, MdOutlineInfo } from 'react-icons/md'
 import { authAPI, playerAPI } from 'api/services/index.js';
 
 function Profile(props) {
 
-	const MatchEditor = lazy(() => import("../components/forms/index") //MatchEditor/MatchEditor")
-		.then(module => { return { default: module.MatchEditor } }))
-	//const UserStats = lazy(() => import("../components/forms/index")
-	//    .then(module => { return { default: module.UserStats } }))
-
-	const NTRPItems = ["-", "1.5", "2.0", "2.5", "3.0", "3.5", "4.0", "4.5", "5.0", "5.5"];
-	const [isLinkVisible, setIsLinkVisible] = useState(false);
-
-	const handleIconClick = () => {
-		setIsLinkVisible(!isLinkVisible);
-	};
+	const NTRPItems = ["-", "1.5", "2.0", "2.5", "3.0", "3.5", "4.0", "4.5", "5.0", "5.5"]
 	const params = useParams();
 	const [error, setError] = useState({ status: false, message: null });
+	const [tabIndex, setTabIndex] = useState(0)
+	const [matchTabIndex, setMatchTabIndex] = useState(0)
+	// player
+	const [player, setPlayer] = useState()
+	const [loggedInPlayer, setLoggedInPlayer] = useState()
+	const [rivals, setRivals] = useState({})
+	const [rivalsFetched, setRivalsFetched] = useState(false);
+	const [stats, setStats] = useState({})
+	const [statsFetched, setStatsFetched] = useState(false);
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [isLoggedIn, setIsLoggedIn] = useState(props.isLoggedIn);
 	const [isEdit, setIsEdit] = useState(false);
-	//const [profileChange, setProfileChange] = useState(0)
 	const [canEdit, setCanEdit] = useState(false);
-	const [showImagePicker, setShowImagePicker] = useState(false);
+	// info popover
+	const [showInfoModal, setShowInfoModal] = useState(false)
+	const [infoContent, setInfoContent] = useState('')
+	const [infoAnchorEl, setInfoAnchorEl] = useState(null)
+	// image modal
+	const [showImagePicker, setShowImagePicker] = useState(false)
+	// utr
+	const [utrLink, setUtrLink] = useState('')
+	const [utrRankSingles, setUtrRankSingles] = useState(0)
+	const [utrRankDoubles, setUtrRankDoubles] = useState(0)
+	// matches
 	const [showMatchEditor, setShowMatchEditor] = useState(false);
-	const [player, setPlayer] = useState()
-	const [stats, setStats] = useState({})
-	const [statsFetched, setStatsFetched] = useState(false);
-	const [rivals, setRivals] = useState({})
-	const [rivalsFetched, setRivalsFetched] = useState(false);
-	const [tabIndex, setTabIndex] = useState(0)
-	const [matchTabIndex, setMatchTabIndex] = useState(0)
 	const [unLinkedMatches, setUnLinkedMatches] = useState()
-	const [loggedInPlayer, setLoggedInPlayer] = useState()
 	const [unLinkedMatchesAdded, setUnLinkedMatchesAdded] = useState(0)
-	const [randomImageNumber, setRandomImageNumber] = useState(0)
+
+	const MatchEditor = lazy(() => import("../components/forms/index") //MatchEditor/MatchEditor")
+		.then(module => { return { default: module.MatchEditor } }))
 
 	const handleUpdatedPhoneNumber = newNumber => {
 		setPlayer({ ...player, phone: newNumber })
 	}
+
+	const handleIconClick = (origin, e) => {
+		console.log(origin, e)
+		setInfoAnchorEl(e.currentTarget)
+		switch (origin) {
+			case 'utr':
+				setInfoContent('Add your UTR id to link up with your UTR account')
+				break;
+			case 'ntrp':
+				setInfoContent(
+					<a
+						href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'
+						target='_blank'
+					>
+						{`View the USTA NTPR guidelines here >>`}
+					</a>
+				)
+				break;
+			default:
+				break;
+		}
+		setShowInfoModal(!showInfoModal);
+	};
 
 	const handleStatsClick = () => {
 		if (!statsFetched) {
@@ -99,14 +123,16 @@ function Profile(props) {
 		const form = new FormData(document.getElementById('profileForm'))
 
 		const data = {
+			id: player.id,
 			about: form.get("about"),
 			NTRP: form.get("NTPR"),
 			UTR: form.get("UTR"),
 			phone: player.phone || '',
 		};
 
-		let p = await userHelper.UpdatePlayer(data, player.id)
-
+		let p = await playerAPI.updatePlayer(data)
+		p.ladders = player.ladders
+		p.stats = player.stats
 		// setPlayer(prevState => ({...prevState, p}))
 		setPlayer(p)
 		//setIsLoaded(true)
@@ -131,7 +157,6 @@ function Profile(props) {
 		setStats({})
 		setTabIndex(0)
 		setUnLinkedMatches()
-		setRandomImageNumber(Math.floor(Math.random() * 1000000))
 
 		async function getProfile() {
 
@@ -150,6 +175,15 @@ function Profile(props) {
 				p = await playerAPI.getPlayer(id)
 				setStats(p.stats)
 				setStatsFetched(true)
+				console.log('utr', p.UTR, Number.isInteger(p.UTR))
+				if(p.UTR && Number.isInteger(Number.parseInt(p.UTR))) {
+					playerAPI.getUTRPlayer(p.UTR).then((utrPlayer) => {
+						console.log(utrPlayer)
+						setUtrLink(`https://utr.com/${p.UTR}`)
+						setUtrRankSingles(utrPlayer.singlesUtr)
+						setUtrRankDoubles(utrPlayer.doublesUtr)
+					})
+				}
 				if (p.error)
 					setError({ status: true, message: p.error })
 			}
@@ -289,7 +323,7 @@ function Profile(props) {
 										</Text>
 										{/************ PHONE   *************/}
 										<Text fontSize='medium'>
-											<AiOutlinePhone />
+											{(player.phone || isEdit) && <AiOutlinePhone />}
 											{isLoggedIn
 												?
 												<>&nbsp;
@@ -331,63 +365,51 @@ function Profile(props) {
 									{/************ NTRP   *************/}
 									<View>NTRP:</View>
 									<div>
-										<Editable
-											text={player.NTRP ? <>{player.NTRP} <MdOutlineInfo onClick={handleIconClick} className='cursorHand' /></> : '-'}
-											isEditing={isEdit}
-											direction="row"
-											gap="0.5rem"
-										>
-											<SelectField
-												name="NTPR"
-												size='small'
-												defaultValue={player.NTRP ? player.NTRP : '2.0'}
-												options={NTRPItems}
-											></SelectField>
+										<Flex direction={"row"}>
+											<Editable
+												text={player.NTRP ?? '-'}
+												isEditing={isEdit}
+												direction="row"
+												gap="0.5rem"
+											>
+												<SelectField
+													name="NTPR"
+													size='small'
+													defaultValue={player.NTRP ? player.NTRP : '2.0'}
+													options={NTRPItems}
+												></SelectField>
 
-											<MdOutlineInfo onClick={handleIconClick} className='cursorHand' />
-										</Editable>
-
-										<a
-											href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'
-											target='_blank'
-											style={{
-												display: isLinkVisible ? 'block' : 'none',
-												position: 'absolute',
-												//top: '30px', // Adjust the top position as needed
-												//left: 0,
-												background: 'white',
-												padding: '10px',
-												border: '1px solid #ccc',
-												borderRadius: '5px',
-												transform: 'scale(1.1)',
-												transition: 'transform 0.3s',
-											}}
+											</Editable>
+											<MdOutlineInfo onClick={(e) => { handleIconClick('ntrp', e) }} className='cursorHand' />
+										</Flex>
+										{/******** POPOVER FOR NTRP AND UTR INFO   *********/}
+										<Popover
+											onClose={() => setShowInfoModal(false)}
+											anchorEl={infoAnchorEl}
+											anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+											open={showInfoModal}
 										>
-											View the USTA NTPR guidelines
-										</a>
+											<Typography sx={{ p: 2, backgroundColor: 'info.light' }}>
+												{infoContent}
+											</Typography>
+										</Popover>
 									</div>
 									{/************ UTR   *************/}
-									<View>UTR rating:</View>
-									<View>
+									<View>UTR:</View>
+									<Flex direction={"row"}>
 										<Editable
-											text={player.UTR ? <>{player.UTR} <MdOutlineInfo ></MdOutlineInfo></> : '-'}
+											text={player.UTR ?? 'Add your UTR id'}
 											isEditing={isEdit}
 										>
 											<TextField name="UTR" size='small' defaultValue={player.UTR}></TextField>
-											<MdOutlineInfo ></MdOutlineInfo>
+											{utrRankSingles && `Singles: ${utrRankSingles}`}
+											{utrRankDoubles && `Doubles: ${utrRankDoubles}`}
+											<a target='_blank' href={utrLink}>UTR profile</a>
 										</Editable>
-									</View>
+										<MdOutlineInfo onClick={(e) => { handleIconClick('utr', e) }} className='cursorHand' />
+									</Flex>
 									{/************ LADDERS   *************/}
 									<View>Ladders:</View>
-									{/* <Ladders ladderList={player.ladders} player={player} /> */}
-									{/* <Grid templateRows={"auto"}>
-                                        {player.ladders.items.map((item, i) => {
-                                            console.log(item)
-                                            return (
-                                                <Link to={`/ladders/${item.ladder.id}`} key={item.ladder.id}>{item.ladder.name}</Link>
-                                            )
-                                        })}
-                                    </Grid> */}
 									<Grid templateRows={"auto"}>
 										{player.ladders?.map((ladder, i) => {
 											return (

@@ -107,6 +107,15 @@ const playerAPI = {
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to update player.' }
   },
 
+  getUTRPlayer: async function(utrId) {
+
+    const response = await fetch('https://app.utrsports.net/api/v1/player/'+utrId)
+    if (response.ok)
+      return await response.json()
+    else
+      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get UTR player.' }
+  },
+
   // setPlayerImage: async function (player) {
   //   if (player?.image) {
   //    // player.imageUrl = player.image
