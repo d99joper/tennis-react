@@ -1,7 +1,7 @@
-import { enums } from "helpers"
 import { authAPI } from "."
+import apiUrl from "config"
 
-const laddersUrl = 'https://mytennis-space.uw.r.appspot.com/ladders/'
+const laddersUrl = apiUrl+'ladders/'
 
 const ladderAPI = {
 
@@ -67,11 +67,13 @@ function parseFilter(filter) {
         return `${x.name}=${x.point.lat},${x.point.lng},${x.radius}&`
       case 'match_type':
         return `${x.name}=${x.matchType}&`
+      case 'level':
+        return `${x.name}_min=${x.level_min}&${x.name}_max=${x.level_max}&`
       default:
         break
     }
   })
-  return queryString ? '?'+queryString : ''
+  return queryString ? '?' + queryString.join('') : ''
 
 
 }

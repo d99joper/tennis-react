@@ -5,42 +5,42 @@ import { playerAPI } from 'api/services';
 
 const userHelper = {
 
-	createPlayerIfNotExist: async function (name, email, override = false) {
-		const user = {}//await Auth.currentAuthenticatedUser();
+	// createPlayerIfNotExist: async function (name, email, override = false) {
+	// 	const user = {}//await Auth.currentAuthenticatedUser();
 
-		let players
-		//console.log(user);
-		// override is set to true if you want to create the user regardless
-		if (!override) {
-			if (typeof user != 'undefined') {
-				// check if the email already exists
-				if (email)
-					players = await playerAPI.getPlayerByFilter(email)
+	// 	let players
+	// 	//console.log(user);
+	// 	// override is set to true if you want to create the user regardless
+	// 	if (!override) {
+	// 		if (typeof user != 'undefined') {
+	// 			// check if the email already exists
+	// 			if (email)
+	// 				players = await playerAPI.getPlayerByFilter(email)
 
-				if (players)
-					return { message: 'A player with that email already exists', players: players, type: enums.PLAYER_EXISTS.Username }
+	// 			if (players)
+	// 				return { message: 'A player with that email already exists', players: players, type: enums.PLAYER_EXISTS.Username }
 
-				// get player by name to see if there are other players like this one 
-				// (would be nice with an 'equals' filter here)
-				players = await playerAPI.getPlayers(name)
-				if (players)
-					return { message: 'Players with that name already exists', players: players, type: enums.PLAYER_EXISTS.Name }
-			}
-		}
+	// 			// get player by name to see if there are other players like this one 
+	// 			// (would be nice with an 'equals' filter here)
+	// 			players = await playerAPI.getPlayers(name)
+	// 			if (players)
+	// 				return { message: 'Players with that name already exists', players: players, type: enums.PLAYER_EXISTS.Name }
+	// 		}
+	// 	}
 
-		// if no similar players were found,player doesn't exist, so create it
-		let player
-		// by name and email
-		if (name && email) player = await playerAPI.createPlayer({ name: name, email: email })
-		// by name
-		else if (name) player = await playerAPI.createPlayer({ name: name, email: 'noEmail@mytennis.space' })
-		// by logged in user (first time you log in a player is created for your profile)
-		else player = await playerAPI.createPlayer({ name: user.attributes.name, email: user.attributes.email })
+	// 	// if no similar players were found,player doesn't exist, so create it
+	// 	let player
+	// 	// by name and email
+	// 	if (name && email) player = await playerAPI.createPlayer({ name: name, email: email })
+	// 	// by name
+	// 	else if (name) player = await playerAPI.createPlayer({ name: name, email: 'noEmail@mytennis.space' })
+	// 	// by logged in user (first time you log in a player is created for your profile)
+	// 	else player = await playerAPI.createPlayer({ name: user.attributes.name, email: user.attributes.email })
 
-		console.log("create a new player", player)
-		// return the player
-		return player
-	},
+	// 	console.log("create a new player", player)
+	// 	// return the player
+	// 	return player
+	// },
 
 	// UpdatePlayer: async function (player, userId, image) {
 
@@ -98,27 +98,27 @@ const userHelper = {
 	// 	}
 	// },
 
-	stringAvatar: function (player, size, randomNumber) {
-		try {
-			// create a random number to avoid image being cached
-			if(!randomNumber)
-				randomNumber = Math.floor(Math.random() * 1000000);
-			const jsonObj = {
-				sx: {
-					...player ? { bgcolor: helpers.stringToColor(player.name) } : null,
-					width: size,
-					height: size,
-					border: 1
-				},
-				...player && player.image
-					? { src: player.image+'?dummy='+randomNumber}
-					: { children: <SlUser {...size ? { size: size * 0.65 } : null} /> }
-			}
+	// stringAvatar: function (player, size, randomNumber) {
+	// 	try {
+	// 		// create a random number to avoid image being cached
+	// 		if(!randomNumber)
+	// 			randomNumber = Math.floor(Math.random() * 1000000);
+	// 		const jsonObj = {
+	// 			sx: {
+	// 				...player ? { bgcolor: helpers.stringToColor(player.name) } : null,
+	// 				width: size,
+	// 				height: size,
+	// 				border: 1
+	// 			},
+	// 			...player && player.image
+	// 				? { src: player.image+'?dummy='+randomNumber}
+	// 				: { children: <SlUser {...size ? { size: size * 0.65 } : null} /> }
+	// 		}
 
-			return jsonObj
-		}
-		catch (e) { console.log(e) }
-	},
+	// 		return jsonObj
+	// 	}
+	// 	catch (e) { console.log(e) }
+	// },
 
 	// createPlayer: async function (name, email = 'noEmail@mytennis.space.com', id) {
 	// 	console.log('createPlayer')
@@ -148,21 +148,21 @@ const userHelper = {
 	// 	}
 	// },
 
-	getCurrentlyLoggedInPlayer: async function () {
-		try {
-			let user = await Auth.currentAuthenticatedUser()
-			//console.log("getCurrentlyLoggedInPlayer", user);
+	// getCurrentlyLoggedInPlayer: async function () {
+	// 	try {
+	// 		let user = await Auth.currentAuthenticatedUser()
+	// 		//console.log("getCurrentlyLoggedInPlayer", user);
 
-			if (typeof user !== 'undefined') {
-				// const player = await this.getPlayerFromAPI(user.attributes.email, null, true)
-				const player = await playerAPI.getPlayerByFilter(user.attributes.email)
-				return player
-			}
-			else return
+	// 		if (typeof user !== 'undefined') {
+	// 			// const player = await this.getPlayerFromAPI(user.attributes.email, null, true)
+	// 			const player = await playerAPI.getPlayerByFilter(user.attributes.email)
+	// 			return player
+	// 		}
+	// 		else return
 
-		}
-		catch (e) { console.log(e) }
-	},
+	// 	}
+	// 	catch (e) { console.log(e) }
+	// },
 
 	// getPlayer: async function (id) {
 	// 	try {
@@ -300,26 +300,26 @@ const userHelper = {
 	// 	}
 	// },
 
-	CheckIfSignedIn: async function () {
-		try {
-			let user = await Auth.currentAuthenticatedUser();
-			if (!user) {
-				return false;
-			}
-			if (user === 'The user is not authenticated') {
-				return false;
-			}
-			else return true;
-		}
-		catch (e) {
-			console.log("CheckIfSignedIn", e)
-			return false;
-		}
-	},
+	// CheckIfSignedIn: async function () {
+	// 	try {
+	// 		let user = await Auth.currentAuthenticatedUser();
+	// 		if (!user) {
+	// 			return false;
+	// 		}
+	// 		if (user === 'The user is not authenticated') {
+	// 			return false;
+	// 		}
+	// 		else return true;
+	// 	}
+	// 	catch (e) {
+	// 		console.log("CheckIfSignedIn", e)
+	// 		return false;
+	// 	}
+	// },
 
-	getUserAttributes: async function () {
-		return Auth.currentUserInfo();
-	},
+	// getUserAttributes: async function () {
+	// 	return Auth.currentUserInfo();
+	// },
 
 	signOut: function () {
 		localStorage.clear()

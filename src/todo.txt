@@ -19,11 +19,11 @@ Josh
 
 current:
     [x] Password type input
-    [ ] Filter ladder search 
-        [ ] Level
-        [ ] Name
+    [x] Filter ladder search 
+        [x] Level
+        [x] Name
         [x] Radius
-            [ ] Change zoom depending on radius
+            [x] Change zoom depending on radius
     [ ] Add search map markers
     [x] Profile image
         [x] save and refresh (add higher random)
@@ -32,7 +32,7 @@ current:
         [ ] get started
     [#] H2H
         [x] api
-        [ ] web
+        [x] web
     [ ] Comments
 
 Overall design
