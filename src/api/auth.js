@@ -1,6 +1,6 @@
-import { enums } from "helpers"
+import apiUrl from "config"
 
-const authUrl = 'https://mytennis-space.uw.r.appspot.com/rest-auth/'
+const authUrl = apiUrl+'rest-auth/'
 
 const authAPI = {
 	getUser: async function (key) {

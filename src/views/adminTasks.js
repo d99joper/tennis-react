@@ -2,7 +2,7 @@ import { Button, Card, Grid, TabItem, Tabs } from "@aws-amplify/ui-react";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { ladderAPI } from "api/services";
 import { ErrorHandler, MatchEditor, SelectPlayer } from "components/forms";
-import { helpers, ladderHelper, matchHelper, userHelper } from "helpers";
+import { enums, helpers, ladderHelper, matchHelper, userHelper } from "helpers";
 import React, { useEffect, useState } from "react";
 import XLSX, { read, utils, writeFile } from 'xlsx';
 
@@ -59,6 +59,10 @@ const AdminTasks = (() => {
 
   function onMatchSubmit(e) {
     console.log('match submitted')
+  }
+
+  function updateLadder(){
+    ladderAPI.updateLadder({id:'35a52e5b-d915-4b84-a4e0-22f2906305a6', match_type: enums.MATCH_TYPE.DOUBLES})
   }
 
   return (
@@ -120,6 +124,7 @@ const AdminTasks = (() => {
 
           </FormControl>
           <Button onClick={addPlayerToLadder}>Add player to ladder</Button>
+        <Button onClick={updateLadder} color="tennis">Update ladder</Button>
         </TabItem>
       </Tabs>
     </>

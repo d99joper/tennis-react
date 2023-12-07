@@ -53,7 +53,7 @@ const ProfileImage = ({ player, size, ...props }) => {
       const { imageUrlWithRandomNumber, isImageLoaded } = getProfileImage(player.id);
       const jsonObj = {
         sx: {
-          ...player ? { bgcolor: helpers.stringToColor(player.name) } : null,
+          ...player ? { bgcolor: helpers.stringToColor(player.id) } : null,
           width: size,
           height: size,
           border: 1

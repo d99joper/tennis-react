@@ -12,45 +12,62 @@ import authAPI from 'api/auth';
 import { ProfileImageProvider } from "components/forms";
 
 function App() {
-  const PrimaryMainTheme = createTheme({
+  let PrimaryMainTheme = createTheme({
     palette: {
-      primary: {main: green[100]},
+      primary: {
+        main: green[500],
+        light: green[200],
+        dark: green[700],
+        //contrastText: purple
+      }, // Primary color
       success: blue,
-      secondary: {main: purple[100]},
-      login: {main: green[700], hover: green[300], text: '#FFF'},
-      info: blue,
-      submit: {main: green[100]},
       divider: green[300],
+      secondary: { main: purple[500] }, // Secondary color
+      login: { main: green[700], hover: green[300], text: '#FFF' },
+      info: blue,
+      submit: { main: green[500], hover: green[300] },
       background: {
-        default: green[10],
-        secondary: blue[10],
+        default: '#edfdf0',
+        secondary: blue[50], // Secondary background color
         success: blue[100],
         paper: green[100],
-      }
+      },
+    },
+  });
+  PrimaryMainTheme = createTheme(PrimaryMainTheme,{
+    palette: {
+    
+      tennis: PrimaryMainTheme.palette.augmentColor({
+        color: {
+          main: '#a34',
+        },
+        background: {main: '#7AD'},
+        name: 'tennis',
+      }),
     }
   });
 
   const [isLoading, setLoading] = useState(true); // Loading state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState({ })
+  const [currentUser, setCurrentUser] = useState({})
 
   useEffect(() => { // useEffect hook
-    
+
     function handleLoginLogout(e) {
       console.log(e)
       getCurrentUser()
     }
-     
+
     async function getCurrentUser() {
       try {
         // get the current user (it's okay if it's null)
         const user = authAPI.getCurrentUser()
         setCurrentUser(user)
-        
+
         // check if there is a user and set the isLoggedIn flag
         const isSignedIn = typeof user === 'object' ? true : false
         setIsLoggedIn(isSignedIn)
-        
+
         // loading complete
         setLoading(false)
       }
@@ -88,31 +105,31 @@ function App() {
 
   return (
     <ProfileImageProvider>
-    <Box className="App" id="app" sx={{ display: 'flex', flexDirection: 'column' }}>
-      <CssBaseline />
-      <ThemeProvider theme={PrimaryMainTheme}>
-        <BrowserRouter>
-          <Header isLoggedIn={isLoggedIn} currentUser={currentUser}></Header>
-          <Box component="main" className='content'
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '2rem',
-              //backgroundColor: 'blueviolet',
-              flexGrow: 1, p: 3,
-              transition: 'flex-grow 0.2s ease',
-              overflowX: 'hidden', // Hide overflowing content
-            }}>
-            {/* <main className='content'> */}
-            {/* <MiniDrawer/> */}
-            <MyRouter isLoggedIn={isLoggedIn} currentUser={currentUser} />
-            {/* </main> */}
-            <Footer>
-            </Footer>
-          </Box>
-        </BrowserRouter>
-      </ThemeProvider>
-    </Box>
+      <Box className="App" id="app" sx={{ display: 'flex', flexDirection: 'column' }}>
+        <CssBaseline />
+        <ThemeProvider theme={PrimaryMainTheme}>
+          <BrowserRouter>
+            <Header isLoggedIn={isLoggedIn} currentUser={currentUser}></Header>
+            <Box component="main" className='content'
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '2rem',
+                //backgroundColor: 'blueviolet',
+                flexGrow: 1, p: 3,
+                transition: 'flex-grow 0.2s ease',
+                overflowX: 'hidden', // Hide overflowing content
+              }}>
+              {/* <main className='content'> */}
+              {/* <MiniDrawer/> */}
+              <MyRouter isLoggedIn={isLoggedIn} currentUser={currentUser} />
+              {/* </main> */}
+              <Footer>
+              </Footer>
+            </Box>
+          </BrowserRouter>
+        </ThemeProvider>
+      </Box>
     </ProfileImageProvider>
   )
 }
