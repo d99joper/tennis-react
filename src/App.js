@@ -20,11 +20,11 @@ function App() {
         dark: green[700],
         //contrastText: purple
       }, // Primary color
-      success: blue,
+      success: {main: '#edfdf0'},//
       divider: green[300],
-      secondary: { main: purple[500] }, // Secondary color
+      secondary: { main: '#edfdf0' }, // Secondary color
       login: { main: green[700], hover: green[300], text: '#FFF' },
-      info: blue,
+      info: {main: blue[400], light: blue[100]},
       submit: { main: green[500], hover: green[300] },
       background: {
         default: '#edfdf0',
