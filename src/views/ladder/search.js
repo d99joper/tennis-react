@@ -141,6 +141,12 @@ const LadderSearch = () => {
 			setLadders(ladderResults.ladders)
 			setTotalCount(ladderResults.total_count)
 			//console.log(ladderResults)
+			// for each ladder, set a marker on the map
+			new window.google.maps.Marker({
+				position: mapCenter,
+				map: map,
+				title: 'Marker Title', // Optional: Add a title to the marker
+			});
 		})
 	}
 	const handleRadiusChange = (event) => {
