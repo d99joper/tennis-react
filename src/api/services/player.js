@@ -1,7 +1,7 @@
 import apiUrl from "config"
 import { authAPI } from "."
 
-const playersUrl = apiUrl+'players/'
+const playersUrl = apiUrl + 'players/'
 
 const playerAPI = {
 
@@ -16,7 +16,18 @@ const playerAPI = {
     }
     else
       return { status: response.status, statusCode: response.statusCode, statusText: response.statusText, error: 'No Player Found' }
-    //this.playerDummyData.find((x) => x.id === id)//
+  },
+
+  getPlayerUTR: async function(id) {
+    const requestOptions = authAPI.getRequestOptions('GET')
+    let response = await fetch(playersUrl + id + '/utr', requestOptions)
+
+    if (response.ok) {
+      const utr = await response.json()
+      return utr
+    }
+    else
+      return { status: response.status, statusCode: response.statusCode, statusText: response.statusText, error: 'Failed to get utr' }
   },
 
   getPlayerByFilter: async function (username) {
@@ -63,7 +74,7 @@ const playerAPI = {
       throw new Error('Couldn\'t get player rivals. ')
   },
 
-  getPlayerH2H: async function(player1, player2) {
+  getPlayerH2H: async function (player1, player2) {
     const requestOptions = authAPI.getRequestOptions('GET')
     const response = await fetch(`${playersUrl + player1.id}/h2h?player2=${player2.id}`, requestOptions)
     if (response.ok) {
@@ -89,7 +100,7 @@ const playerAPI = {
   // partial player as input. Only provided fields get updated
   updatePlayer: async function (player) {
     const requestOptions = authAPI.getRequestOptions('PATCH', player)
-    
+
     const response = await fetch(playersUrl + player.id + '/update', requestOptions)
     if (response.ok)
       return await response.json()
@@ -99,34 +110,13 @@ const playerAPI = {
 
   updatePlayerImage: async function (playerId, image) {
     const requestOptions = authAPI.getRequestOptionsFormData('PATCH', image)
-    
+
     const response = await fetch(playersUrl + playerId + '/update/image', requestOptions)
     if (response.ok)
       return await response.json()
     else
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to update player.' }
   },
-
-  getUTRPlayer: async function(utrId) {
-
-    const response = await fetch('https://app.utrsports.net/api/v1/player/'+utrId)
-    if (response.ok)
-      return await response.json()
-    else
-      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get UTR player.' }
-  },
-
-  // setPlayerImage: async function (player) {
-  //   if (player?.image) {
-  //    // player.imageUrl = player.image
-  //     console.log(player.image)
-  //     // if (!player.imageUrl) {
-  //     //   const url = await Storage.get(player.image)
-  //     //   player.imageUrl = url
-  //     // }
-  //   }
-  //   console.log("player", player)
-  // },
 
   setPlayerName: function (player, lastnameOnly) {
     let name = player.name
@@ -137,4 +127,4 @@ const playerAPI = {
   }
 }
 
-  export default playerAPI
+export default playerAPI

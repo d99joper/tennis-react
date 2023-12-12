@@ -32,7 +32,7 @@ const DynamicTable = ({
 	const [isShowH2H, setIsShowH2H] = useState([])
 	const [h2HData, setH2HData] = useState({})
 
-	//console.log("dynamicTable", data, sortField, direction)
+	console.log("dynamicTable", data, sortField, direction)
 
 	function openH2HModal(match, i) {
 		//if (!isH2HDataFetched[i]) {

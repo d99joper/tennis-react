@@ -57,7 +57,9 @@ const Matches = ({
 
 	useEffect(() => {
 		if (player) {
+			setShowLoader(true)
 			matchAPI.getMatchesForPlayer(player.id, matchType, page, pageSize, 'desc').then((data) => {
+				console.log(data.matches)
 				setMatches(data.matches)
 				setTotalPages(Math.ceil(data.total_count / pageSize))
 				setShowLoader(false)
@@ -151,6 +153,7 @@ const Matches = ({
 		setPage(page - 1)
 	}
 	function handleOnChange(newPageIndex) {
+		console.log(newPageIndex)
 		setPage(newPageIndex)
 	}
 
@@ -171,6 +174,7 @@ const Matches = ({
 							direction="column"
 							gap={"3px"}
 						>
+							{matches.length()}
 							{(item, index) => (
 								<Match props={props}
 									key={index}
@@ -209,7 +213,7 @@ const Matches = ({
 							// sortHandler={sortHandler}
 							// sortField={sortField}
 							// direction={direction}
-							data={matches?.slice((page - 1)* pageSize, page * pageSize)}
+							data={matches}//{matches?.slice((page - 1)* pageSize, page * pageSize)}
 							iconSet={[{ name: 'H2H' }, { name: 'Comments' }]}
 							//nextToken={nextToken}
 							nextText={"View more matches"}

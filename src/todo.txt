@@ -1,22 +1,3 @@
-Josh
-    [x] Authentication 
-        [x] Social providers
-        [x] Username / password with token
-    [x] players/?filter=Jonas doesn't work, but players/?filter=Jonas&stats does 
-    [ ] Better filter abilities first and last name
-        [ ] First and last name, ie players/?filter=Jonas%20Persson
-        [ ] Equals, startswith, contains
-    [x] Geo search 
-        [x] Players
-        [x] Ladders
-    [x] Add limit, skip, sort, and total count to matches
-    [ ] Save comments with matches
-    [x] Standings not calculating correctly, check https://mytennis-space.uw.r.appspot.com/ladders/35a52e5b-d915-4b84-a4e0-22f2906305a6
-        [x] 'Updated Player Name' and 'Josh Livni' didn't get any points for their losses
-        [x] 'josh' should have 14+20+6=40p
-    [ ] Matches filter on match_type
-
-
 current:
     [x] Password type input
     [x] Filter ladder search 
@@ -34,6 +15,11 @@ current:
         [x] api
         [x] web
     [ ] Comments
+        [ ] Display
+        [ ] Add
+        [ ] Edit 
+        [ ] Delete
+    [ ] UTR - import matches
 
 Overall design
     [x] Mobile vs computer menu

@@ -7,10 +7,12 @@ import {
 import { enums, helpers } from 'helpers'
 import { Editable, Matches, PhoneNumber, UserStats, TopRivals, UnlinkedMatches, ProfileImage } from '../components/forms/index.js'
 import './profile.css';
-import { Modal, Box, Typography, Dialog, DialogTitle, Popover } from '@mui/material';
+import { Modal, Box, Typography, Dialog, DialogTitle, Popover, CircularProgress } from '@mui/material';
 import { AiOutlineEdit, AiOutlineMail, AiOutlinePhone } from 'react-icons/ai';
 import { MdOutlineCancel, MdOutlineCheck, MdOutlineInfo } from 'react-icons/md'
 import { authAPI, playerAPI } from 'api/services/index.js';
+import { useContext } from 'react';
+import { ProfileImageContext } from 'components/forms/ProfileImage.js';
 
 function Profile(props) {
 
@@ -21,6 +23,8 @@ function Profile(props) {
 	const [matchTabIndex, setMatchTabIndex] = useState(0)
 	// player
 	const [player, setPlayer] = useState()
+	const { setProfileImage } = useContext(ProfileImageContext)
+	const [updatingImage, setUpdatingImage] = useState(false)
 	const [loggedInPlayer, setLoggedInPlayer] = useState()
 	const [rivals, setRivals] = useState({})
 	const [rivalsFetched, setRivalsFetched] = useState(false);
@@ -38,8 +42,8 @@ function Profile(props) {
 	const [showImagePicker, setShowImagePicker] = useState(false)
 	// utr
 	const [utrLink, setUtrLink] = useState('')
-	const [utrRankSingles, setUtrRankSingles] = useState(0)
-	const [utrRankDoubles, setUtrRankDoubles] = useState(0)
+	const [utrRankSingles, setUtrRankSingles] = useState()
+	const [utrRankDoubles, setUtrRankDoubles] = useState()
 	// matches
 	const [showMatchEditor, setShowMatchEditor] = useState(false);
 	const [unLinkedMatches, setUnLinkedMatches] = useState()
@@ -100,18 +104,19 @@ function Profile(props) {
 
 	async function updateProfilePic(e) {
 
-		setIsLoaded(false)
+		setUpdatingImage(true)
+		setShowImagePicker(false)
 		const origImage = Array.from(e.target.files)[0]
 		//console.log(origImage)
 		const smallImage = await helpers.resizeImage(origImage, 800)
 		//console.log(smallImage)
 		let p = await playerAPI.updatePlayerImage(player.id, smallImage)
 		//console.log("updateProfilePic", p)
+		setProfileImage(player.id, player.image)
 		// update the localstorage cache
-		localStorage.setItem(`profile_image_${player.id}`, `${player.image}?dummy=${Math.random()}`)
-		setPlayer(prevState => ({ ...prevState, image: p.image }))
-		setIsLoaded(true)
-		setShowImagePicker(false)
+		//localStorage.setItem(`profile_image_${player.id}`, `${player.image}?dummy=${Math.random()}`)
+		//setPlayer(prevState => ({ ...prevState, image: p.image }))
+		setUpdatingImage(false)
 		// to avoid caching images, set a random number to add to the url
 		//setRandomImageNumber(Math.floor(Math.random() * 1000000))
 	}
@@ -175,13 +180,15 @@ function Profile(props) {
 				p = await playerAPI.getPlayer(id)
 				setStats(p.stats)
 				setStatsFetched(true)
-				console.log('utr', p.UTR, Number.isInteger(p.UTR))
-				if(p.UTR && Number.isInteger(Number.parseInt(p.UTR))) {
-					playerAPI.getUTRPlayer(p.UTR).then((utrPlayer) => {
-						console.log(utrPlayer)
-						setUtrLink(`https://utr.com/${p.UTR}`)
-						setUtrRankSingles(utrPlayer.singlesUtr)
-						setUtrRankDoubles(utrPlayer.doublesUtr)
+				console.log('utr', p.UTR, p.utr_data)
+				if(p.UTR) {
+					setUtrLink(`https://app.utrsports.net/profiles/${p.UTR}`)
+					playerAPI.getPlayerUTR(id).then((utr_obj) => {
+						if(utr_obj) {
+							console.log(utr_obj)
+							setUtrRankSingles(utr_obj.singlesUTR.toFixed(2))
+							setUtrRankDoubles(utr_obj.doublesUTR.toFixed(2))
+						}
 					})
 				}
 				if (p.error)
@@ -288,10 +295,14 @@ function Profile(props) {
 							}
 						</div>
 						{/************ PROFILE PICTURE   *************/}
-						<ProfileImage player={player} size={150}
-							className={`image ${canEdit ? " cursorHand" : null}`}
-							onClick={(e) => { openUserImagePicker(e) }}
-						/>
+						{updatingImage
+							? <CircularProgress size={140} />
+							:
+							<ProfileImage player={player} size={150}
+								className={`image ${canEdit ? " cursorHand" : null}`}
+								onClick={(e) => { openUserImagePicker(e) }}
+							/>
+						}
 						{/************ NAME   *************/}
 						<Text fontSize='x-large' className='name'>
 							{player.name}
@@ -363,7 +374,7 @@ function Profile(props) {
 										}
 									</div>
 									{/************ NTRP   *************/}
-									<View>NTRP:</View>
+									<View>NTRP <MdOutlineInfo onClick={(e) => { handleIconClick('ntrp', e) }} className='cursorHand' />:</View>
 									<div>
 										<Flex direction={"row"}>
 											<Editable
@@ -380,7 +391,7 @@ function Profile(props) {
 												></SelectField>
 
 											</Editable>
-											<MdOutlineInfo onClick={(e) => { handleIconClick('ntrp', e) }} className='cursorHand' />
+											
 										</Flex>
 										{/******** POPOVER FOR NTRP AND UTR INFO   *********/}
 										<Popover
@@ -395,18 +406,23 @@ function Profile(props) {
 										</Popover>
 									</div>
 									{/************ UTR   *************/}
-									<View>UTR:</View>
+									<View>UTR <MdOutlineInfo onClick={(e) => { handleIconClick('utr', e) }} className='cursorHand' />:</View>
 									<Flex direction={"row"}>
 										<Editable
-											text={player.UTR ?? 'Add your UTR id'}
+											text={
+												<Flex direction={"column"} gap={"0"}>
+													{!player.UTR ? <div>'Add your UTR id'</div> : ''}
+													{utrRankSingles > 0 && <div>Singles: {utrRankSingles}</div>}
+													{utrRankDoubles > 0 && <div>Doubles: {utrRankDoubles}</div>}
+													{utrLink ? <a target='_blank' href={utrLink}>{`View UTR profile >>`}</a> : ''}
+												</Flex>
+											}
 											isEditing={isEdit}
 										>
 											<TextField name="UTR" size='small' defaultValue={player.UTR}></TextField>
-											{utrRankSingles && `Singles: ${utrRankSingles}`}
-											{utrRankDoubles && `Doubles: ${utrRankDoubles}`}
-											<a target='_blank' href={utrLink}>UTR profile</a>
+
 										</Editable>
-										<MdOutlineInfo onClick={(e) => { handleIconClick('utr', e) }} className='cursorHand' />
+										
 									</Flex>
 									{/************ LADDERS   *************/}
 									<View>Ladders:</View>
@@ -459,11 +475,11 @@ function Profile(props) {
 						>
 							<TabItem title="Singles">
 								<UnlinkedMatches matches={unLinkedMatches} player={player} handleMatchAdded={handleUnlinkedMatchAdded} />
-								<Matches player={player} pageSize="5" matchType={enums.MATCH_TYPE.SINGLES} allowDelete={loggedInPlayer?.isAdmin}></Matches>
+								<Matches player={player} pageSize="10" matchType={enums.MATCH_TYPE.SINGLES} allowDelete={loggedInPlayer?.isAdmin}></Matches>
 
 							</TabItem>
 							<TabItem title="Doubles">
-								<Matches player={player} pageSize="5" matchType={enums.MATCH_TYPE.DOUBLES} allowDelete={loggedInPlayer?.isAdmin}></Matches>
+								<Matches player={player} pageSize="10" matchType={enums.MATCH_TYPE.DOUBLES} allowDelete={loggedInPlayer?.isAdmin}></Matches>
 							</TabItem>
 						</Tabs>
 						{canEdit &&
