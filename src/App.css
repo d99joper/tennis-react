@@ -21,10 +21,6 @@ body,html {
   src: url(images/Bellefair-Regular.otf);
 }
 
-/* * {
-  font-family: belleFair;
-} */
-
 .transition {
   -webkit-transition: all 0.4s ease-in-out;
   -moz-transition: all 0.4s ease-in-out;
@@ -153,11 +149,11 @@ img {
 }
 
 a {
-  color: #000000;
+  color: #06ac51;
   text-decoration: none;
 }
 a:hover {
-  color: rgb(64, 0, 107);
+  color: #2f85ad;
   text-decoration: underline;
 }
 

@@ -73,7 +73,7 @@ const ProfileImage = ({ player, size, ...props }) => {
   )
 };
 
-export { ProfileImageProvider, ProfileImage };
+export { ProfileImageProvider, ProfileImageContext, ProfileImage };
 
 //
 // *****************************************
