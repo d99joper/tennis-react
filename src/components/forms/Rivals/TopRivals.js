@@ -3,7 +3,6 @@ import React from "react";
 import "./rivals.css"
 import { userHelper as uf } from "helpers";
 import { Link } from "react-router-dom";
-import { Avatar } from "@mui/material";
 import {ProfileImage} from "../index";
 
 const TopRivals = ({ data, ...props }) => {

@@ -1,3 +1,4 @@
+import { helpers } from "helpers"
 import { authAPI } from "."
 import apiUrl from "config"
 
@@ -8,7 +9,6 @@ const ladderAPI = {
   /* API calls */
   getLadder: async function (id) {
     const requestOptions = authAPI.getRequestOptions('GET')
-
     const response = await fetch(laddersUrl + id, requestOptions)
     if (response.ok)
       return await response.json()
@@ -17,9 +17,12 @@ const ladderAPI = {
   },
 
   getLadders: async function (filter) {
+    const url = new URL(laddersUrl)
+    url.search = helpers.parseFilter(filter)
+    //console.log(url.search)
     const requestOptions = authAPI.getRequestOptions('GET')
-    const queryString = parseFilter(filter)
-    const response = await fetch(laddersUrl + queryString, requestOptions)
+    //const queryString = helpers.parseFilter(filter)
+    const response = await fetch(url, requestOptions)//(laddersUrl + queryString, requestOptions)
     if (response.ok)
       return await response.json()
     else
@@ -58,24 +61,5 @@ const ladderAPI = {
   },
 }
 
-function parseFilter(filter) {
-  let queryString
-
-  queryString = filter.map((x) => {
-    switch (x.name.toLowerCase()) {
-      case 'geo':
-        return `${x.name}=${x.point.lat},${x.point.lng},${x.radius}&`
-      case 'match_type':
-        return `${x.name}=${x.matchType}&`
-      case 'level':
-        return `${x.name}_min=${x.level_min}&${x.name}_max=${x.level_max}&`
-      default:
-        break
-    }
-  })
-  return queryString ? '?' + queryString.join('') : ''
-
-
-}
 
 export default ladderAPI

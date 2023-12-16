@@ -2,6 +2,7 @@ import { API, Auth, DataStore, Storage } from 'aws-amplify';
 import { helpers, enums } from '../helpers/index';
 import { SlUser } from 'react-icons/sl';
 import { playerAPI } from 'api/services';
+import React from 'react';
 
 const userHelper = {
 
@@ -50,16 +51,16 @@ const userHelper = {
 	// 		console.log(arrayBuffer)
 	// 		console.log(text)
 	// // 		var reader = new FileReader();
-  // // reader.onload = function() {
+	// // reader.onload = function() {
 
-  // //   var arrayBuffer = this.result,
-  // //     array = new Uint8Array(arrayBuffer),
-  // //     binaryString = String.fromCharCode.apply(null, array);
+	// //   var arrayBuffer = this.result,
+	// //     array = new Uint8Array(arrayBuffer),
+	// //     binaryString = String.fromCharCode.apply(null, array);
 
-  // //   console.log(binaryString);
+	// //   console.log(binaryString);
 
-  // // }
-  // // reader.readAsArrayBuffer(image);
+	// // }
+	// // reader.readAsArrayBuffer(image);
 
 	// 		let imageName = (!!player.image ? player.image.name : undefined)
 	// 		if (image) {
@@ -455,12 +456,44 @@ const userHelper = {
 	// 	}
 	// },
 
-	SetPlayerName: function (player, lastnameOnly) {
+	SetPlayerName: function (player, lastnameOnly, boldText) {
 		let name = player.name
 		if (lastnameOnly)
 			name = name.split(' ').filter(Boolean).slice(-1)[0]
 
-		return name + (player.verified ? "" : "*")
+
+		if (boldText) {
+
+			if (boldText) {
+				let regex = new RegExp(boldText, 'ig')
+				const replaceText = name.match(regex)
+				console.log(replaceText)
+				name = name.split(regex).map((part, index) => {
+					console.log(part, index)
+					return index % 2 === 0 ? (
+						// Non-matching part
+						<React.Fragment key={index}>{part}<b>{replaceText[index]}</b></React.Fragment>
+					) : (
+						// Matching part
+						<React.Fragment key={index}>{part}</React.Fragment>
+					)
+				}
+				)
+			}
+			// let regex = new RegExp(boldText, 'i')
+			// let nameParts = name.split(regex)
+			// name = nameParts.map((part,i) => {
+			// 	console.log(part)
+			// 	return i < nameParts.length - 1 ? (
+			// 		// <React.Fragment key={i}>
+			// 			part+'<b>'+boldText+'</b>'
+			// 		// </React.Fragment>
+			// 	) : part
+			// }
+			// )
+			//console.log(nameParts, name)
+		}
+		return <>{name}</> //+ (player.verified ? "" : "*")
 	}
 }
 

@@ -32,6 +32,26 @@ const helpers = {
 		});
 	},
 
+	parseFilter: (filter) => {
+		return Object.entries(filter)
+									.map(([key, value]) => `${key}=${value}`)
+									.join('&')
+		let queryString = filter.map((x) => {
+			
+			// switch (x.name.toLowerCase()) {
+			// 	case 'geo':
+			// 		return `${x.name}=${x.point.lat},${x.point.lng},${x.radius}&`
+			// 	case 'match-type':
+			// 		return `${x.name}=${x.matchType}&`
+			// 	case 'level':
+			// 		return `${x.name}-min=${x.level_min}&${x.name}-max=${x.level_max}&`
+			// 	default:
+			// 		break
+			// }
+		})
+		return queryString ? '?' + queryString.join('') : ''
+	},
+
 	setDate: (days) => {
 		let d = new Date()
 		d.setDate(d.getDate() + days)
