@@ -10,7 +10,7 @@ const isLocalhost = Boolean(
     )
 )
 
-const useLocalDbConnection = process.env.REACT_APP_USE_LOCAL_DB.toLowerCase() === 'true'
+const useLocalDbConnection = process.env.REACT_APP_USE_LOCAL_DB?.toLowerCase() === 'true'
 
 if(isLocalhost && useLocalDbConnection) {
   apiUrl = 'http://127.0.0.1:8000/'
