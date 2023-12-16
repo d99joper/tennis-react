@@ -212,8 +212,8 @@ const SearchPage = (props) => {
       console.log('call getPlayers', filter)
       playerAPI.getPlayers(filter).then((playerResults) => {
         console.log(playerResults.players)
-        if(filters.includes('geo')) 
-          updateMapMarkers(playerResults.players)
+        //if(filters.includes('location')) 
+        updateMapMarkers(playerResults.players)
         setPlayers(playerResults.players)
         setTotalCount(playerResults.total_count)
         setIsLoading(false)
@@ -223,8 +223,8 @@ const SearchPage = (props) => {
       ladderAPI.getLadders(filter).then((ladderResults) => {
         setLadders(ladderResults.ladders)
         setTotalCount(ladderResults.total_count)
-        if(filters.includes('geo')) 
-          updateMapMarkers(ladderResults.ladders)
+        //if(filters.includes('location')) 
+        updateMapMarkers(ladderResults.ladders)
         setIsLoading(false)
         //console.log(ladderResults)
         // for each ladder, set a marker on the map
