@@ -48,6 +48,7 @@ function Profile(props) {
 	const [showMatchEditor, setShowMatchEditor] = useState(false);
 	const [unLinkedMatches, setUnLinkedMatches] = useState()
 	const [unLinkedMatchesAdded, setUnLinkedMatchesAdded] = useState(0)
+	//const [startPage, setStartPage]
 
 	const MatchEditor = lazy(() => import("../components/forms/index") //MatchEditor/MatchEditor")
 		.then(module => { return { default: module.MatchEditor } }))
@@ -372,6 +373,11 @@ function Profile(props) {
 											/>
 
 										}
+									</div>
+									<View>Location </View>
+									<div>
+										{player.location}
+											
 									</div>
 									{/************ NTRP   *************/}
 									<View>NTRP <MdOutlineInfo onClick={(e) => { handleIconClick('ntrp', e) }} className='cursorHand' />:</View>

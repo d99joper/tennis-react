@@ -10,10 +10,12 @@ const isLocalhost = Boolean(
     )
 )
 
-const useLocalDbConnection = process.env.REACT_APP_USE_LOCAL_DB
+const useLocalDbConnection = process.env.REACT_APP_USE_LOCAL_DB.toLowerCase() === 'true'
 
-if(isLocalhost && useLocalDbConnection)
+if(isLocalhost && useLocalDbConnection) {
   apiUrl = 'http://127.0.0.1:8000/'
+  console.log('we are here because isLocalhost && useLocalDbConnection is', isLocalhost && useLocalDbConnection)
+}
 else
   apiUrl = 'https://mytennis-space.uw.r.appspot.com/'
 

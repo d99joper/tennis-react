@@ -1,7 +1,7 @@
 // Matches.js
 import { Button, Collection, Divider, Flex, Grid, Loader, Pagination, Text, View } from "@aws-amplify/ui-react";
 import { enums, userHelper as uf } from "helpers";
-import React, { Suspense, useState, lazy, useEffect } from "react";
+import React, { Suspense, useState, lazy, useEffect, useRef } from "react";
 import { DynamicTable, Match } from "../index.js"
 import "./Matches.css"
 import { LinearProgress } from "@mui/material";
@@ -39,6 +39,8 @@ const Matches = ({
 	const [showLoader, setShowLoader] = useState(true);
 	const matchPrefix = matches?.[0]?.hasOwnProperty('match') ? 'match.' : ''
 	const useMatchPrefix = matches?.[0]?.hasOwnProperty('match') ? true : false
+	const prevPlayer = useRef(player)
+	const prevLadder = useRef(ladder)
 
 	const tableHeaders = [
 		{ label: "Date", accessor: matchPrefix + "played_on", sortable: false, parts: useMatchPrefix ? 2 : 1, link: 'Match/id' },
@@ -57,6 +59,11 @@ const Matches = ({
 
 	useEffect(() => {
 		if (player) {
+			// if there's a new player, reset the page to 1
+			if(prevPlayer.current !== player) {
+				setPage(1)
+				prevPlayer.current = player
+			}
 			setShowLoader(true)
 			matchAPI.getMatchesForPlayer(player.id, matchType, page, pageSize, 'desc').then((data) => {
 				console.log(data.matches)
@@ -74,6 +81,11 @@ const Matches = ({
 		}
 		else
 			if (ladder) {
+				// if there's a new ladder, reset the page to 1
+				if(prevLadder.current !== ladder) {
+					setPage(1)
+					prevLadder.current = ladder
+				}
 				//mf.getMatchesForLadder(ladder.id, 'DESC', nextToken, 10).then((data) => {
 				matchAPI.getMatchesForLadder(ladder.id, matchType, page, pageSize, 'DESC', 'playedOn').then((data) => {
 					console.log(data)

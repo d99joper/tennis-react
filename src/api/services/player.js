@@ -1,5 +1,6 @@
 import apiUrl from "config"
 import { authAPI } from "."
+import { helpers } from "helpers"
 
 const playersUrl = apiUrl + 'players/'
 
@@ -48,8 +49,12 @@ const playerAPI = {
   },
 
   getPlayers: async function (filter) {
+    console.log(filter)
+    const url = new URL(playersUrl)
+    const params = new URLSearchParams(filter) //helpers.parseFilter(filter)
+    console.log("params: ",params)
     const requestOptions = authAPI.getRequestOptions('GET')
-    const response = await fetch(`${playersUrl}?filter=${filter}`, requestOptions)
+    const response = await fetch(url+'?'+params,requestOptions)//`${playersUrl}?filter=${filter}`, requestOptions)
     if (response.ok) {
       const data = await response.json()
       // await data.players.forEach(p => {

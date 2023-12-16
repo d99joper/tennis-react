@@ -5,7 +5,7 @@ current:
         [x] Name
         [x] Radius
             [x] Change zoom depending on radius
-    [ ] Add search map markers
+    [x] Add search map markers
     [x] Profile image
         [x] save and refresh (add higher random)
         [x] pulls image every time I switch tabs
@@ -50,15 +50,16 @@ Overall design
 
 Search page
     [x] Add to menu
-    [ ] Searches for different categories (ladder name/location/level, players name/location/level)
-        [ ] Search for players
-            [ ] Name
+    [*] Searches for different categories (ladder name/location/level, players name/location/level)
+        [*] Search for players
+            [x] Name
+            [*] Level
+                [ ] UTR needs to store the current rating
+            [x] Location
+        [x] Search for ladders
+            [x] Name
             [ ] Level
-            [ ] Location
-        [ ] Search for ladders
-            [ ] Name
-            [ ] Level
-            [ ] Location
+            [x] Location
 [ ] Login 
     [ ] User email / password already exists {"non_field_errors":["User is already registered with this e-mail address."]}
     [x] Login/profile in the top banner
