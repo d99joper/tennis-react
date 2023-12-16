@@ -180,7 +180,7 @@ const SearchPage = (props) => {
     if (emailInput)
       email = emailInput.value
 
-    if(filters.includes('geo')) {
+    if(filters.includes('location')) {
       map = new window.google.maps.Map(document.getElementById("map"), {
         zoom: radius === 15 ? 10 : radius === 25 ? 9 : radius === 50 ? 8 : radius === 75 ? 7 : 7,
         center: myLngLat,
