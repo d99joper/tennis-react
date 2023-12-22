@@ -64,17 +64,17 @@ const Match = ({
                         <View className="playerName">Winner</View>
                         <View className="playerName">Loser</View>
                         <View className="score">Score</View>
-                        <View className="ladderName">Ladder</View>
+                        {/* <View className="ladderName">Ladder</View> */}
                         <View className="iconSet"></View>
                     </Flex>
                     : null
                 }
                 <Flex className="matchRow" backgroundColor={color}>
                     <View className="date">{helpers.formatDate(match.played_on)}</View>
-                    <View className="playerName"><Link to={"/profile/" + match.winner.id}>{match.winner.name}</Link></View>
-                    <View className="playerName"><Link to={"/profile/" + match.loser.id}>{match.loser.name}</Link></View>
+                    <View className="playerName"><Link to={"/profile/" + match.winner.id}>{match.winner[0].name}</Link></View>
+                    <View className="playerName"><Link to={"/profile/" + match.loser.id}>{match.loser[0].name}</Link></View>
                     <View className="score">{match.score}</View>
-                    <View className="ladderName"><Link to={"/ladders/" + match.ladder.id}>{match.ladder.name}</Link></View>
+                    {/* <View className="ladderName"><Link to={"/ladders/" + match.ladder.id}>{match.ladder.name}</Link></View> */}
                     <View className="iconSet">
                         {showComments === true ?
                             <>

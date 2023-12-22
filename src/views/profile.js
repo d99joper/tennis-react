@@ -9,7 +9,7 @@ import { Editable, Matches, PhoneNumber, UserStats, TopRivals, UnlinkedMatches, 
 import './profile.css';
 import { Modal, Box, Typography, Dialog, DialogTitle, Popover, CircularProgress } from '@mui/material';
 import { AiOutlineEdit, AiOutlineMail, AiOutlinePhone } from 'react-icons/ai';
-import { MdOutlineCancel, MdOutlineCheck, MdOutlineInfo } from 'react-icons/md'
+import { MdOutlineCancel, MdOutlineCheck, MdOutlineInfo, MdOutlineRefresh } from 'react-icons/md'
 import { authAPI, playerAPI } from 'api/services/index.js';
 import { useContext } from 'react';
 import { ProfileImageContext } from 'components/forms/ProfileImage.js';
@@ -44,6 +44,8 @@ function Profile(props) {
 	const [utrLink, setUtrLink] = useState('')
 	const [utrRankSingles, setUtrRankSingles] = useState()
 	const [utrRankDoubles, setUtrRankDoubles] = useState()
+	const [showUtrRefresh, setShowUtrRefresh] = useState(true)
+	const [showUtrRefreshing, setShowUtrRefreshing] = useState(false)
 	// matches
 	const [showMatchEditor, setShowMatchEditor] = useState(false);
 	const [unLinkedMatches, setUnLinkedMatches] = useState()
@@ -181,16 +183,14 @@ function Profile(props) {
 				p = await playerAPI.getPlayer(id)
 				setStats(p.stats)
 				setStatsFetched(true)
-				console.log('utr', p.UTR, p.utr_data)
-				if(p.UTR) {
+
+				if (p.UTR) {
+					if (p.cached_utr) {
+						console.log(p.cached_utr)
+						setUtrRankSingles(p.cached_utr?.singles?.toFixed(2))
+						setUtrRankDoubles(p.cached_utr?.doubles?.toFixed(2))
+					}
 					setUtrLink(`https://app.utrsports.net/profiles/${p.UTR}`)
-					playerAPI.getPlayerUTR(id).then((utr_obj) => {
-						if(utr_obj) {
-							console.log(utr_obj)
-							setUtrRankSingles(utr_obj.singlesUTR.toFixed(2))
-							setUtrRankDoubles(utr_obj.doublesUTR.toFixed(2))
-						}
-					})
 				}
 				if (p.error)
 					setError({ status: true, message: p.error })
@@ -221,6 +221,20 @@ function Profile(props) {
 		})
 		//}, []);  
 	}, [params.userid, unLinkedMatchesAdded]);
+
+	function updateUTR() {
+		// this is just to refresh the utrm once someone looks at the profile
+		setShowUtrRefresh(false)
+		setShowUtrRefreshing(true)
+		playerAPI.getPlayerUTR(player.id).then((utr_obj) => {
+			if (utr_obj) {
+				console.log(utr_obj)
+				setUtrRankSingles(utr_obj.singles.toFixed(2))
+				setUtrRankDoubles(utr_obj.doubles.toFixed(2))
+			}
+			setShowUtrRefreshing(false)
+		})
+	}
 
 
 	if (error.status) {
@@ -319,9 +333,11 @@ function Profile(props) {
 							justifyContent="flex-start">
 							<TabItem title="General">
 								<Grid
-									templateColumns="1fr 5fr"
+									className='profile-info-grid'
+									// templateColumns="1fr 5fr"
 									templateRows="auto"
 									paddingTop={"10px"}
+									position={'relative'}
 								>
 
 									<View className='profile-contact' columnStart="1" columnEnd={'-1'}>
@@ -352,7 +368,7 @@ function Profile(props) {
 									</View>
 
 									{/************ EDIT TOOGLE   *************/}
-									<div className="mobile-only" style={{ textAlign: 'right', paddingRight: '1rem', flexGrow: 1 }}>
+									<div className="mobile-only" style={{ textAlign: 'right', paddingRight: '1rem', flexGrow: 1, position:'absolute', top:0, right:0, padding:'1rem', zIndex:9999 }}>
 
 										{canEdit && isEdit &&
 											<>
@@ -374,10 +390,10 @@ function Profile(props) {
 
 										}
 									</div>
-									<View>Location </View>
+									<View >Location </View>
 									<div>
 										{player.location}
-											
+
 									</div>
 									{/************ NTRP   *************/}
 									<View>NTRP <MdOutlineInfo onClick={(e) => { handleIconClick('ntrp', e) }} className='cursorHand' />:</View>
@@ -397,7 +413,7 @@ function Profile(props) {
 												></SelectField>
 
 											</Editable>
-											
+
 										</Flex>
 										{/******** POPOVER FOR NTRP AND UTR INFO   *********/}
 										<Popover
@@ -418,8 +434,19 @@ function Profile(props) {
 											text={
 												<Flex direction={"column"} gap={"0"}>
 													{!player.UTR ? <div>'Add your UTR id'</div> : ''}
-													{utrRankSingles > 0 && <div>Singles: {utrRankSingles}</div>}
-													{utrRankDoubles > 0 && <div>Doubles: {utrRankDoubles}</div>}
+													<div>
+														Singles: {showUtrRefreshing ? <CircularProgress size={14} /> : (utrRankSingles > 0 ? utrRankSingles : 'UR')}
+													</div>
+													<div>
+														Doubles: {showUtrRefreshing ? <CircularProgress size={14} /> : (utrRankDoubles > 0 ? utrRankDoubles : 'UR')}
+													</div>
+
+													{showUtrRefresh &&
+														<MdOutlineRefresh
+															color="green"
+															className='cursorHand'
+															onClick={() => updateUTR()} />
+													}
 													{utrLink ? <a target='_blank' href={utrLink}>{`View UTR profile >>`}</a> : ''}
 												</Flex>
 											}
@@ -428,7 +455,7 @@ function Profile(props) {
 											<TextField name="UTR" size='small' defaultValue={player.UTR}></TextField>
 
 										</Editable>
-										
+
 									</Flex>
 									{/************ LADDERS   *************/}
 									<View>Ladders:</View>
@@ -459,7 +486,20 @@ function Profile(props) {
 							</TabItem>
 							<TabItem title="Stats" onClick={handleStatsClick} >
 								{/************ STATS   *************/}
-								<UserStats stats={stats} statsFetched={statsFetched} paddingTop={10} />
+								<UserStats 
+									stats={stats} 
+									statsFetched={statsFetched} 
+									paddingTop={10} 
+									displayAs={enums.DISPLAY_MODE.SimpleList}
+									className="mobile-only"  
+								/>
+								<UserStats 
+									stats={stats} 
+									statsFetched={statsFetched} 
+									paddingTop={10} 
+									displayAs={enums.DISPLAY_MODE.Table}
+									className="desktop-only"  
+								/>
 							</TabItem>
 							<TabItem title="Greatest Rivals" onClick={handleRivalsClick} >
 								{/************ RIVALS   *************/}
@@ -481,11 +521,39 @@ function Profile(props) {
 						>
 							<TabItem title="Singles">
 								<UnlinkedMatches matches={unLinkedMatches} player={player} handleMatchAdded={handleUnlinkedMatchAdded} />
-								<Matches player={player} pageSize="10" matchType={enums.MATCH_TYPE.SINGLES} allowDelete={loggedInPlayer?.isAdmin}></Matches>
+								<Matches 
+									player={player} 
+									pageSize="10" 
+									matchType={enums.MATCH_TYPE.SINGLES} 
+									allowDelete={loggedInPlayer?.isAdmin} 
+									className="desktop-only" 
+								/>
+								<Matches 
+									player={player} 
+									pageSize="10" 
+									matchType={enums.MATCH_TYPE.SINGLES} 
+									allowDelete={loggedInPlayer?.isAdmin} 
+									displayAs={enums.DISPLAY_MODE.SimpleList}
+									className="mobile-only" 
+								/>
 
 							</TabItem>
 							<TabItem title="Doubles">
-								<Matches player={player} pageSize="10" matchType={enums.MATCH_TYPE.DOUBLES} allowDelete={loggedInPlayer?.isAdmin}></Matches>
+								<Matches 
+									player={player} 
+									pageSize="10" 
+									matchType={enums.MATCH_TYPE.DOUBLES} 
+									allowDelete={loggedInPlayer?.isAdmin}
+									className="desktop-only" 
+								/>
+								<Matches 
+									player={player} 
+									pageSize="10" 
+									matchType={enums.MATCH_TYPE.DOUBLES} 
+									allowDelete={loggedInPlayer?.isAdmin}
+									displayAs={enums.DISPLAY_MODE.SimpleList}
+									className="mobile-only" 
+								/>
 							</TabItem>
 						</Tabs>
 						{canEdit &&
