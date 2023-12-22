@@ -184,9 +184,10 @@ const Matches = ({
 						<Collection className="matchCollection"
 							items={matches}
 							direction="column"
+							paddingTop={".5rem"}
+							paddingBottom={".5rem"}
 							gap={"3px"}
 						>
-							{matches.length()}
 							{(item, index) => (
 								<Match props={props}
 									key={index}
@@ -194,7 +195,8 @@ const Matches = ({
 									index={index}
 									match={item}
 									allowDelete={allowDelete}
-									color={setColor(item, index)}
+									color={'lightgrey'}
+									showHeader={false}
 									showComments={false}
 								></Match>
 							)}

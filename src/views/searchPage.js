@@ -21,6 +21,7 @@ const SearchPage = (props) => {
   const [totalCount, setTotalCount] = useState(-1)
   const [isLoading, setIsLoading] = useState(false)
   const [selectedSearch, setSelectedSearch] = useState('players')
+  const [isInitialMapSet, setIsInitialMapSet] = useState(false)
   const [filters, setFilters] = useState([])
   const nameRef = useRef()
 
@@ -54,60 +55,64 @@ const SearchPage = (props) => {
 
   useEffect(() => {
 
-    async function setMap() {
-      function getCurrentPosition() {
-        return new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(
-            position => resolve(position),
-            error => reject(error)
-          )
-        })
-      }
-      async function getUserLocation() {
-        // if the user lets us use their location
-        if (navigator.geolocation) {
-          // get the position
-          const position = await getCurrentPosition()
-          const myLngLat = { lat: position.coords.latitude, lng: position.coords.longitude }
-          // create a geocoder
-          const geocoder = new window.google.maps.Geocoder()
-          // make a map with the user's coordiated
-          const latLng = new window.google.maps.LatLng(myLngLat.lat, myLngLat.lng);
-          // geocode the location and parse out the City, State, Country
-          geocoder.geocode({ location: latLng }, (results, status) => {
-            if (status === "OK") {
-              if (results[0]) {
-                const addressComponents = results[0].address_components
-                const city = addressComponents.find(component => component.types.includes('locality'))
-                const state = addressComponents.find(component => component.types.includes('administrative_area_level_1'))
-                const country = addressComponents.find(component => component.types.includes('country'))
-                const displayName = `${city.long_name}, ${state.short_name}, ${country.short_name}`
-                // set the city as the initial city, which is passed to the autocomplete component
-                setInitialCity(displayName)
-              } else {
-                console.log("No results found.");
-              }
-            } else {
-              console.error(`Geocoder failed due to: ${status}`);
-            }
-          });
-          // set the map center based on the user's position
-          setMapCenter(myLngLat)
-          return myLngLat
-          // });
-        } else {
-          console.log("Geolocation is not supported by this browser. Set San Fran as default")
-          return { lat: 38.54422591158026, lng: -121.74365619216327 }
+    async function setInitialMap() {
+      if (!isInitialMapSet) {
+        function getCurrentPosition() {
+          return new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(
+              position => resolve(position),
+              error => reject(error)
+            )
+          })
         }
-      }
-      let myLngLat = await getUserLocation()
 
-      // set the 
-      map = new window.google.maps.Map(document.getElementById("map"), {
-        zoom: 10,
-        center: myLngLat,
-      });
-      //updateSearch(myLngLat)
+        setIsInitialMapSet(true)
+        async function getUserLocation() {
+          // if the user lets us use their location
+          if (navigator.geolocation) {
+            // get the position
+            const position = await getCurrentPosition()
+            const myLngLat = { lat: position.coords.latitude, lng: position.coords.longitude }
+            // create a geocoder
+            const geocoder = new window.google.maps.Geocoder()
+            // make a map with the user's coordiated
+            const latLng = new window.google.maps.LatLng(myLngLat.lat, myLngLat.lng);
+            // geocode the location and parse out the City, State, Country
+            geocoder.geocode({ location: latLng }, (results, status) => {
+              if (status === "OK") {
+                if (results[0]) {
+                  const addressComponents = results[0].address_components
+                  const city = addressComponents.find(component => component.types.includes('locality'))
+                  const state = addressComponents.find(component => component.types.includes('administrative_area_level_1'))
+                  const country = addressComponents.find(component => component.types.includes('country'))
+                  const displayName = `${city.long_name}, ${state.short_name}, ${country.short_name}`
+                  // set the city as the initial city, which is passed to the autocomplete component
+                  setInitialCity(displayName)
+                } else {
+                  console.log("No results found.");
+                }
+              } else {
+                console.error(`Geocoder failed due to: ${status}`);
+              }
+            });
+            // set the map center based on the user's position
+            setMapCenter(myLngLat)
+            return myLngLat
+            // });
+          } else {
+            console.log("Geolocation is not supported by this browser. Set San Fran as default")
+            return { lat: 38.54422591158026, lng: -121.74365619216327 }
+          }
+        }
+        let myLngLat = await getUserLocation()
+
+        // set the 
+        map = new window.google.maps.Map(document.getElementById("map"), {
+          zoom: 10,
+          center: myLngLat,
+        });
+        //updateSearch(myLngLat)
+      }
     }
 
     // check if script was already created
@@ -132,7 +137,7 @@ const SearchPage = (props) => {
 
       script.addEventListener('load', () => {
         setScriptIsLoaded(true)
-        setMap()
+        setInitialMap()
       })
 
       return () => {
@@ -141,7 +146,7 @@ const SearchPage = (props) => {
       }
     } else {
       setScriptIsLoaded(true)
-      setMap()
+      setInitialMap()
     }
   }, [])
 
@@ -180,7 +185,7 @@ const SearchPage = (props) => {
     if (emailInput)
       email = emailInput.value
 
-    if(filters.includes('location')) {
+    if (filters.includes('location')) {
       map = new window.google.maps.Map(document.getElementById("map"), {
         zoom: radius === 15 ? 10 : radius === 25 ? 9 : radius === 50 ? 8 : radius === 75 ? 7 : 7,
         center: myLngLat,
@@ -202,7 +207,7 @@ const SearchPage = (props) => {
       ...levelNTRP && filters.includes('ntrp') ? { 'level-min': levelNTRP[0] } & { 'level-max': levelNTRP[1] } : {},
       ...levelNTRP && filters.includes('ntrp') ? { 'level-ntrp': `${levelNTRP[0]},${levelNTRP[1]}` } : {},
       ...levelUTR && filters.includes('utr') ? { 'level-utr': `${levelUTR[0]},${levelUTR[1]}` } : {},
-      ...name && selectedSearch === 'players' ? { 'name': name } : {},
+      ...name ? { 'name': name } : {},
       // ...firstName && selectedSearch === 'players' ? { 'first-name': firstName } : {},
       // ...lastName && selectedSearch === 'players' ? { 'last-name': lastName } : {},
       ...email && selectedSearch === 'players' ? { 'email': email } : {}
@@ -238,7 +243,12 @@ const SearchPage = (props) => {
   }
   const handleSearchTypeChange = (event) => {
     setSelectedSearch(event.target.value)
+    const nameInput = document.getElementById("search_name")
+    nameRef.current = nameInput
+    if (nameInput)
+      nameInput.value = ''
   }
+
   return (
     <Flex direction={"column"}>
       <FormControl>
@@ -261,12 +271,12 @@ const SearchPage = (props) => {
       <Flex direction={"row"} gap=".5rem">
         <Flex direction={"column"} gap="1rem" >
           <Flex direction={"column"} gap={"0.5rem"} width={"450px"}>
+            <div>
+              Name:  &nbsp;
+              <input id="search_name" />
+            </div>
             {selectedSearch === 'players' &&
               <>
-                <div>
-                  Name:  &nbsp;
-                  <input id="search_name" />
-                </div>
                 <div>
                   Email:  &nbsp;
                   <input id="search_email" />
@@ -325,14 +335,16 @@ const SearchPage = (props) => {
                 />
               </div>
             }
-            <div>
-              Search on UTR level
-              <Checkbox
-                checked={filters.includes('utr')}
-                value={'utr'}
-                onChange={() => handleFilterChange('utr')}
-              />
-            </div>
+            {selectedSearch === 'players' &&
+              <div>
+                Search on UTR level
+                <Checkbox
+                  checked={filters.includes('utr')}
+                  value={'utr'}
+                  onChange={() => handleFilterChange('utr')}
+                />
+              </div>
+            }
             {filters.includes('utr') &&
               <div style={{ width: '80%' }}>
                 UTR Level: {`${levelUTR[0]}-${levelUTR[1]}`} &nbsp;
@@ -385,15 +397,19 @@ const SearchPage = (props) => {
                       padding={".3rem"}
                       borderRadius={'medium'}>
                       <Flex direction={'row'}>
-                        <View className={"profileImageContainer_small"}>
-                          <ProfileImage player={player} size={60} />
-                        </View>
+                        {/* <View className={"profileImageContainer_small"}> */}
+                          <ProfileImage player={player} size={80} />
+                        {/* </View> */}
                         <Flex direction={'column'} gap="0.1rem">
                           <Text as='span'>
                             {userHelper.SetPlayerName(player, null, nameRef.current?.value)}
                           </Text>
-                          {player.location && <Text as='div'>{player.location}</Text>}
-                          {player.NTRP && <Text as='div'>NTRP: {player.NTRP}</Text>}
+                          {player.location && 
+                            <Text as='div'>{player.location}</Text>}
+                          {player.NTRP && 
+                            <Text as='div'>NTRP: {player.NTRP}</Text>}
+                          {player.cached_utr?.singles > 0 && 
+                            <Text as='div'>UTR: {player.cached_utr.singles > 0 ? player.cached_utr.singles : 'UR'}</Text>}
                         </Flex>
                       </Flex>
                     </Card>

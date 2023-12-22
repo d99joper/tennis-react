@@ -1,0 +1,15 @@
+.win-card {
+  background-color: rgba(4, 168, 78, 0.33) !important;
+}
+
+.lose-card {
+  background-color: rgba(221, 2, 2, 0.33) !important;
+}
+
+.stat-card {
+  padding: 0.5rem;
+}
+
+.indent {
+  margin-left: 1rem;
+}

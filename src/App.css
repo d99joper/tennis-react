@@ -44,10 +44,11 @@ body,html {
   padding: 1rem;
   flex-direction: column;
   background-color: #edfdf0;
+  min-width: 450px;
 }
 
 .mobile-only {
-  display: block;
+  display: contents;
 }
 .desktop-only {
   display: none !important;
