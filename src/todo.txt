@@ -9,8 +9,8 @@ current:
     [x] Profile image
         [x] save and refresh (add higher random)
         [x] pulls image every time I switch tabs
-    [ ] Player search
-        [ ] get started
+    [x] Player search
+        [x] get started
     [#] H2H
         [x] api
         [x] web
@@ -19,7 +19,20 @@ current:
         [ ] Add
         [ ] Edit 
         [ ] Delete
-    [ ] UTR - import matches
+    [x] UTR - import matches
+    [ ] Login / Register
+        [ ] Separate pages for login and registration
+        [ ] Second page for signing up where more questions are asked
+            [ ] Social media and 
+            [ ] username login
+        [ ] Fix google login
+        [ ] Add terms of service and privacy policy on registration page
+    [ ] Design more univerally 
+    [ ] Logout redirect
+    [ ] Notifications instead of email (or send message to users w/o displaying email)
+    [ ] Loading spinners on places that take a long time
+    [ ] Start badges, just one for signing up to start
+        
 
 Overall design
     [x] Mobile vs computer menu

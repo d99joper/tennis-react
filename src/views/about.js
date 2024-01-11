@@ -42,7 +42,7 @@ const AboutPage = (props) => {
                 See you on the courts, champ!
             </Typography>
             {!props?.isLoggedIn &&
-                <Button component={Link} to="/login" variant="contained" className="about-button">
+                <Button component={Link} to="/registration" variant="contained" className="about-button">
                     Join Now
                 </Button>
             }

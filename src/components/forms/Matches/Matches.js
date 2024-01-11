@@ -4,7 +4,7 @@ import { enums, userHelper as uf } from "helpers";
 import React, { Suspense, useState, lazy, useEffect, useRef } from "react";
 import { DynamicTable, Match } from "../index.js"
 import "./Matches.css"
-import { LinearProgress } from "@mui/material";
+import { CircularProgress, LinearProgress } from "@mui/material";
 import { Link } from "react-router-dom";
 import { matchAPI } from "api/services/index.js"
 
@@ -39,6 +39,7 @@ const Matches = ({
 	const [showLoader, setShowLoader] = useState(true);
 	const matchPrefix = matches?.[0]?.hasOwnProperty('match') ? 'match.' : ''
 	const useMatchPrefix = matches?.[0]?.hasOwnProperty('match') ? true : false
+  const [isLoading, setIsLoading] = useState(false)
 	const prevPlayer = useRef(player)
 	const prevLadder = useRef(ladder)
 
@@ -58,6 +59,8 @@ const Matches = ({
 	}
 
 	useEffect(() => {
+		setShowLoader(true)
+		setIsLoading(true)
 		if (player) {
 			// if there's a new player, reset the page to 1
 			if(prevPlayer.current !== player) {
@@ -70,6 +73,7 @@ const Matches = ({
 				setMatches(data.matches)
 				setTotalPages(Math.ceil(data.total_count / pageSize))
 				setShowLoader(false)
+				setIsLoading(false)
 			})
 		}
 		else setShowLoader(false)
@@ -78,6 +82,7 @@ const Matches = ({
 			setMatches(ladderMatches.matches)
 			setTotalPages(Math.ceil(ladderMatches.total_count / pageSize))
 			setShowLoader(false)
+			setIsLoading(false)
 		}
 		else
 			if (ladder) {
@@ -94,6 +99,7 @@ const Matches = ({
 					setTotalPages(Math.ceil(data.total_count / pageSize))
 					//setDataIsFetched(true)
 					setShowLoader(false)
+					setIsLoading(false)
 				})
 			}
 	}, [endDate, ladder, ladderMatches, player, startDate, page])
@@ -169,15 +175,16 @@ const Matches = ({
 		setPage(newPageIndex)
 	}
 
-	if (matches?.length == 0) {
+	// if (matches?.length == 0) {
+	// 	return (
+	// 		<div>
+	// 			No matches found
+	// 		</div>
+	// 	)
+	// }
+	// else
 		return (
-			<div>
-				No matches found
-			</div>
-		)
-	}
-	else
-		return (
+			isLoading === true ? <CircularProgress size={200} /> :
 			<section {...props}>
 				{displayAs === enums.DISPLAY_MODE.Inline ?
 					<>

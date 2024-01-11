@@ -20,11 +20,11 @@ function App() {
         dark: green[700],
         //contrastText: purple
       }, // Primary color
-      success: {main: '#edfdf0'},//
+      success: { main: '#edfdf0' },//
       divider: green[300],
       secondary: { main: '#edfdf0' }, // Secondary color
       login: { main: green[700], hover: green[300], text: '#FFF' },
-      info: {main: blue[400], light: blue[100]},
+      info: { main: blue[400], light: blue[100] },
       submit: { main: green[500], hover: green[300] },
       background: {
         default: '#edfdf0',
@@ -34,14 +34,14 @@ function App() {
       },
     },
   });
-  PrimaryMainTheme = createTheme(PrimaryMainTheme,{
+  PrimaryMainTheme = createTheme(PrimaryMainTheme, {
     palette: {
-    
+
       tennis: PrimaryMainTheme.palette.augmentColor({
         color: {
           main: '#a34',
         },
-        background: {main: '#7AD'},
+        background: { main: '#7AD' },
         name: 'tennis',
       }),
     }
@@ -109,24 +109,11 @@ function App() {
         <CssBaseline />
         <ThemeProvider theme={PrimaryMainTheme}>
           <BrowserRouter>
-            <Header isLoggedIn={isLoggedIn} currentUser={currentUser}></Header>
-            <Box component="main" className='content'
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '2rem',
-                //backgroundColor: 'blueviolet',
-                flexGrow: 1, p: 3,
-                transition: 'flex-grow 0.2s ease',
-                overflowX: 'hidden', // Hide overflowing content
-              }}>
-              {/* <main className='content'> */}
-              {/* <MiniDrawer/> */}
+            
               <MyRouter isLoggedIn={isLoggedIn} currentUser={currentUser} />
               {/* </main> */}
-              <Footer>
-              </Footer>
-            </Box>
+              
+            {/* </Box> */}
           </BrowserRouter>
         </ThemeProvider>
       </Box>
