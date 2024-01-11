@@ -12,6 +12,7 @@ function Header(props) {
 
   let isSmallScreen = window.matchMedia("(max-width: 768px)").matches
 
+  if(props.show === false) return
   return (
     <header>
       

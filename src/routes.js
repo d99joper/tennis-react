@@ -1,6 +1,7 @@
 import {
   Routes,
-  Route
+  Route,
+  useLocation
 } from 'react-router-dom';
 import { Loader } from '@aws-amplify/ui-react';
 // import Login from './views/login'
@@ -8,6 +9,10 @@ import Login from './views/login_django'
 import { lazy, useEffect } from 'react';
 import { Suspense } from 'react';
 import { useNavigate } from "react-router-dom";
+import Registration from 'views/registration';
+import Header from 'components/layout/header';
+import { Box } from '@mui/material';
+import Footer from 'components/layout/footer';
 
 const Profile = lazy(() => import('./views/profile'))
 const LadderView = lazy(() => import('./views/ladder/view'))
@@ -19,18 +24,43 @@ const AboutPage = lazy(() => import('./views/about'))
 const FAQPage = lazy(() => import('./views/faq'))
 const RulesPage = lazy(() => import('./views/rules'))
 const SearchPage = lazy(() => import('./views/searchPage'))
+const PrivacyPolicyPage = lazy(() => import('./views/privacyPolicyPage'))
+const TermsOfServicePage = lazy(() => import('./views/termsOfServicePage'))
 
 const MyRouter = (props) => {
 
   let navigate = useNavigate()
+  const location = useLocation()
 
   useEffect(() => {
     navigate(props.navigateTo)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.navigateTo])
 
+  function showHeaderOrFooter(path) {
+    switch (path) {
+      case '/privacy-policy':
+        return false
+      case '/terms-of-service':
+        return false
+      default:
+        return true
+    }
+  }
+
   return (
     <Suspense fallback={<h2><Loader />Loading...</h2>}>
+      <Header show={showHeaderOrFooter(location.pathname)} isLoggedIn={props.isLoggedIn} currentUser={props.currentUser}></Header>
+      <Box component="main" className='content'
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '2rem',
+          //backgroundColor: 'blueviolet',
+          flexGrow: 1, p: 3,
+          transition: 'flex-grow 0.2s ease',
+          overflowX: 'hidden', // Hide overflowing content
+        }}>
         <Routes key="MyMainRoutes">
           <Route exact path="/" element={<AboutPage />} />
           <Route exact path="/about" element={<AboutPage isLoggedIn={props.isLoggedIn} />} />
@@ -40,6 +70,9 @@ const MyRouter = (props) => {
           <Route path="/profile" element={<Profile isLoggedIn={props.isLoggedIn} currentUser={props.currentUser} />} />
           <Route path="/profile/:userid" element={<Profile isLoggedIn={props.isLoggedIn} currentUser={props.currentUser} />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/registration" element={<Registration />} />
+          <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/adminTasks" element={<AdminTasks />} />
           <Route path="ladders">
             <Route index={true} element={<LadderView isLoggedIn={props.isLoggedIn} currentUser={props.currentUser} />} />
@@ -50,7 +83,9 @@ const MyRouter = (props) => {
           </Route>
           <Route path="*" element={<NoPage />} />
         </Routes>
-      </Suspense>
+        {showHeaderOrFooter(location.pathname) ? <Footer /> : null}
+      </Box>
+    </Suspense>
   )
 };
 

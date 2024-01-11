@@ -11,7 +11,9 @@ export const enums = {
         UsernamePwd: "login",
         Google: "google",
         Facebook: "facebook",
-        Amazon: "amazon"
+        Amazon: "amazon",
+        SIGN_IN: "signin",
+        SIGN_UP: "signup"
     },
 
     DISPLAY_MODE: {

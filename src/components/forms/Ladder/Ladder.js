@@ -42,6 +42,7 @@ const Ladder = ({
   const [showProfileClickOptions, setShowProfileClickOptions] = useState(false)
   const [selectedPlayer, setSelectedPlayer] = useState(0)
   const [loadingPlayer, setLoadingPlayer] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   const toggleProfileLink = (id) => {
     console.log(id)
@@ -61,6 +62,7 @@ const Ladder = ({
   // }
   // get latest standing
   useEffect(() => {
+    setIsLoading(true)
     async function getLadder() {
       //const l = await lf.GetLadder(id)//, nextMatchesToken)
       const l = await ladderAPI.getLadder(id)
@@ -81,7 +83,7 @@ const Ladder = ({
       const isInLadder = ladderHelper.IsPlayerInLadder(currentUser?.id, data)
       setIsPlayerInLadder(isInLadder)
       console.log("Ladder", data)
-
+      setIsLoading(false)
     })
 
   }, [id])
@@ -243,60 +245,61 @@ const Ladder = ({
                     </Dialog>
                   </View>
                 </div>
-
-                {/** STANDINGS table */}
-                <Table height="1px" id="standingsTable">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell></TableCell>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Wins</TableCell>
-                      <TableCell>Losses</TableCell>
-                      <TableCell>Points</TableCell>
-                      {isPlayerInLadder &&
-                        <TableCell className="desktop-only limit-width">
-                          Challenge
-                        </TableCell>}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {displayedStandings?.map((s, i) => {
-                      return (
-                        <TableRow id='standing' key={i} hover>
-                          <TableCell width="1px"><Typography variant="h6">{i + 1}.</Typography></TableCell>
-                          <TableCell key={s.player.id} className="cursorHand" onClick={e => { toggleProfileLink(s.player.id) }}>
-                            {/* <Link to={`../../profile/${s.player.id}`}> */}
-                            <CardHeader sx={{ padding: 0 }}
-                              //avatar={<Avatar {...userHelper.stringAvatar(s.player, 50)} />}
-                              avatar={<ProfileImage player={s.player} size={50} />}
-                              title={s.player.name}
-                            />
-                            {showProfileClickOptions && selectedPlayer === s.player.id && (
-                              <div className="options">
-                                <Link to={`../../profile/${s.player.id}`}>Go to profile</Link>
-                                <Link onClick={(e) => { e.stopPropagation(); handleChallenge(s.player.id) }}>Challenge</Link>
-                              </div>
-                            )}
-                            {/* </Link> */}
-                          </TableCell>
-                          <TableCell>{s.wins ?? 0}</TableCell>
-                          <TableCell>{s.losses ?? 0}</TableCell>
-                          <TableCell>{`${s.points}p`}</TableCell>
-                          {isPlayerInLadder && loggedInPlayerId !== s.player.id &&
-                            <TableCell align="center" className="desktop-only limit-width">
-                              <GiTennisRacket
-                                size="1.75em"
-                                color="maroon"
-                                className="cursorHand"
-                                onClick={() => handleChallenge(s.player.id)}
+                {isLoading === true ? <CircularProgress size={200} /> :
+                  /** STANDINGS table */
+                  < Table height="1px" id="standingsTable">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell></TableCell>
+                        <TableCell>Name</TableCell>
+                        <TableCell>Wins</TableCell>
+                        <TableCell>Losses</TableCell>
+                        <TableCell>Points</TableCell>
+                        {isPlayerInLadder &&
+                          <TableCell className="desktop-only limit-width">
+                            Challenge
+                          </TableCell>}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {displayedStandings?.map((s, i) => {
+                        return (
+                          <TableRow id='standing' key={i} hover>
+                            <TableCell width="1px"><Typography variant="h6">{i + 1}.</Typography></TableCell>
+                            <TableCell key={s.player.id} className="cursorHand" onClick={e => { toggleProfileLink(s.player.id) }}>
+                              {/* <Link to={`../../profile/${s.player.id}`}> */}
+                              <CardHeader sx={{ padding: 0 }}
+                                //avatar={<Avatar {...userHelper.stringAvatar(s.player, 50)} />}
+                                avatar={<ProfileImage player={s.player} size={50} />}
+                                title={s.player.name}
                               />
+                              {showProfileClickOptions && selectedPlayer === s.player.id && (
+                                <div className="options">
+                                  <Link to={`../../profile/${s.player.id}`}>Go to profile</Link>
+                                  <Link onClick={(e) => { e.stopPropagation(); handleChallenge(s.player.id) }}>Challenge</Link>
+                                </div>
+                              )}
+                              {/* </Link> */}
                             </TableCell>
-                          }
-                        </TableRow>
-                      )
-                    })}
-                  </TableBody>
-                </Table>
+                            <TableCell>{s.wins ?? 0}</TableCell>
+                            <TableCell>{s.losses ?? 0}</TableCell>
+                            <TableCell>{`${s.points}p`}</TableCell>
+                            {isPlayerInLadder && loggedInPlayerId !== s.player.id &&
+                              <TableCell align="center" className="desktop-only limit-width">
+                                <GiTennisRacket
+                                  size="1.75em"
+                                  color="maroon"
+                                  className="cursorHand"
+                                  onClick={() => handleChallenge(s.player.id)}
+                                />
+                              </TableCell>
+                            }
+                          </TableRow>
+                        )
+                      })}
+                    </TableBody>
+                  </Table>
+                }
               </div>
               {/* Only visable on larger screens */}
               <Grid
@@ -332,7 +335,7 @@ const Ladder = ({
           />
         </TabItem>
       </Tabs>
-    </div>
+    </div >
   )
 }
 

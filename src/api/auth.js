@@ -1,6 +1,6 @@
 import apiUrl from "config"
 
-const authUrl = apiUrl+'rest-auth/'
+const authUrl = apiUrl + 'rest-auth/'
 
 const authAPI = {
 	getUser: async function (key) {
@@ -19,6 +19,31 @@ const authAPI = {
 		}
 		else
 			return { status: response.status, statusCode: response.statusCode, statusText: response.statusText, error: 'Failed to get user' }
+	},
+
+	register: async function (username, password) {
+		try {
+			const body = { email: username, username: username, password1: password, password2: password }
+			let response = await fetch(authUrl + "registration/", {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(body)
+			})
+			console.log(response)
+			if (response.ok) {
+				// should we generate a verification email, etc?
+				return await this.login(username, password)
+			}
+			else {
+				const errorMessages = {errors: await response.json()}
+				console.log(errorMessages)
+				return errorMessages
+			}
+		} catch (error) {
+			throw new Error('Failed to create user')
+		}
 	},
 
 	login: async function (username, password) {
@@ -70,7 +95,7 @@ const authAPI = {
 			},
 			body: jsonBody
 		}
-	}, 
+	},
 
 	getRequestOptionsFormData: function (method, file) {
 		const bearer = this.getToken()
@@ -125,7 +150,7 @@ async function handleLogin(url, body) {
 			// create and trigger a custom event for logging in
 			const myEvent = new CustomEvent('login', { detail: user })
 			window.dispatchEvent(myEvent)
-			
+
 			// return the newly logged in user
 			return user
 		}
