@@ -18,33 +18,54 @@ function Login({ mode, ...props }) {
 
   function userLogin(e) {
     e.preventDefault()
+    // get the form values
     const form = new FormData(document.getElementById('loginForm'))
     const username = form.get("username")
     const pwd = form.get("password")
+    const pwd2 = form.get("confirm_password")
 
+    // reset the errors array
     setErrors([])
-
+    let errors = []
+    // signup
     if (mode === enums.LOGIN_MODES.SIGN_UP) {
-      authAPI.register(username, pwd).then((data) => {
-        if (data?.errors) {
-          let errors = []
-          for (let err of data.errors.username)
-            errors.push(<p>{err}</p>)
-          for (let err of data.errors.email)
-            errors.push(<p>{err}</p>)
-          for (let err of data.errors.password1)
-            errors.push(<p>{err}</p>)
+      // Check if passwords match
+      if (pwd === pwd2) {
+        // Passwords match - handle form submission logic
+        authAPI.register(username, pwd).then((data) => {
+          if (data?.errors) {
+            for (let key in data.errors) {
+              data.errors[key].forEach((err,i) => {
+                errors.push(<p key={`error_${i}`}>{err}</p>)
+              })
+            }
+            setErrors(errors)
+          }
+          else
+            navigate('/profile-information')
+        })
+      } else {
+        // Passwords do not match - handle error or provide feedback
+        errors.push(<>Passwords do not match. Please enter matching passwords.</>)
+        setErrors(errors)
+      }
+
+    }
+    // signin
+    else {
+      authAPI.login(username, pwd).then((user) => {
+        // if the user doesn't have a name, go to the more information page
+        if (!user.verified) {
+          errors.push('This user has not been verified. Please check your inbox for a verification email.')
           setErrors(errors)
-          console.log(errors)
+          authAPI.signOut()
         }
+        else if (!(user.name || user.location))
+          navigate('/profile-information')
         else
-          navigate('/profile')
+          redirect()
       })
     }
-    else
-      authAPI.login(username, pwd).then(() => {
-        redirect()
-      })
   }
 
   function redirect() {
@@ -76,7 +97,12 @@ function Login({ mode, ...props }) {
       <Flex id="loginForm" direction={'column'} as="form"
         onSubmit={userLogin}>
         Email: <input name="username" placeholder='Email' />
-        Password: <input type="password" name="password" placeholder='Password' />
+        Password: <input type="password" name="password" placeholder='Password' onChange={() => setErrors([])} />
+        {mode === enums.LOGIN_MODES.SIGN_UP &&
+          <>Confirm Password: <input type="password" name="confirm_password" placeholder='Confirm password' onChange={() => setErrors([])} /></>
+        }
+        <ErrorHandler error={errors} />
+
         <Button
           color='info'
           sx={
@@ -94,7 +120,6 @@ function Login({ mode, ...props }) {
           {mode === enums.LOGIN_MODES.SIGN_UP ? 'Sign up' : 'Login'}
         </Button>
       </Flex>
-      <ErrorHandler error={errors} />
     </Flex>
   )
 }
