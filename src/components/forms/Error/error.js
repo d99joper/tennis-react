@@ -1,7 +1,7 @@
 const ErrorHandler = ({ error }) => {
 
   return (
-    error &&
+    error && 
     <div className="error">
       {error}
     </div>

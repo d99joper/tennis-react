@@ -31,14 +31,13 @@ const authAPI = {
 				},
 				body: JSON.stringify(body)
 			})
-			console.log(response)
+			
 			if (response.ok) {
 				// should we generate a verification email, etc?
-				return await this.login(username, password)
+				return //await this.login(username, password)
 			}
 			else {
 				const errorMessages = {errors: await response.json()}
-				console.log(errorMessages)
 				return errorMessages
 			}
 		} catch (error) {
