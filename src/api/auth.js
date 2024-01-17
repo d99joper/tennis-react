@@ -33,7 +33,6 @@ const authAPI = {
 			})
 			
 			if (response.ok) {
-				// should we generate a verification email, etc?
 				return //await this.login(username, password)
 			}
 			else {
@@ -42,6 +41,32 @@ const authAPI = {
 			}
 		} catch (error) {
 			throw new Error('Failed to create user')
+		}
+	},
+
+	verifyEmail: async function (key) {
+		try {
+		const body = { key: key }
+			let response = await fetch(authUrl + "verify-email/", {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(body)
+			})
+			
+			if (response.ok) {
+				const data = response.json()
+				console.log(data)
+				//await this.login(username, password)
+				return
+			}
+			else
+				throw new Error('Failed to verify email')
+		}
+		catch (e) {
+			console.log('Failed to verify email')
+			throw e
 		}
 	},
 

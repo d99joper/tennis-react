@@ -1,5 +1,5 @@
 import { Authenticator } from '@aws-amplify/ui-react';
-import { helpers } from '../helpers/helpers';
+import { helpers } from '../../helpers/helpers';
 
 
 function AuthTest() {
