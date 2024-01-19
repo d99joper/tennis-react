@@ -59,7 +59,6 @@ function ProfileInfo({ ...props }) {
       <input name="firstname" placeholder='First name' />
       Last name:
       <input name="lastname" placeholder='Last name' />
-      City:
       <AutoCompletePlaces onPlaceChanged={(point) => setCity(point)} initialCity={initialCity} scriptIsLoaded={scriptIsLoaded} />
     </Flex>
   )

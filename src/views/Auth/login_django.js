@@ -12,7 +12,9 @@ import { useState } from 'react'
 function Login({ mode, ...props }) {
 
   const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID
+
   const [errors, setErrors] = useState([])
+  const [userIsRegistered, setUserIsRegistered] = useState(false)
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
@@ -31,8 +33,13 @@ function Login({ mode, ...props }) {
     let errors = []
     // signup
     if (mode === enums.LOGIN_MODES.SIGN_UP) {
+      // Check if name is provided
+      if (!(firstName && lastName && username)) {
+        errors.push(<>Please provide your name and email.</>)
+        setErrors(errors)
+      }
       // Check if passwords match
-      if (pwd !== pwd2) {
+      else if (pwd !== pwd2) {
         // Passwords do not match - handle error or provide feedback
         errors.push(<>Passwords do not match. Please enter matching passwords.</>)
         setErrors(errors)
@@ -58,7 +65,7 @@ function Login({ mode, ...props }) {
             }
           }
           else
-            navigate('/profile-information/?verified')
+            setUserIsRegistered(true)
 
           setErrors(errors)
         })
@@ -81,10 +88,10 @@ function Login({ mode, ...props }) {
             redirect()
         })
       }
-      catch(e) {
+      catch (e) {
         console.log(e)
       }
-  }
+    }
   }
 
   function redirect() {
@@ -92,59 +99,72 @@ function Login({ mode, ...props }) {
     navigate(redirectTo == null ? "/" : redirectTo, { replace: true })
   }
 
-  return (
-    <Flex className='loginBox' direction={'column'} gap={'2rem'}>
-      <GoogleOAuthProvider clientId={clientId}>
-        <GoogleLogin
-          text={mode === enums.LOGIN_MODES.SIGN_UP ? 'signup_with' : 'signin_with'}
-          context={mode === enums.LOGIN_MODES.SIGN_UP ? 'signup' : 'signin'}
-          cancel_on_tap_outside={true}
-          onSuccess={credentialResponse => {
-            //console.log(credentialResponse);
-            authAPI.googleLogin(credentialResponse.credential).then((user) => {
-              redirect()
-            })
-          }}
-          onError={() => {
-            console.log('Login Failed');
-          }}
-          // text="continue_with"
-          theme="outline"
-          useOneTap
-        />
-      </GoogleOAuthProvider>
-      <Flex id="loginForm" direction={'column'} as="form"
-        onSubmit={userLogin}>
-        Email: <input name="username" placeholder='Email' />
-        Password: <input type="password" name="password" placeholder='Password' onChange={() => setErrors([])} />
-        {mode === enums.LOGIN_MODES.SIGN_UP &&
-          <>
-            Confirm Password: <input type="password" name="confirm_password" placeholder='Confirm password' onChange={() => setErrors([])} />
-            First name: <input name="first_name" placeholder='First name' />
-            Last name: <input name="last_name" placeholder='Last name' />
-          </>
-        }
-        <ErrorHandler error={errors} />
-
-        <Button
-          color='info'
-          sx={
-            {
-              backgroundColor: 'login.main',
-              color: 'login.text',
-              ':hover': {
-                backgroundColor: 'login.hover',
-                //color: 'white'
-              }
+  if (userIsRegistered === true) {
+    return (
+      <>
+        The user was successfully registered. The next step is to verify your account. An email should have been sent to your email. Please check your mailbox to verify your account.
+      </>
+    )
+  }
+  else
+    return (
+      <Flex className='loginBox' direction={'column'} gap={'2rem'}>
+        <GoogleOAuthProvider clientId={clientId}>
+          <GoogleLogin
+            text={mode === enums.LOGIN_MODES.SIGN_UP ? 'signup_with' : 'signin_with'}
+            context={mode === enums.LOGIN_MODES.SIGN_UP ? 'signup' : 'signin'}
+            cancel_on_tap_outside={true}
+            onSuccess={credentialResponse => {
+              //console.log(credentialResponse);
+              authAPI.googleLogin(credentialResponse.credential).then((user) => {
+                redirect()
+              })
             }}
-          variant='outlined'
-          type='submit'
-        >
-          {mode === enums.LOGIN_MODES.SIGN_UP ? 'Sign up' : 'Login'}
-        </Button>
+            onError={() => {
+              console.log('Login Failed');
+            }}
+            // text="continue_with"
+            theme="outline"
+            useOneTap
+          />
+        </GoogleOAuthProvider>
+        <Flex id="loginForm" direction={'column'} as="form"
+          onSubmit={userLogin}>
+          {mode === enums.LOGIN_MODES.SIGN_UP &&
+            <>
+              First name: <input name="first_name" placeholder='First name' />
+              Last name: <input name="last_name" placeholder='Last name' />
+            </>
+          }
+          Email: <input name="username" placeholder='Email' />
+          Password: <input type="password" name="password" placeholder='Password' onChange={() => setErrors([])} />
+          {mode === enums.LOGIN_MODES.SIGN_UP &&
+            <>
+              Confirm Password: <input type="password" name="confirm_password" placeholder='Confirm password' onChange={() => setErrors([])} />
+
+            </>
+          }
+          <ErrorHandler error={errors} />
+
+          <Button
+            color='info'
+            sx={
+              {
+                backgroundColor: 'login.main',
+                color: 'login.text',
+                ':hover': {
+                  backgroundColor: 'login.hover',
+                  //color: 'white'
+                }
+              }}
+            variant='outlined'
+            type='submit'
+          >
+            {mode === enums.LOGIN_MODES.SIGN_UP ? 'Sign up' : 'Login'}
+          </Button>
+        </Flex>
       </Flex>
-    </Flex>
-  )
+    )
 }
 
 export default Login
