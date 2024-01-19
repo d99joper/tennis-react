@@ -74,7 +74,7 @@ const MyRouter = (props) => {
           <Route path="/profile-information" element={<ProfileInfo isLoggedIn={props.isLoggedIn} currentUser={props.currentUser} />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registration" element={<Registration />} />
-          <Route path="/user-confirmation/:key" element={<UserConfirmation />} />
+          <Route path="/user-confirmation/:userid/:key" element={<UserConfirmation />} />
           <Route path="/terms-of-service" element={<TermsOfServicePage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/adminTasks" element={<AdminTasks />} />

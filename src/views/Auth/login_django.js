@@ -23,6 +23,8 @@ function Login({ mode, ...props }) {
     const username = form.get("username")
     const pwd = form.get("password")
     const pwd2 = form.get("confirm_password")
+    const firstName = form.get("first_name")
+    const lastName = form.get("last_name")
 
     // reset the errors array
     setErrors([])
@@ -30,42 +32,59 @@ function Login({ mode, ...props }) {
     // signup
     if (mode === enums.LOGIN_MODES.SIGN_UP) {
       // Check if passwords match
-      if (pwd === pwd2) {
-        // Passwords match - handle form submission logic
-        authAPI.register(username, pwd).then((data) => {
-          if (data?.errors) {
-            for (let key in data.errors) {
-              data.errors[key].forEach((err,i) => {
-                errors.push(<p key={`error_${i}`}>{err}</p>)
-              })
-            }
-            setErrors(errors)
-          }
-          else
-            navigate('/profile-information')
-        })
-      } else {
+      if (pwd !== pwd2) {
         // Passwords do not match - handle error or provide feedback
         errors.push(<>Passwords do not match. Please enter matching passwords.</>)
         setErrors(errors)
+      }
+      // else if (pwd.length < 8) {
+      //   errors.push(<>Passwords do not match. Please enter matching passwords.</>)
+      //   setErrors(errors)
+      //  }
+      else {
+        // Passwords match - handle form submission logic
+        authAPI.register(username, pwd, firstName, lastName).then((data) => {
+          if (data?.errors) {
+            let i = 0
+            for (let key in data.errors) {
+              if (data.errors.hasOwnProperty(key)) {
+                console.log(key, data.errors[key])
+                if (key === "500")
+                  errors.push(<p key={`error_${i}_${key}`}>Something went wrong. Please contact an admin.</p>)
+                else
+                  errors.push(<p key={`error_${i}_${key}`}>{key}: {data.errors[key]}</p>)
+                i++
+              }
+            }
+          }
+          else
+            navigate('/profile-information/?verified')
+
+          setErrors(errors)
+        })
       }
 
     }
     // signin
     else {
-      authAPI.login(username, pwd).then((user) => {
-        // if the user doesn't have a name, go to the more information page
-        if (!user.verified) {
-          errors.push('This user has not been verified. Please check your inbox for a verification email.')
-          setErrors(errors)
-          authAPI.signOut()
-        }
-        else if (!(user.name || user.location))
-          navigate('/profile-information')
-        else
-          redirect()
-      })
-    }
+      try {
+        authAPI.login(username, pwd).then((user) => {
+          // if the user doesn't have a name, go to the more information page
+          if (!user.verified) {
+            errors.push('This user has not been verified. Please check your inbox for a verification email.')
+            setErrors(errors)
+            authAPI.signOut()
+          }
+          else if (!(user.name || user.location))
+            navigate('/profile-information')
+          else
+            redirect()
+        })
+      }
+      catch(e) {
+        console.log(e)
+      }
+  }
   }
 
   function redirect() {
@@ -99,7 +118,11 @@ function Login({ mode, ...props }) {
         Email: <input name="username" placeholder='Email' />
         Password: <input type="password" name="password" placeholder='Password' onChange={() => setErrors([])} />
         {mode === enums.LOGIN_MODES.SIGN_UP &&
-          <>Confirm Password: <input type="password" name="confirm_password" placeholder='Confirm password' onChange={() => setErrors([])} /></>
+          <>
+            Confirm Password: <input type="password" name="confirm_password" placeholder='Confirm password' onChange={() => setErrors([])} />
+            First name: <input name="first_name" placeholder='First name' />
+            Last name: <input name="last_name" placeholder='Last name' />
+          </>
         }
         <ErrorHandler error={errors} />
 
