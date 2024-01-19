@@ -21,22 +21,28 @@ const authAPI = {
 			return { status: response.status, statusCode: response.statusCode, statusText: response.statusText, error: 'Failed to get user' }
 	},
 
-	register: async function (username, password) {
+	register: async function (username, password, firstName, lastName) {
 		try {
-			const body = { email: username, username: username, password1: password, password2: password }
-			let response = await fetch(authUrl + "registration/", {
+			const body = {
+				email: username,
+				username: username,
+				password: password,
+				first_name: firstName,
+				last_name: lastName,
+			}
+			let response = await fetch(apiUrl + "register-user/", {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify(body)
 			})
-			
+
 			if (response.ok) {
 				return //await this.login(username, password)
 			}
 			else {
-				const errorMessages = {errors: await response.json()}
+				const errorMessages = await response.json()
 				return errorMessages
 			}
 		} catch (error) {
@@ -44,29 +50,28 @@ const authAPI = {
 		}
 	},
 
-	verifyEmail: async function (key) {
+	verifyEmail: async function (userid, key) {
 		try {
-		const body = { key: key }
-			let response = await fetch(authUrl + "verify-email/", {
-				method: 'POST',
+			const body = { key: key, userid: userid }
+			let response = await fetch(apiUrl + "confirm-user/" + userid + "/" + key, {
+				method: 'GET',
 				headers: {
 					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(body)
+				}
 			})
-			
+
 			if (response.ok) {
-				const data = response.json()
-				console.log(data)
-				//await this.login(username, password)
-				return
+				const data = await response.json()
+				return data
 			}
-			else
-				throw new Error('Failed to verify email')
+			else {
+				const errorMessages = await response.json()
+				return errorMessages
+			}
 		}
 		catch (e) {
 			console.log('Failed to verify email')
-			throw e
+			return {'errors': e.message}
 		}
 	},
 
