@@ -5,6 +5,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {Amplify} from 'aws-amplify';
 import awsconfig from './aws-exports';
+import { helpers } from 'helpers';
 //Amplify.configure(config);
 
 const isLocalhost = Boolean(
@@ -16,6 +17,8 @@ const isLocalhost = Boolean(
        /^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/
      )
  );
+
+ helpers.loadGoogleMapsAPI()
   
  // Assuming you have two redirect URIs, and the first is for production and second is for localhost
 //  const [

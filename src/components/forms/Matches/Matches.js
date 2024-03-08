@@ -25,6 +25,8 @@ const Matches = ({
 	sortingField = "played_on",
 	sortDirection = "DESC",
 	pageSize = 10,
+	refreshMatches = 0,
+	hightlightedMatch,
 	...props
 }) => {
 
@@ -39,7 +41,8 @@ const Matches = ({
 	const [showLoader, setShowLoader] = useState(true);
 	const matchPrefix = matches?.[0]?.hasOwnProperty('match') ? 'match.' : ''
 	const useMatchPrefix = matches?.[0]?.hasOwnProperty('match') ? true : false
-  const [isLoading, setIsLoading] = useState(false)
+	const [isLoading, setIsLoading] = useState(false)
+	const [highlightedItem, setHighlightedItem] = useState(hightlightedMatch)
 	const prevPlayer = useRef(player)
 	const prevLadder = useRef(ladder)
 
@@ -58,12 +61,18 @@ const Matches = ({
 		return !excludeColumns.includes(columnName)
 	}
 
+	const removeHighlight = () => {
+    setTimeout(() => {
+      setHighlightedItem(null) // Reset highlightedItem after 5 seconds
+    }, 5000) // 5000 milliseconds = 5 seconds
+  }
+
 	useEffect(() => {
 		setShowLoader(true)
 		setIsLoading(true)
 		if (player) {
 			// if there's a new player, reset the page to 1
-			if(prevPlayer.current !== player) {
+			if (prevPlayer.current !== player) {
 				setPage(1)
 				prevPlayer.current = player
 			}
@@ -87,7 +96,7 @@ const Matches = ({
 		else
 			if (ladder) {
 				// if there's a new ladder, reset the page to 1
-				if(prevLadder.current !== ladder) {
+				if (prevLadder.current !== ladder) {
 					setPage(1)
 					prevLadder.current = ladder
 				}
@@ -102,21 +111,8 @@ const Matches = ({
 					setIsLoading(false)
 				})
 			}
-	}, [endDate, ladder, ladderMatches, player, startDate, page])
+	}, [endDate, ladder, ladderMatches, player, startDate, page, refreshMatches])
 
-	// function addMatches(e) {
-	//     if (typeof onAddMatches === 'function') {
-	//         onAddMatches(nextToken)
-	//     }
-	//     else
-	//         mf.getMatchesForPlayer(player, ladder, startDate, endDate, direction, null, 10, nextToken).then((data) => {
-	//             if (matches.matches)
-	//                 setMatches(oldMatches => [...oldMatches.matches, ...data.matches])
-	//             else
-	//                 setMatches(oldMatches => [...oldMatches, ...data.matches])
-	//             setNextToken(data.nextToken)
-	//         })
-	// }
 	const setColor = ((match, index) => {
 		//console.log('setColor winnerId', match.winner)
 		if (player) // win gets green and loss gets red
@@ -175,16 +171,8 @@ const Matches = ({
 		setPage(newPageIndex)
 	}
 
-	// if (matches?.length == 0) {
-	// 	return (
-	// 		<div>
-	// 			No matches found
-	// 		</div>
-	// 	)
-	// }
-	// else
-		return (
-			isLoading === true ? <CircularProgress size={200} /> :
+	return (
+		isLoading === true ? <CircularProgress size={200} /> :
 			<section {...props}>
 				{displayAs === enums.DISPLAY_MODE.Inline ?
 					<>
@@ -256,11 +244,20 @@ const Matches = ({
 				}
 				{displayAs === enums.DISPLAY_MODE.SimpleList ?
 					matches?.map((m, i) => {
+						const isHighlighted = highlightedItem && m.id === highlightedItem.id
+						console.log(isHighlighted, highlightedItem, m.id)
+						// Call removeHighlight function if the item is highlighted
+						if (isHighlighted) {
+							removeHighlight()
+						}
 						return (
 							<Grid key={i}
 								templateColumns="auto 1fr 1fr 1fr 1fr 1fr 1fr"
 								marginBottom={'1rem'}
 								width={'250px'}
+								className={isHighlighted ? 'highlight' : ''}
+								//backgroundColor={isHighlighted ? 'yellow' : 'transparent'}
+								//backgroundColor={'blue'}
 							>
 								<Text columnStart="1" columnEnd="-1" fontSize="0.8em" fontStyle="italic">{m?.played_on}</Text>
 								<View columnStart="1" columnEnd="2">
@@ -278,7 +275,7 @@ const Matches = ({
 					: null
 				}
 			</section>
-		)
+	)
 
 }
 

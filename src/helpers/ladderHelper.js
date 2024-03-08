@@ -11,15 +11,14 @@ const ladderHelper = {
 				let retVal
 				let players = []
 				let ladder = []
-				
+
 				if (ladderId !== 0) {
 					ladder = await ladderAPI.getLadder(ladderId)
-					console.log(ladder)
 					players = ladder.standings.map((elem) => elem.player)
 				}
 				else {
 					ladder = {}
-					players = (await playerAPI.getPlayers(searchInput)).players
+					players = []//(await playerAPI.getPlayers(searchInput)).players
 				}
 				
 				players = players
@@ -36,6 +35,7 @@ const ladderHelper = {
 				retVal = { ladder: ladder, players: players }
 				setData(retVal)
 			}
+				console.log(ladderId)
 			
 			fetchData()
 

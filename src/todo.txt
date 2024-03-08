@@ -1,4 +1,24 @@
 current:
+    [ ] Merge profiles
+        [ ] On your profile page, if there are other profiles with the same name, offer merge
+        [ ] When signing up, show snap view of profiles with the same name
+    [ ] Notifications instead of email (or send message to users w/o displaying email)
+    [x] SelectWithFetch
+        [x] Remove the create new item, and have it passed as a child element. If the child exists, display the option to add new
+        [x] If initialItems, add them to the list for cached values, and display them as the default list when component is focused
+        [x] Change player references to 'Item'
+    [*] Matches
+        [x] Make sure matches are added correctly
+        [x] Add court/location to match (otherwise, default to player's location)
+        [ ] Doubles vs singels
+    [ ] Standings 
+        [ ] Make sure doubles and singles are separate
+    [*] Tennis courts
+        [*] When adding a match, set a court. If it doesn't exist, let the user create a new court finding 
+            [x] Find on map
+            [x] Save location and name
+            [ ] Add a info icon with a map showing markers for maps near you
+        [ ] Search and show on map
     [x] Password type input
     [x] Filter ladder search 
         [x] Level
@@ -20,17 +40,16 @@ current:
         [ ] Edit 
         [ ] Delete
     [x] UTR - import matches
-    [ ] Login / Register
-        [ ] Separate pages for login and registration
+    [*] Login / Register
+        [x] Separate pages for login and registration
         [ ] Second page for signing up where more questions are asked
             [ ] Social media and 
             [ ] username login
         [ ] Fix google login
-        [ ] Add terms of service and privacy policy on registration page
+        [x] Add terms of service and privacy policy on registration page
     [ ] Design more univerally 
     [ ] Logout redirect
-    [ ] Notifications instead of email (or send message to users w/o displaying email)
-    [ ] Loading spinners on places that take a long time
+    [*] Loading spinners on places that take a long time
     [ ] Start badges, just one for signing up to start
         
 
@@ -63,18 +82,18 @@ Overall design
 
 Search page
     [x] Add to menu
-    [*] Searches for different categories (ladder name/location/level, players name/location/level)
-        [*] Search for players
+    [x] Searches for different categories (ladder name/location/level, players name/location/level)
+        [x] Search for players
             [x] Name
-            [*] Level
-                [ ] UTR needs to store the current rating
+            [x] Level
+                [x] UTR needs to store the current rating
             [x] Location
         [x] Search for ladders
             [x] Name
             [ ] Level
             [x] Location
-[ ] Login 
-    [ ] User email / password already exists {"non_field_errors":["User is already registered with this e-mail address."]}
+[*] Login 
+    [x] User email / password already exists {"non_field_errors":["User is already registered with this e-mail address."]}
     [x] Login/profile in the top banner
     [x] After login -> redirect
         [x] Re-render after login/logout (using custom events)
@@ -95,7 +114,7 @@ Profile page
         [x] Remove from menu when not logged in
         [x] Fix profile link to other players to work when not logged in
     [x] List ladders
-    [ ] Get UTR results from UTR profile (https://ustadigital.atlassian.net/wiki/spaces/DEV/overview)
+    [x] Get UTR results from UTR profile (https://ustadigital.atlassian.net/wiki/spaces/DEV/overview)
     [ ] Link USTA profile
     [x] Add statistics
       [x] Table per year -> get all years with data -> loop getStats and aggregate results
@@ -147,8 +166,8 @@ Matches
     [x] Add new Player if player does not exist and ladder is *Other.
 
 Player
-    [x] Signup
-        [ ] Make sure email is unique when creating new player
-        [ ] Check if name already exists, then suggest merging/signing up with that (unused) account. 
+    [*] Signup
+        [x] Make sure email is unique when creating new player
+        [] Check if name already exists, then suggest merging/signing up with that (unused) account. 
             If there is a real email on the other account, suggest merge (but that will be more complex with verification)
         

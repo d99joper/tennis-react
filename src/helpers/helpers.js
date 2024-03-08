@@ -1,55 +1,116 @@
-
+let loadingPromise = null
 const helpers = {
+	loadGoogleMapsAPI: async () => {
+		// Check if Google Maps API is already loaded
+		if (window.google && window.google.maps) {
+			console.log('Google Maps API already loaded');
+			return window.google.maps;
+		}
+
+		// If another function is already loading the script, wait for it to complete
+		if (loadingPromise) {
+			console.log('Waiting for Google Maps API script to load...');
+			return loadingPromise;
+		}
+
+		// Create a new loading promise and start loading the script
+		loadingPromise = new Promise((resolve, reject) => {
+			console.log('Google Maps API not loaded, adding...');
+			const apiKey = process.env.REACT_APP_PLACES_API_KEY;
+			const script = document.createElement('script');
+			script.src = 'https://maps.googleapis.com/maps/api/js?key=' + apiKey + '&libraries=places';
+			script.async = true;
+			script.defer = true;
+
+			script.onload = () => {
+				if (window.google && window.google.maps) {
+					resolve(window.google.maps);
+				} else {
+					reject(new Error('Google Maps API not available'));
+				}
+			};
+
+			script.onerror = () => {
+				reject(new Error('Error loading Google Maps API script'));
+			};
+
+			document.body.appendChild(script);
+		});
+
+		// Clear the loading promise once the script is loaded or an error occurs
+		loadingPromise.finally(() => {
+			loadingPromise = null;
+		});
+
+		return loadingPromise;
+	},
+	// async () => {
+	// 	return new Promise((resolve, reject) => {
+	// 		// Check if Google Maps API is already loaded
+	// 		if (window.google && window.google.maps) {
+	// 			console.log('already loaded')
+	// 			resolve(window.google.maps);
+	// 		} else {
+	// 			console.log('maps api not loaded, adding...')
+	// 			// Dynamically load Google Maps API script
+	// 			const script = document.createElement('script');
+	// 			const apiKey = process.env.REACT_APP_PLACES_API_KEY
+	// 			script.src = 'https://maps.googleapis.com/maps/api/js?key='+apiKey+'&libraries=places';
+	// 			script.async = true;
+	// 			script.defer = true;
+	// 			script.onload = () => {
+	// 				// Resolve the Promise with the google.maps object
+	// 				if (window.google && window.google.maps) {
+	// 					resolve(window.google.maps);
+	// 				} else {
+	// 					reject(new Error('Google Maps API not available'));
+	// 				}
+	// 			};
+
+	// 			script.onerror = () => {
+	// 				reject(new Error('Error loading Google Maps API script'));
+	// 			};
+
+	// 			document.body.appendChild(script);
+	// 		}
+	// 	});
+	// },
 
 	resizeImage: (inputImage, targetWidth) => {
 		return new Promise((resolve) => {
 			const reader = new FileReader();
-	
+
 			reader.onload = function (e) {
 				const img = new Image();
-	
+
 				img.onload = function () {
 					const aspectRatio = img.width / img.height;
 					const targetHeight = Math.floor(targetWidth / aspectRatio);
-	
+
 					const canvas = document.createElement('canvas');
 					const ctx = canvas.getContext('2d');
-	
+
 					canvas.width = targetWidth;
 					canvas.height = targetHeight;
-	
+
 					ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
-	
+
 					canvas.toBlob((blob) => {
 						resolve(new File([blob], inputImage.name, { type: inputImage.type }));
 					}, inputImage.type);
 				};
-	
+
 				img.src = e.target.result;
 			};
-	
+
 			reader.readAsDataURL(inputImage);
 		});
 	},
 
 	parseFilter: (filter) => {
 		return Object.entries(filter)
-									.map(([key, value]) => `${key}=${value}`)
-									.join('&')
-		let queryString = filter.map((x) => {
-			
-			// switch (x.name.toLowerCase()) {
-			// 	case 'geo':
-			// 		return `${x.name}=${x.point.lat},${x.point.lng},${x.radius}&`
-			// 	case 'match-type':
-			// 		return `${x.name}=${x.matchType}&`
-			// 	case 'level':
-			// 		return `${x.name}-min=${x.level_min}&${x.name}-max=${x.level_max}&`
-			// 	default:
-			// 		break
-			// }
-		})
-		return queryString ? '?' + queryString.join('') : ''
+			.map(([key, value]) => `${key}=${value}`)
+			.join('&')
 	},
 
 	setDate: (days) => {
@@ -107,6 +168,12 @@ const helpers = {
 		border: '2px solid #000',
 		boxShadow: 24,
 		p: 4,
+		position: 'absolute',
+		// top:'10%',
+		// left:'10%',
+		overflow: 'scroll',
+		height: '100%',
+		display: 'block'
 	},
 
 	stringToColor: function (string) {

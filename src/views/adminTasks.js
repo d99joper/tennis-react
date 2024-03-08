@@ -1,7 +1,7 @@
 import { Button, Card, Grid, TabItem, Tabs } from "@aws-amplify/ui-react";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { ladderAPI } from "api/services";
-import { ErrorHandler, MatchEditor, SelectPlayer } from "components/forms";
+import { ErrorHandler, MatchEditor, SelectWithFetch } from "components/forms";
 import { enums, helpers, ladderHelper, matchHelper, userHelper } from "helpers";
 import React, { useEffect, useState } from "react";
 import XLSX, { read, utils, writeFile } from 'xlsx';
@@ -116,7 +116,7 @@ const AdminTasks = (() => {
           </FormControl>
           <FormControl sx={{ minWidth: 120, width: 300 }}>
             <InputLabel id="select-players-label">Players</InputLabel>
-            <SelectPlayer
+            <SelectWithFetch
               label="Player"
               ladderId={0}
               onPlayerSelect={p => setPlayerId(p)}

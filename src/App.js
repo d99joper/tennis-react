@@ -63,7 +63,7 @@ function App() {
         // get the current user (it's okay if it's null)
         const user = authAPI.getCurrentUser()
         setCurrentUser(user)
-
+        
         // check if there is a user and set the isLoggedIn flag
         const isSignedIn = typeof user === 'object' ? true : false
         setIsLoggedIn(isSignedIn)

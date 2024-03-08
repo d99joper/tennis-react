@@ -17,11 +17,13 @@ import Footer from 'components/layout/footer';
 const Profile = lazy(() => import('./views/profile'))
 const ProfileInfo = lazy(() => import('./views/profile-information'))
 const UserConfirmation = lazy(() => import('./views/Auth/user-confirmation'))
-const LadderView = lazy(() => import('./views/ladder/view'))
+const LadderCreate = lazy(() => import('./views/ladder/create'))
 const LadderSearch = lazy(() => import('./views/ladder/search'))
+const LadderView = lazy(() => import('./views/ladder/view'))
+const CourtsCreate = lazy(() => import('./views/court/create'))
+const CourtsView = lazy(() => import('./views/court/view'))
 const NoPage = lazy(() => import('./views/NoPage'))
 const AdminTasks = lazy(() => import('./views/adminTasks'))
-const LadderCreate = lazy(() => import('./views/ladder/create'))
 const AboutPage = lazy(() => import('./views/about'))
 const FAQPage = lazy(() => import('./views/faq'))
 const RulesPage = lazy(() => import('./views/rules'))
@@ -64,7 +66,7 @@ const MyRouter = (props) => {
           overflowX: 'hidden', // Hide overflowing content
         }}>
         <Routes key="MyMainRoutes">
-          <Route exact path="/" element={<AboutPage />} />
+          <Route exact path="/" element={<AboutPage isLoggedIn={props.isLoggedIn} />} />
           <Route exact path="/about" element={<AboutPage isLoggedIn={props.isLoggedIn} />} />
           <Route exact path="/faq" element={<FAQPage />} />
           <Route exact path="/rules" element={<RulesPage />} />
@@ -78,6 +80,10 @@ const MyRouter = (props) => {
           <Route path="/terms-of-service" element={<TermsOfServicePage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/adminTasks" element={<AdminTasks />} />
+          <Route path='/courts'>
+            <Route index={true} element={<CourtsView {...props } />} />
+            <Route path="new" element={<CourtsCreate {...props} />} />
+          </Route>
           <Route path="ladders">
             <Route index={true} element={<LadderView isLoggedIn={props.isLoggedIn} currentUser={props.currentUser} />} />
             <Route path=":ladderId" element={<LadderView isLoggedIn={props.isLoggedIn} currentUser={props.currentUser} />} />
