@@ -35,17 +35,7 @@ const DynamicTable = ({
 	console.log("dynamicTable", data, sortField, direction)
 
 	function openH2HModal(match, i) {
-		//if (!isH2HDataFetched[i]) {
-		// const index = match.winner[0].id + match.loser[0].id
-		// if (!h2HData[index]) {
-		// 	playerAPI.getPlayerH2H(match.winner[0], match.loser[0]).then((data) => {
-		// 		setH2HData(prev => { return { ...prev, [index]: data } })
-		// 		console.log(data)
-		// 		setIsShowH2H(prevState => { return { ...prevState, [i]: true } })
-		// 	})
-		// }
-		// else 
-			setIsShowH2H(prevState => { return { ...prevState, [i]: true } })
+		setIsShowH2H(prevState => { return { ...prevState, [i]: true } })
 	}
 
 	function openCommentsModal(match, i) {
@@ -247,13 +237,13 @@ const DynamicTable = ({
 
 	function setBackgroundColor(item) {
 		// Check if there is a styling condition
-			if (props.styleConditionVariable) {
-				// if exists, check if the styling condition is set
-				// special exception for winner id held in condition variable 2
-				if (item[props.styleConditionVariable] || item.winner[0]?.id === props.styleConditionVariable2)
-					return { className: props.styleConditionColor[0] }
-				return { className: props.styleConditionColor[1] }
-			}
+		if (props.styleConditionVariable) {
+			// if exists, check if the styling condition is set
+			// special exception for winner id held in condition variable 2
+			if (item[props.styleConditionVariable] || item.winner[0]?.id === props.styleConditionVariable2)
+				return { className: props.styleConditionColor[0] }
+			return { className: props.styleConditionColor[1] }
+		}
 		return null
 	}
 

@@ -221,7 +221,7 @@ const Ladder = ({
                     </LocalizationProvider>
                   </FormControl> */}
                   {/** Add a match button and dialog */}
-                  <View className="matchButton desktop-only">
+                  <View className="matchButton">
                     {isPlayerInLadder &&
                       <Button variation="primary" onClick={() => setShowAddMatchModal(true)}>Add a match</Button>
                     }

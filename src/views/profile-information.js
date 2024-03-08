@@ -1,7 +1,6 @@
 import { Flex } from "@aws-amplify/ui-react"
 import "./profile.css"
 import { useEffect, useState } from "react"
-import loadGoogleMapsScript from "api/mapsApi"
 import { AutoCompletePlaces } from "components/forms"
 
 function ProfileInfo({ ...props }) {
@@ -11,7 +10,7 @@ function ProfileInfo({ ...props }) {
   /** Collect information like firstName, lastName, location, utr, ntrp */
 
   useEffect(() => {
-    loadGoogleMapsScript(getUserLocation)
+    //MapApi(getUserLocation)
 
     async function getUserLocation() {
       setScriptIsLoaded(true)

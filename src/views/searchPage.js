@@ -2,7 +2,7 @@ import { Collection, Flex, Card, Text, View } from "@aws-amplify/ui-react"
 import { Button, Checkbox, CircularProgress, Divider, FormControl, FormControlLabel, FormLabel, MenuItem, Radio, RadioGroup, Select, Slider } from "@mui/material"
 import { ladderAPI, playerAPI } from "api/services"
 import { AutoCompletePlaces, ItemCard, ProfileImage } from "components/forms"
-import { enums, userHelper } from "helpers"
+import { enums, helpers, userHelper } from "helpers"
 import React, { useEffect, useRef } from "react"
 import { useState } from "react"
 import { Link } from "react-router-dom"
@@ -22,6 +22,7 @@ const SearchPage = (props) => {
   const [isLoading, setIsLoading] = useState(false)
   const [selectedSearch, setSelectedSearch] = useState('players')
   const [isInitialMapSet, setIsInitialMapSet] = useState(false)
+  const [mapApi, setMapApi] = useState()
   const [filters, setFilters] = useState([])
   const nameRef = useRef()
 
@@ -41,17 +42,18 @@ const SearchPage = (props) => {
 
   function handlePlaceChanged(geoPoint) {
     console.log('new place', geoPoint)
-    setMapCenter(geoPoint)
+    setMapCenter({lat: geoPoint.lat, lng: geoPoint.lng})
   }
-  async function initMap() {
-    //console.log('hello initMap')
-    // set the 
-    // map = new window.google.maps.Map(document.getElementById("map"), {
-    // 	zoom: 10,
-    // 	center: mapCenter,
-    // })
-  }
-  window.initMap = initMap;
+
+  useEffect(() => {
+    async function getMapApi() {
+      const m = await helpers.loadGoogleMapsAPI()
+      console.log(m)
+      setMapApi(m)
+    }
+    if (!mapApi)
+      getMapApi()
+  }, [])
 
   useEffect(() => {
 
@@ -68,15 +70,16 @@ const SearchPage = (props) => {
 
         setIsInitialMapSet(true)
         async function getUserLocation() {
+          console.log("mapApi",mapApi)
           // if the user lets us use their location
           if (navigator.geolocation) {
             // get the position
             const position = await getCurrentPosition()
             const myLngLat = { lat: position.coords.latitude, lng: position.coords.longitude }
             // create a geocoder
-            const geocoder = new window.google.maps.Geocoder()
+            const geocoder = new mapApi.Geocoder() //window.google.maps.Geocoder()
             // make a map with the user's coordiated
-            const latLng = new window.google.maps.LatLng(myLngLat.lat, myLngLat.lng);
+            const latLng = new mapApi.LatLng(myLngLat.lat, myLngLat.lng)//window.google.maps.LatLng(myLngLat.lat, myLngLat.lng);
             // geocode the location and parse out the City, State, Country
             geocoder.geocode({ location: latLng }, (results, status) => {
               if (status === "OK") {
@@ -107,48 +110,17 @@ const SearchPage = (props) => {
         let myLngLat = await getUserLocation()
 
         // set the 
-        map = new window.google.maps.Map(document.getElementById("map"), {
+        map = new mapApi.Map(document.getElementById("map"), {
           zoom: 10,
           center: myLngLat,
         });
         //updateSearch(myLngLat)
       }
     }
-
-    // check if script was already created
-    let script = document.getElementById("placesScript")
-
-    if (!script) {
-      script = document.createElement("script")
-      const apiKey = process.env.REACT_APP_PLACES_API_KEY
-
-      script.src =
-        "https://maps.googleapis.com/maps/api/js?key=" + apiKey + "&libraries=places&callback=initMap"
-      script.id = 'placesScript'
-      script.async = false
-
-      // script.integrity =
-      //   "sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
-
-      script.crossOrigin = "anonymous"
-      //console.log(script)
-      //head.insertBefore(script, head.firstChild);
-      document.body.appendChild(script)
-
-      script.addEventListener('load', () => {
-        setScriptIsLoaded(true)
-        setInitialMap()
-      })
-
-      return () => {
-        // clean up the script when the component in unmounted
-        //document.body.removeChild(script)
-      }
-    } else {
-      setScriptIsLoaded(true)
+    if(mapApi)
       setInitialMap()
-    }
-  }, [])
+    
+  }, [mapApi])
 
   function updateSearch(myLngLat) { //lat = 38.55, lng = -121.73) {
 
@@ -398,17 +370,17 @@ const SearchPage = (props) => {
                       borderRadius={'medium'}>
                       <Flex direction={'row'}>
                         {/* <View className={"profileImageContainer_small"}> */}
-                          <ProfileImage player={player} size={80} />
+                        <ProfileImage player={player} size={80} />
                         {/* </View> */}
                         <Flex direction={'column'} gap="0.1rem">
                           <Text as='span'>
                             {userHelper.SetPlayerName(player, null, nameRef.current?.value)}
                           </Text>
-                          {player.location && 
+                          {player.location &&
                             <Text as='div'>{player.location}</Text>}
-                          {player.NTRP && 
+                          {player.NTRP &&
                             <Text as='div'>NTRP: {player.NTRP}</Text>}
-                          {player.cached_utr?.singles > 0 && 
+                          {player.cached_utr?.singles > 0 &&
                             <Text as='div'>UTR: {player.cached_utr.singles > 0 ? player.cached_utr.singles : 'UR'}</Text>}
                         </Flex>
                       </Flex>

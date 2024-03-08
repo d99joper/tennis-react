@@ -6,8 +6,8 @@ import './login.css'
 import { Button } from '@mui/material'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { enums } from 'helpers'
-import { ErrorHandler } from 'components/forms'
-import { useState } from 'react'
+import { AutoCompletePlaces, ErrorHandler, InfoPopup } from 'components/forms'
+import { useEffect, useState } from 'react'
 
 function Login({ mode, ...props }) {
 
@@ -15,6 +15,7 @@ function Login({ mode, ...props }) {
 
   const [errors, setErrors] = useState([])
   const [userIsRegistered, setUserIsRegistered] = useState(false)
+  const [location, setLocation] = useState('')
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
@@ -50,7 +51,7 @@ function Login({ mode, ...props }) {
       //  }
       else {
         // Passwords match - handle form submission logic
-        authAPI.register(username, pwd, firstName, lastName).then((data) => {
+        authAPI.register(username, pwd, firstName, lastName, location).then((data) => {
           if (data?.errors) {
             let i = 0
             for (let key in data.errors) {
@@ -94,9 +95,17 @@ function Login({ mode, ...props }) {
     }
   }
 
+  function handleLocationChange(geoPoint) {
+    console.log('new place', geoPoint)
+    setLocation(geoPoint)
+  }
+
   function redirect() {
     const redirectTo = searchParams.get("redirectTo")
-    navigate(redirectTo == null ? "/" : redirectTo, { replace: true })
+    if (redirectTo.startsWith('profile') || redirectTo === 'search' || redirectTo === 'ladders')
+      navigate(redirectTo, { replace: true })
+    else
+      navigate("/profile", { replace: true })
   }
 
   if (userIsRegistered === true) {
@@ -132,16 +141,36 @@ function Login({ mode, ...props }) {
           onSubmit={userLogin}>
           {mode === enums.LOGIN_MODES.SIGN_UP &&
             <>
-              First name: <input name="first_name" placeholder='First name' />
-              Last name: <input name="last_name" placeholder='Last name' />
+              First name: <input name="first_name" placeholder='First name' required />
+              Last name: <input name="last_name" placeholder='Last name' required />
+              <span>
+                Location:
+                <InfoPopup>
+                  The location is important if you want to enjoy the full experience of My Tennis Space and compete in events and ladders.
+                </InfoPopup>
+              </span>
+              <AutoCompletePlaces placeholder='Location' label="" showGetUserLocation={true} onPlaceChanged={handleLocationChange} />
             </>
           }
-          Email: <input name="username" placeholder='Email' />
-          Password: <input type="password" name="password" placeholder='Password' onChange={() => setErrors([])} />
+          Email: <input name="username" placeholder='Email' autoComplete='username' required />
+          Password: <input
+            type="password"
+            name="password"
+            placeholder='Password'
+            onChange={() => setErrors([])}
+            autoComplete={mode === enums.LOGIN_MODES.SIGN_UP ? "new-password" : "current-password"}
+            required
+          />
           {mode === enums.LOGIN_MODES.SIGN_UP &&
             <>
-              Confirm Password: <input type="password" name="confirm_password" placeholder='Confirm password' onChange={() => setErrors([])} />
-
+              Confirm Password: <input
+                type="password"
+                name="confirm_password"
+                placeholder='Confirm password'
+                onChange={() => setErrors([])}
+                autoComplete="new-password"
+                required
+              />
             </>
           }
           <ErrorHandler error={errors} />

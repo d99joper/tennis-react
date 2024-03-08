@@ -1,0 +1,83 @@
+.pac-container {
+  background-color: #FFF
+ }
+ .pac-item,
+ .pac-item-query {
+  color: #000000;
+ }
+ .pac-item:hover {
+  background: #5353539f;
+ }
+
+ .pac-container:after {
+  /* Disclaimer: not needed to show 'powered by Google' if also a Google Map is shown */
+  display: none;
+  /* background-image: none !important;
+  height: 0px; */
+}
+
+:root {
+  --main-green: #4caf50;
+  --main-white: #fff;
+  --main-off-white: #fafafa;
+  --main-grey: rgb(180, 180, 180);
+  --main-dark-grey: #646464;
+  --main-ease: cubic-bezier(.65,.05,.36,1);
+}
+
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+/* OUTLINED INPUT STYLES */
+
+.outlined-input {
+  position: relative;
+}
+
+.outlined-input input {
+  width: 100%;
+  color: black;
+  height: 3.1rem;
+  outline: 1px solid var(--main-grey); 
+  border-radius: 5px;
+  border: 1px solid var(--main-grey);  /* none; */
+  background-color: var(--main-off-white); 
+  padding-left: 20px;
+  /* font-size: 20px; */
+  transition: .1s var(--main-ease);
+}
+
+.outlined-input label {
+  position: absolute;
+  top: 50%;
+  left: .5rem;
+  transform: translateY(-50%);
+  background-color: var(--main-off-white);
+  color: var(--main-dark-grey);
+  text-align: center;
+  transition: .2s var(--main-ease);
+  /* font-size: 1.5rem; */
+  pointer-events: none;
+  padding: 0 5px;
+}
+
+.outlined-input input:not(:placeholder-shown) ~ label,
+.outlined-input input:focus ~ label {
+  top: 0px;
+  left: 10px;
+  font-size: 1rem;
+}
+
+.outlined-input input:focus {
+  outline: 1px solid var(--main-green) !important;
+}
+.outlined-input input:hover {
+  outline: 1px solid black;
+}
+.outlined-input input:focus ~ label {
+  color: var(--main-green) !important;
+}
+
+/* END OUTLINED INPUT STYLES */

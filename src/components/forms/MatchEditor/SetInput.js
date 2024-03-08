@@ -3,7 +3,7 @@ import React, { useState } from "react";
 
 const SetInput = (props) => {
 
-    const [setScore, setSetScore] = useState('')
+    const [setScore, setSetScore] = useState(props.value ?? '')
     const [error, setError] = useState(false)
 
     const handleSetChange = (e) => {

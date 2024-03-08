@@ -1,4 +1,5 @@
 import apiUrl from "config"
+import { playerAPI } from "./services"
 
 const authUrl = apiUrl + 'rest-auth/'
 
@@ -21,7 +22,7 @@ const authAPI = {
 			return { status: response.status, statusCode: response.statusCode, statusText: response.statusText, error: 'Failed to get user' }
 	},
 
-	register: async function (username, password, firstName, lastName) {
+	register: async function (username, password, firstName, lastName, location) {
 		try {
 			const body = {
 				email: username,
@@ -29,6 +30,11 @@ const authAPI = {
 				password: password,
 				first_name: firstName,
 				last_name: lastName,
+				... location ? {
+					location: location.location, 
+					lat: location.lat, 
+					lng: location.lng
+				} : null,
 			}
 			let response = await fetch(apiUrl + "register-user/", {
 				method: 'POST',
@@ -180,8 +186,11 @@ async function handleLogin(url, body) {
 			const myEvent = new CustomEvent('login', { detail: user })
 			window.dispatchEvent(myEvent)
 
+			// now get the full player details
+			const player = await playerAPI.getPlayer(user.pk)
+			
 			// return the newly logged in user
-			return user
+			return player
 		}
 		else
 			throw new Error('Failed to login')

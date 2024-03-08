@@ -5,7 +5,7 @@ import {
 	TextAreaField, Divider, Loader, TabItem, Tabs
 } from "@aws-amplify/ui-react";
 import { enums, helpers } from 'helpers'
-import { Editable, Matches, PhoneNumber, UserStats, TopRivals, UnlinkedMatches, ProfileImage } from '../components/forms/index.js'
+import { Editable, Matches, PhoneNumber, UserStats, TopRivals, UnlinkedMatches, ProfileImage, InfoPopup } from '../components/forms/index.js'
 import './profile.css';
 import { Modal, Box, Typography, Dialog, DialogTitle, Popover, CircularProgress } from '@mui/material';
 import { AiOutlineEdit, AiOutlineMail, AiOutlinePhone } from 'react-icons/ai';
@@ -34,10 +34,6 @@ function Profile(props) {
 	const [isLoggedIn, setIsLoggedIn] = useState(props.isLoggedIn);
 	const [isEdit, setIsEdit] = useState(false);
 	const [canEdit, setCanEdit] = useState(false);
-	// info popover
-	const [showInfoModal, setShowInfoModal] = useState(false)
-	const [infoContent, setInfoContent] = useState('')
-	const [infoAnchorEl, setInfoAnchorEl] = useState(null)
 	// image modal
 	const [showImagePicker, setShowImagePicker] = useState(false)
 	// utr
@@ -50,6 +46,8 @@ function Profile(props) {
 	const [showMatchEditor, setShowMatchEditor] = useState(false);
 	const [unLinkedMatches, setUnLinkedMatches] = useState()
 	const [unLinkedMatchesAdded, setUnLinkedMatchesAdded] = useState(0)
+	const [refreshMatchesCounter,setRefreshMatchesCounter] = useState(0)
+	const [highLightedMatch, setHighLightedMatch] = useState({})
 	//const [startPage, setStartPage]
 
 	const MatchEditor = lazy(() => import("../components/forms/index") //MatchEditor/MatchEditor")
@@ -58,29 +56,6 @@ function Profile(props) {
 	const handleUpdatedPhoneNumber = newNumber => {
 		setPlayer({ ...player, phone: newNumber })
 	}
-
-	const handleIconClick = (origin, e) => {
-		console.log(origin, e)
-		setInfoAnchorEl(e.currentTarget)
-		switch (origin) {
-			case 'utr':
-				setInfoContent('Add your UTR id to link up with your UTR account')
-				break;
-			case 'ntrp':
-				setInfoContent(
-					<a
-						href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'
-						target='_blank'
-					>
-						{`View the USTA NTPR guidelines here >>`}
-					</a>
-				)
-				break;
-			default:
-				break;
-		}
-		setShowInfoModal(!showInfoModal);
-	};
 
 	const handleStatsClick = () => {
 		if (!statsFetched) {
@@ -368,7 +343,7 @@ function Profile(props) {
 									</View>
 
 									{/************ EDIT TOOGLE   *************/}
-									<div className="mobile-only" style={{ textAlign: 'right', paddingRight: '1rem', flexGrow: 1, position:'absolute', top:0, right:0, padding:'1rem', zIndex:9999 }}>
+									<div className="mobile-only" style={{ textAlign: 'right', paddingRight: '1rem', flexGrow: 1, position: 'absolute', top: 0, right: 0, padding: '1rem', zIndex: 9999 }}>
 
 										{canEdit && isEdit &&
 											<>
@@ -396,7 +371,17 @@ function Profile(props) {
 
 									</div>
 									{/************ NTRP   *************/}
-									<View>NTRP <MdOutlineInfo onClick={(e) => { handleIconClick('ntrp', e) }} className='cursorHand' />:</View>
+									<View>NTRP
+										<InfoPopup paddingLeft={"0.1rem"}>
+											<a
+												href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'
+												target='_blank'
+											>
+												{`View the USTA NTPR guidelines here >>`}
+											</a>
+										</InfoPopup>
+										:
+									</View>
 									<div>
 										<Flex direction={"row"}>
 											<Editable
@@ -413,22 +398,14 @@ function Profile(props) {
 												></SelectField>
 
 											</Editable>
-
 										</Flex>
-										{/******** POPOVER FOR NTRP AND UTR INFO   *********/}
-										<Popover
-											onClose={() => setShowInfoModal(false)}
-											anchorEl={infoAnchorEl}
-											anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
-											open={showInfoModal}
-										>
-											<Typography sx={{ p: 2, backgroundColor: 'info.light' }}>
-												{infoContent}
-											</Typography>
-										</Popover>
 									</div>
 									{/************ UTR   *************/}
-									<View>UTR <MdOutlineInfo onClick={(e) => { handleIconClick('utr', e) }} className='cursorHand' />:</View>
+									<View>UTR
+										<InfoPopup paddingLeft={"0.1rem"}>
+											Add your UTR id to link up with your UTR account
+										</InfoPopup>:
+									</View>
 									<Flex direction={"row"}>
 										<Editable
 											text={
@@ -486,19 +463,19 @@ function Profile(props) {
 							</TabItem>
 							<TabItem title="Stats" onClick={handleStatsClick} >
 								{/************ STATS   *************/}
-								<UserStats 
-									stats={stats} 
-									statsFetched={statsFetched} 
-									paddingTop={10} 
+								<UserStats
+									stats={stats}
+									statsFetched={statsFetched}
+									paddingTop={10}
 									displayAs={enums.DISPLAY_MODE.SimpleList}
-									className="mobile-only"  
+									className="mobile-only"
 								/>
-								<UserStats 
-									stats={stats} 
-									statsFetched={statsFetched} 
-									paddingTop={10} 
+								<UserStats
+									stats={stats}
+									statsFetched={statsFetched}
+									paddingTop={10}
 									displayAs={enums.DISPLAY_MODE.Table}
-									className="desktop-only"  
+									className="desktop-only"
 								/>
 							</TabItem>
 							<TabItem title="Greatest Rivals" onClick={handleRivalsClick} >
@@ -521,38 +498,47 @@ function Profile(props) {
 						>
 							<TabItem title="Singles">
 								<UnlinkedMatches matches={unLinkedMatches} player={player} handleMatchAdded={handleUnlinkedMatchAdded} />
-								<Matches 
-									player={player} 
-									pageSize="10" 
-									matchType={enums.MATCH_TYPE.SINGLES} 
-									allowDelete={loggedInPlayer?.isAdmin} 
-									className="desktop-only" 
-								/>
-								<Matches 
-									player={player} 
-									pageSize="10" 
-									matchType={enums.MATCH_TYPE.SINGLES} 
-									allowDelete={loggedInPlayer?.isAdmin} 
+								<Matches
+									player={player}
+									hightlightedMatch={{id: '7246213c-d0a6-4d67-9d56-01bcab0fb32a'}}
+									refreshMatches={refreshMatchesCounter}
+									pageSize="10"
+									matchType={enums.MATCH_TYPE.SINGLES}
 									displayAs={enums.DISPLAY_MODE.SimpleList}
-									className="mobile-only" 
+									allowDelete={loggedInPlayer?.isAdmin}
+									className="desktop-only"
 								/>
+								{/* <Matches
+									player={player}
+									hightlightedMatch={highLightedMatch}
+									refreshMatches={refreshMatchesCounter}
+									pageSize="10"
+									matchType={enums.MATCH_TYPE.SINGLES}
+									allowDelete={loggedInPlayer?.isAdmin}
+									displayAs={enums.DISPLAY_MODE.SimpleList}
+									className="mobile-only"
+								/> */}
 
 							</TabItem>
 							<TabItem title="Doubles">
-								<Matches 
-									player={player} 
-									pageSize="10" 
-									matchType={enums.MATCH_TYPE.DOUBLES} 
+								<Matches
+									player={player}
+									hightlightedMatch={highLightedMatch}
+									refreshMatches={refreshMatchesCounter}
+									pageSize="10"
+									matchType={enums.MATCH_TYPE.DOUBLES}
 									allowDelete={loggedInPlayer?.isAdmin}
-									className="desktop-only" 
+									className="desktop-only"
 								/>
-								<Matches 
-									player={player} 
-									pageSize="10" 
-									matchType={enums.MATCH_TYPE.DOUBLES} 
+								<Matches
+									player={player}
+									hightlightedMatch={highLightedMatch}
+									refreshMatches={refreshMatchesCounter}
+									pageSize="10"
+									matchType={enums.MATCH_TYPE.DOUBLES}
 									allowDelete={loggedInPlayer?.isAdmin}
 									displayAs={enums.DISPLAY_MODE.SimpleList}
-									className="mobile-only" 
+									className="mobile-only"
 								/>
 							</TabItem>
 						</Tabs>
@@ -573,10 +559,14 @@ function Profile(props) {
 						>
 							<DialogTitle>Add a new match</DialogTitle>
 							<Box padding={'1rem'}>
-								<Suspense fallback={<h2><Loader />Loading...</h2>}>
+								<Suspense fallback={<h2><CircularProgress /> Loading...</h2>}>
 									<MatchEditor
 										player={player}
-										onSubmit={updateProfileData}
+										onSubmit={(match) => {
+											setRefreshMatchesCounter(refreshMatchesCounter+1)
+											setHighLightedMatch(match)
+											setShowMatchEditor(false)
+										}}
 										minDate={helpers.setDate(-90)}
 									/>
 								</Suspense>

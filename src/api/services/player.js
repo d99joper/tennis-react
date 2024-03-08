@@ -49,10 +49,10 @@ const playerAPI = {
   },
 
   getPlayers: async function (filter) {
-    console.log(filter)
+    //console.log(filter)
     const url = new URL(playersUrl)
     const params = new URLSearchParams(filter) //helpers.parseFilter(filter)
-    console.log("params: ",params)
+    //console.log("params: ",params)
     const requestOptions = authAPI.getRequestOptions('GET')
     const response = await fetch(url+'?'+params,requestOptions)//`${playersUrl}?filter=${filter}`, requestOptions)
     if (response.ok) {
@@ -96,10 +96,12 @@ const playerAPI = {
     const requestOptions = authAPI.getRequestOptions('POST', player)
 
     const response = await fetch(playersUrl + 'create', requestOptions)
+    console.log(response)
+    const jsonResp = await response.json()
     if (response.ok)
-      return await response.json()
+      return await jsonResp
     else
-      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to create player' }
+      return { statusCode: response.status, error: 'An error occurred', ...jsonResp }
   },
 
   // partial player as input. Only provided fields get updated
