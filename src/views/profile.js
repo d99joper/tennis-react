@@ -500,7 +500,7 @@ function Profile(props) {
 								<UnlinkedMatches matches={unLinkedMatches} player={player} handleMatchAdded={handleUnlinkedMatchAdded} />
 								<Matches
 									player={player}
-									hightlightedMatch={{id: '7246213c-d0a6-4d67-9d56-01bcab0fb32a'}}
+									hightlightedMatch={highLightedMatch}
 									refreshMatches={refreshMatchesCounter}
 									pageSize="10"
 									matchType={enums.MATCH_TYPE.SINGLES}
@@ -508,7 +508,7 @@ function Profile(props) {
 									allowDelete={loggedInPlayer?.isAdmin}
 									className="desktop-only"
 								/>
-								{/* <Matches
+								<Matches
 									player={player}
 									hightlightedMatch={highLightedMatch}
 									refreshMatches={refreshMatchesCounter}
@@ -517,7 +517,7 @@ function Profile(props) {
 									allowDelete={loggedInPlayer?.isAdmin}
 									displayAs={enums.DISPLAY_MODE.SimpleList}
 									className="mobile-only"
-								/> */}
+								/>
 
 							</TabItem>
 							<TabItem title="Doubles">
