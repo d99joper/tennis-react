@@ -1,6 +1,6 @@
 import { Collection, Flex, Card, Text, View } from "@aws-amplify/ui-react"
 import { Button, Checkbox, CircularProgress, Divider, FormControl, FormControlLabel, FormLabel, MenuItem, Radio, RadioGroup, Select, Slider } from "@mui/material"
-import { ladderAPI, playerAPI } from "api/services"
+import { courtAPI, ladderAPI, playerAPI } from "api/services"
 import { AutoCompletePlaces, ItemCard, ProfileImage } from "components/forms"
 import { enums, helpers, userHelper } from "helpers"
 import React, { useEffect, useRef } from "react"
@@ -18,12 +18,14 @@ const SearchPage = (props) => {
   const [scriptIsLoaded, setScriptIsLoaded] = useState(false)
   const [ladders, setLadders] = useState([])
   const [players, setPlayers] = useState([])
+  const [courts, setCourts] = useState([])
   const [totalCount, setTotalCount] = useState(-1)
   const [isLoading, setIsLoading] = useState(false)
   const [selectedSearch, setSelectedSearch] = useState('players')
   const [isInitialMapSet, setIsInitialMapSet] = useState(false)
   const [mapApi, setMapApi] = useState()
   const [filters, setFilters] = useState([])
+  const [highlightedItem, setHighlightedItem] = useState(null)
   const nameRef = useRef()
 
   let map
@@ -42,7 +44,7 @@ const SearchPage = (props) => {
 
   function handlePlaceChanged(geoPoint) {
     console.log('new place', geoPoint)
-    setMapCenter({lat: geoPoint.lat, lng: geoPoint.lng})
+    setMapCenter({ lat: geoPoint.lat, lng: geoPoint.lng })
   }
 
   useEffect(() => {
@@ -70,7 +72,7 @@ const SearchPage = (props) => {
 
         setIsInitialMapSet(true)
         async function getUserLocation() {
-          console.log("mapApi",mapApi)
+          console.log("mapApi", mapApi)
           // if the user lets us use their location
           if (navigator.geolocation) {
             // get the position
@@ -117,9 +119,9 @@ const SearchPage = (props) => {
         //updateSearch(myLngLat)
       }
     }
-    if(mapApi)
+    if (mapApi)
       setInitialMap()
-    
+
   }, [mapApi])
 
   function updateSearch(myLngLat) { //lat = 38.55, lng = -121.73) {
@@ -128,7 +130,7 @@ const SearchPage = (props) => {
       console.log('mapresults', places)
       places.forEach(x => {
         if (x.lng && x.lat) {
-          new window.google.maps.Marker({
+          const marker = new window.google.maps.Marker({
             position: { lat: parseFloat(x.lat), lng: parseFloat(x.lng) },
             map: map,
             title: x.name,
@@ -136,6 +138,14 @@ const SearchPage = (props) => {
               url: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png',
               scaledSize: new window.google.maps.Size(40, 40),
             }
+          })
+          const infoWindow = new window.google.maps.InfoWindow({
+            content: x.name
+        })
+          marker.addListener('click',  () => {
+            console.log('clicked marker')
+            infoWindow.open(map, marker)
+            setHighlightedItem(x.id)
           })
         }
       })
@@ -207,8 +217,15 @@ const SearchPage = (props) => {
         // for each ladder, set a marker on the map
       })
     }
-
-
+    if (selectedSearch === 'courts') {
+      courtAPI.getCourts(filter).then((results) => {
+        console.log(results)
+        setCourts(results.courts)
+        setTotalCount(results.total_count)
+        updateMapMarkers(results.courts)
+        setIsLoading(false)
+      })
+    }
   }
   const handleRadiusChange = (event) => {
     setRadius(event.target.value)
@@ -231,15 +248,15 @@ const SearchPage = (props) => {
           aria-labelledby="search-radio-buttons-group-label"
           value={selectedSearch}
           name="search-radio-buttons-group"
-
         >
           <FormControlLabel value="players" control={<Radio />} label="Players" />
           <FormControlLabel value="ladders" control={<Radio />} label="Ladders" />
-          <div>
-            <Button variant="contained" onClick={updateSearch}>Search</Button>
-          </div>
+          <FormControlLabel value="courts" control={<Radio />} label="Courts" />
         </RadioGroup>
       </FormControl>
+      <div>
+        <Button variant="contained" onClick={updateSearch}>Search</Button>
+      </div>
       <Flex direction={"row"} gap=".5rem">
         <Flex direction={"column"} gap="1rem" >
           <Flex direction={"column"} gap={"0.5rem"} width={"450px"}>
@@ -247,14 +264,14 @@ const SearchPage = (props) => {
               Name:  &nbsp;
               <input id="search_name" />
             </div>
-            {selectedSearch === 'players' &&
+            {/* {selectedSearch === 'players' &&
               <>
                 <div>
                   Email:  &nbsp;
                   <input id="search_email" />
                 </div>
               </>
-            }
+            } */}
             <div>
               Search on location
               <Checkbox
@@ -283,68 +300,72 @@ const SearchPage = (props) => {
                 </div>
               </>
             }
-            <div>
-              Search on NTPR level
-              <Checkbox
-                checked={filters.includes('ntrp')}
-                value={'ntrp'}
-                onChange={() => handleFilterChange('ntrp')}
-              />
-            </div>
-            {filters.includes('ntrp') &&
-              <div style={{ width: '80%' }}>
-                NTRP Level:  &nbsp;
-                <Slider
-                  getAriaLabel={() => 'Level'}
-                  label="Level"
-                  min={2}
-                  max={6.5}
-                  step={0.5}
-                  value={levelNTRP}
-                  onChange={(e) => setLevelNTRP(e.target.value)}
-                  marks={enums.LevelMarks}
-                  valueLabelDisplay="auto"
-                />
-              </div>
-            }
-            {selectedSearch === 'players' &&
-              <div>
-                Search on UTR level
-                <Checkbox
-                  checked={filters.includes('utr')}
-                  value={'utr'}
-                  onChange={() => handleFilterChange('utr')}
-                />
-              </div>
-            }
-            {filters.includes('utr') &&
-              <div style={{ width: '80%' }}>
-                UTR Level: {`${levelUTR[0]}-${levelUTR[1]}`} &nbsp;
-                <Slider
-                  getAriaLabel={() => 'Level'}
-                  label="Level"
-                  min={1.0}
-                  max={17.0}
-                  step={0.1}
-                  value={levelUTR}
-                  onChange={(e) => setLevelUTR(e.target.value)}
-                  //marks={enums.LevelMarks}
-                  valueLabelDisplay="auto"
-                />
-              </div>
-            }
-            {selectedSearch === 'ladders' &&
-              <div>
-                Match type: &nbsp;
-                <Select
-                  variant="standard"
-                  value={matchType}
-                  onChange={e => setMatchType(e.target.value)}
-                >
-                  <MenuItem value={enums.MATCH_TYPE.SINGLES}>Singles</MenuItem>
-                  <MenuItem value={enums.MATCH_TYPE.DOUBLES}>Doubles</MenuItem>
-                </Select>
-              </div>
+            {selectedSearch !== 'courts' &&
+              <>
+                <div>
+                  Search on NTPR level
+                  <Checkbox
+                    checked={filters.includes('ntrp')}
+                    value={'ntrp'}
+                    onChange={() => handleFilterChange('ntrp')}
+                  />
+                </div>
+                {filters.includes('ntrp') &&
+                  <div style={{ width: '80%' }}>
+                    NTRP Level:  &nbsp;
+                    <Slider
+                      getAriaLabel={() => 'Level'}
+                      label="Level"
+                      min={2}
+                      max={6.5}
+                      step={0.5}
+                      value={levelNTRP}
+                      onChange={(e) => setLevelNTRP(e.target.value)}
+                      marks={enums.LevelMarks}
+                      valueLabelDisplay="auto"
+                    />
+                  </div>
+                }
+                {selectedSearch === 'players' &&
+                  <div>
+                    Search on UTR level
+                    <Checkbox
+                      checked={filters.includes('utr')}
+                      value={'utr'}
+                      onChange={() => handleFilterChange('utr')}
+                    />
+                  </div>
+                }
+                {filters.includes('utr') &&
+                  <div style={{ width: '80%' }}>
+                    UTR Level: {`${levelUTR[0]}-${levelUTR[1]}`} &nbsp;
+                    <Slider
+                      getAriaLabel={() => 'Level'}
+                      label="Level"
+                      min={1.0}
+                      max={17.0}
+                      step={0.1}
+                      value={levelUTR}
+                      onChange={(e) => setLevelUTR(e.target.value)}
+                      //marks={enums.LevelMarks}
+                      valueLabelDisplay="auto"
+                    />
+                  </div>
+                }
+                {selectedSearch === 'ladders' &&
+                  <div>
+                    Match type: &nbsp;
+                    <Select
+                      variant="standard"
+                      value={matchType}
+                      onChange={e => setMatchType(e.target.value)}
+                    >
+                      <MenuItem value={enums.MATCH_TYPE.SINGLES}>Singles</MenuItem>
+                      <MenuItem value={enums.MATCH_TYPE.DOUBLES}>Doubles</MenuItem>
+                    </Select>
+                  </div>
+                }
+              </>
             }
           </Flex>
           <Divider />
@@ -386,6 +407,33 @@ const SearchPage = (props) => {
                       </Flex>
                     </Card>
                   </Link>
+                )}
+              </Collection>
+            </>
+          }
+          {selectedSearch === 'courts' &&
+            <>
+              {`${totalCount} courts${courts.length > 1 ? 's' : ''} found`}
+              <Collection
+                type="list"
+                items={courts}
+                direction={'column'}
+                justifyContent={'space-between'}
+              >
+                {(court, index) => (
+                  <ItemCard
+                    highlight={highlightedItem===court.id}
+                    key={`${court.id}_list${court}`} 
+                    header={
+                      <b>{court.name}</b>
+                    }
+                    description={court.description}
+                    footer={<>
+                      {`${court.number_of_courts} courts`}<br />
+                      {court.has_lights ? 'Has lights' : 'No lights'}
+                    </>
+                    }
+                  />
                 )}
               </Collection>
             </>

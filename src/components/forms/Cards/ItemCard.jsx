@@ -3,14 +3,14 @@ import { Card, Flex, Text, Grid } from "@aws-amplify/ui-react";
 import { helpers } from "helpers";
 import { decomposeColor } from "@mui/material";
 
-const ItemCard = ({ header, description, footer, footerRight, ...props }) => {
+const ItemCard = ({ highlight, header, description, footer, footerRight, ...props }) => {
     return (
 
         <Card
             width={props.width ?? "250px"}
             borderRadius={'15px'}
             border='solid'
-            backgroundColor={props.backgroundColor ?? 'white'}>
+            backgroundColor={highlight ? 'yellow' : props.backgroundColor ?? 'white'}>
             <Grid 
                 templateRows={'1fr 2fr auto'}
                 rowGap=".25rem"
