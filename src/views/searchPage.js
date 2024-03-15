@@ -1,4 +1,4 @@
-import { Collection, Flex, Card, Text, View } from "@aws-amplify/ui-react"
+import { Collection, Flex, Card, Text, View, Image } from "@aws-amplify/ui-react"
 import { Button, Checkbox, CircularProgress, Divider, FormControl, FormControlLabel, FormLabel, MenuItem, Radio, RadioGroup, Select, Slider } from "@mui/material"
 import { courtAPI, ladderAPI, playerAPI } from "api/services"
 import { AutoCompletePlaces, ItemCard, ProfileImage } from "components/forms"
@@ -6,6 +6,7 @@ import { enums, helpers, userHelper } from "helpers"
 import React, { useEffect, useRef } from "react"
 import { useState } from "react"
 import { Link } from "react-router-dom"
+import ball_icon from 'images/tennis_ball.png'
 
 const SearchPage = (props) => {
 
@@ -19,6 +20,7 @@ const SearchPage = (props) => {
   const [ladders, setLadders] = useState([])
   const [players, setPlayers] = useState([])
   const [courts, setCourts] = useState([])
+  const [markers, setMarkers] = useState([])
   const [totalCount, setTotalCount] = useState(-1)
   const [isLoading, setIsLoading] = useState(false)
   const [selectedSearch, setSelectedSearch] = useState('players')
@@ -27,6 +29,7 @@ const SearchPage = (props) => {
   const [filters, setFilters] = useState([])
   const [highlightedItem, setHighlightedItem] = useState(null)
   const nameRef = useRef()
+
 
   let map
 
@@ -128,6 +131,8 @@ const SearchPage = (props) => {
 
     function updateMapMarkers(places) {
       console.log('mapresults', places)
+      //setMarkers([])
+      let newMarkers = []
       places.forEach(x => {
         if (x.lng && x.lat) {
           const marker = new window.google.maps.Marker({
@@ -141,14 +146,16 @@ const SearchPage = (props) => {
           })
           const infoWindow = new window.google.maps.InfoWindow({
             content: x.name
-        })
-          marker.addListener('click',  () => {
+          })
+          marker.addListener('click', () => {
             console.log('clicked marker')
             infoWindow.open(map, marker)
             setHighlightedItem(x.id)
           })
+          newMarkers.push(marker)
         }
       })
+      setMarkers(newMarkers)
     }
     setIsLoading(true)
     if (!myLngLat?.lat)
@@ -236,6 +243,34 @@ const SearchPage = (props) => {
     nameRef.current = nameInput
     if (nameInput)
       nameInput.value = ''
+  }
+
+  const highlighCard = (e, item) => {
+    markers.forEach(marker => {
+      if (marker.getPosition().equals(new window.google.maps.LatLng(item.lat, item.lng))) {
+        if (e.type === 'mouseenter' || e.type === 'click') {
+          marker.setIcon('http://maps.gstatic.com/mapfiles/ms2/micons/grn-pushpin.png')
+          setHighlightedItem(item.id)
+        }
+      }
+      else {
+        //setHighlightedItem(null)
+        marker.setIcon('http://maps.google.com/mapfiles/ms/icons/yellow-dot.png')
+      }
+    })
+    // const marker = markers.find(marker => marker.getPosition().equals(new window.google.maps.LatLng(item.lat, item.lng)))
+
+    // if (marker) {
+    //   // const icon = {
+    //   //   url: ball_icon, // Path to your icon image
+    //   //   scaledSize: new window.google.maps.Size(25, 25), // Specify the desired width and height
+    //   // }
+    //   if(e.type === 'mouseenter') {
+    //     marker.setIcon('http://maps.gstatic.com/mapfiles/ms2/micons/ylw-pushpin.png')
+    //     setHighlightedItem(item.id)
+    //   } else
+    //     marker.setIcon('http://maps.google.com/mapfiles/ms/icons/yellow-dot.png')
+    // }
   }
 
   return (
@@ -369,7 +404,7 @@ const SearchPage = (props) => {
             }
           </Flex>
           <Divider />
-          <div>RESULTS:</div>
+          <div style={{ overflowY: "auto" }}>RESULTS:</div>
           {isLoading ?
             <CircularProgress size={140} />
             :
@@ -413,7 +448,7 @@ const SearchPage = (props) => {
           }
           {selectedSearch === 'courts' &&
             <>
-              {`${totalCount} courts${courts.length > 1 ? 's' : ''} found`}
+              {`${totalCount} court${courts.length > 1 ? 's' : ''} found`}
               <Collection
                 type="list"
                 items={courts}
@@ -422,8 +457,10 @@ const SearchPage = (props) => {
               >
                 {(court, index) => (
                   <ItemCard
-                    highlight={highlightedItem===court.id}
-                    key={`${court.id}_list${court}`} 
+                    onHover={(e) => highlighCard(e, court)}
+                    onClick={(e) => highlighCard(e, court)}
+                    highlight={highlightedItem === court.id}
+                    key={`${court.id}_list${court}`}
                     header={
                       <b>{court.name}</b>
                     }
@@ -449,7 +486,10 @@ const SearchPage = (props) => {
               >
                 {(ladder, index) => (
                   <ItemCard
+                    onHover={(e) => highlighCard(e, ladder)}
+                    onClick={(e) => highlighCard(e, ladder)}
                     key={`${ladder.id}_list${ladder}`}
+                    highlight={highlightedItem === ladder.id}
                     footer={<>
                       {`${ladder.counts.players} players`}<br />
                       {`${ladder.counts.matches} matches`}
@@ -468,7 +508,7 @@ const SearchPage = (props) => {
             </>
           }
         </Flex>
-        <Flex direction={"column"} >
+        <Flex direction={"column"} height={"100vh"} overflow={"hidden"} >
           <div id="map" style={{ minHeight: '400px', minWidth: '400px', border: '1px solid black' }}></div>
         </Flex>
       </Flex>
