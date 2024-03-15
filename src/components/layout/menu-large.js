@@ -2,7 +2,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from "react";
 import MuiAppBar from '@mui/material/AppBar';
 import MuiDrawer from '@mui/material/Drawer'
-import { userHelper } from '../../helpers'
 import {
   Divider,
   IconButton,
