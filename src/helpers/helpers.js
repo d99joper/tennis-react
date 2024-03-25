@@ -172,7 +172,7 @@ const helpers = {
 		// top:'10%',
 		// left:'10%',
 		overflow: 'scroll',
-		height: '100%',
+		//height: '100%',
 		display: 'block'
 	},
 

@@ -19,6 +19,7 @@ import ErrorHandler from './Error/error'
 import AutoCompletePlaces from './Autocomplete/AutocompletePlaces'
 import { ProfileImage, ProfileImageProvider } from './ProfileImage'
 import CreatePlayer from './Player/createPlayer'
+import MergeProfiles from './MergeProfiles/merge'
 
 export {
     AutoCompletePlaces,
@@ -36,6 +37,7 @@ export {
     Match, 
     MatchEditor, 
     Matches, 
+    MergeProfiles,
     PhoneNumber,
     ProfileImage,
     ProfileImageProvider,

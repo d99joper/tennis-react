@@ -1,18 +1,19 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
 	Button, Card, Flex, Grid, Text, TextField, SelectField, View,
 	TextAreaField, Divider, Loader, TabItem, Tabs
 } from "@aws-amplify/ui-react";
 import { enums, helpers } from 'helpers'
-import { Editable, Matches, PhoneNumber, UserStats, TopRivals, UnlinkedMatches, ProfileImage, InfoPopup } from '../components/forms/index.js'
+import { Editable, Matches, PhoneNumber, UserStats, TopRivals, UnlinkedMatches, ProfileImage, InfoPopup, MergeProfiles } from '../components/forms/index.js'
 import './profile.css';
 import { Modal, Box, Typography, Dialog, DialogTitle, Popover, CircularProgress } from '@mui/material';
-import { AiOutlineEdit, AiOutlineMail, AiOutlinePhone } from 'react-icons/ai';
+import { AiOutlineEdit, AiOutlineMail, AiOutlinePhone, AiOutlineUsergroupAdd } from 'react-icons/ai';
 import { MdOutlineCancel, MdOutlineCheck, MdOutlineInfo, MdOutlineRefresh } from 'react-icons/md'
 import { authAPI, playerAPI } from 'api/services/index.js';
 import { useContext } from 'react';
 import { ProfileImageContext } from 'components/forms/ProfileImage.js';
+import MyModal from 'components/layout/MyModal.js';
 
 function Profile(props) {
 
@@ -46,9 +47,12 @@ function Profile(props) {
 	const [showMatchEditor, setShowMatchEditor] = useState(false);
 	const [unLinkedMatches, setUnLinkedMatches] = useState()
 	const [unLinkedMatchesAdded, setUnLinkedMatchesAdded] = useState(0)
-	const [refreshMatchesCounter,setRefreshMatchesCounter] = useState(0)
+	const [refreshMatchesCounter, setRefreshMatchesCounter] = useState(0)
 	const [highLightedMatch, setHighLightedMatch] = useState({})
-	//const [startPage, setStartPage]
+	// mergers
+	const [showMergers, setShowMergers] = useState(false);
+	const navigate = useNavigate()
+
 
 	const MatchEditor = lazy(() => import("../components/forms/index") //MatchEditor/MatchEditor")
 		.then(module => { return { default: module.MatchEditor } }))
@@ -158,7 +162,12 @@ function Profile(props) {
 				p = await playerAPI.getPlayer(id)
 				setStats(p.stats)
 				setStatsFetched(true)
-
+				
+				//check if this user has been merged (main profile's id returned from the API)
+				if(id !== p.id) {
+					console.log('merged')
+					navigate('/profile/'+p.id)
+				}
 				if (p.UTR) {
 					if (p.cached_utr) {
 						console.log(p.cached_utr)
@@ -335,6 +344,24 @@ function Profile(props) {
 												: <>&nbsp;Hidden</>
 											}
 										</Text>
+										{/************ MERGERS   *************/}
+										{(player.potential_mergers.length && canEdit) > 0 &&
+											<Text fontSize='medium' className='cursorHand'>
+												<AiOutlineUsergroupAdd onClick={() => setShowMergers(true)} />
+												<>
+													&nbsp;
+													Is this you?
+												</>
+												<MyModal
+													showHide={showMergers}
+													onClose={() => setShowMergers(false)}
+													height="auto"
+													overflow="auto"
+												>
+													<MergeProfiles mainPlayer={player} potentialMergers={player.potential_mergers} />
+												</MyModal>
+											</Text>
+										}
 
 									</View>
 
@@ -367,7 +394,7 @@ function Profile(props) {
 									</div>
 									<View >Location </View>
 									<div>
-										{player.location}
+										{player.location ?? 'Unknown'}
 
 									</div>
 									{/************ NTRP   *************/}
@@ -563,7 +590,7 @@ function Profile(props) {
 									<MatchEditor
 										player={player}
 										onSubmit={(match) => {
-											setRefreshMatchesCounter(refreshMatchesCounter+1)
+											setRefreshMatchesCounter(refreshMatchesCounter + 1)
 											setHighLightedMatch(match)
 											setShowMatchEditor(false)
 										}}
