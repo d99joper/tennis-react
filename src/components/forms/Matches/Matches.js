@@ -78,7 +78,7 @@ const Matches = ({
 			}
 			setShowLoader(true)
 			matchAPI.getMatchesForPlayer(player.id, matchType, page, pageSize, 'desc').then((data) => {
-				console.log(data.matches)
+				//console.log(data.matches)
 				setMatches(data.matches)
 				setTotalPages(Math.ceil(data.total_count / pageSize))
 				setShowLoader(false)
@@ -245,7 +245,7 @@ const Matches = ({
 				{displayAs === enums.DISPLAY_MODE.SimpleList ?
 					matches?.map((m, i) => {
 						const isHighlighted = highlightedItem && m.id === highlightedItem.id
-						console.log(isHighlighted, highlightedItem, m.id)
+						//console.log(isHighlighted, highlightedItem, m.id)
 						// Call removeHighlight function if the item is highlighted
 						if (isHighlighted) {
 							removeHighlight()

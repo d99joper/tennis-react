@@ -19,7 +19,7 @@ const playerAPI = {
       return { status: response.status, statusCode: response.statusCode, statusText: response.statusText, error: 'No Player Found' }
   },
 
-  getPlayerUTR: async function(id) {
+  getPlayerUTR: async function (id) {
     const requestOptions = authAPI.getRequestOptions('GET')
     let response = await fetch(playersUrl + id + '/utr', requestOptions)
 
@@ -54,7 +54,7 @@ const playerAPI = {
     const params = new URLSearchParams(filter) //helpers.parseFilter(filter)
     //console.log("params: ",params)
     const requestOptions = authAPI.getRequestOptions('GET')
-    const response = await fetch(url+'?'+params,requestOptions)//`${playersUrl}?filter=${filter}`, requestOptions)
+    const response = await fetch(url + '?' + params, requestOptions)//`${playersUrl}?filter=${filter}`, requestOptions)
     if (response.ok) {
       const data = await response.json()
       // await data.players.forEach(p => {
@@ -123,6 +123,32 @@ const playerAPI = {
       return await response.json()
     else
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to update player.' }
+  },
+
+  findPotentialMergers: async function (playerId) {
+    const requestOptions = authAPI.getRequestOptions('GET')
+    let response = await fetch(playersUrl + playerId, requestOptions)
+    if (response.ok) {
+      let data = await response.json()
+      return data
+    }
+    else
+      throw new Error('Couldn\'t find mergeable players. ')
+  },
+
+  mergePlayers: async function (mainPlayerId, mergePlayerId) {
+    const requestOptions = authAPI.getRequestOptions('PATCH', {merge_id: mergePlayerId})
+    let response = await fetch(playersUrl + mainPlayerId + '/merge', requestOptions)
+    console.log(response)
+    if(response.ok) {
+      let data = await response.json()
+      console.log(data)
+      if(data.status === 'success') {
+        return data
+      }
+      else 
+        throw new Error('failed to merge players')
+    }
   },
 
   setPlayerName: function (player, lastnameOnly) {
