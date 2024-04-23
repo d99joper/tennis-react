@@ -345,7 +345,7 @@ function Profile(props) {
 											}
 										</Text>
 										{/************ MERGERS   *************/}
-										{(player.potential_mergers.length && canEdit) > 0 &&
+										{(player.potential_mergers?.length > 0 && canEdit) &&
 											<>
 												<Text fontSize='medium' className='cursorHand' onClick={() => setShowMergers(true)}>
 														<AiOutlineUsergroupAdd />
