@@ -125,6 +125,18 @@ const playerAPI = {
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to update player.' }
   },
 
+  initiateMerge: async function (playerId, mergeId) {
+    const requestOptions = authAPI.getRequestOptions('POST', {merge_id: mergeId})
+
+    const response = await fetch(playersUrl + playerId + '/initiateMerge', requestOptions)
+    console.log(response)
+    const jsonResp = await response.json()
+    if (response.ok)
+      return await jsonResp
+    else
+      return { statusCode: response.status, error: 'An error occurred', ...jsonResp }
+  },
+
   findPotentialMergers: async function (playerId) {
     const requestOptions = authAPI.getRequestOptions('GET')
     let response = await fetch(playersUrl + playerId, requestOptions)
@@ -136,17 +148,21 @@ const playerAPI = {
       throw new Error('Couldn\'t find mergeable players. ')
   },
 
-  mergePlayers: async function (mainPlayerId, mergePlayerId) {
-    const requestOptions = authAPI.getRequestOptions('PATCH', {merge_id: mergePlayerId})
+  mergePlayers: async function (mainPlayerId, mergePlayerId, token) {
+    const requestOptions = authAPI.getRequestOptions('PATCH'
+      , {
+        merge_id: mergePlayerId,
+        token: token
+      })
     let response = await fetch(playersUrl + mainPlayerId + '/merge', requestOptions)
     console.log(response)
-    if(response.ok) {
+    if (response.ok) {
       let data = await response.json()
       console.log(data)
-      if(data.status === 'success') {
+      if (data.status === 'success') {
         return data
       }
-      else 
+      else
         throw new Error('failed to merge players')
     }
   },

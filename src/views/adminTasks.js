@@ -1,6 +1,6 @@
 import { Button, Card, Grid, TabItem, Tabs } from "@aws-amplify/ui-react";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
-import { ladderAPI } from "api/services";
+import { ladderAPI, playerAPI } from "api/services";
 import { ErrorHandler, MatchEditor, SelectWithFetch } from "components/forms";
 import { enums, helpers, ladderHelper, matchHelper, userHelper } from "helpers";
 import React, { useEffect, useState } from "react";
@@ -9,7 +9,7 @@ import XLSX, { read, utils, writeFile } from 'xlsx';
 const AdminTasks = (() => {
 
 
-  const [playerName, setPlayerName] = useState('')
+  const [player, setPlayer] = useState({})
   const [ladders, setLadders] = useState([])
   const [players, setPlayers] = useState([])
   const [ladderId, setLadderId] = useState()
@@ -20,10 +20,11 @@ const AdminTasks = (() => {
     async function getData() {
       const ladders = await ladderAPI.getLadders()
       //const players = await ladderHelper.GetPlayers()
-
-      return { ladders: ladders, players: [] }
+      console.log(ladders)
+      return { ladders: ladders.ladders, players: [] }
     }
     getData().then((data) => {
+      console.log(data.ladders)
       setLadders(data.ladders)
       setPlayers(data.players)
     })
@@ -43,8 +44,8 @@ const AdminTasks = (() => {
   }
 
   function addPlayer() {
-    if (playerName.length > 3)
-      userHelper.createPlayerIfNotExist(playerName)
+    if (player?.name.length > 3)
+      playerAPI.createPlayer(player)
         .then((response) => {
           console.log(response)
           if(response.error) {
@@ -63,6 +64,15 @@ const AdminTasks = (() => {
 
   function updateLadder(){
     ladderAPI.updateLadder({id:'35a52e5b-d915-4b84-a4e0-22f2906305a6', match_type: enums.MATCH_TYPE.DOUBLES})
+  }
+
+  function handlePlayerChange(value, type) {
+    let updatedPlayer = player
+    if (type === 'email')
+      updatedPlayer.email = value
+    if (type === 'name') 
+      updatedPlayer.name = value
+    setPlayer(updatedPlayer)
   }
 
   return (
@@ -92,7 +102,12 @@ const AdminTasks = (() => {
         </TabItem>
         <TabItem title="Players">
           <div>
-            <input type="text" value={playerName} onChange={(e) => { setPlayerName(e.target.value) }} />
+            name: 
+            <input type="text" onChange={(e) => { handlePlayerChange(e.target.value,'name') }} 
+            />
+            email: 
+            <input type="text" onChange={(e) => { handlePlayerChange(e.target.value, 'email') }} 
+            />
             <Button onClick={addPlayer}>Add Player</Button>
           </div>
         </TabItem>

@@ -1,8 +1,13 @@
 current:
-    [ ] Merge profiles
-        [ ] On your profile page, if there are other profiles with the same name, offer merge
+    [*] Merge profiles
+        [*] On your profile page, if there are other profiles with the same name, offer merge
+            [x] View for merging
+            [ ] might want to change so that the merged profile keeps their matches but without displaying
+            [ ] warning message that the user will be deleted * not true
+            [ ] only able to merge dummy addresses, OR profiles where you can access the email
         [ ] When signing up, show snap view of profiles with the same name
     [ ] Notifications instead of email (or send message to users w/o displaying email)
+    [ ] Matches with icon buttons for H2H, Challenge, Details (like court, and ladder)
     [x] SelectWithFetch
         [x] Remove the create new item, and have it passed as a child element. If the child exists, display the option to add new
         [x] If initialItems, add them to the list for cached values, and display them as the default list when component is focused

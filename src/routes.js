@@ -17,6 +17,7 @@ import Footer from 'components/layout/footer';
 const Profile = lazy(() => import('./views/profile'))
 const ProfileInfo = lazy(() => import('./views/profile-information'))
 const UserConfirmation = lazy(() => import('./views/Auth/user-confirmation'))
+const UserMerge = lazy(() => import('./views/Auth/user-merge'))
 const LadderCreate = lazy(() => import('./views/ladder/create'))
 const LadderSearch = lazy(() => import('./views/ladder/search'))
 const LadderView = lazy(() => import('./views/ladder/view'))
@@ -77,6 +78,7 @@ const MyRouter = (props) => {
           <Route path="/login" element={<Login />} />
           <Route path="/registration" element={<Registration />} />
           <Route path="/user-confirmation/:userid/:key" element={<UserConfirmation />} />
+          <Route path="/user-merge/:userid/:mergeId/:key" element={<UserMerge />} />
           <Route path="/terms-of-service" element={<TermsOfServicePage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/adminTasks" element={<AdminTasks />} />
