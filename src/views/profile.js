@@ -162,11 +162,11 @@ function Profile(props) {
 				p = await playerAPI.getPlayer(id)
 				setStats(p.stats)
 				setStatsFetched(true)
-				
+
 				//check if this user has been merged (main profile's id returned from the API)
-				if(id !== p.id) {
+				if (id !== p.id) {
 					console.log('merged')
-					navigate('/profile/'+p.id)
+					navigate('/profile/' + p.id)
 				}
 				if (p.UTR) {
 					if (p.cached_utr) {
@@ -346,12 +346,14 @@ function Profile(props) {
 										</Text>
 										{/************ MERGERS   *************/}
 										{(player.potential_mergers.length && canEdit) > 0 &&
-											<Text fontSize='medium' className='cursorHand'>
-												<AiOutlineUsergroupAdd onClick={() => setShowMergers(true)} />
-												<>
-													&nbsp;
-													Is this you?
-												</>
+											<>
+												<Text fontSize='medium' className='cursorHand' onClick={() => setShowMergers(true)}>
+														<AiOutlineUsergroupAdd />
+													<a>
+														&nbsp;
+														Is this you? There's a potential merger.
+													</a>
+												</Text>
 												<MyModal
 													showHide={showMergers}
 													onClose={() => setShowMergers(false)}
@@ -360,7 +362,7 @@ function Profile(props) {
 												>
 													<MergeProfiles mainPlayer={player} potentialMergers={player.potential_mergers} />
 												</MyModal>
-											</Text>
+											</>
 										}
 
 									</View>

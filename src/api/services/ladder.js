@@ -18,7 +18,8 @@ const ladderAPI = {
 
   getLadders: async function (filter) {
     const url = new URL(laddersUrl)
-    url.search = helpers.parseFilter(filter)
+    if(filter)
+      url.search = helpers.parseFilter(filter)
     //console.log(url.search)
     const requestOptions = authAPI.getRequestOptions('GET')
     //const queryString = helpers.parseFilter(filter)
