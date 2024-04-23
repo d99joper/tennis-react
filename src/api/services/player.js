@@ -130,11 +130,10 @@ const playerAPI = {
 
     const response = await fetch(playersUrl + playerId + '/initiateMerge', requestOptions)
     console.log(response)
-    const jsonResp = await response.json()
     if (response.ok)
-      return await jsonResp
+      return {statusCode: response.status}
     else
-      return { statusCode: response.status, error: 'An error occurred', ...jsonResp }
+      return { statusCode: response.status, error: 'An error occurred' }
   },
 
   findPotentialMergers: async function (playerId) {

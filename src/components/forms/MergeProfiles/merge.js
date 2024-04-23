@@ -6,9 +6,9 @@ import { Link } from "react-router-dom"
 
 const MergeProfiles = ({ mainPlayer, potentialMergers, ...props }) => {
   const [showLoader, setShowLoader] = useState(Array(potentialMergers.length).fill(false))
-  const [showSuccess, setShowSuccess] = useState(Array(potentialMergers.length).fill(false))
+  const [showMessage, setShowMessage] = useState(Array(potentialMergers.length).fill(false))
   const [message, setMessage] = useState(Array(potentialMergers.length).fill(''))
-  
+
   // console.log(showLoader)
 
   function mergePlayers(mergeId, mergeEmail, index) {
@@ -29,13 +29,13 @@ const MergeProfiles = ({ mainPlayer, potentialMergers, ...props }) => {
           newState[index] = false
           return newState
         })
-        setMessage(setShowSuccess(prevState => {
+        setMessage(prevState => {
           const newState = [...prevState]
           newState[index] = 'Successfully merged'
           return newState
-        }))
+        })
         // show successfully merged message
-        setShowSuccess(prevState => {
+        setShowMessage(prevState => {
           const newState = [...prevState]
           newState[index] = true
           return newState
@@ -50,19 +50,29 @@ const MergeProfiles = ({ mainPlayer, potentialMergers, ...props }) => {
     }
     else {
       // send merge email 
-      playerAPI.initiateMerge(mainPlayer.id, mergeId)
-
-      setShowLoader(prevState => {
-        const newState = [...prevState]
-        newState[index] = false
-        return newState
+      playerAPI.initiateMerge(mainPlayer.id, mergeId).then(response => {
+        setShowLoader(prevState => {
+          const newState = [...prevState]
+          newState[index] = false
+          return newState
+        })
+        // show successfully merged message
+        setShowMessage(prevState => {
+          const newState = [...prevState]
+          newState[index] = true
+          return newState
+        })
+        let m = 'There was an error when trying to merge the accounts.'
+        if(response.statusCode === 204) {
+          m = 'An email has been sent to the player\'s email. Verify that it\'s you, click the link in the email to complete the merge.'
+        }
+        setMessage(prevState => {
+          const newState = [...prevState]
+          newState[index] = m
+          return newState
+        })
       })
-      
-      setMessage(setShowSuccess(prevState => {
-        const newState = [...prevState]
-        newState[index] = 'An email has been sent to the player\'s email. Verify that it\s you, click the link in the email.'
-        return newState
-      }))
+
     }
   }
 
@@ -94,7 +104,7 @@ const MergeProfiles = ({ mainPlayer, potentialMergers, ...props }) => {
               </Typography>
               {showLoader[index] ? (
                 <CircularProgress /> // Display loading spinner if showLoader is true
-              ) : showSuccess[index] ? (
+              ) : showMessage[index] ? (
                 <Typography variant="h5" color="#058d0c" gutterBottom>
                   {message[index]}
                 </Typography>
