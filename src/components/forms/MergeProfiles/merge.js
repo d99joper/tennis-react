@@ -1,4 +1,4 @@
-import { Card, CardContent, Typography, Button, Grid, CircularProgress } from "@mui/material"
+import { Card, CardContent, Typography, Button, Grid, CircularProgress, Box } from "@mui/material"
 import { playerAPI } from "api/services"
 import { useState } from "react"
 import { ProfileImage } from "../ProfileImage"
@@ -7,7 +7,8 @@ import { Link } from "react-router-dom"
 const MergeProfiles = ({ mainPlayer, potentialMergers, ...props }) => {
   const [showLoader, setShowLoader] = useState(Array(potentialMergers.length).fill(false))
   const [showMessage, setShowMessage] = useState(Array(potentialMergers.length).fill(false))
-  const [message, setMessage] = useState(Array(potentialMergers.length).fill(''))
+  const [messageTitle, setMessageTitle] = useState(Array(potentialMergers.length).fill(''))
+  const [messageText, setMessageText] = useState(Array(potentialMergers.length).fill(''))
 
   // console.log(showLoader)
 
@@ -29,9 +30,14 @@ const MergeProfiles = ({ mainPlayer, potentialMergers, ...props }) => {
           newState[index] = false
           return newState
         })
-        setMessage(prevState => {
+        setMessageTitle(prevState => {
           const newState = [...prevState]
           newState[index] = 'Successfully merged'
+          return newState
+        })
+        setMessageText(prevState => {
+          const newState = [...prevState]
+          newState[index] = ''
           return newState
         })
         // show successfully merged message
@@ -62,13 +68,20 @@ const MergeProfiles = ({ mainPlayer, potentialMergers, ...props }) => {
           newState[index] = true
           return newState
         })
-        let m = 'There was an error when trying to merge the accounts.'
-        if(response.statusCode === 204) {
-          m = 'An email has been sent to the player\'s email. Verify that it\'s you, click the link in the email to complete the merge.'
+        let m_title = 'Error'
+        let m_text = 'There was an error when trying to merge the accounts.'
+        if (response.statusCode === 204) {
+          m_title = 'Initiated'
+          m_text = 'An email has been sent to the player\'s email. Verify that it\'s you, click the link in the email to complete the merge.'
         }
-        setMessage(prevState => {
+        setMessageTitle(prevState => {
           const newState = [...prevState]
-          newState[index] = m
+          newState[index] = m_title
+          return newState
+        })
+        setMessageText(prevState => {
+          const newState = [...prevState]
+          newState[index] = m_text
           return newState
         })
       })
@@ -105,10 +118,38 @@ const MergeProfiles = ({ mainPlayer, potentialMergers, ...props }) => {
               {showLoader[index] ? (
                 <CircularProgress /> // Display loading spinner if showLoader is true
               ) : showMessage[index] ? (
-                <Typography variant="h5" color="#058d0c" gutterBottom>
-                  {message[index]}
-                </Typography>
-              ) : (
+                <Box
+                  backgroundColor={messageTitle == "Error" ? "#FFCCCC" : "#BBEEBB"}
+                  border={1}
+                  padding={1}
+                >
+                  <Typography variant="h5"
+                    color={messageTitle == "Error" ? "#FF4444" : "#058d0c"}
+                    gutterBottom
+                  >
+                    {messageTitle[index]}
+                  </Typography>
+                  <Typography variant="body1" color="#444" maxWidth={240} gutterBottom>
+                    {messageText[index]}
+                  </Typography>
+                </Box>
+              ) : player.merge_initiated === true
+                ?
+                <Box
+                  backgroundColor={messageTitle == "Error" ? "#FFCCCC" : "#BBEEBB"}
+                  border={1}
+                  padding={1}
+                >
+                  Merger initiated. Check your email,<br/>
+                  or, &nbsp;
+                  <a 
+                    onClick={() => mergePlayers(player.id, player.email, index)}
+                    className="cursorHand"
+                  >
+                    resend email
+                  </a>.
+                </Box>
+                :
                 <Button
                   variant="contained"
                   color="primary"
@@ -118,7 +159,6 @@ const MergeProfiles = ({ mainPlayer, potentialMergers, ...props }) => {
                 >
                   Merge
                 </Button>
-              )
               }
             </CardContent>
           </Card>
