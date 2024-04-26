@@ -17,7 +17,7 @@ function UserMerge() {
       console.log(data)
       if (data?.player) {
         setPlayer(data.player)
-        setIsMerged(data.player.verified)
+        setIsMerged(data.status === 'success')
       }
     })
 
