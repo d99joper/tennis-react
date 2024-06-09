@@ -20,7 +20,7 @@ const Match = ({
     ...props
 }) => {
 
-    const [isShowComments, setIsShowComments] = useState(false)
+    const [isShowComments, setIsShowComments] = useState(showComments)
     const [isShowH2H, setIsShowH2H] = useState(false)
     const [isH2HDataFetched, setIsH2HDataFetched] = useState(false)
     const [h2HData, setH2HData] = useState()
@@ -129,9 +129,9 @@ const Match = ({
                 backgroundColor={props.backgroundColor ?? null}
             >
                 <Text columnStart="1" columnEnd="-1" fontSize="0.8em" fontStyle="italic">{match?.played_on}</Text>
-                <View columnStart="1" columnEnd="2">{match.winner.name}</View>
+                <View columnStart="1" columnEnd="2">{userHelper.SetPlayerName(match.winner, false)}</View>
                 <Divider columnStart="1" columnEnd="-1" />
-                <View columnStart="1" columnEnd="2">{match.loser.name}</View>
+                <View columnStart="1" columnEnd="2">{userHelper.SetPlayerName(match.loser, false)}</View>
                 {displayGames(match.score)}
             </Grid>
         )

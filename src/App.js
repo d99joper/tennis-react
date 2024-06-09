@@ -24,8 +24,14 @@ function App() {
       divider: green[300],
       secondary: { main: '#edfdf0' }, // Secondary color
       login: { main: green[700], hover: green[300], text: '#FFF' },
-      info: { main: blue[400], light: blue[100] },
+      info: { main: blue[400]},
       submit: { main: green[500], hover: green[300] },
+      ochre: {
+        main: '#E3D026',
+        light: '#E9DB5D',
+        dark: '#A29415',
+        contrastText: '#242105',
+      },
       background: {
         default: '#edfdf0',
         secondary: blue[50], // Secondary background color

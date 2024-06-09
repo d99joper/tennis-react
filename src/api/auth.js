@@ -13,9 +13,9 @@ const authAPI = {
 			}
 		}
 		let response = await fetch(authUrl + 'user/', requestOptions)
-
 		if (response.ok) {
 			const user = await response.json()
+			console.log(user)
 			return user
 		}
 		else
@@ -112,7 +112,8 @@ const authAPI = {
 				id: localStorage.getItem('user_id'),
 				username: localStorage.getItem('username'),
 				email: localStorage.getItem('user_email'),
-				name: localStorage.getItem('user_name')
+				name: localStorage.getItem('user_name'),
+				merged_with: localStorage.getItem('merged_with')
 			}
 		}
 		return user
@@ -157,6 +158,15 @@ async function setUser(user, key) {
 	localStorage.setItem('user_email', user.email)
 	localStorage.setItem('bearer_' + user.pk, key)
 	localStorage.setItem('user_name', user.first_name + ' ' + user.last_name)
+	localStorage.setItem('merged_into', user.merged_into)
+}
+
+function setAttribute(key, value) {
+	localStorage.setItem(key, value)
+}
+
+function getAttribute(key) {
+	return localStorage.getItem(key)
 }
 
 // handles the login logic 

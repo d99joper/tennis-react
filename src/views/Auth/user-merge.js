@@ -27,7 +27,7 @@ function UserMerge() {
     <Flex>
       {isMerged === true ?
         <>
-          The profiles have been merged into the profile below. The remaining profile continue to the
+          The profiles have been merged into the profile below. 
           <Card sx={{ backgroundColor: 'whitesmoke' }}>
             <CardContent>
               <div>

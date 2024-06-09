@@ -2,7 +2,8 @@ import { Flex, Radio, RadioGroupField, TextAreaField, View } from '@aws-amplify/
 import {
 	Select, TextField,
 	MenuItem, InputLabel, FormControl,
-	Checkbox, FormControlLabel, Button, Typography, Grid, Box, CircularProgress
+	Checkbox, FormControlLabel, Button, Typography, Grid, Box, CircularProgress,
+	Divider
 } from '@mui/material'; //https://mui.com/material-ui/react-autocomplete/
 import React, { useEffect, useState } from 'react'
 import { enums, ladderHelper } from '../../../helpers/index'
@@ -30,7 +31,8 @@ const MatchEditor = (
 	// steps determine what is shown
 	const steps = ['ladder', 'date', 'winner', 'loser', 'court', 'score', 'comment', 'confirm', 'loading']
 	const [stepIndex, setStepIndex] = useState(0)
-	const [infoText, setInfoText] = useState('')
+	const [isDoubles, setIsDoubles] = useState(false)
+	//const [infoText, setInfoText] = useState('')
 	const [matchInfoText, setMatchInfoText] = useState('')
 	const [error, setError] = useState('')
 	const isFixedLadder = typeof (props.ladderId) !== 'undefined'
@@ -50,6 +52,8 @@ const MatchEditor = (
 	const [comment, setComment] = useState('')
 	const [ladderId, setLadderId] = useState(props.ladderId || 0)
 	const [showSummary, setShowSummary] = useState(false)
+	const [matchType, setMatchType] = useState(type)
+
 	//const showLadderSelect = typeof (props.ladderId) === 'undefined'
 
 	// Initialize the state for the score
@@ -80,13 +84,14 @@ const MatchEditor = (
 
 		// Create an object with the match result data
 		let match = {
-			winner: [{ ...winner[0] }],
-			loser: [{ ...loser[0] }],
+			winner: [{ ...winner[0], ...(winner[1] ? [{ ...winner[1] }] : []) }],
+			loser: [{ ...loser[0], ...(loser[1] ? [{ ...loser[1] }] : []) }],
 			score: score.filter(Boolean).join(', '),
-			type: type,
+			type: matchType,
 			played_on: new Date(playedOn).toISOString().split('T')[0],
 			...ladderId != '0' ? { ladder: { id: ladderId } } : null,
-			retired: retired
+			retired: retired,
+			comments: []
 		}
 
 		if (comment.length > 0) {
@@ -96,12 +101,12 @@ const MatchEditor = (
 				private: true,
 				posted_on: Date.now//helpers.formatAWSDate(Date.now)
 			}
-			match.comment = matchComment
+			match.comments.push(matchComment)
 		}
 
 		// set to loading step
-		setStepIndex(stepIndex+1)
-		
+		setStepIndex(stepIndex + 1)
+
 		matchAPI.createMatch(match).then((result) => {
 			// Call the onSubmit prop (callback) and pass the result object
 			console.log(result)
@@ -240,9 +245,9 @@ const MatchEditor = (
 		updateMatchInfo()
 	}
 	const updateMatchInfo = (newScore) => {
-		let strWinner = winner.length === 1 ? winner[0].name : ''
+		let strWinner = winner.length > 0 ? winner[0].name : ''
 		strWinner += winner.length > 1 ? ' and ' + winner[1].name : ''
-		let strLoser = loser.length === 1 ? loser[0].name : ''
+		let strLoser = loser.length > 0 ? loser[0].name : ''
 		strLoser += loser.length > 1 ? ' and ' + loser[1].name : ''
 		let strLocation = court?.name ? ' at ' + court.name : ''
 		let currentScore = newScore ?? score
@@ -281,11 +286,35 @@ const MatchEditor = (
 	}
 
 	const isDisabled = (button) => {
-		if(button === 'back')
+		if (button === 'back')
 			return stepIndex === 0 || (stepIndex === 1 && isFixedLadder)
 		if (button === 'next')
 			return ['confirm', 'loading'].includes(steps[stepIndex])
 	}
+
+	const updatePlayers = (setArray, newPlayer, index) => {
+		//if (type == 'winner') {
+		setArray(prevPlayers => {
+			const oldPlayer = prevPlayers[index]
+			// check if the player exists / is already set
+			if (oldPlayer) {
+				// update it
+				prevPlayers[index] = newPlayer
+				console.log(prevPlayers)
+				return prevPlayers
+				//return prevPlayers.map((oldPlayer, i) => (i === index ? newPlayer : oldPlayer))
+			}
+			else {
+				// Add new player
+				return [...prevPlayers, newPlayer]
+			}
+		})
+		// }
+		// else if(type == 'loser') {
+
+		// }
+	}
+
 	return (
 		<form
 			style={{ minHeight: '300px', minWidth: '400px', maxWidth: '500px' }}
@@ -319,13 +348,47 @@ const MatchEditor = (
 						ladderId={ladderId}
 						allowCreate={true}
 						initialItems={ladderInfo.players}
-						disabledItemList={[{ id: loser[0]?.id }]}
+						disabledItemList={[{ id: loser[0]?.id }, { id: loser[1]?.id }, { id: winner[1]?.id }]}
 						disabled={isWinner && !isAdmin}
 						selectedItem={winner[0]?.id ? winner[0] : null}
-						onItemSelect={p => setWinner([{ ...p }])}
+						onItemSelect={p => { updatePlayers(setWinner, p, 0) }}
 					>
 						<CreatePlayer />
 					</SelectWithFetch>
+					<FormControlLabel
+						control={
+							<Checkbox
+								label="doubles"
+								checked={isDoubles}
+								onChange={e => { 
+									if(isDoubles)
+										setMatchType(enums.MATCH_TYPE.DOUBLES)
+									else
+										setMatchType(enums.MATCH_TYPE.SINGLES)
+
+									setIsDoubles(!isDoubles)
+								}}
+							/>
+						}
+						label="Doubles"
+					/>
+
+					{isDoubles &&
+						<SelectWithFetch
+							key="winner2_select"
+							fetchFunction={ladderId > 0 ? ladderId : playerFetch}
+							placeholder="Winner partner"
+							ladderId={ladderId}
+							allowCreate={true}
+							initialItems={ladderInfo.players}
+							disabledItemList={[{ id: loser[0]?.id }, { id: loser[1]?.id }, { id: winner[0]?.id }]}
+							//disabled={isWinner && !isAdmin}
+							selectedItem={winner[1]?.id ? winner[1] : null}
+							onItemSelect={p => { updatePlayers(setWinner, p, 1) }}
+						>
+							<CreatePlayer />
+						</SelectWithFetch>
+					}
 				</Grid>
 			)}
 			{/* Step: 'ladder'  */}
@@ -373,20 +436,42 @@ const MatchEditor = (
 			)}
 			{/* Step: 'loser'  */}
 			{steps[stepIndex] === 'loser' && (
-				<SelectWithFetch
-					key="loser_select"
-					fetchFunction={ladderId === 0 ? playerFetch : ladderId}
-					placeholder="Defeated"
-					//ladderId={ladderId}
-					initialItems={ladderInfo.players}
-					//initialItems={[{id: '1', name:'player 1'}, {id:'2', name: 'player 2'}]}
-					disabledItemList={[{ id: winner[0]?.id }]}
-					disabled={!isWinner}
-					selectedItem={loser[0]}
-					onItemSelect={p => setLoser([{ ...p }])}
-				>
-					<CreatePlayer />
-				</SelectWithFetch>
+				<>
+					<SelectWithFetch
+						key="loser_select"
+						fetchFunction={ladderId === 0 ? playerFetch : ladderId}
+						placeholder="Defeated"
+						//ladderId={ladderId}
+						initialItems={ladderInfo.players}
+						//initialItems={[{id: '1', name:'player 1'}, {id:'2', name: 'player 2'}]}
+						disabledItemList={[{ id: winner[0]?.id }, { id: winner[1]?.id }]}
+						disabled={!isWinner}
+						selectedItem={loser[0]}
+						onItemSelect={p => { updatePlayers(setLoser, p, 0) }}
+					>
+						<CreatePlayer />
+					</SelectWithFetch>
+
+					{isDoubles &&
+					<>
+					<span style={{minHeight: '20px'}}>&nbsp;</span>
+						<SelectWithFetch
+							key="loser2_select"
+							fetchFunction={ladderId === 0 ? playerFetch : ladderId}
+							placeholder="Defeated Partner"
+							//ladderId={ladderId}
+							initialItems={[ladderInfo.players]}
+							//initialItems={[{id: '1', name:'player 1'}, {id:'2', name: 'player 2'}]}
+							disabledItemList={[{ id: winner[0]?.id }, { id: winner[1]?.id }, { id: loser[0]?.id }]}
+							//disabled={!isWinner}
+							selectedItem={loser[1]}
+							onItemSelect={p => { updatePlayers(setLoser, p, 1) }}
+						>
+							<CreatePlayer />
+						</SelectWithFetch>
+					</>
+					}
+				</>
 			)}
 			{/* Step: 'date'  */}
 			{steps[stepIndex] === 'date' && (
@@ -521,8 +606,8 @@ const MatchEditor = (
 			)}
 			{/* Step: 'confirm'  */}
 			{steps[stepIndex] === 'confirm' && (
-				<>Please confirm your match information.<br /> 
-				Then hit the submit button to post.</>
+				<>Please confirm your match information.<br />
+					Then hit the submit button to post.</>
 			)}
 			{/* Step: 'confirm'  */}
 			{steps[stepIndex] === 'loading' && (
@@ -546,8 +631,8 @@ const MatchEditor = (
 				</Box>
 			}
 			{steps[stepIndex] === 'confirm' &&
-				<Button onClick={() => {handleSubmit()}}>
-					Submit	
+				<Button onClick={() => { handleSubmit() }}>
+					Submit
 				</Button>
 			}
 		</form>

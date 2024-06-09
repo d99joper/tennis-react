@@ -1,44 +1,95 @@
-import { Box, Modal, Typography } from "@mui/material"
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Modal, Typography } from "@mui/material"
+import zIndex from "@mui/material/styles/zIndex"
 import { useEffect, useState } from "react"
+import { AiFillCloseCircle, AiFillCloseSquare } from "react-icons/ai"
 
-const MyModal = ({ children, showHide, onClose, ...props }) => {
+const MyModal = ({ children, showHide, onClose, label, title,
+  showClose = true, showTitleClose = true, ...props }) => {
   const [show, setShow] = useState(showHide)
 
   useEffect(() => {
-    console.log("ShowHide prop changed:", showHide);
+    //console.log("ShowHide prop changed:", showHide);
     setShow(showHide)
   }, [showHide])
 
-  const 	modalStyle = {
-		position: 'absolute',
-		top: '50%',
-		left: '50%',
-		transform: 'translate(-50%, -50%)',
-		width: 'auto',
-		bgcolor: 'background.paper',
-		border: '2px solid #000',
-		boxShadow: 24,
-		p: 4,
-		// top:'10%',
-		// left:'10%',
-		overflow: props.overflow ?? 'scroll',
-		height: props.height ?? '100%',
-		display: 'block'
-	}
+  const modalStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    //width: '400',
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+    top: '10%',
+    left: '10%',
+    overflow: props.overflow ?? 'scroll',
+    height: props.height ?? '100%',
+    display: 'block'
+  }
+  const closeButtonStyle = {
+    position: 'absolute',
+    align: 'center',
+    textAlign: 'right',
+    top: '10px',
+    right: '10px',
+    // marginBottom: '10px',
+    // paddingBottom: '0.5rem',
+    cursor: 'pointer',
+    zIndex: 1000
+  }
 
   return (
-    <Modal
-      aria-labelledby="Merge profiles"
-      onClose={onClose}
+    <Dialog
       open={show}
+      onClose={onClose}
+      scroll={'paper'}
     >
-      <Box sx={modalStyle}>
-        <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={'1rem'}>
-          {`Merge users`}
-        </Typography>
+      <DialogTitle id="scroll-dialog-title" variant="subtitle1">
+        {showTitleClose &&
+          <div style={closeButtonStyle} onClick={onClose}>
+            <AiFillCloseSquare style={{ backgroundColor: "black", borderRadius: 5 }} color="#05a502" size={30} className="icon-hover-green" />
+          </div>
+        }
+        {title}
+      </DialogTitle>
+      <DialogContent dividers={false}>
+
+        {/* <DialogContentText
+          id="scroll-dialog-description"
+          ref={descriptionElementRef}
+          tabIndex={-1}
+        >
+          {children}
+        </DialogContentText> */}
         {children}
-      </Box>
-    </Modal>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Close</Button>
+      </DialogActions>
+    </Dialog>
+
+    // <Modal
+    //   aria-labelledby={label ?? title ?? 'no label'}
+    //   onClose={onClose}
+    //   open={show}
+    // >
+    //   <Box sx={modalStyle}>
+    //     {/* Close Button in Top Right Corner */}
+    //     <div style={closeButtonStyle} onClick={onClose}>
+    //       <AiFillCloseSquare style={{ backgroundColor: "black", borderRadius: 5 }} color="#05a502" size={30} className="icon-hover-green" />
+    //     </div>
+
+    //     {/* Title */}
+    //     <Typography variant="subtitle1" marginBottom={'1rem'} marginTop={'0.5rem'}>
+    //       {title}
+    //     </Typography>
+
+    //     {/* Content */}
+    //     {children}
+    //   </Box>
+    // </Modal>
   )
 }
 

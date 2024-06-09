@@ -1,3 +1,5 @@
+import userHelper from "./userHelper";
+
 let loadingPromise = null
 const helpers = {
 	loadGoogleMapsAPI: async () => {
@@ -117,6 +119,33 @@ const helpers = {
 		let d = new Date()
 		d.setDate(d.getDate() + days)
 		return d
+	},
+
+	// setPlayerName: (players, setLink=true) => {
+	// 	// only display lastnames if doubles, and add a / between names (i > 0)
+	// 	const isDoubles = players.length > 1
+		
+	// 	return players.map((p, i) => {
+	// 		return (
+	// 			<React.Fragment key={`Fragment_${i}`}>
+	// 				<View as='span'>{i > 0 ? ' / ' : ''}</View>
+	// 				<Link to={`/profile/${p.id}`} >{userHelper.SetPlayerName(p, isDoubles)}</Link>
+	// 			</React.Fragment>
+	// 		)
+	// 	})
+	// },
+
+	removeObjectById: (arr, idToRemove) => {
+		// Find the index of the object with the given id
+		const indexToRemove = arr.findIndex(obj => obj.id === idToRemove);
+	
+		if (indexToRemove !== -1) {
+			// Remove the object if found
+			arr.splice(indexToRemove, 1);
+			return true; // Indicate successful removal
+		}
+	
+		return false; // Indicate object with id not found
 	},
 
 	truncate: (text, len) => {

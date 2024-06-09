@@ -4,8 +4,7 @@ import React, { useState } from "react";
 import { AiFillWarning } from "react-icons/ai";
 import { MdOutlineInfo } from "react-icons/md";
 
-
-function InfoPopup({ children, iconType = 'info', ...props }) {
+function InfoPopup({ children, iconType = 'info', customIcon = null, ...props }) {
   const [anchorEl, setAnchorEl] = useState(null)
   const { paddingLeft, color, paddingRight, width, size } = props
   const open = Boolean(anchorEl)
@@ -40,7 +39,7 @@ function InfoPopup({ children, iconType = 'info', ...props }) {
         }}
         open={open}
       >
-        <Typography sx={{ p: 2, backgroundColor: '#e8e8ff', width: width ?? '500px' }}>
+        <Typography sx={{ p: 2, backgroundColor: '#e8e8ff', width: width ?? '500px' }} as='div'>
           {children}
         </Typography>
       </Popover>
@@ -49,6 +48,9 @@ function InfoPopup({ children, iconType = 'info', ...props }) {
       }
       {iconType === 'warning' &&
         <AiFillWarning {...iconProps} />
+      }
+      {iconType === 'custom' &&
+        React.cloneElement(customIcon, { ...iconProps })
       }
       
     </View>

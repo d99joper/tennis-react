@@ -104,6 +104,16 @@ const playerAPI = {
       return { statusCode: response.status, error: 'An error occurred', ...jsonResp }
   },
 
+  sendVerificationEmail: async function (id) {
+    const requestOptions = authAPI.getRequestOptions('GET')
+    
+    const response = await fetch(playersUrl + id + '/resend_verification', requestOptions)
+    if (response.ok)
+      return await response.json()
+    else
+      return { statusCode: response.statusCode, statusMessage: 'Error: Couldn\'t send email.' }
+  },
+
   // partial player as input. Only provided fields get updated
   updatePlayer: async function (player) {
     const requestOptions = authAPI.getRequestOptions('PATCH', player)
@@ -126,12 +136,12 @@ const playerAPI = {
   },
 
   initiateMerge: async function (playerId, mergeId) {
-    const requestOptions = authAPI.getRequestOptions('POST', {merge_id: mergeId})
+    const requestOptions = authAPI.getRequestOptions('POST', { merge_id: mergeId })
 
-    const response = await fetch(playersUrl + playerId + '/initiateMerge', requestOptions)
+    const response = await fetch(playersUrl + playerId + '/initiate_merge', requestOptions)
     console.log(response)
     if (response.ok)
-      return {statusCode: response.status}
+      return { statusCode: response.status }
     else
       return { statusCode: response.status, error: 'An error occurred' }
   },

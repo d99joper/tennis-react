@@ -32,7 +32,7 @@ function Profile(props) {
 	const [stats, setStats] = useState({})
 	const [statsFetched, setStatsFetched] = useState(false);
 	const [isLoaded, setIsLoaded] = useState(false);
-	const [isLoggedIn, setIsLoggedIn] = useState(props.isLoggedIn);
+	const isLoggedIn = props.isLoggedIn;
 	const [isEdit, setIsEdit] = useState(false);
 	const [canEdit, setCanEdit] = useState(false);
 	// image modal
@@ -72,6 +72,7 @@ function Profile(props) {
 				})
 		}
 	}
+
 	const handleRivalsClick = () => {
 		if (!rivalsFetched) {
 			// userHelper.getGreatestRivals(player.id)
@@ -181,7 +182,7 @@ function Profile(props) {
 			}
 
 			if (sessionPlayer) {
-				if (sessionPlayer.email === p.email) {
+				if (sessionPlayer.email === p.email || sessionPlayer.merged_into === p.id) {
 					console.log('This is your page, so you can edit it')
 					setUnLinkedMatches(sessionPlayer.unLinkedMatches)
 					setCanEdit(true)
@@ -536,6 +537,10 @@ function Profile(props) {
 									displayAs={enums.DISPLAY_MODE.SimpleList}
 									allowDelete={loggedInPlayer?.isAdmin}
 									className="desktop-only"
+									showH2H={true}
+									showChallenge={true}
+									showComments={true}
+									isLoggedIn={isLoggedIn}
 								/>
 								<Matches
 									player={player}
@@ -546,6 +551,10 @@ function Profile(props) {
 									allowDelete={loggedInPlayer?.isAdmin}
 									displayAs={enums.DISPLAY_MODE.SimpleList}
 									className="mobile-only"
+									showH2H={true}
+									showChallenge={true}
+									showComments={true}
+									isLoggedIn={isLoggedIn}
 								/>
 
 							</TabItem>
@@ -558,6 +567,11 @@ function Profile(props) {
 									matchType={enums.MATCH_TYPE.DOUBLES}
 									allowDelete={loggedInPlayer?.isAdmin}
 									className="desktop-only"
+									showH2H={false}
+									showChallenge={false}
+									showComments={true}
+									isLoggedIn={isLoggedIn}
+									displayAs={enums.DISPLAY_MODE.SimpleList}
 								/>
 								<Matches
 									player={player}
@@ -568,6 +582,10 @@ function Profile(props) {
 									allowDelete={loggedInPlayer?.isAdmin}
 									displayAs={enums.DISPLAY_MODE.SimpleList}
 									className="mobile-only"
+									showH2H={true}
+									showChallenge={true}
+									showComments={true}
+									isLoggedIn={isLoggedIn}
 								/>
 							</TabItem>
 						</Tabs>
