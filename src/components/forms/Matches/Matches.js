@@ -1,12 +1,17 @@
 // Matches.js
 import { Button, Collection, Divider, Flex, Grid, Loader, Pagination, Text, View } from "@aws-amplify/ui-react";
-import { enums, userHelper as uf } from "helpers";
+import { enums, helpers, userHelper as uf, userHelper } from "helpers";
 import React, { Suspense, useState, lazy, useEffect, useRef } from "react";
-import { DynamicTable, Match } from "../index.js"
+import { Comments, DynamicTable, H2H, InfoPopup, Match } from "../index.js"
 import "./Matches.css"
-import { CircularProgress, LinearProgress } from "@mui/material";
+import { Box, CircularProgress, LinearProgress } from "@mui/material";
 import { Link } from "react-router-dom";
 import { matchAPI } from "api/services/index.js"
+import { AiFillAndroid, AiFillApple, AiFillFacebook, AiTwotoneCrown } from "react-icons/ai";
+import { GoCommentDiscussion } from "react-icons/go";
+import { GiCrossedSwords } from "react-icons/gi";
+import { MdOutlineSportsTennis } from "react-icons/md";
+import MyModal from "components/layout/MyModal.js";
 
 const Matches = ({
 	player,
@@ -27,6 +32,10 @@ const Matches = ({
 	pageSize = 10,
 	refreshMatches = 0,
 	hightlightedMatch,
+	showH2H = false,
+	showComments = false,
+	showChallenge = false,
+	isLoggedIn = false,
 	...props
 }) => {
 
@@ -38,7 +47,10 @@ const Matches = ({
 	//const [{ sortField, direction }, setSort] = useState({ sortField: sortingField, direction: sortDirection })
 	const [page, setPage] = useState(1)
 	const [totalPages, setTotalPages] = useState()
-	const [showLoader, setShowLoader] = useState(true);
+	const [showLoader, setShowLoader] = useState(true)
+	const [showH2HModal, setShowH2HModal] = useState()
+	const [showCommentsModal, setShowCommentsModal] = useState()
+	const [showChallengeModal, setShowChallengeModal] = useState()
 	const matchPrefix = matches?.[0]?.hasOwnProperty('match') ? 'match.' : ''
 	const useMatchPrefix = matches?.[0]?.hasOwnProperty('match') ? true : false
 	const [isLoading, setIsLoading] = useState(false)
@@ -62,10 +74,10 @@ const Matches = ({
 	}
 
 	const removeHighlight = () => {
-    setTimeout(() => {
-      setHighlightedItem(null) // Reset highlightedItem after 5 seconds
-    }, 5000) // 5000 milliseconds = 5 seconds
-  }
+		setTimeout(() => {
+			setHighlightedItem(null) // Reset highlightedItem after 5 seconds
+		}, 5000) // 5000 milliseconds = 5 seconds
+	}
 
 	useEffect(() => {
 		setShowLoader(true)
@@ -83,6 +95,9 @@ const Matches = ({
 				setTotalPages(Math.ceil(data.total_count / pageSize))
 				setShowLoader(false)
 				setIsLoading(false)
+				setShowH2HModal(Array(data.matches.length).fill(false))
+				setShowCommentsModal(Array(data.matches.length).fill(false))
+				setShowChallengeModal(Array(data.matches.length).fill(false))
 			})
 		}
 		else setShowLoader(false)
@@ -109,6 +124,9 @@ const Matches = ({
 					//setDataIsFetched(true)
 					setShowLoader(false)
 					setIsLoading(false)
+					setShowH2HModal(Array(data.matches.length).fill(false))
+					setShowCommentsModal(Array(data.matches.length).fill(false))
+					setShowChallengeModal(Array(data.matches.length).fill(false))
 				})
 			}
 	}, [endDate, ladder, ladderMatches, player, startDate, page, refreshMatches])
@@ -130,19 +148,6 @@ const Matches = ({
 		)
 	}
 
-	function SetPlayerName(players) {
-		// only display lastnames if doubles, and add a / between names (i > 0)
-		const isDoubles = players.length > 1
-		return players.map((p, i) => {
-			return (
-				<React.Fragment key={`Fragment_${i}`}>
-					<View as='span'>{i > 0 ? ' / ' : ''}</View>
-					<Link to={`/profile/${p.id}`} >{uf.SetPlayerName(p, isDoubles)}</Link>
-				</React.Fragment>
-			)
-		})
-	}
-
 	function displayGames(score) {
 		const sets = score.split(',')
 
@@ -151,9 +156,15 @@ const Matches = ({
 
 			return (
 				<React.Fragment key={`matchScore_${i}`}>
-					<Text marginLeft={'1rem'} columnStart={i + 2} columnEnd={i + 3} rowStart="2">{games[0]}</Text>
+					<Text marginLeft={'1rem'} columnStart={i + 2} columnEnd={i + 3} rowStart="2">
+						{games[0]}
+						{/* there's a tiebreak score, check what side to put it */}
+						{(games[2] && games[0] < games[1]) && <sup>({games[2]})</sup>}
+					</Text>
 					<Text marginLeft={'1rem'} columnStart={i + 2} columnEnd={i + 3} rowStart="4">
-						{games[1]}{games[2] && <sup>({games[2]})</sup>}
+						{games[1]}
+						{/* there's a tiebreak score, check what side to put it */}
+						{(games[2] && games[0] > games[1]) && <sup>({games[2]})</sup>}
 					</Text>
 				</React.Fragment>
 			)
@@ -169,6 +180,33 @@ const Matches = ({
 	function handleOnChange(newPageIndex) {
 		console.log(newPageIndex)
 		setPage(newPageIndex)
+	}
+	function modalSwitch(index, type, open) {
+		switch (type) {
+			case 'h2h':
+				setShowH2HModal(prevState => {
+					const newState = [...prevState]
+					newState[index] = open
+					return newState
+				})
+				break;
+			case 'comments':
+				setShowCommentsModal(prevState => {
+					const newState = [...prevState]
+					newState[index] = open
+					return newState
+				})
+				break;
+			case 'challenge':
+				setShowChallengeModal(prevState => {
+					const newState = [...prevState]
+					newState[index] = open
+					return newState
+				})
+				break;
+			default:
+				break;
+		}
 	}
 
 	return (
@@ -192,7 +230,7 @@ const Matches = ({
 									allowDelete={allowDelete}
 									color={'lightgrey'}
 									showHeader={false}
-									showComments={false}
+									showComments={showComments}
 								></Match>
 							)}
 						</Collection>
@@ -223,7 +261,11 @@ const Matches = ({
 							// sortField={sortField}
 							// direction={direction}
 							data={matches}//{matches?.slice((page - 1)* pageSize, page * pageSize)}
-							iconSet={[{ name: 'H2H' }, { name: 'Comments' }]}
+							iconSet={[
+								showH2H ? { name: 'H2H' } : {},
+								showComments ? { name: 'Comments' } : {},
+								showChallenge ? { name: 'Challenge' } : {}
+							]}
 							//nextToken={nextToken}
 							nextText={"View more matches"}
 							//onNextClick={addMatches}
@@ -251,23 +293,99 @@ const Matches = ({
 							removeHighlight()
 						}
 						return (
-							<Grid key={i}
-								templateColumns="auto 1fr 1fr 1fr 1fr 1fr 1fr"
-								marginBottom={'1rem'}
-								width={'250px'}
-								className={isHighlighted ? 'highlight' : ''}
+							<Grid key={'m_' + i}
+								templateColumns={'auto 1fr'}
+								paddingRight={'1rem'}
+							>
+								<Grid key={i}
+									templateColumns="auto 1fr 1fr 1fr 1fr 1fr 1fr"
+									marginBottom={'1rem'}
+									width={'250px'}
+									className={isHighlighted ? 'highlight' : ''}
 								//backgroundColor={isHighlighted ? 'yellow' : 'transparent'}
 								//backgroundColor={'blue'}
-							>
-								<Text columnStart="1" columnEnd="-1" fontSize="0.8em" fontStyle="italic">{m?.played_on}</Text>
-								<View columnStart="1" columnEnd="2">
-									{SetPlayerName(m.winner)}
+								>
+									<Text columnStart="1" columnEnd="-1" fontSize="0.8em" fontStyle="italic">
+										{m?.played_on}
+									</Text>
+									<View columnStart="1" columnEnd="2">
+										{userHelper.SetPlayerName(m.winner)}
+									</View>
+									<Divider columnStart="1" columnEnd="-1" />
+									<View columnStart="1" columnEnd="2">
+										{userHelper.SetPlayerName(m.loser)}
+									</View>
+									{displayGames(m.score)}
+
+								</Grid>
+								<View margin={'auto'} marginLeft={'1rem'} padding={'0.5rem'}>
+									{showH2H &&
+										<>
+											<GiCrossedSwords
+												size={30}
+												color="#058d0c"
+												className={'cursorHand'}
+												onClick={() => { modalSwitch(i, 'h2h', true) }}
+											/>
+											<MyModal
+												showHide={showH2HModal[i]}
+												onClose={() => { modalSwitch(i, 'h2h', false) }}
+												title='H2H'
+												height="500px"
+												overflow="auto"
+											>
+												<H2H winners={m.winner} losers={m.loser} />
+											</MyModal>
+										</>
+									}
+									&nbsp;
+									{showChallenge &&
+										<>
+											<MdOutlineSportsTennis
+												size={30}
+												color="#058d0c"
+												className={'cursorHand'}
+												onClick={() => { modalSwitch(i, 'challenge', true) }}
+											/>
+											<MyModal
+												showHide={showChallengeModal[i]}
+												onClose={() => { modalSwitch(i, 'challenge', false) }}
+												title='Challenge'
+												height="500px"
+												overflow="auto"
+											>
+												Challenge
+											</MyModal>
+										</>
+									}
+									&nbsp;
+									{showComments &&
+										<>
+											<GoCommentDiscussion
+												size={30}
+												color="#058d0c"
+												className={'cursorHand'}
+												onClick={() => { modalSwitch(i, 'comments', true) }}
+											/>
+											<MyModal
+												showHide={showCommentsModal[i]}
+												onClose={() => { modalSwitch(i, 'comments', false) }}
+												title={'Match comments'}
+												height="500px"
+												overflow="auto"
+											>
+												<Match match={m} showComments={true} />
+												<Comments 
+													showComments={true} 
+													entityId={m.id} 
+													entityType="match"
+													data={m.comments} 
+													allowAdd={isLoggedIn}
+												/>
+											</MyModal>
+										</>
+									}
 								</View>
-								<Divider columnStart="1" columnEnd="-1" />
-								<View columnStart="1" columnEnd="2">
-									{SetPlayerName(m.loser)}
-								</View>
-								{displayGames(m.score)}
 							</Grid>
 						)
 					})

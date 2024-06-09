@@ -7,7 +7,7 @@ current:
             [ ] only able to merge dummy addresses, OR profiles where you can access the email
         [ ] When signing up, show snap view of profiles with the same name
     [ ] Notifications instead of email (or send message to users w/o displaying email)
-    [ ] Matches with icon buttons for H2H, Challenge, Details (like court, and ladder)
+    [x] Matches with icon buttons for H2H, Challenge, Details (like court, and ladder)
     [x] SelectWithFetch
         [x] Remove the create new item, and have it passed as a child element. If the child exists, display the option to add new
         [x] If initialItems, add them to the list for cached values, and display them as the default list when component is focused
@@ -36,14 +36,14 @@ current:
         [x] pulls image every time I switch tabs
     [x] Player search
         [x] get started
-    [#] H2H
+    [x] H2H
         [x] api
         [x] web
-    [ ] Comments
-        [ ] Display
-        [ ] Add
-        [ ] Edit 
-        [ ] Delete
+    [x] Comments
+        [x] Display
+        [x] Add
+        [x] Edit 
+        [x] Delete
     [x] UTR - import matches
     [*] Login / Register
         [x] Separate pages for login and registration

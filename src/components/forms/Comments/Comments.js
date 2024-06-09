@@ -1,28 +1,135 @@
-import { matchHelper as mf } from "helpers/index"
+import { Button, Card, CardContent, Divider, Grid, TextField, Typography } from "@mui/material"
+import { authAPI, commentsAPI } from "api/services"
+import { helpers } from "helpers"
 import React, { useEffect, useState } from "react"
+import { AiFillDelete, AiOutlineMinus, AiOutlinePlus } from "react-icons/ai"
 
-const Comments = ({ matchId, showComments }) => {
+const Comments = ({ data = null, entityId = null, entityType = 'match', showComments = true, allowAdd = false, ...props }) => {
 
-    const [comments, setComments] = useState([{ id: -1, content: '' }])
+  const [comments, setComments] = useState(data ?? [])
+  const [showAdd, setShowAdd] = useState(false)
+  const [error, setError] = useState(false)
+  const [newComment, setNewComment] = useState({})
+  const currentUser = authAPI.getCurrentUser()
 
-    useEffect(() => {
-        if (showComments) {
-            mf.GetComments(matchId).then((data) => {
-                if(data.length > 0) setComments(data)
-                else setComments([{id:-1, content: 'No comments available'}])
-            })
+  console.log('allowAdd', allowAdd)
+
+  useEffect(() => {
+    if (showComments && entityId) {
+      commentsAPI.getComments(entityId, entityType).then((data) => {
+        console.log('comments data', data)
+        console.log('comments', data.comments)
+        if (data.comments?.length > 0) setComments(data.comments)
+        else setComments([])
+      })
+    }
+  }, [showComments, entityId])
+
+  function handleSubmit() {
+    newComment.postedBy = currentUser.id
+    switch (entityType) {
+      case 'match':
+        newComment.match_id = entityId
+        break;
+      case 'court':
+        newComment.court_id = entityId
+        break;
+      default:
+        setError(true)
+        return
+    }
+    console.log(newComment)
+    if ((!newComment.content) || newComment.content?.length < 3)
+      setError(true)
+    else
+      setError(false)
+    commentsAPI.createComment(newComment).then((c) => {
+      setComments(prevComments => [...prevComments, c])
+      setNewComment({})
+    })
+  }
+
+  function deleteComment(id) {
+    if (window.confirm('are you sure you want to delete this comment?')) {
+      commentsAPI.deleteComment(id).then(() => {
+        setComments(prevComments => prevComments.filter(item => item.id !== id))
+      })
+    }
+  }
+
+  const deleteButtonStyle = {
+    position: 'absolute',
+    bottom: '.4rem',
+    right: '.4rem',
+  }
+  const formatText = (text) => {
+    return text.split('\n').map((line, index) => (
+      <React.Fragment key={index}>
+        {line}
+        <br />
+      </React.Fragment>
+    ));
+  };
+
+  return (
+    <Grid container={true} direction={'column'} gap={1}>
+      <Divider>Comments</Divider>
+      {comments?.map((comment, i) => {
+        return (
+          <Card key={'comment_' + i} sx={{ minWidth: 275, backgroundColor: 'whitesmoke' }}>
+            <CardContent sx={{ position: 'relative' }}>
+              <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+                {comment.posted_on} by {comment.posted_by.name}
+              </Typography>
+              <Typography variant="body2">
+                {formatText(comment.content)}
+              </Typography>
+              {currentUser.id === comment.posted_by.id &&
+                <div
+                  style={deleteButtonStyle}
+                  title="delete"
+                  aria-valuetext='delete'
+                >
+                  <AiFillDelete
+                    onClick={() => { deleteComment(comment.id) }}
+                    className="cursorHand icon-hover-red"
+                  />
+                </div>
+              }
+            </CardContent>
+          </Card>
+        )
+      })}
+
+      <div className="cursorHand" onClick={() => { setShowAdd(!showAdd) }}>
+        {showAdd
+          ? <AiOutlineMinus size={25} />
+          : <><AiOutlinePlus size={25} color="green" /> Add comment</>
         }
-    },[showComments,matchId])
-
-    return (
+      </div>
+      {showAdd &&
         <>
-            <span className={(!showComments ? "hide":"")} style={{ position: 'relative', maxWidth: "300px", whiteSpace: 'pre-wrap' }}>
-                {comments?.map((comment) => {
-                    return comment.content
-                })}
-            </span>
+          <TextField
+            id="outlined-multiline-static"
+            label="Care to comment..."
+            multiline
+            rows={4}
+            onChange={(e) => {
+              setNewComment((prevObject) => ({
+                ...prevObject,
+                content: e.target.value
+              }))
+            }}
+            value={newComment.content ?? ''}
+            placeholder="Care to comment..."
+            error={error}
+            helperText={error ? <span style={{ color: 'red' }}>Say more, please.</span> : ''}
+          />
+          <Button variant="outlined" onClick={() => handleSubmit()}>Submit</Button>
         </>
-    )
+      }
+    </Grid>
+  )
 }
 
 export { Comments }

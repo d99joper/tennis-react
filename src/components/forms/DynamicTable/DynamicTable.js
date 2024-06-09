@@ -10,6 +10,9 @@ import { BsArrowBarDown, BsChevronCompactDown, BsChevronDoubleDown } from "react
 import { AiOutlineDelete } from "react-icons/ai";
 import { Box, Dialog, DialogTitle, Modal, Typography } from "@mui/material";
 import { playerAPI } from "api/services";
+import MyModal from "components/layout/MyModal";
+import { Match } from "models";
+import { Comments } from "../Comments/Comments";
 //import "./Matches.css"
 
 const DynamicTable = ({
@@ -28,73 +31,98 @@ const DynamicTable = ({
 
 	const [sortField, setSortField] = useState(initialSortField)
 	const [direction, setDirection] = useState(initialDirection)
-	const [isShowComments, setIsShowComments] = useState([])
-	const [isShowH2H, setIsShowH2H] = useState([])
+	const [showCommentsModal, setShowCommentsModal] = useState(Array(data.length).fill(false))
+	const [showH2HModal, setShowH2HModal] = useState(Array(data.length).fill(false))
 	const [h2HData, setH2HData] = useState({})
 
 	console.log("dynamicTable", data, sortField, direction)
 
-	function openH2HModal(match, i) {
-		setIsShowH2H(prevState => { return { ...prevState, [i]: true } })
-	}
+	// function openH2HModal(match, i) {
+	// 	setIsShowH2H(prevState => { return { ...prevState, [i]: true } })
+	// }
 
-	function openCommentsModal(match, i) {
-		setIsShowComments(prevState => { return { ...prevState, [i]: true } })
+	// function openCommentsModal(match, i) {
+	// 	setShowComments(prevState => { return { ...prevState, [i]: true } })
+	// }
+	function modalSwitch(index, type, open) {
+		switch (type) {
+			case 'h2h':
+				setShowH2HModal(prevState => {
+					const newState = [...prevState]
+					newState[index] = open
+					return newState
+				})
+				break;
+			case 'comments':
+				setShowCommentsModal(prevState => {
+					const newState = [...prevState]
+					newState[index] = open
+					return newState
+				})
+				break;
+			default:
+				break;
+		}
 	}
 
 	function createIconSets(item, i) {
 		let sets = []
+		let m = item.match ?? item
+		console.log(m)
 		iconSet.forEach(element => {
 			switch (element.name) {
-				case 'H2H':
+				case 'H2H' && m.winner.length === 1: // only show h2h for singles
 					//console.log(item)
-					let match = item.match ?? item
-					if (match)
+					if (m)
 						sets.push(
 							<React.Fragment key={`FragmentH2H_${i}`}>
 								<GiCrossedSwords
-									title="H2H"
-									className="middleIcon"
-									color="#3e3333"
-									onClick={() => openH2HModal(item, i)}
+									size={30}
+									color="#058d0c"
+									className={'cursorHand'}
+									onClick={() => { modalSwitch(i, 'h2h', true) }}
 								/>
-								<Dialog
-									onClose={() => setIsShowH2H(prevState => { return { ...prevState, [i]: false } })}
-									open={isShowH2H[i] ?? false}
-									aria-labelledby={'Head to Head'}
-									aria-describedby="Head to Head"
-									padding={'1rem'}
+								<MyModal
+									showHide={showH2HModal[i]}
+									onClose={() => { modalSwitch(i, 'h2h', false) }}
+									title='H2H'
+									height="500px"
+									overflow="auto"
 								>
-									<Box padding={'1rem'}>
-										<H2H key={`H2H_${i}`} winners={match.winner} losers={match.loser} />
-									</Box>
-								</Dialog>
+									<H2H winners={m.winner} losers={m.loser} />
+								</MyModal>
 							</React.Fragment >
 						)
 					break;
 				case 'Comments':
-					sets.push(
-						<React.Fragment key={`FragmentComment_${i}`}>
-							<GoCommentDiscussion
-								key={`icon_${i}`}
-								color="#3e3333"
-								className="cursorHand"
-								onClick={() => openCommentsModal(item, i)}
-							/>
-							<Dialog
-								onClose={() => setIsShowComments(prevState => { return { ...prevState, [i]: false } })}
-								open={isShowComments[i] ?? false}
-								aria-labelledby={'Comments'}
-								aria-describedby="Comments"
-								padding={'1rem'}
-							>
-								<Box padding={'1rem'}>
-									some comments here
-								</Box>
-							</Dialog>
-						</React.Fragment >
+					if (m)
+						sets.push(
+							<React.Fragment key={`FragmentComment_${i}`}>
+								<GoCommentDiscussion
+									size={30}
+									color="#058d0c"
+									className={'cursorHand'}
+									onClick={() => { modalSwitch(i, 'comments', true) }}
+								/>
+								<MyModal
+									showHide={showCommentsModal[i]}
+									onClose={() => { modalSwitch(i, 'comments', false) }}
+									title={'Match comments'}
+									height="500px"
+									overflow="auto"
+								>
+									{/* <Match match={m} showComments={true} /> */}
+									<Comments
+										showComments={true}
+										entityId={m.id}
+										entityType="match"
+										data={m.comments}
+										allowAdd={props.isLoggedIn}
+									/>
+								</MyModal>
+							</React.Fragment >
 
-					)
+						)
 					break;
 				default:
 					break;

@@ -1,7 +1,7 @@
 import { Flex } from '@aws-amplify/ui-react'
 import { GoogleLogin } from '@react-oauth/google'
 import { GoogleOAuthProvider } from '@react-oauth/google'
-import { authAPI } from 'api/services'
+import { authAPI, playerAPI } from 'api/services'
 import './login.css'
 import { Button } from '@mui/material'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -18,6 +18,12 @@ function Login({ mode, ...props }) {
   const [location, setLocation] = useState('')
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
+
+  function sendVerificationEmail(user) {
+    playerAPI.sendVerificationEmail(user).then(() => {
+      setErrors('Verification sent, check your email.')
+    })
+  }
 
   function userLogin(e) {
     e.preventDefault()
@@ -78,8 +84,18 @@ function Login({ mode, ...props }) {
       try {
         authAPI.login(username, pwd).then((user) => {
           // if the user doesn't have a name, go to the more information page
+          console.log(user)
           if (!user.verified) {
-            errors.push('This user has not been verified. Please check your inbox for a verification email.')
+            errors.push(
+              <span key='login_error'>
+                This user has not been verified. Please check your inbox for a verification email.
+                <div>
+                  <Button color={'info'} variant='contained' onClick={()=>sendVerificationEmail(user.id)}>
+                    Send new verification email
+                  </Button>
+                </div>
+              </span>
+            )
             setErrors(errors)
             authAPI.signOut()
           }
@@ -161,6 +177,7 @@ function Login({ mode, ...props }) {
             autoComplete={mode === enums.LOGIN_MODES.SIGN_UP ? "new-password" : "current-password"}
             required
           />
+          
           {mode === enums.LOGIN_MODES.SIGN_UP &&
             <>
               Confirm Password: <input
