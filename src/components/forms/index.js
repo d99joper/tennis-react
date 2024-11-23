@@ -20,9 +20,12 @@ import AutoCompletePlaces from './Autocomplete/AutocompletePlaces'
 import { ProfileImage, ProfileImageProvider } from './ProfileImage'
 import CreatePlayer from './Player/createPlayer'
 import MergeProfiles from './MergeProfiles/merge'
+import UserInformation from './Player/userInformation'
+import ClaimPlayer from './Player/claimPlayer'
 
 export {
     AutoCompletePlaces,
+    ClaimPlayer,
     Comments, 
     CreatePlayer,
     DynamicTable,
@@ -44,5 +47,6 @@ export {
     SelectWithFetch,
     TopRivals,
     UnlinkedMatches,
-    UserStats
+    UserStats, 
+    UserInformation
 }

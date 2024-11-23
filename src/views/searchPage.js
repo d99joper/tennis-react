@@ -14,7 +14,7 @@ const SearchPage = (props) => {
   const [matchType, setMatchType] = useState(enums.MATCH_TYPE.SINGLES)
   const [mapCenter, setMapCenter] = useState({ lat: 0, lng: 0 })
   const [levelNTRP, setLevelNTRP] = useState([2.0, 5.0])
-  const [levelUTR, setLevelUTR] = useState([4.0, 9.0])
+  const [levelUTR, setLevelUTR] = useState([3.0, 10.0])
   const [initialCity, setInitialCity] = useState('')
   const [scriptIsLoaded, setScriptIsLoaded] = useState(false)
   const [ladders, setLadders] = useState([])

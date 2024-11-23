@@ -1,5 +1,5 @@
 import { playerAPI } from "api/services";
-import { userHelper } from "helpers";
+import { helpers } from "helpers";
 import { useState } from "react";
 
 const { Grid, Typography, TextField, Button, Popover } = require("@mui/material");
@@ -10,7 +10,7 @@ const CreatePlayer = ({ newItem='', callback, ...props }) => {
   const [anchorEl, setAnchorEl] = useState(null)
   const [email, setEmail] = useState()
   const [isValidEmail, setIsValidEmail] = useState(true)
-  const [hasChecked, setHasChecked] = useState(false)
+  //const [hasChecked, setHasChecked] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
   const open = Boolean(anchorEl)
@@ -27,18 +27,18 @@ const CreatePlayer = ({ newItem='', callback, ...props }) => {
     }
   }
   const handleAddPlayer = () => {
-    const isValid = validateEmail(email)
+    const isValid = helpers.validateEmail(email)
     setIsValidEmail(isValid)
     if (isValid)
       createPlayer()
   }
 
-  const validateEmail = (email) => {
-    setHasChecked(true)
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!email) return true
-    return regex.test(email)
-  }
+  // const validateEmail = (email) => {
+  //   setHasChecked(true)
+  //   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  //   if (!email) return true
+  //   return regex.test(email)
+  // }
 
   return (
     <Grid container direction={'column'}>
@@ -51,13 +51,12 @@ const CreatePlayer = ({ newItem='', callback, ...props }) => {
       </Typography>
       <TextField
         variant='standard'
-        onBlur={e => setIsValidEmail(validateEmail(e.target.value))}
+        onBlur={e => setIsValidEmail(helpers.validateEmail(e.target.value))}
         onChange={e => {
           const val = e.target.value
           setErrorMessage('')
           setEmail(val);
-          if (hasChecked)
-            setIsValidEmail(validateEmail(val))
+          setIsValidEmail(helpers.validateEmail(val))
         }}
         placeholder={`${newItem}'s email`}
         style={{ width: "20rem" }}

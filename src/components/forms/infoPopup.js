@@ -10,6 +10,8 @@ function InfoPopup({ children, iconType = 'info', customIcon = null, ...props })
   const open = Boolean(anchorEl)
   
   const handleClick = (e) => {
+    console.log(e)
+    e.stopPropagation();
     setAnchorEl(e.currentTarget)
   }
   
@@ -20,14 +22,15 @@ function InfoPopup({ children, iconType = 'info', customIcon = null, ...props })
   const iconProps = {
     size: size ?? 16,
     color: color ?? '#44F',
-    onClick: handleClick,
-    className: 'cursorHand',
+    onClick: (e) => handleClick(e),
+    className: 'cursorHand'
   }
   
   return (
     <View as='span'
       paddingLeft={paddingLeft}
       paddingRight={paddingRight}
+      onClick={(e) => e.stopPropagation()}
     >
       {/******** POPOVER FOR INFO   *********/}
       <Popover

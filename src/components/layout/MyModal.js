@@ -52,17 +52,9 @@ const MyModal = ({ children, showHide, onClose, label, title,
             <AiFillCloseSquare style={{ backgroundColor: "black", borderRadius: 5 }} color="#05a502" size={30} className="icon-hover-green" />
           </div>
         }
-        {title}
+        <b>{title}</b>
       </DialogTitle>
       <DialogContent dividers={false}>
-
-        {/* <DialogContentText
-          id="scroll-dialog-description"
-          ref={descriptionElementRef}
-          tabIndex={-1}
-        >
-          {children}
-        </DialogContentText> */}
         {children}
       </DialogContent>
       <DialogActions>
@@ -70,26 +62,6 @@ const MyModal = ({ children, showHide, onClose, label, title,
       </DialogActions>
     </Dialog>
 
-    // <Modal
-    //   aria-labelledby={label ?? title ?? 'no label'}
-    //   onClose={onClose}
-    //   open={show}
-    // >
-    //   <Box sx={modalStyle}>
-    //     {/* Close Button in Top Right Corner */}
-    //     <div style={closeButtonStyle} onClick={onClose}>
-    //       <AiFillCloseSquare style={{ backgroundColor: "black", borderRadius: 5 }} color="#05a502" size={30} className="icon-hover-green" />
-    //     </div>
-
-    //     {/* Title */}
-    //     <Typography variant="subtitle1" marginBottom={'1rem'} marginTop={'0.5rem'}>
-    //       {title}
-    //     </Typography>
-
-    //     {/* Content */}
-    //     {children}
-    //   </Box>
-    // </Modal>
   )
 }
 

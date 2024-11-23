@@ -285,110 +285,111 @@ const Matches = ({
 					: null
 				}
 				{displayAs === enums.DISPLAY_MODE.SimpleList ?
-					matches?.map((m, i) => {
-						const isHighlighted = highlightedItem && m.id === highlightedItem.id
-						//console.log(isHighlighted, highlightedItem, m.id)
-						// Call removeHighlight function if the item is highlighted
-						if (isHighlighted) {
-							removeHighlight()
-						}
-						return (
-							<Grid key={'m_' + i}
-								templateColumns={'auto 1fr'}
-								paddingRight={'1rem'}
-							>
-								<Grid key={i}
-									templateColumns="auto 1fr 1fr 1fr 1fr 1fr 1fr"
-									marginBottom={'1rem'}
-									width={'250px'}
-									className={isHighlighted ? 'highlight' : ''}
-								//backgroundColor={isHighlighted ? 'yellow' : 'transparent'}
-								//backgroundColor={'blue'}
+					matches && matches.length > 0 ? (
+						matches?.map((m, i) => {
+							const isHighlighted = highlightedItem && m.id === highlightedItem.id
+							//console.log(isHighlighted, highlightedItem, m.id)
+							// Call removeHighlight function if the item is highlighted
+							if (isHighlighted) {
+								removeHighlight()
+							}
+							return (
+								<Grid key={'m_' + i}
+									templateColumns={'auto 1fr'}
+									paddingRight={'1rem'}
 								>
-									<Text columnStart="1" columnEnd="-1" fontSize="0.8em" fontStyle="italic">
-										{m?.played_on}
-									</Text>
-									<View columnStart="1" columnEnd="2">
-										{userHelper.SetPlayerName(m.winner)}
-									</View>
-									<Divider columnStart="1" columnEnd="-1" />
-									<View columnStart="1" columnEnd="2">
-										{userHelper.SetPlayerName(m.loser)}
-									</View>
-									{displayGames(m.score)}
+									<Grid key={i}
+										templateColumns="auto 1fr 1fr 1fr 1fr 1fr 1fr"
+										marginBottom={'1rem'}
+										width={'250px'}
+										className={isHighlighted ? 'highlight' : ''}
+									//backgroundColor={isHighlighted ? 'yellow' : 'transparent'}
+									//backgroundColor={'blue'}
+									>
+										<Text columnStart="1" columnEnd="-1" fontSize="0.8em" fontStyle="italic">
+											{m?.played_on}
+										</Text>
+										<View columnStart="1" columnEnd="2">
+											{userHelper.SetPlayerName(m.winner)}
+										</View>
+										<Divider columnStart="1" columnEnd="-1" />
+										<View columnStart="1" columnEnd="2">
+											{userHelper.SetPlayerName(m.loser)}
+										</View>
+										{displayGames(m.score)}
 
-								</Grid>
-								<View margin={'auto'} marginLeft={'1rem'} padding={'0.5rem'}>
-									{showH2H &&
-										<>
-											<GiCrossedSwords
-												size={30}
-												color="#058d0c"
-												className={'cursorHand'}
-												onClick={() => { modalSwitch(i, 'h2h', true) }}
-											/>
-											<MyModal
-												showHide={showH2HModal[i]}
-												onClose={() => { modalSwitch(i, 'h2h', false) }}
-												title='H2H'
-												height="500px"
-												overflow="auto"
-											>
-												<H2H winners={m.winner} losers={m.loser} />
-											</MyModal>
-										</>
-									}
-									&nbsp;
-									{showChallenge &&
-										<>
-											<MdOutlineSportsTennis
-												size={30}
-												color="#058d0c"
-												className={'cursorHand'}
-												onClick={() => { modalSwitch(i, 'challenge', true) }}
-											/>
-											<MyModal
-												showHide={showChallengeModal[i]}
-												onClose={() => { modalSwitch(i, 'challenge', false) }}
-												title='Challenge'
-												height="500px"
-												overflow="auto"
-											>
-												Challenge
-											</MyModal>
-										</>
-									}
-									&nbsp;
-									{showComments &&
-										<>
-											<GoCommentDiscussion
-												size={30}
-												color="#058d0c"
-												className={'cursorHand'}
-												onClick={() => { modalSwitch(i, 'comments', true) }}
-											/>
-											<MyModal
-												showHide={showCommentsModal[i]}
-												onClose={() => { modalSwitch(i, 'comments', false) }}
-												title={'Match comments'}
-												height="500px"
-												overflow="auto"
-											>
-												<Match match={m} showComments={true} />
-												<Comments 
-													showComments={true} 
-													entityId={m.id} 
-													entityType="match"
-													data={m.comments} 
-													allowAdd={isLoggedIn}
+									</Grid>
+									<View margin={'auto'} marginLeft={'1rem'} padding={'0.5rem'}>
+										{showH2H &&
+											<>
+												<GiCrossedSwords
+													size={30}
+													color="#058d0c"
+													className={'cursorHand'}
+													onClick={() => { modalSwitch(i, 'h2h', true) }}
 												/>
-											</MyModal>
-										</>
-									}
-								</View>
-							</Grid>
-						)
-					})
+												<MyModal
+													showHide={showH2HModal[i]}
+													onClose={() => { modalSwitch(i, 'h2h', false) }}
+													title='H2H'
+													height="500px"
+													overflow="auto"
+												>
+													<H2H winners={m.winner} losers={m.loser} />
+												</MyModal>
+											</>
+										}
+										&nbsp;
+										{showChallenge &&
+											<>
+												<MdOutlineSportsTennis
+													size={30}
+													color="#058d0c"
+													className={'cursorHand'}
+													onClick={() => { modalSwitch(i, 'challenge', true) }}
+												/>
+												<MyModal
+													showHide={showChallengeModal[i]}
+													onClose={() => { modalSwitch(i, 'challenge', false) }}
+													title='Challenge'
+													height="500px"
+													overflow="auto"
+												>
+													Challenge
+												</MyModal>
+											</>
+										}
+										&nbsp;
+										{showComments &&
+											<>
+												<GoCommentDiscussion
+													size={30}
+													color="#058d0c"
+													className={'cursorHand'}
+													onClick={() => { modalSwitch(i, 'comments', true) }}
+												/>
+												<MyModal
+													showHide={showCommentsModal[i]}
+													onClose={() => { modalSwitch(i, 'comments', false) }}
+													title={'Match comments'}
+													height="500px"
+													overflow="auto"
+												>
+													<Match match={m} showComments={true} />
+													<Comments
+														showComments={true}
+														entityId={m.id}
+														entityType="match"
+														data={m.comments}
+														allowAdd={isLoggedIn}
+													/>
+												</MyModal>
+											</>
+										}
+									</View>
+								</Grid>
+							)
+						})) : <p>0 matches played</p>
 
 					: null
 				}
