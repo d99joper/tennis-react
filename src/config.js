@@ -17,6 +17,6 @@ if(isLocalhost && useLocalDbConnection) {
   console.log('we are here because isLocalhost && useLocalDbConnection is', isLocalhost && useLocalDbConnection)
 }
 else
-  apiUrl = 'https://mytennis-space.uw.r.appspot.com/'
+  apiUrl = process.env.REACT_APP_API_BASE
 
 export default apiUrl

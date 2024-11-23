@@ -39,6 +39,18 @@ function App() {
         paper: green[100],
       },
     },
+    components: {
+      MuiOutlinedInput: {
+        styleOverrides: {
+          root: {
+            backgroundColor: '#fff', // Apply background color globally
+            '&.Mui-focused': {
+              backgroundColor: '#f9f9f9', // Optional: change color when focused
+            },
+          },
+        },
+      },
+    },
   });
   PrimaryMainTheme = createTheme(PrimaryMainTheme, {
     palette: {

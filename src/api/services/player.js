@@ -36,9 +36,9 @@ const playerAPI = {
     let response = await fetch(`${playersUrl}?stats&filter=${username}`, requestOptions)
 
     if (response.ok) {
-      const players = await response.json()
-      if (players.length > 0) {
-        let player = players[0]
+      const data = await response.json()
+      if (data.total_count > 0) {
+        let player = data.players[0]
         //this.setPlayerImage(player)
         return await player
       }
@@ -93,7 +93,7 @@ const playerAPI = {
 
   // I don't really care what comes back, just something to verify success or failure
   createPlayer: async function (player) {
-    const requestOptions = authAPI.getRequestOptions('POST', player)
+    const requestOptions = authAPI.getRequestOptions('POST', player, true)
 
     const response = await fetch(playersUrl + 'create', requestOptions)
     console.log(response)
@@ -102,6 +102,51 @@ const playerAPI = {
       return await jsonResp
     else
       return { statusCode: response.status, error: 'An error occurred', ...jsonResp }
+  },
+  
+  checkGoogleUser: async function(userData) {
+    const requestOptions = authAPI.getRequestOptions('POST', userData, true)
+    // temp test solution
+    //return {is_new_user: true, user_id: '123'}
+		const response = await fetch(playersUrl + 'google-user-check/', requestOptions)
+		if (response.ok) {
+			const data = await response.json()
+			console.log(data)
+			return data
+		}
+		else
+			return { status: response.status, statusCode: response.statusCode, statusText: response.statusText, error: 'Failed to check user' }
+  },
+
+	checkOrCreateUser: async function(userData) {
+		const requestOptions = authAPI.getRequestOptions('POST', userData, true)
+    // temp test solution
+    //return {is_new_user: true, user_id: '123'}
+		const response = await fetch(playersUrl + 'check-or-create/', requestOptions)
+		if (response.ok) {
+			const data = await response.json()
+			console.log(data)
+			return data
+		}
+		else
+			return { status: response.status, statusCode: response.statusCode, statusText: response.statusText, error: 'Failed to check user' }
+	},
+
+  claimPlayer: async function (id, newPlayer, newPassword) {
+    // only an admin account can run this function claim a player
+    const requestOptions = authAPI.getRequestOptions(
+      'POST', 
+      {
+        player_id: id, 
+        new_player: newPlayer, 
+        new_password: newPassword
+      }, 
+      true
+    )
+    //console.log(requestOptions)
+    const response = await fetch(playersUrl + id + '/claim', requestOptions)
+
+    return { statusCode: response.statusCode, statusMessage: response.statusMessage }
   },
 
   sendVerificationEmail: async function (id) {

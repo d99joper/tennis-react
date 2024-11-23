@@ -1,21 +1,22 @@
 import { Flex } from '@aws-amplify/ui-react'
-import { GoogleLogin } from '@react-oauth/google'
-import { GoogleOAuthProvider } from '@react-oauth/google'
 import { authAPI, playerAPI } from 'api/services'
 import './login.css'
-import { Button } from '@mui/material'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Box, Button, Divider, LinearProgress, TextField, Typography } from '@mui/material'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { enums } from 'helpers'
-import { AutoCompletePlaces, ErrorHandler, InfoPopup } from 'components/forms'
-import { useEffect, useState } from 'react'
+import { UserInformation } from 'components/forms'
+import { useState } from 'react'
+import MyGoogleCheck from './MyGoogleCheck';
 
 function Login({ mode, ...props }) {
 
-  const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID
-
   const [errors, setErrors] = useState([])
+  const [showLoader, setShowLoader] = useState(false)
+  const [showGoogleRedirectMessage, setShowGoogleRedirectMessage] = useState('')
   const [userIsRegistered, setUserIsRegistered] = useState(false)
   const [location, setLocation] = useState('')
+  const [showAdditionalInfo, setShowAdditionalInfo] = useState(false)
+  const [player, setPlayer] = useState()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
@@ -90,7 +91,7 @@ function Login({ mode, ...props }) {
               <span key='login_error'>
                 This user has not been verified. Please check your inbox for a verification email.
                 <div>
-                  <Button color={'info'} variant='contained' onClick={()=>sendVerificationEmail(user.id)}>
+                  <Button color={'info'} variant='contained' onClick={() => sendVerificationEmail(user.id)}>
                     Send new verification email
                   </Button>
                 </div>
@@ -116,12 +117,35 @@ function Login({ mode, ...props }) {
     setLocation(geoPoint)
   }
 
-  function redirect() {
-    const redirectTo = searchParams.get("redirectTo")
-    if (redirectTo.startsWith('profile') || redirectTo === 'search' || redirectTo === 'ladders')
-      navigate(redirectTo, { replace: true })
-    else
-      navigate("/profile", { replace: true })
+  function redirect(page) {
+
+    if (page) {
+      navigate(page, { replace: false })
+    }
+    else {
+      const redirectTo = searchParams.get("redirectTo")
+      if (redirectTo?.startsWith('profile') || redirectTo === 'search' || redirectTo === 'ladders')
+        navigate(redirectTo, { replace: false })
+      else
+        navigate("/profile", { replace: false })
+    }
+  }
+
+  const handleGoogleAuth = (data, credentialResponse) => {
+
+    console.log(data)
+    if (data.user_exists) {
+      setShowLoader(true)
+      // user already exists, so login and redirect to profile page
+      authAPI.googleLogin(credentialResponse.credential).then((user) => {
+        navigate("/profile", { replace: false })
+      })
+    }
+    // it's a new user
+    else {
+      // message and offer redirect to registration page
+      setShowGoogleRedirectMessage(true)
+    }
   }
 
   if (userIsRegistered === true) {
@@ -133,83 +157,85 @@ function Login({ mode, ...props }) {
   }
   else
     return (
-      <Flex className='loginBox' direction={'column'} gap={'2rem'}>
-        <GoogleOAuthProvider clientId={clientId}>
-          <GoogleLogin
-            text={mode === enums.LOGIN_MODES.SIGN_UP ? 'signup_with' : 'signin_with'}
-            context={mode === enums.LOGIN_MODES.SIGN_UP ? 'signup' : 'signin'}
-            cancel_on_tap_outside={true}
-            onSuccess={credentialResponse => {
-              //console.log(credentialResponse);
-              authAPI.googleLogin(credentialResponse.credential).then((user) => {
-                redirect()
-              })
-            }}
-            onError={() => {
-              console.log('Login Failed');
-            }}
-            // text="continue_with"
-            theme="outline"
-            useOneTap
-          />
-        </GoogleOAuthProvider>
-        <Flex id="loginForm" direction={'column'} as="form"
-          onSubmit={userLogin}>
-          {mode === enums.LOGIN_MODES.SIGN_UP &&
-            <>
-              First name: <input name="first_name" placeholder='First name' required />
-              Last name: <input name="last_name" placeholder='Last name' required />
-              <span>
-                Location:
-                <InfoPopup>
-                  The location is important if you want to enjoy the full experience of My Tennis Space and compete in events and ladders.
-                </InfoPopup>
-              </span>
-              <AutoCompletePlaces placeholder='Location' label="" showGetUserLocation={true} onPlaceChanged={handleLocationChange} />
-            </>
-          }
-          Email: <input name="username" placeholder='Email' autoComplete='username' required />
-          Password: <input
-            type="password"
-            name="password"
-            placeholder='Password'
-            onChange={() => setErrors([])}
-            autoComplete={mode === enums.LOGIN_MODES.SIGN_UP ? "new-password" : "current-password"}
-            required
-          />
-          
-          {mode === enums.LOGIN_MODES.SIGN_UP &&
-            <>
-              Confirm Password: <input
-                type="password"
-                name="confirm_password"
-                placeholder='Confirm password'
-                onChange={() => setErrors([])}
-                autoComplete="new-password"
-                required
-              />
-            </>
-          }
-          <ErrorHandler error={errors} />
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh'
+        }}
+      >
+        <Box
+          sx={{
+            width: 400,
+            backgroundColor: '#fff',
+            padding: 4,
+            borderRadius: 2,
+            boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+          }}
+        >
+          {/* Header */}
+          <Typography variant="h5" sx={{ fontWeight: 'bold', textAlign: 'center', mb: 2 }}>
+            Log In
+          </Typography>
 
-          <Button
-            color='info'
-            sx={
-              {
-                backgroundColor: 'login.main',
-                color: 'login.text',
-                ':hover': {
-                  backgroundColor: 'login.hover',
-                  //color: 'white'
-                }
-              }}
-            variant='outlined'
-            type='submit'
-          >
-            {mode === enums.LOGIN_MODES.SIGN_UP ? 'Sign up' : 'Login'}
-          </Button>
-        </Flex>
-      </Flex>
+          
+          {showLoader && <LinearProgress />}
+          {/* Google Sign-In */}
+          <MyGoogleCheck callback={handleGoogleAuth} mode={enums.LOGIN_MODES.SIGN_UP} />
+          {showGoogleRedirectMessage &&
+            <>
+              Your google account is not registered with My Tennis Space. <br/>
+              <Button 
+                variant='contained' 
+                component={Link} 
+                to="/Registration"
+              >
+                Register
+              </Button>
+            </>
+          }
+          <Divider sx={{ my: 2 }}>Or log in with email</Divider>
+
+          {/* Email and Password Form */}
+          {!showAdditionalInfo &&
+            <Box
+              component="form"
+              onSubmit={userLogin}
+              sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+            >
+              <TextField name="username" label="Email" variant="outlined" fullWidth />
+              <TextField name="password" label="Password" variant="outlined" type="password" fullWidth />
+              <Button variant="contained" color="primary" fullWidth>
+                Log In
+              </Button>
+            </Box>
+          }
+          {/* Additional information */}
+          {showAdditionalInfo &&
+            <Flex>
+              <UserInformation player={player} />
+            </Flex>
+          }
+
+          {/* Footer */}
+          <Typography sx={{ textAlign: 'center', mt: 2 }}>
+            <Link href="/forgot-password" underline="hover">
+              Forgot your password?
+            </Link>
+          </Typography>
+          <Typography sx={{ textAlign: 'center', mt: 1 }}>
+            Don't have an account?{' '}
+            <Link href="/sign-up" underline="hover">
+              Sign up
+            </Link>
+          </Typography>
+        </Box>
+
+        
+      </Box>
+
+
     )
 }
 

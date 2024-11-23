@@ -120,9 +120,10 @@ const authAPI = {
 	},
 
 	// gets the request options for API calls
-	getRequestOptions: function (method, body) {
-		const bearer = this.getToken()
+	getRequestOptions: function (method, body, admin=false) {
+		const bearer = admin ? process.env.REACT_APP_ADMIN_TOKEN : this.getToken()
 		const jsonBody = body ? JSON.stringify(body) : null
+		console.log(bearer, process.env.REACT_APP_ADMIN_TOKEN)
 		return {
 			method: method,
 			headers: {
