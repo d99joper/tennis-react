@@ -8,7 +8,9 @@ import * as React from "react";
 import { EscapeHatchProps } from "@aws-amplify/ui-react/internal";
 import { FlexProps } from "@aws-amplify/ui-react";
 export declare type ItemCardProps = React.PropsWithChildren<Partial<FlexProps> & {
-    Ladder?: String;
+    heading?: String;
+    description?: String;
+    players?: String;
 } & {
     overrides?: EscapeHatchProps | undefined | null;
 }>;

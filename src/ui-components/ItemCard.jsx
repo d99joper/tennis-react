@@ -9,7 +9,13 @@ import * as React from "react";
 import { getOverrideProps } from "@aws-amplify/ui-react/internal";
 import { Flex, Text } from "@aws-amplify/ui-react";
 export default function ItemCard(props) {
-  const { Ladder, overrides, ...rest } = props;
+  const {
+    heading = "Heading",
+    description = "Some description",
+    players,
+    overrides,
+    ...rest
+  } = props;
   return (
     <Flex
       gap="16px"
@@ -70,7 +76,7 @@ export default function ItemCard(props) {
             position="relative"
             padding="0px 0px 0px 0px"
             whiteSpace="pre-wrap"
-            children="Ladder Name"
+            children={heading}
             {...getOverrideProps(overrides, "Ladder Name")}
           ></Text>
           <Text
@@ -92,7 +98,7 @@ export default function ItemCard(props) {
             position="relative"
             padding="0px 0px 0px 0px"
             whiteSpace="pre-wrap"
-            children="Description"
+            children={description}
             {...getOverrideProps(overrides, "Description")}
           ></Text>
         </Flex>
