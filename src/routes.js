@@ -31,6 +31,8 @@ const RulesPage = lazy(() => import('./views/rules'))
 const SearchPage = lazy(() => import('./views/searchPage'))
 const PrivacyPolicyPage = lazy(() => import('./views/privacyPolicyPage'))
 const TermsOfServicePage = lazy(() => import('./views/termsOfServicePage'))
+const LeagueCreate = lazy(() => import('./views/league/create'))
+const LeagueView = lazy(() => import('./views/league/view'))
 
 const MyRouter = (props) => {
 
@@ -92,6 +94,10 @@ const MyRouter = (props) => {
             <Route path="search" element={<LadderSearch isLoggedIn={props.isLoggedIn} />} />
             <Route path="new" element={<LadderCreate isLoggedIn={props.isLoggedIn} />} />
             {/* <Route index element={<Home />} /> */}
+          </Route>
+          <Route path='league'>
+            <Route path=":id" element={<LeagueView isLoggedIn={props.isLoggedIn} />} />
+            <Route path="create" element={<LeagueCreate isLoggedIn={props.isLoggedIn} />} />
           </Route>
           <Route path="*" element={<NoPage />} />
         </Routes>

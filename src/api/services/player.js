@@ -1,6 +1,5 @@
 import apiUrl from "config"
 import { authAPI } from "."
-import { helpers } from "helpers"
 
 const playersUrl = apiUrl + 'players/'
 

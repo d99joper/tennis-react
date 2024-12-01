@@ -137,17 +137,11 @@ const Registration = () => {
     if (p) {
       console.log('claimedPlayer', p)
       updateFormState('claimedPlayer', p)
-      //setFormData((prevData) => ({ ...prevData, ['claimedPlayer']: p }));
       if (p.UTR)
         updateFormState('utr', p.UTR)
-      //setFormData((prevData) => ({ ...prevData, ['utr']: p.UTR }));
       if (p.NTRP)
         updateFormState('ntrp', p.NTRP)
-      //setFormData((prevData) => ({ ...prevData, ['ntrp']: p.NTRP }));
       if (p.location) {
-        // setFormData((prevData) => ({ ...prevData, ['location']: p.location }));
-        // setFormData((prevData) => ({ ...prevData, ['lat']: p.lat }));
-        // setFormData((prevData) => ({ ...prevData, ['lng']: p.lng }));
         updateFormState('location', p.location)
         updateFormState('lat', p.lat)
         updateFormState('lng', p.lng)
@@ -268,24 +262,6 @@ const Registration = () => {
         }
 
         console.log(formState)
-        // check if the user email is already in use
-        // const player = await playerAPI.getPlayerByFilter(formData.email)
-        // console.log(player)
-        // if (player.id) { // this player already exists.
-        //   isOk = false;
-        //   // There should only be verified finds, 
-        //   // but check if the email is verified
-        //   if (player.verified) {
-        //     setErrors((prevData) => ({
-        //       ...prevData, ['verified']: (
-        //         <>
-        //           The email {player.email} is already in use and verified. <br />
-        //           Try to either <a href="/login">login</a>, or to recover your password.
-        //         </>
-        //       )
-        //     }))
-        //   }
-        // }
         const playerEmailExists = await checkIfPlayerExists(formState.data.email)
         if (!playerEmailExists)
           // check if the name exists with an unverified email nearby 
