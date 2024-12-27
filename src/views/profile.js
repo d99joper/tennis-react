@@ -119,7 +119,7 @@ function Profile(props) {
 		};
 
 		let p = await playerAPI.updatePlayer(data)
-		p.ladders = player.ladders
+		p.events = player.events
 		p.stats = player.stats
 		// setPlayer(prevState => ({...prevState, p}))
 		setPlayer(p)
@@ -349,7 +349,7 @@ function Profile(props) {
 										{(player.potential_mergers?.length > 0 && canEdit) &&
 											<>
 												<Text fontSize='medium' className='cursorHand' onClick={() => setShowMergers(true)}>
-														<AiOutlineUsergroupAdd />
+													<AiOutlineUsergroupAdd />
 													<a>
 														&nbsp;
 														Is this you? There's a potential merger.
@@ -465,12 +465,14 @@ function Profile(props) {
 
 									</Flex>
 									{/************ LADDERS   *************/}
-									<View>Ladders:</View>
+									<View>Events:</View>
 									<Grid templateRows={"auto"}>
-										{player.ladders?.map((ladder, i) => {
-											return (
-												<Link to={`/ladders/${ladder.id}`} key={ladder.id}>{ladder.name}</Link>
-											)
+										{player.events?.map((event, i) => {
+											if (event.event_type === 'league') {
+												return (<Link to={`/league/${event.id}`} key={event.id}>{event.name}</Link>)
+											}
+											if (event.event_type === 'ladder')
+												return (<Link to={`/ladders/${event.id}`} key={event.id}>{event.name}</Link>)
 										})}
 									</Grid>
 									{/************ ABOUT   *************/}
@@ -608,7 +610,7 @@ function Profile(props) {
 							<Box padding={'1rem'}>
 								<Suspense fallback={<h2><CircularProgress /> Loading...</h2>}>
 									<MatchEditor
-										player={player}
+										participant={player}
 										onSubmit={(match) => {
 											setRefreshMatchesCounter(refreshMatchesCounter + 1)
 											setHighLightedMatch(match)

@@ -68,10 +68,10 @@ const DynamicTable = ({
 	function createIconSets(item, i) {
 		let sets = []
 		let m = item.match ?? item
-		console.log(m)
+		//console.log(m)
 		iconSet.forEach(element => {
 			switch (element.name) {
-				case 'H2H' && m.winner.length === 1: // only show h2h for singles
+				case 'H2H' && m.winners.length === 1: // only show h2h for singles
 					//console.log(item)
 					if (m)
 						sets.push(
@@ -89,7 +89,7 @@ const DynamicTable = ({
 									height="500px"
 									overflow="auto"
 								>
-									<H2H winners={m.winner} losers={m.loser} />
+									<H2H winners={m.winners} losers={m.losers} />
 								</MyModal>
 							</React.Fragment >
 						)
@@ -134,6 +134,7 @@ const DynamicTable = ({
 
 	// massage the data and add all content items to the output array (outArr)
 	function setContent(item, column, i) {
+		//console.log(item,column)
 		let outArr = [], text, urlVals, obj, property
 		//console.log("setContent",item,column,i)
 		if (column.link) {
@@ -149,8 +150,8 @@ const DynamicTable = ({
 				break;
 			case 2:
 				obj = item[x[0]]
-
 				property = x[1]
+				//console.log(obj, property)
 				break;
 			case 1:
 				obj = item
@@ -164,10 +165,12 @@ const DynamicTable = ({
 
 		try {
 			// if the text is in an array (as in two players playing doubles), extract each element
+			//console.log(Array.isArray(obj), obj)
 			if (Array.isArray(obj)) {
 				obj.forEach((x, index) => {
-					outArr.push(parseContent(x, property, urlVals, i))
-
+					//console.log(x)
+					outArr.push(parseContent(obj, property, urlVals, i))
+					//console.log(outArr, x, property)
 					if (obj.length !== index + 1)
 						outArr.push(<View as='span' key={i + '_' + property}> / </View>)
 				})
@@ -202,10 +205,11 @@ const DynamicTable = ({
 
 		// if there's an url specified, create a link
 		if (urlVals) {
+			//console.log(urlVals)
 			// the url value might be different than the text value (eq winner.name vs winner.id)
 			urlVals.value = obj[urlVals.type]
 			if (urlVals.page === 'Profile')
-				text = userHelper.SetPlayerName(obj)
+				text = userHelper.SetPlayerName(obj, false)
 
 			outArr.push(
 				<Link key={`${property}_${i}_content`} to={'/' + urlVals.page + '/' + urlVals.value}
@@ -268,7 +272,7 @@ const DynamicTable = ({
 		if (props.styleConditionVariable) {
 			// if exists, check if the styling condition is set
 			// special exception for winner id held in condition variable 2
-			if (item[props.styleConditionVariable] || item.winner[0]?.id === props.styleConditionVariable2)
+			if (item[props.styleConditionVariable] || item.winners[0]?.id === props.styleConditionVariable2)
 				return { className: props.styleConditionColor[0] }
 			return { className: props.styleConditionColor[1] }
 		}

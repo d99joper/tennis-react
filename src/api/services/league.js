@@ -13,7 +13,7 @@ const leagueAPI = {
     if (response.ok)
       return await response.json()
     else
-      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get league' }
+      return { statusCode: response.status, statusMessage: 'Error: Failed to get league' }
   },
 
   getLeagues: async function (filter) {
@@ -25,42 +25,66 @@ const leagueAPI = {
     if (response.ok)
       return await response.json()
     else
-      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get leagues' }
+      return { statusCode: response.status, statusMessage: 'Error: Failed to get leagues' }
   },
 
   createLeague: async function (league) {
     const requestOptions = authAPI.getRequestOptions('POST', league)
 
     const response = await fetch(leaguesUrl + 'create', requestOptions)
-    if (response.ok)
-      return await response.json()
+    if (response.ok) {
+      const data = await response.json()
+      return {success: response.ok, statusCode: response.status, data: data}
+    }
     else
       throw new Error(response.status + ': Failed to create league')
   },
 
-  // partial ladder as input. Only provided fields get updated
-  updateLadder: async function (league) {
-    const requestOptions = authAPI.getRequestOptions('PATCH', league)
+  generateSchedule: async function(id) {
+    const requestOptions = authAPI.getRequestOptions('POST')
 
-    const response = await fetch(leaguesUrl + 'update', requestOptions)
-    if (response.ok)
-      return await response.json()
+    const response = await fetch(leaguesUrl + id + '/schedule/generate', requestOptions)
+    //console.log(response)
+    if (response.ok) {
+      const data = await response.json()
+      return {success: response.ok, statusCode: response.status, schedule: data.schedule}
+    }
     else
-      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to update league' }
+      throw new Error(response.status + ': Failed to create schedule')
   },
 
-  addParticipant: async function (type, participant, leagueId) {
-    {/** NOT DONE */}
+  updateSchedule: async function(id, schedule) {
+    const requestOptions = authAPI.getRequestOptions('PUT', {schedule: schedule})
+
+    const response = await fetch(leaguesUrl + id + '/schedule/update', requestOptions)
+    if (response.ok) {
+      const data = await response.json()
+      return {success: response.ok, statusCode: response.status, schedule: data.schedule}
+    }
+    else
+      throw new Error(response.status + ': Failed to create schedule')
+  },
+
+  addParticipant: async function (leagueId, participant) {
     const requestOptions = authAPI.getRequestOptions('POST', { 
-        type: type, 
         participant: participant
     })
 
-    const response = await fetch(leaguesUrl + leagueId + '/add-participant', requestOptions)
+    const response = await fetch(leaguesUrl + leagueId + '/participants/add', requestOptions)
     if (response.ok)
-      return await response.json()
+      return {success: response.ok}
     else
-      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to add participant to league.' }
+      return { statusCode: response.status, error: response.error}
+  },
+
+  removeParticipant: async function (leagueId, participantId) {
+    const requestOptions = authAPI.getRequestOptions('POST')
+
+    const response = await fetch(leaguesUrl + leagueId + '/participants/remove/'+participantId, requestOptions)
+    if (response.ok)
+      return {success: response.ok}
+    else
+      return { statusCode: response.status, error: response.error}
   },
 }
 

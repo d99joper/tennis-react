@@ -47,6 +47,16 @@ const playerAPI = {
       return { statusCode: response.statusCode, statusMessage: 'No players found' }
   },
 
+  getParticipants: async function(event, filter) {
+    if(event) {
+      if (event.type === 'singles') {
+        filter = {...filter, event: event}
+      }
+    }
+    else 
+      return this.getPlayers(filter)
+  },
+
   getPlayers: async function (filter) {
     //console.log(filter)
     const url = new URL(playersUrl)
@@ -56,10 +66,7 @@ const playerAPI = {
     const response = await fetch(url + '?' + params, requestOptions)//`${playersUrl}?filter=${filter}`, requestOptions)
     if (response.ok) {
       const data = await response.json()
-      // await data.players.forEach(p => {
-      //   this.setPlayerImage(p)
-      // });
-      return data
+      return {success: response.ok, statusCode: response.statusCode, data: data}
     }
     else
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get player' }

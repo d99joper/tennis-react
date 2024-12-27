@@ -12,34 +12,24 @@ function UserInformation({ onUpdate, onError, formData, errors, ...props }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log(name, value, e)
+    //console.log(name, value, e)
     onUpdate(name, value)
     // clear error
-    onError(name,'')
-    // const { name, value } = e.target;
-    // const updatedFormData = {  [name]: value}
-    //formData[name] = value;
-    
-    // // reset errors
-    // const updatedErrors = {[name]:''}
-    // //errors[name] = '';
-
-    // console.log('handleChange',updatedFormData, updatedErrors);
-    // onUpdate(updatedFormData, updatedErrors)
+    onError(name, '')
   };
 
   const handlePlaceChanged = (e) => {
-    // console.log('place changed', e)
+    console.log('place changed', e)
     // console.log('place changed', e.location)
     // console.log('place changed', e.lat, e.lng)
     const updatedFormData = {
       //...formData,
       location: e.location,
-      lat: e.lat, 
+      lat: e.lat,
       lng: e.lng
     }
 
-    const updatedErrors = { location: ''};
+    const updatedErrors = { location: '' };
     console.log('handlePlaceChanged', updatedFormData, updatedErrors)
 
     onUpdate('location', e.location);
@@ -47,19 +37,31 @@ function UserInformation({ onUpdate, onError, formData, errors, ...props }) {
     onUpdate('lng', e.lng);
     onError('location', null)
   }
-  
+
   return (
     <>
       <TextField
-        name="name"
-        label="Name"
-        value={formData.name}
+        name="firstName"
+        label="First Name"
+        value={formData.firstName}
         disabled={formData.google_id?.length > 0}
         onChange={handleChange}
         required
         fullWidth
-        helperText={errors.name}
-        error={Boolean(errors.name)}
+        helperText={errors.firstName}
+        error={Boolean(errors.firstName)}
+        sx={{ mb: 3 }} // Add bottom margin to the TextField
+      />
+      <TextField
+        name="lastName"
+        label="Last Name"
+        value={formData.lastName}
+        disabled={formData.google_id?.length > 0}
+        onChange={handleChange}
+        required
+        fullWidth
+        helperText={errors.lastName}
+        error={Boolean(errors.lastName)}
         sx={{ mb: 3 }} // Add bottom margin to the TextField
       />
       <TextField
@@ -74,7 +76,7 @@ function UserInformation({ onUpdate, onError, formData, errors, ...props }) {
         error={Boolean(errors.email) && !helpers.validateEmail(formData.email)}
         sx={{ mb: 3 }} // Add bottom margin to the TextField
       />
-      
+
       <TextField
         select
         name="age"
@@ -103,10 +105,10 @@ function UserInformation({ onUpdate, onError, formData, errors, ...props }) {
         showGetUserLocation={true}
       />
       <Box sx={{ mt: 2 }}>
-        NTRP Level: {helpers.hasValue(formData.ntrp) ? parseFloat(formData.ntrp).toFixed(1) : ''} 
+        NTRP Level: {helpers.hasValue(formData.ntrp) ? parseFloat(formData.ntrp).toFixed(1) : ''}
         <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
           <Slider
-            sx={{  mr: 2 }}
+            sx={{ mr: 2 }}
             name="ntrp"
             getAriaLabel={() => 'Level'}
             label="Level"
@@ -116,7 +118,7 @@ function UserInformation({ onUpdate, onError, formData, errors, ...props }) {
             value={helpers.hasValue(formData.ntrp) ? +formData.ntrp : 0}
             onChange={handleChange}
             marks={helpers.hasValue(formData.ntrp) ? enums.LevelMarks : null}
-            valueLabelDisplay={helpers.hasValue(formData.ntrp) ?  "auto" : "off"}
+            valueLabelDisplay={helpers.hasValue(formData.ntrp) ? "auto" : "off"}
           />
           <InfoPopup paddingLeft={"0.1rem"}>
             <a

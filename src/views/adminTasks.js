@@ -1,7 +1,8 @@
 import { Button, Card, Grid, TabItem, Tabs } from "@aws-amplify/ui-react";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { ladderAPI, playerAPI } from "api/services";
-import { ErrorHandler, MatchEditor, SelectWithFetch } from "components/forms";
+import { AddPlayerToClub, CreateClub, ErrorHandler, MatchEditor, SelectWithFetch } from "components/forms";
+import ClubSearchAutocomplete from "components/forms/Club/club_search";
 import { enums, helpers, ladderHelper, matchHelper, userHelper } from "helpers";
 import React, { useEffect, useState } from "react";
 import XLSX, { read, utils, writeFile } from 'xlsx';
@@ -20,11 +21,11 @@ const AdminTasks = (() => {
     async function getData() {
       const ladders = await ladderAPI.getLadders()
       //const players = await ladderHelper.GetPlayers()
-      console.log(ladders)
+      //console.log(ladders)
       return { ladders: ladders.ladders, players: [] }
     }
     getData().then((data) => {
-      console.log(data.ladders)
+      //console.log(data.ladders)
       setLadders(data.ladders)
       setPlayers(data.players)
     })
@@ -140,6 +141,11 @@ const AdminTasks = (() => {
           </FormControl>
           <Button onClick={addPlayerToLadder}>Add player to ladder</Button>
         <Button onClick={updateLadder} color="tennis">Update ladder</Button>
+        </TabItem>
+        <TabItem title="Other">
+          <CreateClub />
+          <AddPlayerToClub />
+          <ClubSearchAutocomplete />
         </TabItem>
       </Tabs>
     </>

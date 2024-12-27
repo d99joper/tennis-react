@@ -31,8 +31,8 @@ const RulesPage = lazy(() => import('./views/rules'))
 const SearchPage = lazy(() => import('./views/searchPage'))
 const PrivacyPolicyPage = lazy(() => import('./views/privacyPolicyPage'))
 const TermsOfServicePage = lazy(() => import('./views/termsOfServicePage'))
-const LeagueCreate = lazy(() => import('./views/league/create'))
-const LeagueView = lazy(() => import('./views/league/view'))
+const LeagueCreate = lazy(() => import('./components/forms/League/create'))
+const LeagueView = lazy(() => import('./views/league/league_view'))
 
 const MyRouter = (props) => {
 

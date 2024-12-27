@@ -18,13 +18,12 @@ const courtAPI = {
   },
 
   getCourts: async function(filter) {
-    console.log(filter)
+    //console.log(filter)
     const url = new URL(courtsUrl)
-    url.search = helpers.parseFilter(filter)
-    // const params = new URLSearchParams(filter)
-    // console.log("params: ",params)
+    const params = new URLSearchParams(filter) 
+    
     const requestOptions = authAPI.getRequestOptions('GET')
-    const response = await fetch(url,requestOptions)
+    const response = await fetch(url + '?' + params, requestOptions,requestOptions)
     
     if (response.ok) {
       const data = await response.json()

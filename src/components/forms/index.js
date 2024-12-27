@@ -8,7 +8,7 @@ import { Ladder } from './Ladder/Ladder'
 import { Ladders } from './Ladders/Ladders'
 import LadderStats from './Stats/LadderStats'
 import { Match } from './Match/Match'
-import { MatchEditor } from './MatchEditor/MatchEditor'
+import MatchEditor from './MatchEditor/MatchEditor'
 import { Matches } from './Matches/Matches'
 import PhoneNumber from './PhoneNumber/PhoneNumber'
 import { SelectWithFetch } from './Autocomplete/SelectFetch'
@@ -22,9 +22,13 @@ import CreatePlayer from './Player/createPlayer'
 import MergeProfiles from './MergeProfiles/merge'
 import UserInformation from './Player/userInformation'
 import ClaimPlayer from './Player/claimPlayer'
+import CreateClub from './Club/create_club'
+import AddPlayerToClub from './Club/addPlayerToClub'
 
 export {
+    AddPlayerToClub,
     AutoCompletePlaces,
+    CreateClub,
     ClaimPlayer,
     Comments, 
     CreatePlayer,

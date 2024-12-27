@@ -1,7 +1,7 @@
 import { Flex } from '@aws-amplify/ui-react'
 import { authAPI, playerAPI } from 'api/services'
 import './login.css'
-import { Box, Button, Divider, LinearProgress, TextField, Typography } from '@mui/material'
+import { Box, Button, CircularProgress, Divider, LinearProgress, TextField, Typography } from '@mui/material'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { enums } from 'helpers'
 import { UserInformation } from 'components/forms'
@@ -14,7 +14,6 @@ function Login({ mode, ...props }) {
   const [showLoader, setShowLoader] = useState(false)
   const [showGoogleRedirectMessage, setShowGoogleRedirectMessage] = useState('')
   const [userIsRegistered, setUserIsRegistered] = useState(false)
-  const [location, setLocation] = useState('')
   const [showAdditionalInfo, setShowAdditionalInfo] = useState(false)
   const [player, setPlayer] = useState()
   const navigate = useNavigate()
@@ -32,89 +31,45 @@ function Login({ mode, ...props }) {
     const form = new FormData(document.getElementById('loginForm'))
     const username = form.get("username")
     const pwd = form.get("password")
-    const pwd2 = form.get("confirm_password")
-    const firstName = form.get("first_name")
-    const lastName = form.get("last_name")
+
+    // Basic email validation
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username)) {
+      setErrors([<span key="invalid_email" className="error">Invalid email address.</span>]);
+      return;
+    }
 
     // reset the errors array
     setErrors([])
-    let errors = []
-    // signup
-    if (mode === enums.LOGIN_MODES.SIGN_UP) {
-      // Check if name is provided
-      if (!(firstName && lastName && username)) {
-        errors.push(<>Please provide your name and email.</>)
-        setErrors(errors)
-      }
-      // Check if passwords match
-      else if (pwd !== pwd2) {
-        // Passwords do not match - handle error or provide feedback
-        errors.push(<>Passwords do not match. Please enter matching passwords.</>)
-        setErrors(errors)
-      }
-      // else if (pwd.length < 8) {
-      //   errors.push(<>Passwords do not match. Please enter matching passwords.</>)
-      //   setErrors(errors)
-      //  }
-      else {
-        // Passwords match - handle form submission logic
-        authAPI.register(username, pwd, firstName, lastName, location).then((data) => {
-          if (data?.errors) {
-            let i = 0
-            for (let key in data.errors) {
-              if (data.errors.hasOwnProperty(key)) {
-                console.log(key, data.errors[key])
-                if (key === "500")
-                  errors.push(<p key={`error_${i}_${key}`}>Something went wrong. Please contact an admin.</p>)
-                else
-                  errors.push(<p key={`error_${i}_${key}`}>{key}: {data.errors[key]}</p>)
-                i++
-              }
-            }
-          }
-          else
-            setUserIsRegistered(true)
-
-          setErrors(errors)
-        })
-      }
-
-    }
-    // signin
-    else {
-      try {
-        authAPI.login(username, pwd).then((user) => {
-          // if the user doesn't have a name, go to the more information page
-          console.log(user)
-          if (!user.verified) {
-            errors.push(
-              <span key='login_error'>
-                This user has not been verified. Please check your inbox for a verification email.
-                <div>
-                  <Button color={'info'} variant='contained' onClick={() => sendVerificationEmail(user.id)}>
-                    Send new verification email
-                  </Button>
-                </div>
-              </span>
-            )
-            setErrors(errors)
-            authAPI.signOut()
-          }
-          else if (!(user.name || user.location))
-            navigate('/profile-information')
-          else
-            redirect()
-        })
-      }
-      catch (e) {
-        console.log(e)
-      }
-    }
-  }
-
-  function handleLocationChange(geoPoint) {
-    console.log('new place', geoPoint)
-    setLocation(geoPoint)
+    setShowLoader(true)
+    authAPI.login(username, pwd)
+      .then((user) => {
+        // if the user doesn't have a name, go to the more information page
+        console.log(user)
+        // disable verification for now, perhaps add it back in if it becomes a problem later on
+        // if (!user.verified) {
+        //   errors.push(
+        //     <span key='login_error' className='error'>
+        //       This user has not been verified. Please check your inbox for a verification email.
+        //       <Box sx={{p:2}}>
+        //         <Button color={'info'} variant='contained' onClick={() => sendVerificationEmail(user.id)}>
+        //           Send new verification email
+        //         </Button>
+        //       </Box>
+        //     </span>
+        //   )
+        // }
+        // else
+        //  redirect()
+        redirect()
+      })
+      .catch((error) => {
+        console.log(error);
+        setErrors([<span key="login_error" className="error">{error.message}</span>]);
+        authAPI.signOut()
+      })
+      .finally(() => {
+        setShowLoader(false);
+      });
   }
 
   function redirect(page) {
@@ -151,7 +106,8 @@ function Login({ mode, ...props }) {
   if (userIsRegistered === true) {
     return (
       <>
-        The user was successfully registered. The next step is to verify your account. An email should have been sent to your email. Please check your mailbox to verify your account.
+        The user was successfully registered.
+        {/* The next step is to verify your account. An email should have been sent to your email. Please check your mailbox to verify your account. */}
       </>
     )
   }
@@ -179,16 +135,16 @@ function Login({ mode, ...props }) {
             Log In
           </Typography>
 
-          
+
           {showLoader && <LinearProgress />}
           {/* Google Sign-In */}
           <MyGoogleCheck callback={handleGoogleAuth} mode={enums.LOGIN_MODES.SIGN_UP} />
           {showGoogleRedirectMessage &&
             <>
-              Your google account is not registered with My Tennis Space. <br/>
-              <Button 
-                variant='contained' 
-                component={Link} 
+              Your google account is not registered with My Tennis Space. <br />
+              <Button
+                variant='contained'
+                component={Link}
                 to="/Registration"
               >
                 Register
@@ -196,19 +152,27 @@ function Login({ mode, ...props }) {
             </>
           }
           <Divider sx={{ my: 2 }}>Or log in with email</Divider>
-
+          {errors}
           {/* Email and Password Form */}
           {!showAdditionalInfo &&
             <Box
               component="form"
+              name="loginForm"
+              id="loginForm"
               onSubmit={userLogin}
               sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
             >
-              <TextField name="username" label="Email" variant="outlined" fullWidth />
-              <TextField name="password" label="Password" variant="outlined" type="password" fullWidth />
-              <Button variant="contained" color="primary" fullWidth>
-                Log In
-              </Button>
+              {showLoader ? <CircularProgress /> :
+                (
+                  <>
+                    <TextField name="username" label="Email" variant="outlined" fullWidth />
+                    <TextField name="password" label="Password" variant="outlined" type="password" fullWidth />
+                    <Button variant="contained" color="primary" fullWidth type='submit'>
+                      Log In
+                    </Button>
+                  </>
+                )
+              }
             </Box>
           }
           {/* Additional information */}
@@ -226,13 +190,13 @@ function Login({ mode, ...props }) {
           </Typography>
           <Typography sx={{ textAlign: 'center', mt: 1 }}>
             Don't have an account?{' '}
-            <Link href="/sign-up" underline="hover">
+            <Link to="/registration" underline="hover">
               Sign up
             </Link>
           </Typography>
         </Box>
 
-        
+
       </Box>
 
 

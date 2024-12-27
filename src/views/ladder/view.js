@@ -15,7 +15,6 @@ const LadderView = (props) => {
   const [playerLadders, setPlayerLadders] = useState([])
   const [nearbyLadders, setNearbyLadders] = useState([])
   const [allowLocation, setAllowLocation] = useState(false)
-
   //const [isLoggedIn, setIsLoggedIn] = useState(props.isLoggedIn)
   const isLoggedIn = props.isLoggedIn
   const currentUser = props.currentUser

@@ -32,6 +32,23 @@ const matchAPI = {
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get matches' }
   },
 
+  getMatchesForEvent: async function (eventId, page, numPerPage, sortDirection, sortOrder) {
+    const requestOptions = authAPI.getRequestOptions('GET')
+    const url = matchesUrl
+      + '?event=' + eventId
+      + (page ? '&page=' + page : '')
+      + (numPerPage ? '&num-per-page=' + numPerPage : '')
+      //+ (sortDirection ? '&sort=' + sortDirection : '')
+      + (sortOrder ? '&sort=' + sortOrder : '')
+      
+    let response = await fetch(url, requestOptions)
+
+    if (response.ok)
+      return await response.json()
+    else
+      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get matches' }
+  },
+
   getMatchesForLadder: async function (ladderId, type, page, numPerPage, sortDirection, sortOrder) {
     const requestOptions = authAPI.getRequestOptions('GET')
     const url = matchesUrl

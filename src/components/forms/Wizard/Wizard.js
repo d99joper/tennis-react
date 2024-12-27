@@ -14,12 +14,15 @@ export default function Wizard({
   steps,
   handleSubmit,
   submitText = 'Submit',
-  completeStep
+  completeStep,
+  sx=null
 }) {
   const [activeStep, setActiveStep] = React.useState(0);
   const [error, setError] = React.useState(null);
 
   const handleNext = async () => {
+    setError(null);
+
     const step = steps[activeStep];
 
     // Check if the current step has a handleNext function
@@ -29,6 +32,7 @@ export default function Wizard({
         const complete = await step.handleNext();
         // If handleNext returns false, show an error and stop
         if (!complete) {
+          //setError('Please resolve the errors before continuing.');
           return;
         }
       } catch (err) {
@@ -51,7 +55,7 @@ export default function Wizard({
   };
 
   return (
-    <Box sx={{ maxWidth: 400 }}>
+    <Box sx={sx} >
       <Stepper activeStep={activeStep} orientation="vertical">
         {steps.map((step, index) => (
           <Step key={step.label}>

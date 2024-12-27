@@ -60,8 +60,8 @@ const Matches = ({
 
 	const tableHeaders = [
 		{ label: "Date", accessor: matchPrefix + "played_on", sortable: false, parts: useMatchPrefix ? 2 : 1, link: 'Match/id' },
-		{ label: "Winner", accessor: matchPrefix + "winner.name", sortable: false, parts: useMatchPrefix ? 3 : 2, link: 'Profile/id' },
-		{ label: "Loser", accessor: matchPrefix + "loser.name", sortable: false, parts: useMatchPrefix ? 3 : 2, link: 'Profile/id' },
+		{ label: "Winner", accessor: matchPrefix + "winners.name", sortable: false, parts: useMatchPrefix ? 3 : 2, link: 'Profile/id' },
+		{ label: "Loser", accessor: matchPrefix + "losers.name", sortable: false, parts: useMatchPrefix ? 3 : 2, link: 'Profile/id' },
 		{ label: "Score", accessor: matchPrefix + "score", sortable: false, parts: useMatchPrefix ? 2 : 1, link: 'Match/id' },
 		...notExclude('ladder') ? [{ label: "Ladder", accessor: matchPrefix + "ladder.name", sortable: false, parts: useMatchPrefix ? 3 : 2, link: 'Ladders/id' }] : [],
 		{ label: "", accessor: "games", sortable: false, parts: 0 }
@@ -103,8 +103,8 @@ const Matches = ({
 		else setShowLoader(false)
 
 		if (ladderMatches) {
-			setMatches(ladderMatches.matches)
-			setTotalPages(Math.ceil(ladderMatches.total_count / pageSize))
+			setMatches(ladderMatches)
+			setTotalPages(Math.ceil(ladderMatches.length / pageSize))
 			setShowLoader(false)
 			setIsLoading(false)
 		}
@@ -116,7 +116,7 @@ const Matches = ({
 					prevLadder.current = ladder
 				}
 				//mf.getMatchesForLadder(ladder.id, 'DESC', nextToken, 10).then((data) => {
-				matchAPI.getMatchesForLadder(ladder.id, matchType, page, pageSize, 'DESC', 'playedOn').then((data) => {
+				matchAPI.getMatchesForEvent(ladder.id, matchType, page, pageSize, 'DESC', 'playedOn').then((data) => {
 					console.log(data)
 					setMatches(data.matches)
 					//setNextToken(data.nextToken)
@@ -310,11 +310,11 @@ const Matches = ({
 											{m?.played_on}
 										</Text>
 										<View columnStart="1" columnEnd="2">
-											{userHelper.SetPlayerName(m.winner)}
+											{userHelper.SetPlayerName(m.winners)}
 										</View>
 										<Divider columnStart="1" columnEnd="-1" />
 										<View columnStart="1" columnEnd="2">
-											{userHelper.SetPlayerName(m.loser)}
+											{userHelper.SetPlayerName(m.losers)}
 										</View>
 										{displayGames(m.score)}
 
