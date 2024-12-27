@@ -2,6 +2,16 @@ import userHelper from "./userHelper";
 
 let loadingPromise = null
 const helpers = {
+	
+	camelToSnake: (obj) => {
+		const snakeCaseObj = {};
+		for (const key in obj) {
+			const snakeKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
+			snakeCaseObj[snakeKey] = obj[key];
+		}
+		return snakeCaseObj;
+	},
+	
 	loadGoogleMapsAPI: async () => {
 		// Check if Google Maps API is already loaded
 		if (window.google && window.google.maps) {

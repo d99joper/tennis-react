@@ -82,7 +82,12 @@ const authAPI = {
 	},
 
 	login: async function (username, password) {
-		return handleLogin(authUrl + "login/", { email: username, password: password })
+		try {
+			return handleLogin(authUrl + "login/", { email: username, username:username, password: password })
+		}
+		catch (e) {
+			return e
+		}
 	},
 
 	// todo: merge accounts, send token to google/connect/ 
@@ -123,7 +128,7 @@ const authAPI = {
 	getRequestOptions: function (method, body, admin=false) {
 		const bearer = admin ? process.env.REACT_APP_ADMIN_TOKEN : this.getToken()
 		const jsonBody = body ? JSON.stringify(body) : null
-		console.log(bearer, process.env.REACT_APP_ADMIN_TOKEN)
+		//console.log(bearer, process.env.REACT_APP_ADMIN_TOKEN)
 		return {
 			method: method,
 			headers: {
@@ -199,7 +204,13 @@ async function handleLogin(url, body) {
 
 			// now get the full player details
 			const player = await playerAPI.getPlayer(user.pk)
-			
+			//if the player has been merged, overwrite the info in localStorage
+			if(player.id !== user.pk) {
+				setAttribute('user_email', player.email)
+				setAttribute('user_id', player.id)
+				setAttribute('username', player.username)
+				setAttribute('user_name', player.name)
+			}
 			// return the newly logged in user
 			return player
 		}

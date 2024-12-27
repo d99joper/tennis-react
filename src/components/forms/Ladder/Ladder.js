@@ -15,7 +15,7 @@ import { Storage } from "aws-amplify"
 import { Matches, ProfileImage } from "../../forms/index.js"
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers"
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { ladderAPI, matchAPI, playerAPI } from "api/services";
+import { eventAPI, ladderAPI, matchAPI, playerAPI } from "api/services";
 // import Modal from "components/layout/Modal/modal.js";
 // import { Modal, ModalClose, ModalDialog, Sheet } from "@mui/joy";
 
@@ -44,7 +44,9 @@ const Ladder = ({
   const [loadingPlayer, setLoadingPlayer] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
-  const toggleProfileLink = (id) => {
+console.log('ladder')
+  
+const toggleProfileLink = (id) => {
     console.log(id)
     if (id != selectedPlayer)
       setShowProfileClickOptions(true)
@@ -65,54 +67,38 @@ const Ladder = ({
     setIsLoading(true)
     async function getLadder() {
       //const l = await lf.GetLadder(id)//, nextMatchesToken)
-      const l = await ladderAPI.getLadder(id)
-      // get the 5 latest matches for the ladder
-      const matchData = await matchAPI.getMatchesForLadder(id, null, 1, 5)
-      l.matches = matchData//matchData.matches
+      //const l = await ladderAPI.getLadder(id)
+      try {
+
+        const event = await eventAPI.getEvent(id)
+        // get the 5 latest matches for the ladder
+        // const matchData = await matchAPI.getMatchesForEvent(event.id, 1, 5)
+        // event.matches = matchData.matches
+        console.log(event)
+        return event
+      }
+      catch(e){
+        console.log(e)
+      }
       //l.totalCount = matchData.totalCount
       // parse the details JSON and set player images
       //l.standings = await setPlayerImages(l.standings)
 
-      return l
     }
 
     getLadder().then((data) => {
       setLadder(data)
-      setDisplayedStandings(data.standings)
+      setDisplayedStandings(data.ladder_standings)
       // check if the user is part of the ladder
-      const isInLadder = ladderHelper.IsPlayerInLadder(currentUser?.id, data)
+      const isInLadder = ladderHelper.IsPlayerInLadder(currentUser?.id, data.ladder_standings)
       setIsPlayerInLadder(isInLadder)
-      console.log("Ladder", data)
       setIsLoading(false)
     })
 
   }, [id])
 
   function addMatches(nextToken) {
-    // const compareToken = nextMatchesToken ?? ''
-    // console.log(nextToken.substring(0, 40), compareToken.substring(0, 40))
-    // if (compareToken == nextToken) return
-    // else {
-    //     console.log('not equal')
-    //     setNextMatchesToken(nextToken)
-    // }
-    // return
   }
-
-  // async function updateDisplayedStandings2(date) {
-  //   let standings = await ladderAPI.getStandingsForDate(ladder.id, date)//await lf.GetStandingsForDate(ladder.id, date, true)
-  //   if (typeof standings.details === "string") {
-  //     standings.details = JSON.parse(standings.details)
-  //     //standings.details = await setPlayerImages(standings.details)
-  //   }
-  //   standings.details = standings.details.sort((a, b) => { return b.points - a.points })
-  //   //setDisplayedStandings(handleDisplayedStandings(ladder, standings))
-  //   setDisplayedStandings(standings)
-  // }
-  // function handleStandingsChange2(date) {
-  //   console.log(date)
-  //   updateDisplayedStandings2(date)
-  // }
 
   function handleAddMatch(match) {
     // console.log(match)
@@ -204,22 +190,6 @@ const Ladder = ({
             <div gap={10} id="ladderGrid">
               <div className="left">
                 <div className="header">
-                  {/** Pick date for older standings */}
-                  {/* <FormControl variant="standard" sx={{ m: 1, minWidth: 120, padding: 1 }}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DatePicker
-                        label="Standings as of"
-                        required
-                        maxDate={Date.now()}
-                        value={standingsAsOfDate}
-                        onChange={(newValue) => {
-                          setStandingsAsOfDate(newValue)
-                          handleStandingsChange2(newValue.$d)
-                        }}
-                        renderInput={(params) => <TextField required {...params} sx={{ width: 200 }} />}
-                      />
-                    </LocalizationProvider>
-                  </FormControl> */}
                   {/** Add a match button and dialog */}
                   <View className="matchButton">
                     {isPlayerInLadder &&
@@ -262,7 +232,7 @@ const Ladder = ({
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {displayedStandings?.map((s, i) => {
+                      {ladder?.ladder_standings?.map((s, i) => {
                         return (
                           <TableRow id='standing' key={i} hover>
                             <TableCell width="1px"><Typography variant="h6">{i + 1}.</Typography></TableCell>
@@ -324,8 +294,8 @@ const Ladder = ({
         </TabItem>
         <TabItem title="Matches">
           <Matches
-            //ladderMatches={matches}
-            ladder={ladder}
+            ladderMatches={ladder?.matches||[]}
+            //ladder={ladder}
             excludeColumns={['ladder']}
             useColorCode={false}
             sortDirection={'desc'}

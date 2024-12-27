@@ -129,9 +129,9 @@ const Match = ({
                 backgroundColor={props.backgroundColor ?? null}
             >
                 <Text columnStart="1" columnEnd="-1" fontSize="0.8em" fontStyle="italic">{match?.played_on}</Text>
-                <View columnStart="1" columnEnd="2">{userHelper.SetPlayerName(match.winner, false)}</View>
+                <View columnStart="1" columnEnd="2">{userHelper.SetPlayerName(match.winners, false)}</View>
                 <Divider columnStart="1" columnEnd="-1" />
-                <View columnStart="1" columnEnd="2">{userHelper.SetPlayerName(match.loser, false)}</View>
+                <View columnStart="1" columnEnd="2">{userHelper.SetPlayerName(match.losers, false)}</View>
                 {displayGames(match.score)}
             </Grid>
         )

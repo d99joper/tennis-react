@@ -57,10 +57,10 @@ const ladderHelper = {
 		return data
 	},
 
-	IsPlayerInLadder: function (playerId, ladder) {
+	IsPlayerInLadder: function (playerId, standings) {
 		try {
 			let isInLadder = false
-			const player = ladder.standings.find((x) => x.player.id === playerId)
+			const player = standings.find((x) => x.player.id === playerId)
 
 			if (player)
 				isInLadder = true

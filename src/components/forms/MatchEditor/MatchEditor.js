@@ -1,642 +1,321 @@
-import { Flex, Radio, RadioGroupField, TextAreaField, View } from '@aws-amplify/ui-react'
-import {
-	Select, TextField,
-	MenuItem, InputLabel, FormControl,
-	Checkbox, FormControlLabel, Button, Typography, Grid, Box, CircularProgress,
-	Divider
-} from '@mui/material'; //https://mui.com/material-ui/react-autocomplete/
-import React, { useEffect, useState } from 'react'
-import { enums, ladderHelper } from '../../../helpers/index'
-import SetInput from './SetInput'
-import './MatchEditor.css'
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { CreatePlayer, ErrorHandler, InfoPopup, SelectWithFetch } from '../index'
-import { courtAPI, matchAPI, playerAPI } from 'api/services'
-import CreateCourt from 'views/court/create'
+import React, { useState, useEffect } from 'react';
+import { TextField, MenuItem, Box, Typography, IconButton, Switch, FormControlLabel } from '@mui/material';
+import Wizard from '../Wizard/Wizard';
+import { playerAPI, courtAPI, matchAPI, authAPI } from 'api/services';
+import SetInput from './SetInput';
+import InfoPopup from '../infoPopup';
 
-//import { Dayjs } from 'dayjs';
-
-const MatchEditor = (
-	{
-		ladder = null,
-		ladders,
-		player,
-		onSubmit,
-		isAdmin,
-		minDate = new Date().setMonth(new Date().getMonth() - 1),
-		type = enums.MATCH_TYPE.SINGLES,
-		...props
-	}) => {
-	// steps determine what is shown
-	const steps = ['ladder', 'date', 'winner', 'loser', 'court', 'score', 'comment', 'confirm', 'loading']
-	const [stepIndex, setStepIndex] = useState(0)
-	const [isDoubles, setIsDoubles] = useState(false)
-	//const [infoText, setInfoText] = useState('')
-	const [matchInfoText, setMatchInfoText] = useState('')
-	const [error, setError] = useState('')
-	const isFixedLadder = typeof (props.ladderId) !== 'undefined'
-	console.log(isFixedLadder)
-
-
-	// Initialize the state for the player names and the selected match format
-	const [playedOn, setPlayedOn] = useState(null);
-	const [winner, setWinner] = useState([{ ...player }])
-	const [loser, setLoser] = useState([])
-	const [court, setCourt] = useState({})
-	const [isWinner, setIsWinner] = useState(true)
-	const [isLadderMatch, setIsLadderMatch] = useState(false)
-	const [matchFormat, setMatchFormat] = useState(0)
-	const [sampleResult, setSampleResult] = useState('*eg. 6-3, 7-6(4)')
-	const [retired, setRetired] = useState(false)
-	const [comment, setComment] = useState('')
-	const [ladderId, setLadderId] = useState(props.ladderId || 0)
-	const [showSummary, setShowSummary] = useState(false)
-	const [matchType, setMatchType] = useState(type)
-
-	//const showLadderSelect = typeof (props.ladderId) === 'undefined'
-
-	// Initialize the state for the score
-	const [score, setScore] = useState(['', '', '', '', ''])
-
-	if (!ladders)
-		ladders = player?.ladders
-	console.log('ladder', props.ladderId)
-	//https://stackoverflow.com/questions/40811535/delay-suggestion-time-in-mui-autocomplete
-	const ladderInfo = ladderHelper.useLadderPlayersData(ladderId, '')
+const MatchEditor = ({ participant, event = null, availableEvents = [], onSubmit }) => {
+	const [selectedEvent, setSelectedEvent] = useState(event || null);
+	const [playedOn, setPlayedOn] = useState('');
+	const [opponents, setOpponents] = useState([]);
+	const [selectedOpponents, setSelectedOpponents] = useState([]);
+	const [courts, setCourts] = useState([]);
+	const [selectedCourt, setSelectedCourt] = useState('');
+	const [sets, setSets] = useState([{ set: 1, value: '' }, { set: 2, value: '' }]);
+	const [isDoubles, setIsDoubles] = useState(false);
+	const [error, setError] = useState({ playedOn: false, opponents: false });
+	const [winner, setWinner] = useState(true);
+	const [setErrorText, setSetErrorText] = useState('');
+	const [comment, setComment] = useState('');
+	const [isPrivate, setIsPrivate] = useState(false);
+	const [retired, setRetired] = useState(false);
 
 	useEffect(() => {
-		console.log('ladderid updated', ladderId)
-		// skip the ladder step if coming from a ladder 
-		if (ladderId !== 0 && stepIndex < 2) {
-			console.log('update step from', stepIndex)
-			handleStep(1)
-			updateInfoTexts(stepIndex + 1)
+		// Fetch opponents and courts
+		async function fetchData() {
+			try {
+				const opponentsData = await playerAPI.getParticipants(selectedEvent || null, null); // Adjust API call as necessary
+				setOpponents(opponentsData.data.players);
+
+				const courtsData = await courtAPI.getCourts();
+				setCourts(courtsData.courts);
+			} catch (error) {
+				console.error('Failed to fetch data:', error);
+			}
 		}
-		else
-			updateInfoTexts(stepIndex)
-	}, [ladderId, ladderInfo])
 
-	const handleSubmit = () => {
-		//event.preventDefault();
-		if ((!winner[0]) || (!loser[0]) || score[0] === '' || !playedOn)
-			return
+		fetchData();
+	}, []);
 
+	const onSubmitMatch = () => {
 		// Create an object with the match result data
+
 		let match = {
-			winner: [{ ...winner[0], ...(winner[1] ? [{ ...winner[1] }] : []) }],
-			loser: [{ ...loser[0], ...(loser[1] ? [{ ...loser[1] }] : []) }],
-			score: score.filter(Boolean).join(', '),
-			type: matchType,
+			winner: [], // should be list of players in participants or, if !winner, a list of opponents  
+			loser: [], // should be list of the opponents or, if !winner, a list of players in participants  
+			score: '',// from the sets, listed like 6-3, 4-6, 1-0(3), for example
+			type: 'singles', // should be singles or doubles,
 			played_on: new Date(playedOn).toISOString().split('T')[0],
-			...ladderId != '0' ? { ladder: { id: ladderId } } : null,
-			retired: retired,
+			...selectedEvent ? { event_id: selectedEvent.id } : null,
+			retired: retired, // need to add a retired checkbox for score
 			comments: []
 		}
 
 		if (comment.length > 0) {
 			const matchComment = {
 				content: comment,
-				posted_by: player.id,
-				private: true,
+				posted_by: authAPI.getCurrentUser.id,
+				private: isPrivate,
 				posted_on: Date.now//helpers.formatAWSDate(Date.now)
 			}
 			match.comments.push(matchComment)
 		}
 
-		// set to loading step
-		setStepIndex(stepIndex + 1)
-
 		matchAPI.createMatch(match).then((result) => {
-			// Call the onSubmit prop (callback) and pass the result object
 			console.log(result)
-			onSubmit(match)
-			resetForm()
+			// Call the onSubmit prop (callback) and pass the result object
+			if (onSubmit)
+				onSubmit(match)
 		})
-	}
+	};
 
-	function resetForm() {
-		setLoser([{ name: '' }])
-		setWinner([{ ...player }])
-		setComment('')
-		setPlayedOn(null)
-		setLadderId(props.ladderId || 0)
-	}
+	const handleSetChange = (index, value) => {
+		const updatedSets = [...sets];
+		updatedSets[index].value = value;
+		setSets(updatedSets);
+	};
 
-	const handleWinnerRadio = (e) => {
-		const didPlayerWin = (e.target.value === 'true')
-		console.log('set winner and loser', winner, loser)
-		// set and switch the winner/loser
-		if (didPlayerWin) {
-			setLoser([])
-			setWinner([{ ...player }])
+	const addSet = () => {
+		if (sets.length < 5) {
+			setSets([...sets, { set: sets.length + 1, value: '' }]);
 		}
-		else {
-			setWinner([])
-			setLoser([{ ...player }])
-		}
-		setIsWinner(didPlayerWin)
-	}
+	};
 
-	const handleLadderRadio = (e) => {
-		const isYes = e.target.value === 'true'
-		if (!isYes)
-			setLadderId(0)
-		setIsLadderMatch(isYes)
-	}
+	const validateSets = () => {
+		let winCount = 0;
+		let loseCount = 0;
+		let isValid = true;
 
-	const handleSetChange = (newValue, set) => {
-		let newScore = [...score]
-		newScore[set - 1] = newValue
-		setScore(newScore)
-		updateMatchInfo(newScore)
-	}
+		sets.forEach(set => {
+			if (set.value) {
+				const tiebreakMatch = set.value.match(/^\d+-\d+\(\d+\)$/);
+				const [first, second] = tiebreakMatch
+					? set.value.split(/[\-\(\)]/).slice(0, 2).map(Number)
+					: set.value.split('-').map(Number);
 
-	const handleMatchFormatChange = (e) => {
-		setMatchFormat(e.target.value)
-		switch (e.target.value) {
-			case enums.MATCH_FORMATS.REGULAR_3.val:
-				setSampleResult('*eg. 6-3, 7-6(4)')
-				break;
-			case enums.MATCH_FORMATS.PRO_8.val:
-				setSampleResult('*eg. 8-5 or 8-7(4)')
-				break;
-			case enums.MATCH_FORMATS.PRO_10.val:
-				setSampleResult('*eg. 10-6 or 10-9(5)')
-				break;
-			case enums.MATCH_FORMATS.FAST4_3.val:
-				setSampleResult('*eg. 4-2, 3-4(2), 4-1')
-				break;
-			case enums.MATCH_FORMATS.FAST4_5.val:
-				setSampleResult('*eg. 4-2, 3-4(2), 4-1, 4-3(3)')
-				break;
-			default:
-				break;
-		}
-	}
-
-	const playerFetch = async (filter) => {
-		const results = await playerAPI.getPlayers(filter)
-		return results.players.map(({ id, name }) => ({ id, name }))
-	}
-
-	const courtFetch = async (filter) => {
-		const results = await courtAPI.getCourts(filter)
-		return results.courts.map(({ id, name }) => ({ id, name }))
-	}
-
-	const stepErrorCheck = (currentStep) => {
-		let isError = false
-		setError('')
-		if (currentStep === 'winner') {
-			if (!winner[0]?.id) {
-				setError('Please select a winner')
-				isError = true
-			}
-		} else if (currentStep === 'date') {
-			if (!playedOn) {
-				setError('The match date is required.')
-				isError = true
-			}
-		} else if (currentStep === 'loser') {
-			if (!loser[0]?.id) {
-				setError('Please select an opponent.')
-				isError = true
-			}
-		} else if (currentStep === 'score') {
-			// check the first three sets, if they are required
-			for (let i = 1; i <= 3; i++) {
-				const set = document.getElementById('set' + i)
-				const isRequired = set.hasAttribute('required')
-				if (isRequired) {
-					if (set.value.trim() === '') {
-						set.focus()
-						setError('Set score is required')
-						isError = true
-						break
-					}
+				if (first === second || isNaN(first) || isNaN(second)) {
+					isValid = false;
+				} else if (first > second) {
+					winCount++;
+				} else {
+					loseCount++;
 				}
 			}
+		});
+
+		if (!isValid || winCount <= loseCount) {
+			setSetErrorText('This is not a valid score. Ensure the winner has more sets won.');
+			return false;
 		}
 
-		return isError
-	}
-	const updateInfoTexts = (index) => {
-		// reset the error text
-		setError('')
+		setSetErrorText('');
+		return true;
+	};
 
-		// if (steps[index] === 'winner') {
-		// 	setInfoText('')
-		// } else if (steps[index] === 'ladder') {
-		// 	setInfoText('')
-		// } else if (steps[index] === 'loser') {
-		// 	setInfoText('Who did you defeat?')
-		// } else if (steps[index] === 'date') {
-		// 	setInfoText('')
-		// } else if (steps[index] === 'court') {
-		// 	setInfoText('')
-		// } else if (steps[index] === 'score') {
-		// 	setInfoText('')
-		// } else if (steps[index] === 'comment') {
-		// 	setInfoText('Any comments?')
-		// } else if (steps[index] === 'confirm') {
-		// 	setInfoText('confirm info')
-		// }
-		updateMatchInfo()
-	}
-	const updateMatchInfo = (newScore) => {
-		let strWinner = winner.length > 0 ? winner[0].name : ''
-		strWinner += winner.length > 1 ? ' and ' + winner[1].name : ''
-		let strLoser = loser.length > 0 ? loser[0].name : ''
-		strLoser += loser.length > 1 ? ' and ' + loser[1].name : ''
-		let strLocation = court?.name ? ' at ' + court.name : ''
-		let currentScore = newScore ?? score
-		let strDate = playedOn ? (<>{`${new Date(playedOn).toISOString().split('T')[0]}`}<br /></>) : ''
-
-		if (strDate && strDate !== '')
-			setShowSummary(true)
-		else
-			setShowSummary(false)
-
-		setMatchInfoText(
-			<>
-				{strDate}
-				{ladderId !== 0 ? (<>{`${ladderInfo.ladder.name} match `}<br /></>) : ''}
-				{winner[0] && loser[0] ? strWinner + ' beat ' + strLoser : ''}
-				{currentScore[0] !== '' ? (<><br />{currentScore.filter(Boolean).join(', ')}</>) : ''}
-				{strLocation}
-			</>
-		)
-	}
-
-	const handleStep = (stepIncreament) => {
-
-		const newIndex = stepIndex + stepIncreament
-		if (newIndex >= 0 && newIndex < steps.length) {
-			// error checks if we are not stepping backwards
-			if (stepIncreament > 0)
-				if (stepErrorCheck(steps[stepIndex])) return
-
-			// set the info text
-			updateInfoTexts(newIndex)
-
-			// update the step
-			setStepIndex(newIndex)
-		}
-	}
-
-	const isDisabled = (button) => {
-		if (button === 'back')
-			return stepIndex === 0 || (stepIndex === 1 && isFixedLadder)
-		if (button === 'next')
-			return ['confirm', 'loading'].includes(steps[stepIndex])
-	}
-
-	const updatePlayers = (setArray, newPlayer, index) => {
-		//if (type == 'winner') {
-		setArray(prevPlayers => {
-			const oldPlayer = prevPlayers[index]
-			// check if the player exists / is already set
-			if (oldPlayer) {
-				// update it
-				prevPlayers[index] = newPlayer
-				console.log(prevPlayers)
-				return prevPlayers
-				//return prevPlayers.map((oldPlayer, i) => (i === index ? newPlayer : oldPlayer))
-			}
-			else {
-				// Add new player
-				return [...prevPlayers, newPlayer]
-			}
-		})
-		// }
-		// else if(type == 'loser') {
-
-		// }
-	}
-
-	return (
-		<form
-			style={{ minHeight: '300px', minWidth: '400px', maxWidth: '500px' }}
-		>
-			{/* <Typography>
-				{infoText}
-			</Typography> */}
-			{/* Step: 'winner'  */}
-			{steps[stepIndex] === 'winner' && (
-				<Grid>
-					<RadioGroupField
-						label="Did you win?"
-						direction={'row'}
-						name="isWinner"
-						value={isWinner}
-						onChange={handleWinnerRadio}
-					>
-						<Radio value={true} checked={isWinner}>Yes</Radio>
-						<Radio value={false}>No</Radio>
-						<InfoPopup paddingLeft={"0.1rem"} color="#ff8a12" size="20" iconType='warning'>
-							<div className="error">
-								<b>Warning:</b> The winner is supposed to submit the score.
-								To prevent duplicate scores, make sure your opponent is not planning to submit it.
-							</div>
-						</InfoPopup>
-					</RadioGroupField>
-					<SelectWithFetch
-						key="winner_select"
-						fetchFunction={ladderId > 0 ? ladderId : playerFetch}
-						placeholder="Winner"
-						ladderId={ladderId}
-						allowCreate={true}
-						initialItems={ladderInfo.players}
-						disabledItemList={[{ id: loser[0]?.id }, { id: loser[1]?.id }, { id: winner[1]?.id }]}
-						disabled={isWinner && !isAdmin}
-						selectedItem={winner[0]?.id ? winner[0] : null}
-						onItemSelect={p => { updatePlayers(setWinner, p, 0) }}
-					>
-						<CreatePlayer />
-					</SelectWithFetch>
-					<FormControlLabel
-						control={
-							<Checkbox
-								label="doubles"
-								checked={isDoubles}
-								onChange={e => { 
-									if(isDoubles)
-										setMatchType(enums.MATCH_TYPE.DOUBLES)
-									else
-										setMatchType(enums.MATCH_TYPE.SINGLES)
-
-									setIsDoubles(!isDoubles)
-								}}
-							/>
-						}
-						label="Doubles"
-					/>
-
-					{isDoubles &&
-						<SelectWithFetch
-							key="winner2_select"
-							fetchFunction={ladderId > 0 ? ladderId : playerFetch}
-							placeholder="Winner partner"
-							ladderId={ladderId}
-							allowCreate={true}
-							initialItems={ladderInfo.players}
-							disabledItemList={[{ id: loser[0]?.id }, { id: loser[1]?.id }, { id: winner[0]?.id }]}
-							//disabled={isWinner && !isAdmin}
-							selectedItem={winner[1]?.id ? winner[1] : null}
-							onItemSelect={p => { updatePlayers(setWinner, p, 1) }}
-						>
-							<CreatePlayer />
-						</SelectWithFetch>
-					}
-				</Grid>
-			)}
-			{/* Step: 'ladder'  */}
-			{steps[stepIndex] === 'ladder' && (
-				<>
-					<RadioGroupField
-						label="Was this match for a ladder?"
-						direction={'row'}
-						name="isLadderMatch"
-						value={isLadderMatch}
-						onChange={handleLadderRadio}
-					>
-						<Radio value={true}>Yes</Radio>
-						<Radio value={false} checked={!isLadderMatch}>No</Radio>
-					</RadioGroupField>
-					{/** If user chooses a ladder */}
-					{isLadderMatch &&
-						<View >
-							<InputLabel id="select-ladders-label">My ladders</InputLabel>
-							<Select
-								labelId='select-ladders-label'
-								autoWidth={true}
-								label="My Ladders"
-								id="ladder-select"
-								required
-								value={ladderId}
-								onChange={(e) => {
-									setLadderId(e.target.value)
-									if (isWinner)
-										setLoser({ id: '0', name: '' })
-									else
-										setWinner({ id: '0', name: '' })
-								}}
-							>
-								<MenuItem key='0' value={0}>{"-- Select ladder --"}</MenuItem>
-								{ladders?.map(option => {
-									return (
-										<MenuItem key={option.id} value={option.id}>{option.name}</MenuItem>
-									)
-								})}
-							</Select>
-						</View>
-					}
-				</>
-			)}
-			{/* Step: 'loser'  */}
-			{steps[stepIndex] === 'loser' && (
-				<>
-					<SelectWithFetch
-						key="loser_select"
-						fetchFunction={ladderId === 0 ? playerFetch : ladderId}
-						placeholder="Defeated"
-						//ladderId={ladderId}
-						initialItems={ladderInfo.players}
-						//initialItems={[{id: '1', name:'player 1'}, {id:'2', name: 'player 2'}]}
-						disabledItemList={[{ id: winner[0]?.id }, { id: winner[1]?.id }]}
-						disabled={!isWinner}
-						selectedItem={loser[0]}
-						onItemSelect={p => { updatePlayers(setLoser, p, 0) }}
-					>
-						<CreatePlayer />
-					</SelectWithFetch>
-
-					{isDoubles &&
-					<>
-					<span style={{minHeight: '20px'}}>&nbsp;</span>
-						<SelectWithFetch
-							key="loser2_select"
-							fetchFunction={ladderId === 0 ? playerFetch : ladderId}
-							placeholder="Defeated Partner"
-							//ladderId={ladderId}
-							initialItems={[ladderInfo.players]}
-							//initialItems={[{id: '1', name:'player 1'}, {id:'2', name: 'player 2'}]}
-							disabledItemList={[{ id: winner[0]?.id }, { id: winner[1]?.id }, { id: loser[0]?.id }]}
-							//disabled={!isWinner}
-							selectedItem={loser[1]}
-							onItemSelect={p => { updatePlayers(setLoser, p, 1) }}
-						>
-							<CreatePlayer />
-						</SelectWithFetch>
-					</>
-					}
-				</>
-			)}
-			{/* Step: 'date'  */}
-			{steps[stepIndex] === 'date' && (
-				<LocalizationProvider dateAdapter={AdapterDayjs}>
-					<DatePicker
-						label="Match played date"
-						required
-						minDate={minDate}
-						maxDate={Date.now()}
-						value={playedOn}
-						onChange={(newValue) => {
-							setPlayedOn(newValue);
+	const steps = [
+		{
+			label: 'Event Selection',
+			content: (
+				<Box>
+					<Typography variant="h6">Select Event</Typography>
+					<TextField
+						select
+						label="Event"
+						fullWidth
+						value={selectedEvent?.id || 'none'}
+						onChange={(e) => {
+							const eventId = e.target.value;
+							const selected = eventId === 'none' ? null : availableEvents.find(ev => ev.id === eventId);
+							setSelectedEvent(selected);
 						}}
-						renderInput={(params) => <TextField required {...params} sx={{ width: 200 }} />}
+						sx={{ mb: 2 }}
+					>
+						<MenuItem value="none">None (Friendly Match)</MenuItem>
+						{availableEvents.map((ev) => (
+							<MenuItem key={ev.id} value={ev.id}>{ev.name}</MenuItem>
+						))}
+					</TextField>
+				</Box>
+			),
+			handleNext: () => !!selectedEvent || availableEvents.length === 0,
+		},
+		{
+			label: 'Match Details',
+			content: (
+				<Box >
+					<Typography variant="h6">Match Details</Typography>
+					<TextField
+						type="date"
+						label="Played On"
+						fullWidth
+						error={error.playedOn}
+						helperText={error.playedOn ? 'Date is required' : ''}
+						value={playedOn}
+						onChange={(e) => setPlayedOn(e.target.value)}
+						InputLabelProps={{ shrink: true }}
+						sx={{ mb: 2 }}
 					/>
-				</LocalizationProvider>
-			)}
-			{/* Step: 'court'  */}
-			{steps[stepIndex] === 'court' && (
-				<SelectWithFetch
-					key="match_location_select"
-					placeholder='Match location'
-					fetchFunction={courtFetch}
-					onItemSelect={x => setCourt(x)}
-					selectedItem={court}
-					allowCreate={true}
-					initialItems={[]}
-					showLocationIcon={true}
-				>
-					<CreateCourt />
-				</SelectWithFetch>
-			)}
-			{/* Step: 'score'  */}
-			{steps[stepIndex] === 'score' && (
-				<>
-					{/* Match format */}
-					<Flex direction={'column'}>
-						<Flex className='mediaFlex' direction={'column'}>
-							<FormControl sx={{ minWidth: 120, width: 300 }}>
-								<InputLabel id="select-match-format-label">Match format</InputLabel>
-								<Select
-									labelId='select-match-format-label'
-									label="Match format"
-									id="match-format-select"
-									value={matchFormat}
-									onChange={(e) => { handleMatchFormatChange(e) }}>
-									<MenuItem value={enums.MATCH_FORMATS.REGULAR_3.val}>{enums.MATCH_FORMATS.REGULAR_3.desc}</MenuItem>
-									<MenuItem value={enums.MATCH_FORMATS.PRO_8.val}>{enums.MATCH_FORMATS.PRO_8.desc}</MenuItem>
-									<MenuItem value={enums.MATCH_FORMATS.PRO_10.val}>{enums.MATCH_FORMATS.PRO_10.desc}</MenuItem>
-									<MenuItem value={enums.MATCH_FORMATS.FAST4_3.val}>{enums.MATCH_FORMATS.FAST4_3.desc}</MenuItem>
-									<MenuItem value={enums.MATCH_FORMATS.FAST4_5.val}>{enums.MATCH_FORMATS.FAST4_5.desc}</MenuItem>
-								</Select>
-							</FormControl>
-							{/* Sets */}
-							<Flex gap={'1rem'} direction={'row'}>
-								<SetInput
-									label="set 1"
-									id="set1"
-									value={score[0]}
-									matchFormat={matchFormat}
-									required={!retired}
-									handleBlur={(newVal) => { handleSetChange(newVal, 1) }}
-									key="set1"
-								/>
-								{![enums.MATCH_FORMATS.PRO_10.val, enums.MATCH_FORMATS.PRO_8.val].includes(matchFormat) &&
-									<>
-										<SetInput
-											label="set 2"
-											id="set2"
-											matchFormat={matchFormat}
-											required={!retired}
-											value={score[1]}
-											handleBlur={(newVal) => { handleSetChange(newVal, 2) }}
-											key="set2"
-										/>
-										<SetInput
-											label="set 3"
-											id="set3"
-											matchFormat={matchFormat}
-											value={score[2]}
-											required={matchFormat === enums.MATCH_FORMATS.FAST4_5.val && !retired}
-											handleBlur={(newVal) => { handleSetChange(newVal, 3) }}
-											key="set3"
-										/>
-									</>
-								}
-							</Flex>
-							{enums.MATCH_FORMATS.FAST4_5.val === matchFormat &&
-								<Flex gap={'1rem'} direction={'row'}>
-									<SetInput
-										label="set 4"
-										id="set4"
-										matchFormat={matchFormat}
-										value={score[3]}
-										handleBlur={(e) => { handleSetChange(e, 4) }}
-										key="set4"
-									/>
-									<SetInput
-										label="set 5"
-										id="set5"
-										matchFormat={matchFormat}
-										value={score[4]}
-										handleBlur={(e) => { handleSetChange(e, 5) }}
-										key="set5"
-									/>
-								</Flex>
-							}
-						</Flex>
-						<span style={{ marginTop: '-.9rem', fontStyle: 'italic' }}>{sampleResult}</span>
-					</Flex>
-
+					<TextField
+						select
+						label="Opponent(s)"
+						fullWidth
+						error={error.opponents}
+						helperText={error.opponents ? 'Opponent is required' : ''}
+						value={Array.isArray(selectedOpponents) ? selectedOpponents : []}
+						onChange={(e) => setSelectedOpponents(Array.isArray(e.target.value) ? e.target.value : [e.target.value])}
+						multiple={isDoubles}
+						sx={{ mb: 2 }}
+					>
+						{opponents.map((opponent) => (
+							<MenuItem key={opponent.id} value={opponent.id}>
+								{opponent.name}
+							</MenuItem>
+						))}
+					</TextField>
+					<TextField
+						select
+						label="Court"
+						fullWidth
+						value={selectedCourt}
+						onChange={(e) => setSelectedCourt(e.target.value)}
+						sx={{ mb: 2 }}
+					>
+						{courts.map((court) => (
+							<MenuItem key={court.id} value={court.id}>
+								{court.name}</MenuItem>
+						))}
+					</TextField>
+				</Box>
+			),
+			handleNext: () => {
+				const playedOnError = !playedOn;
+				const opponentsError = selectedOpponents.length === 0;
+				setError({ playedOn: playedOnError, opponents: opponentsError });
+				return !playedOnError && !opponentsError;
+			},
+		},
+		{
+			label: 'Score Reporting',
+			content: (
+				<Box>
+					<Typography variant="h6">Report Score</Typography>
 					<FormControlLabel
-						label="Opponent retired"
 						control={
-							<Checkbox
-								checked={retired}
-								onChange={(e, val) => { setRetired(val) }}
+							<Switch
+								checked={winner}
+								onChange={() => setWinner(!winner)}
 							/>
 						}
+						label={winner ? 'I Won' : 'I Lost'}
+						sx={{ mb: 2 }}
 					/>
-				</>
-			)}
-			{/* Step: 'comment'  */}
-			{steps[stepIndex] === 'comment' && (
-				<TextAreaField
-					//label="comment"
-					id="match-comment"
-					className='comment'
-					onBlur={(e) => setComment(e.currentTarget.value)}
-					placeholder={`Any comments about the match?`}
-				/>
-			)}
-			{/* Step: 'confirm'  */}
-			{steps[stepIndex] === 'confirm' && (
-				<>Please confirm your match information.<br />
-					Then hit the submit button to post.</>
-			)}
-			{/* Step: 'confirm'  */}
-			{steps[stepIndex] === 'loading' && (
-				<h3><CircularProgress /> Saving match...</h3>
-			)}
-
-			<ErrorHandler error={error} />
-			<hr />
-			<Button onClick={() => handleStep(-1)} disabled={isDisabled('back')}>
-				Back
-			</Button>
-			<Button onClick={() => handleStep(1)} disabled={isDisabled('next')}>
-				Next
-				{/* {steps[stepIndex] === 'confirm' ? 'Submit' : 'Next'} */}
-			</Button>
-
-			{showSummary &&
-				<Box className='summaryBox'>
-					New match: <br />
-					{matchInfoText}
+					<FormControlLabel
+						control={
+							<Switch
+								checked={retired}
+								onChange={() => setRetired(!retired)}
+							/>
+						}
+						label={retired && winner
+							? (opponents.find(o => o.id === selectedOpponents[0])?.name || '') + 'retired'
+							: retired && !winner 
+								? participant.name + ' retired'
+								: ''
+						}
+						sx={{ mb: 2 }}
+					/>
+					<Typography variant="body1" sx={{ mb: 2 }}>
+						{winner
+							? `${participant.name} defeated ${opponents.find(o => o.id === selectedOpponents[0])?.name || ''} with score: ${sets.filter(set => set.value).map(set => set.value).join(', ')}`
+							: `${opponents.find(o => o.id === selectedOpponents[0])?.name || ''} defeated ${participant.name} with score: ${sets.filter(set => set.value).map(set => set.value).join(', ')}`}
+					</Typography>
+					{sets.map((set, index) => (
+						<SetInput
+							key={index}
+							value={set.value}
+							label={`Set ${set.set}`}
+							onChange={(newVal) => handleSetChange(index, newVal)}
+							sx={{ mb: 1, width: '7ch', mr: 0.3 }}
+						/>
+					))}
+					{sets.length < 5 && (
+						<IconButton onClick={addSet} color="primary" sx={{ mb: 2 }}>
+							+ Add Set
+						</IconButton>
+					)}
+					{setErrorText && (
+						<Typography color="error" variant="body2">{setErrorText}</Typography>
+					)}
 				</Box>
-			}
-			{steps[stepIndex] === 'confirm' &&
-				<Button onClick={() => { handleSubmit() }}>
-					Submit
-				</Button>
-			}
-		</form>
-	);
+			),
+			handleNext: () => validateSets(),
+		},
+		{
+			label: 'Comments',
+			content: (
+				<Box>
+					<Typography variant="h6">Add Comment</Typography>
+					<TextField
+						label="Comment"
+						fullWidth
+						multiline
+						rows={3}
+						value={comment}
+						onChange={(e) => setComment(e.target.value)}
+						sx={{ mb: 2 }}
+					/>
+					<FormControlLabel
+						control={
+							<Switch
+								checked={isPrivate}
+								onChange={() => setIsPrivate(!isPrivate)}
+							/>
+						}
+						label="Private Note"
+						sx={{ mb: 2 }}
+					/>
+					<InfoPopup>
+						A private note is only visible to you, while a public comment is shared with others.
+					</InfoPopup>
+				</Box>
+			),
+			handleNext: () => true,
+		},
+		{
+			label: 'Confirm and Submit',
+			content: (
+				<Box>
+					<Typography variant="h6">Review Match Details</Typography>
+					<Typography>Date: {playedOn}</Typography>
+					<Typography>{winner ? 'Winner' : 'Loser'}: {participant.name}</Typography>
+					<Typography>
+						{!winner ? 'Winner' : 'Loser'}: {selectedOpponents.map(id => opponents.find(o => o.id === id)?.name).join(', ')}
+
+					</Typography>
+					<Typography>Court: {courts.find(c => c.id === selectedCourt)?.name}</Typography>
+					<Typography>Score: {sets.filter(set => set.value).map(set => set.value).join(', ')}</Typography>
+					<Typography>Comment: <i>{comment}</i></Typography>
+					<Typography>Note Type: {isPrivate ? 'Private' : 'Public'}</Typography>
+				</Box>
+			),
+			handleNext: async () => {
+				const matchData = {
+					event: selectedEvent?.id || null,
+					played_on: playedOn,
+					opponents: selectedOpponents,
+					court: selectedCourt,
+					score: sets.filter(set => set.value).map(set => set.value).join(', '),
+					comment,
+					is_private: isPrivate,
+				};
+				await onSubmit(matchData);
+				return true;
+			},
+		},
+	];
+
+	return <Wizard steps={steps} submitText="Submit Match" handleSubmit={onSubmitMatch} />;
 };
 
-export { MatchEditor };
+export default MatchEditor;

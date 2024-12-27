@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { enums, helpers } from 'helpers';
 import Wizard from 'components/forms/Wizard/Wizard';
 import { Box, Button, CircularProgress, Container, Divider, TextField, Typography } from '@mui/material';
@@ -34,9 +34,11 @@ const Registration = () => {
   const [formState, setFormState] = useState({
     data: {
       email: '',
+      firstName: '',
+      lastName: '',
       name: '',
       age: '',
-      location: null,
+      location: '',
     },
     errors: {
     },
@@ -50,32 +52,51 @@ const Registration = () => {
       },
     }));
   };
+  useEffect(() => {
+    setFormState((prev) => ({
+      ...prev,
+      data: {
+        ...prev.data,
+        name: `${prev.data.firstName} ${prev.data.lastName}`.trim(),
+      },
+    }));
+  }, [formState.data.firstName, formState.data.lastName]);
 
   const validateField = (key, value) => {
-    let error = '';
-    console.log(key, value)
-
-    if (key === 'email' && !helpers.validateEmail(value))
-      error = 'Please provide a valid email.';
-    else if (key === 'name' && value.length < 3)
-      error = 'Please provide a longer name.';
-    else if (key === 'age' && !helpers.hasValue(value))
-      error = 'Please provide a birth year.';
-    else if (key === 'location' && !helpers.hasValue(value))
-      error = 'Please provide a location.';
-
-    updateFormState(key, error, true); // Set error
+    if (key === 'email' && !helpers.validateEmail(value)) return 'Please provide a valid email.';
+    if (key === 'firstName' && value.length < 1) return 'Please provide a longer name.';
+    if (key === 'lastName' && value.length < 1) return 'Please provide a longer name.';
+    if (key === 'age' && !helpers.hasValue(value)) return 'Please provide a birth year.';
+    if (key === 'location' && !helpers.hasValue(value)) return 'Please provide a location.';
+    return ''; // No error
   };
 
   const handleSubmit = () => {
-    alert('click')
+    navigate('/login')
+    // authAPI.login(formState.data.email, formState.data.password).then((user) => {
+    //   navigate('/profile/'+user.id)
+    // });
   }
 
   const errorCheck = () => {
-    Object.keys(formState.data).forEach((key) => validateField(key, formState.data[key]));
-    const hasErrors = Object.values(formState.errors).some((error) => error !== '');
+    let newErrors = {};
+    
+    Object.keys(formState.data).forEach((key) => {
+      const error = validateField(key, formState.data[key]);
+      if (error) {
+        newErrors[key] = error;
+      }
+    });
+    setFormState((prev) => ({
+      ...prev,
+      errors: newErrors,
+    }));
+    
+    const hasErrors = Object.values(newErrors).some((error) => helpers.hasValue(error));
+    console.log(newErrors, hasErrors);
     return hasErrors;
-  }
+  };
+  
   const handleGoogleRegistration = async () => {
     toggleLoader('step0')
 
@@ -160,7 +181,8 @@ const Registration = () => {
     // it's a new user
     else {
       updateFormState('email', data.player.email)
-      updateFormState('name', data.player.name)
+      updateFormState('firstName', data.player.firstName)
+      updateFormState('lastName', data.player.lastName)
       updateFormState('google_id', data.player.google_id)
       updateFormState('picture', data.player.picture)
       updateFormState('credentialResponse', credentialResponse)
@@ -183,7 +205,6 @@ const Registration = () => {
     console.log(formState, username)
     if (!helpers.validateEmail(username)) {
       updateFormState('email', 'Please provide a valid email.', true)
-      //setErrors((prev) => ({ ...prev, email: 'Please provide a valid email.' }));
       return;
     }
 
@@ -193,7 +214,6 @@ const Registration = () => {
     if (playerExists === false) {
       setShowWizard(true)
       updateFormState('email', username)
-      //setFormData((prevData) => ({ ...prevData, ['email']: username }));
     }
     else {
 
@@ -216,20 +236,13 @@ const Registration = () => {
             Try to either <a href="/login">login</a>, or to recover your password.
           </>
         ), true)
-        // setErrors((prevData) => ({
-        //   ...prevData, ['verified']: (
-        //     <>
-        //       The email {player.email} is already in use and verified. <br />
-        //       Try to either <a href="/login">login</a>, or to recover your password.
-        //     </>
-        //   )
-        // }))
       }
     }
     return playerExists;
   }
 
   const steps = [
+    //step 1
     {
       label: 'User Details',
       content: (
@@ -237,7 +250,8 @@ const Registration = () => {
           {showLoader['step1'] ?
             <CircularProgress />
             :
-            <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+            // <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+            <Box sx={{ mt: 2 }}>
               <UserInformation
                 formData={formState.data}
                 errors={formState.errors}
@@ -276,7 +290,6 @@ const Registration = () => {
             if (data.total_count > 0) {
               hasErrors = true
               updateFormState('existingPlayers', data.players, true)
-              //setErrors((prevData) => ({ ...prevData, ['existingPlayers']: data.players }))
             }
           }
         toggleLoader('step1')
@@ -356,8 +369,11 @@ const Registration = () => {
     },
     // step 3 - last step
     {
-      label: 'Verification',
-      description: 'To verify your email, follow the instructions in the verification email. After that you can log in to your account.',
+      label: 'Success',
+      description: 'You have successfully registered your account. ',
+      // comment out verification for now, perhaps add later on
+      // label: 'Verification',
+      // description: 'To verify your email, follow the instructions in the verification email. After that you can log in to your account.',
       content: (
         <>
           {/* <TextField label="Code" /> */}
