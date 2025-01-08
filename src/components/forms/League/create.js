@@ -66,7 +66,7 @@ const CreateLeague = () => {
     if (step === 0) {
       if (!formState.name) newErrors.name = 'League name is required.';
       if (!formState.startDate) newErrors.startDate = 'Start date is required.';
-      if (!formState.endDate) newErrors.endDate = 'End date is required.';
+      //if (!formState.endDate) newErrors.endDate = 'End date is required.';
     }
 
     setErrors(newErrors);
@@ -167,8 +167,6 @@ const CreateLeague = () => {
             fullWidth
             value={formState.endDate}
             onChange={(e) => updateFormState('endDate', e.target.value)}
-            required
-            InputLabelProps={{ shrink: true }}
             margin="normal"
             error={!!errors.endDate}
             helperText={errors.endDate}

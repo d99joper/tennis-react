@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box,
-  Button,
   Typography,
   Table,
   TableBody,
@@ -70,7 +69,7 @@ const LeagueScheduler = ({ event, schedule, onSave }) => {
 
   const handleDateChange = (index, newDate) => {
     const updatedSchedule = [...localSchedule];
-    updatedSchedule[index].scheduled_date = new Date(newDate).toISOString().split('T')[0];
+    updatedSchedule[index].scheduled_date = newDate;
     setLocalSchedule(updatedSchedule);
   };
 
