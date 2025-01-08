@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-import React, { useEffect, useState } from 'react';
-import { Box, Container, TextField, MenuItem, IconButton, Chip } from '@mui/material';
-=======
 import React, { useState } from 'react';
 import { Box, Container, TextField, MenuItem, IconButton, Chip, Autocomplete } from '@mui/material';
->>>>>>> d69d958561c7b57d612cf53b266b5991ba47ca7f
 import { CiSquarePlus, CiTrash } from "react-icons/ci";
 import clubAPI from 'api/services/club';
 
@@ -14,17 +9,11 @@ const EventRestrictions = ({ restrictions, updateRestrictions }) => {
   const [availableClubs, setAvailableClubs] = useState([]);
 
   const addRestriction = () => {
-<<<<<<< HEAD
-=======
     // Ensure restriction type and values are valid before adding
->>>>>>> d69d958561c7b57d612cf53b266b5991ba47ca7f
     if (!restrictionType) {
       console.error("Restriction type is required.");
       return;
     }
-<<<<<<< HEAD
-    const newRestrictions = { ...restrictions, [restrictionType]: restrictionValue };
-=======
 
     if (restrictionType === 'age') {
       if (!restrictionValue.type) {
@@ -55,7 +44,6 @@ const EventRestrictions = ({ restrictions, updateRestrictions }) => {
       ...restrictions,
       [restrictionType]: restrictionValue,
     };
->>>>>>> d69d958561c7b57d612cf53b266b5991ba47ca7f
     updateRestrictions(newRestrictions);
     setRestrictionType('');
     setRestrictionValue({});
@@ -67,40 +55,16 @@ const EventRestrictions = ({ restrictions, updateRestrictions }) => {
     updateRestrictions(updatedRestrictions);
   };
 
-<<<<<<< HEAD
   const renderRestrictionLabel = (key, value) => {
     if (key === 'age') {
       let retVal = `${key}: ${value.type}`;
       if (value.type === 'between') return `${retVal} ${value.min}-${value.max}`;
       if (value.type === 'under') return `${retVal} ${value.max}`;
       if (value.type === 'over') return `${retVal} ${value.min}`;
-=======
-  const fetchClubs = async () => {
-    try {
-      const clubs = await clubAPI.getClubs();
-      setAvailableClubs(clubs);
-    } catch (error) {
-      console.error('Failed to fetch clubs:', error);
-    }
-  };
-
-  const renderRestrictionLabel = (key, value) => {
-    if (key === 'age') {
-      console.log(value)
-      let retVal =  `${key}: ${value.type}`;
-      if(value.type === 'between') 
-        return `${retVal} ${value.min}-${value.max}`;
-      if(value.type === 'under') 
-        return `${retVal} ${value.max}`;
-      if(value.type === 'over') 
-        return `${retVal} ${value.min}`;
->>>>>>> d69d958561c7b57d612cf53b266b5991ba47ca7f
     }
     return `${key}: ${value.value || value.type || ''}`;
   };
 
-<<<<<<< HEAD
-=======
   const renderAgeFields = () => {
     switch (restrictionValue.type) {
       case 'between':
@@ -159,7 +123,6 @@ const EventRestrictions = ({ restrictions, updateRestrictions }) => {
     }
   };
 
->>>>>>> d69d958561c7b57d612cf53b266b5991ba47ca7f
   const renderRestrictionInput = () => {
     if (restrictionType === 'gender') {
       return (
@@ -222,7 +185,7 @@ const EventRestrictions = ({ restrictions, updateRestrictions }) => {
           getOptionLabel={(option) => option.name}
           onChange={(e, value) => setRestrictionValue({ value })}
           renderInput={(params) => <TextField {...params} label="Club" margin="normal" fullWidth />}
-          onFocus={fetchClubs}
+          //onFocus={fetchClubs}
         />
       );
     }
