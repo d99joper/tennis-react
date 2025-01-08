@@ -11,57 +11,61 @@ import {
   TableRow,
   TextField,
   Paper,
-  MenuItem,
+  Autocomplete,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Popover,
+  IconButton,
 } from '@mui/material';
 import leagueAPI from 'api/services/league';
+import eventAPI from 'api/services/event';
+import { CiTrash } from 'react-icons/ci';
 
-const LeagueScheduler = ({ event, setSchedule, onSave }) => {
+const LeagueScheduler = ({ event, schedule, onSave }) => {
   const [localSchedule, setLocalSchedule] = useState([]);
   const [loading, setLoading] = useState(false);
-  console.log(event)
-  // Reinitialize schedule when league updates
+  const [participants, setParticipants] = useState([]);
+  const [deleteMatchIndex, setDeleteMatchIndex] = useState(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isGenerateDialogOpen, setIsGenerateDialogOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [newMatch, setNewMatch] = useState({
+    round: '',
+    player1: null,
+    player2: null,
+    scheduled_date: '',
+  });
+
+  // Fetch participants on mount
   useEffect(() => {
-    if (Array.isArray(event.league_schedule)) {
-      setLocalSchedule(event.league_schedule);
+    const fetchParticipants = async () => {
+      setLoading(true);
+      try {
+        const data = await eventAPI.getParticipants(event.id, 0); // Fetch all participants
+        setParticipants(data.results);
+      } catch (error) {
+        console.error('Error fetching participants:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchParticipants();
+  }, [event.id]);
+
+  useEffect(() => {
+    if (Array.isArray(schedule)) {
+      setLocalSchedule(schedule);
     } else {
       setLocalSchedule([]);
     }
-  }, [event.league_schedule]);
+  }, [schedule]);
 
-  const handleGenerateSchedule = async () => {
-    try {
-      setLoading(true);
-      const data = await leagueAPI.generateSchedule(event.league_id);
-      if (data?.schedule) {
-        setSchedule(data.schedule);
-        setLocalSchedule([...data.schedule]); // Force the state update
-      } else {
-        console.error('Schedule data is missing in response.');
-      }
-    } catch (error) {
-      console.error('Failed to generate schedule:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  const handleUpdateSchedule = async () => {
-    try {
-      setLoading(true);
-      const data = await leagueAPI.updateSchedule(event.league_id, localSchedule);
-      console.log(data)
-      if (data?.schedule) {
-        setSchedule(data.schedule);
-        setLocalSchedule([...data.schedule]); // Force the state update
-        onSave();
-      } else {
-        console.error('Schedule data is missing in response.');
-      }
-    } catch (error) {
-      console.error('Failed to update schedule:', error);
-    } finally {
-      setLoading(false);
-    }
+  const sortSchedule = (newSchedule) => {
+    return [...newSchedule].sort((a, b) => a.round - b.round);
   };
 
   const handleDateChange = (index, newDate) => {
@@ -70,31 +74,102 @@ const LeagueScheduler = ({ event, setSchedule, onSave }) => {
     setLocalSchedule(updatedSchedule);
   };
 
-  const handlePlayerChange = (index, key, playerId) => {
+  const handlePlayerChange = (index, key, player) => {
     const updatedSchedule = [...localSchedule];
-    updatedSchedule[index][key] = {
-      ...updatedSchedule[index][key],
-      id: playerId,
-    };
+    updatedSchedule[index][key] = player;
     setLocalSchedule(updatedSchedule);
   };
 
-  // Check for reported matches to disable the button
-  const hasReportedMatches = localSchedule.some((match) => match.reported === true);
+  const handleDeleteClick = (e, index) => {
+    if (localSchedule[index].reported) {
+      setDeleteMatchIndex(index);
+      setAnchorEl(e.currentTarget);
+    }
+    else {
+      const updatedSchedule = localSchedule.filter((_, i) => i !== index);
+      setLocalSchedule(updatedSchedule);
+      handleUpdateSchedule(updatedSchedule);
+    }
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteConfirmation === 'DELETE') {
+      const updatedSchedule = localSchedule.filter((_, i) => i !== deleteMatchIndex);
+      setLocalSchedule(updatedSchedule);
+      handleUpdateSchedule(updatedSchedule);
+      handleClosePopover();
+    }
+  };
+
+  const handleClosePopover = () => {
+    setDeleteMatchIndex(null);
+    setDeleteConfirmation('');
+    setAnchorEl(null);
+  };
+
+  const handleAddMatch = () => {
+    const { round, player1, player2, scheduled_date } = newMatch;
+
+    if (!round || !player1 || !player2 || !scheduled_date) {
+      alert('Please fill in all fields.');
+      return;
+    }
+    const updatedSchedule = sortSchedule([...localSchedule, newMatch]);
+    setLocalSchedule(updatedSchedule);
+    setIsDialogOpen(false);
+    setNewMatch({ round: '', player1: null, player2: null, scheduled_date: '' });
+    handleUpdateSchedule(updatedSchedule);
+  };
+
+  const handleUpdateSchedule = async (updatedSchedule) => {
+    try {
+      setLoading(true);
+      const data = await leagueAPI.updateSchedule(event.league_id, updatedSchedule);
+      //setSchedule(data.schedule);
+      setLocalSchedule(data.schedule)
+      onSave(data.schedule);
+    } catch (error) {
+      console.error('Failed to update schedule:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGenerateSchedule = async () => {
+    try {
+      setLoading(true);
+      const data = await leagueAPI.generateSchedule(event.league_id);
+      setLocalSchedule(sortSchedule(data.schedule)); // Update local state
+      onSave(sortSchedule(data.schedule)); // Propagate to parent state
+      setIsGenerateDialogOpen(false); // Close confirmation dialog
+    } catch (error) {
+      console.error('Failed to generate schedule:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const hasReportedMatches = localSchedule.some((match) => match.reported);
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom>
-        Schedule Management
-      </Typography>
+      <Button
+        variant="contained"
+        color="warning"
+        onClick={() => setIsGenerateDialogOpen(true)}
+        disabled={hasReportedMatches || loading}
+        sx={{ mb: 2 }}
+      >
+        Generate New Schedule
+      </Button>
+      <br />
       <Button
         variant="contained"
         color="primary"
-        onClick={handleGenerateSchedule}
-        disabled={loading || hasReportedMatches}
+        onClick={() => setIsDialogOpen(true)}
         sx={{ mb: 2 }}
       >
-        Generate Schedule
+        Add Match
       </Button>
       <TableContainer component={Paper}>
         <Table>
@@ -103,66 +178,99 @@ const LeagueScheduler = ({ event, setSchedule, onSave }) => {
               <TableCell>Round</TableCell>
               <TableCell>Date</TableCell>
               <TableCell>Match</TableCell>
-              <TableCell>Result</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {localSchedule.map((match, index) => (
               <TableRow key={index}>
-                <TableCell>Round {match.round}</TableCell>
+                <TableCell>{`Round ${match.round}`}</TableCell>
                 <TableCell>
                   <TextField
                     type="date"
-                    value={match.scheduled_date ? new Date(match.scheduled_date).toISOString().split('T')[0] : ''}
+                    value={match.scheduled_date || ''}
                     onChange={(e) => handleDateChange(index, e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <TextField
-                      id="Player1"
-                      select
-                      label="Player 1"
-                      value={match.player1?.id || ''}
-                      onChange={(e) => handlePlayerChange(index, 'player1', e.target.value)}
-                      fullWidth
-                    >
-                      {event.participants?.results
-                        ?.filter((option) => option.content_object?.id !== match.player2?.id)
-                        .map((option) => (
-                          <MenuItem key={option.content_object.id} value={option.content_object.id}>
-                            {option.content_object.name}
-                          </MenuItem>
-                        ))}
-                    </TextField>
-                    <Typography variant="body1" sx={{ mx: 1 }}>
-                      vs
-                    </Typography>
-                    <TextField
-                      id="Player2"
-                      select
-                      label="Player 2"
-                      value={match.player2?.id || ''}
-                      onChange={(e) => handlePlayerChange(index, 'player2', e.target.value)}
-                      fullWidth
-                    >
-                      {event.participants?.restults
-                        ?.filter((option) => option.content_object.id !== match.player1?.id)
-                        .map((option) => (
-                          <MenuItem key={option.content_object.id} value={option.content_object.id}>
-                            {option.content_object.name}
-                          </MenuItem>
-                        ))}
-                    </TextField>
-                  </Box>
+                  <Autocomplete
+                    options={participants.filter(
+                      (option) => option.object_id !== match.player2?.id
+                    )}
+                    getOptionLabel={(option) => option.name || ''}
+                    value={match.player1 || null}
+                    onChange={(event, value) => handlePlayerChange(index, 'player1', value)}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Player 1" placeholder="Search Player" />
+                    )}
+                  />
+                  <Typography variant="body2" sx={{ mx: 1 }}>
+                    vs
+                  </Typography>
+                  <Autocomplete
+                    options={participants.filter(
+                      (option) => option.object_id !== match.player1?.id
+                    )}
+                    getOptionLabel={(option) => option.name || ''}
+                    value={match.player2 || null}
+                    onChange={(event, value) => handlePlayerChange(index, 'player2', value)}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Player 2" placeholder="Search Player" />
+                    )}
+                  />
                 </TableCell>
-                <TableCell>{match.result ? match.result : 'N/A'}</TableCell>
+                <TableCell>
+                  <IconButton
+                    onClick={(e) => handleDeleteClick(e, index)}
+                    color="error"
+                  >
+                    <CiTrash size={20} />
+                  </IconButton>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-      <Button
+      <Popover
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={handleClosePopover}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+      >
+        <Box p={2}>
+          <Typography variant="body1">
+            Type <strong>DELETE</strong> to confirm deletion:
+          </Typography>
+          <TextField
+            value={deleteConfirmation}
+            onChange={(e) => setDeleteConfirmation(e.target.value)}
+            fullWidth
+          />
+          <Box mt={2} display="flex" justifyContent="space-between">
+            <Button variant="outlined" onClick={handleClosePopover}>
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={handleConfirmDelete}
+              disabled={deleteConfirmation !== 'DELETE'}
+            >
+              Confirm
+            </Button>
+          </Box>
+        </Box>
+      </Popover>
+
+      {/* <Button
         variant="contained"
         color="secondary"
         onClick={handleUpdateSchedule}
@@ -170,7 +278,81 @@ const LeagueScheduler = ({ event, setSchedule, onSave }) => {
         sx={{ mt: 2 }}
       >
         Save Changes
-      </Button>
+      </Button> */}
+
+      {/* Add Match Dialog */}
+      <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
+        <DialogTitle>Add Match</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Round"
+            type="number"
+            fullWidth
+            value={newMatch.round}
+            onChange={(e) => setNewMatch({ ...newMatch, round: e.target.value })}
+            sx={{ mb: 2 }}
+          />
+          <Autocomplete
+            options={participants.filter(
+              (option) => option.object_id !== newMatch.player2?.id
+            )}
+            getOptionLabel={(option) => option.name || ''}
+            value={newMatch.player1}
+            onChange={(event, value) => setNewMatch({ ...newMatch, player1: value })}
+            renderInput={(params) => (
+              <TextField {...params} label="Player 1" placeholder="Search Player" />
+            )}
+            sx={{ mb: 2 }}
+          />
+          <Autocomplete
+            options={participants.filter(
+              (option) => option.object_id !== newMatch.player1?.id
+            )}
+            getOptionLabel={(option) => option.name || ''}
+            value={newMatch.player2}
+            onChange={(event, value) => setNewMatch({ ...newMatch, player2: value })}
+            renderInput={(params) => (
+              <TextField {...params} label="Player 2" placeholder="Search Player" />
+            )}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            label="Scheduled Date"
+            type="date"
+            fullWidth
+            value={newMatch.scheduled_date}
+            onChange={(e) => setNewMatch({ ...newMatch, scheduled_date: e.target.value })}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsDialogOpen(false)} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleAddMatch} color="primary">
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {/* Generate Schedule Confirmation Dialog */}
+      <Dialog
+        open={isGenerateDialogOpen}
+        onClose={() => setIsGenerateDialogOpen(false)}
+      >
+        <DialogTitle>Generate New Schedule</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to generate a new schedule? This will overwrite the existing schedule.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsGenerateDialogOpen(false)} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleGenerateSchedule} color="primary">
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

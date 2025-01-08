@@ -52,6 +52,7 @@ const eventAPI = {
       throw new Error(response.status + ': Failed to update event')
   },
 
+  // 0=get all participants
   getParticipants: async function (id, page) {
     const requestOptions = authAPI.getRequestOptions('GET');
     const response = await fetch(eventsUrl + id +'/participants?page='+page, requestOptions)
