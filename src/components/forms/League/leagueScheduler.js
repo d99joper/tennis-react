@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box,
-  Button,
   Typography,
   Table,
   TableBody,
@@ -11,91 +10,69 @@ import {
   TableRow,
   TextField,
   Paper,
+  CircularProgress,
   MenuItem,
+  Select,
+  Button,
 } from '@mui/material';
-import leagueAPI from 'api/services/league';
+import usePaginatedParticipants from 'helpers/usePaginatedParticipants';
 
-const LeagueScheduler = ({ event, setSchedule, onSave }) => {
+const LeagueScheduler = ({ event, setSchedule }) => {
   const [localSchedule, setLocalSchedule] = useState([]);
-  const [loading, setLoading] = useState(false);
-  console.log(event)
-  // Reinitialize schedule when league updates
+  const [searchTerm, setSearchTerm] = useState('');
+  const { participants, loadMore, loading } = usePaginatedParticipants(event.league_id);
+  const [allParticipants, setAllParticipants] = useState([]);
+
+  // Extract existing participants from the schedule
   useEffect(() => {
     if (Array.isArray(event.league_schedule)) {
       setLocalSchedule(event.league_schedule);
-    } else {
-      setLocalSchedule([]);
+
+      const extractedParticipants = new Map();
+      event.league_schedule.forEach((match) => {
+        [match.player1, match.player2].forEach((player) => {
+          if (player?.id) extractedParticipants.set(player.id, player);
+        });
+      });
+      setAllParticipants(Array.from(extractedParticipants.values()));
     }
   }, [event.league_schedule]);
 
-  const handleGenerateSchedule = async () => {
-    try {
-      setLoading(true);
-      const data = await leagueAPI.generateSchedule(event.league_id);
-      if (data?.schedule) {
-        setSchedule(data.schedule);
-        setLocalSchedule([...data.schedule]); // Force the state update
-      } else {
-        console.error('Schedule data is missing in response.');
-      }
-    } catch (error) {
-      console.error('Failed to generate schedule:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  const handleUpdateSchedule = async () => {
-    try {
-      setLoading(true);
-      const data = await leagueAPI.updateSchedule(event.league_id, localSchedule);
-      console.log(data)
-      if (data?.schedule) {
-        setSchedule(data.schedule);
-        setLocalSchedule([...data.schedule]); // Force the state update
-        onSave();
-      } else {
-        console.error('Schedule data is missing in response.');
-      }
-    } catch (error) {
-      console.error('Failed to update schedule:', error);
-    } finally {
-      setLoading(false);
-    }
+  // Merge fetched participants with existing ones
+  useEffect(() => {
+    const mergedParticipants = new Map();
+    allParticipants.forEach((p) => mergedParticipants.set(p.id, p));
+    participants.forEach((p) => mergedParticipants.set(p.id, p));
+    setAllParticipants(Array.from(mergedParticipants.values()));
+  }, [participants]);
+
+  const handlePlayerChange = (index, key, playerId) => {
+    const selectedPlayer = allParticipants.find((p) => p.id === playerId);
+    const updatedSchedule = [...localSchedule];
+    updatedSchedule[index][key] = selectedPlayer;
+    setLocalSchedule(updatedSchedule);
   };
 
   const handleDateChange = (index, newDate) => {
     const updatedSchedule = [...localSchedule];
-    updatedSchedule[index].scheduled_date = new Date(newDate).toISOString().split('T')[0];
+    updatedSchedule[index].scheduled_date = newDate;
     setLocalSchedule(updatedSchedule);
   };
 
-  const handlePlayerChange = (index, key, playerId) => {
-    const updatedSchedule = [...localSchedule];
-    updatedSchedule[index][key] = {
-      ...updatedSchedule[index][key],
-      id: playerId,
-    };
-    setLocalSchedule(updatedSchedule);
-  };
+  const handleInputChange = (event) => {
+    const value = event.target.value;
+    setSearchTerm(value);
 
-  // Check for reported matches to disable the button
-  const hasReportedMatches = localSchedule.some((match) => match.reported === true);
+    if (value.length >= 2) {
+      loadMore(value); // Fetch additional participants based on input
+    }
+  };
 
   return (
     <Box>
       <Typography variant="h5" gutterBottom>
         Schedule Management
       </Typography>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleGenerateSchedule}
-        disabled={loading || hasReportedMatches}
-        sx={{ mb: 2 }}
-      >
-        Generate Schedule
-      </Button>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -107,70 +84,91 @@ const LeagueScheduler = ({ event, setSchedule, onSave }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {localSchedule.map((match, index) => (
-              <TableRow key={index}>
-                <TableCell>Round {match.round}</TableCell>
-                <TableCell>
-                  <TextField
-                    type="date"
-                    value={match.scheduled_date ? new Date(match.scheduled_date).toISOString().split('T')[0] : ''}
-                    onChange={(e) => handleDateChange(index, e.target.value)}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {localSchedule.map((match, index) => {
+              // Filter player options for each dropdown
+              const player1Options = allParticipants.filter(
+                (player) => player.id !== match.player2?.id
+              );
+              const player2Options = allParticipants.filter(
+                (player) => player.id !== match.player1?.id
+              );
+
+              return (
+                <TableRow key={index}>
+                  <TableCell>Round {match.round}</TableCell>
+                  <TableCell>
                     <TextField
-                      id="Player1"
-                      select
-                      label="Player 1"
+                      type="date"
+                      value={match.scheduled_date || ''}
+                      onChange={(e) => handleDateChange(index, e.target.value)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Select
                       value={match.player1?.id || ''}
                       onChange={(e) => handlePlayerChange(index, 'player1', e.target.value)}
+                      displayEmpty
                       fullWidth
                     >
-                      {event.participants?.results
-                        ?.filter((option) => option.content_object?.id !== match.player2?.id)
-                        .map((option) => (
-                          <MenuItem key={option.content_object.id} value={option.content_object.id}>
-                            {option.content_object.name}
-                          </MenuItem>
-                        ))}
-                    </TextField>
+                      <MenuItem value="" disabled>
+                        Select Player 1
+                      </MenuItem>
+                      {player1Options.map((player) => (
+                        <MenuItem key={player.id} value={player.id}>
+                          {player.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
                     <Typography variant="body1" sx={{ mx: 1 }}>
                       vs
                     </Typography>
-                    <TextField
-                      id="Player2"
-                      select
-                      label="Player 2"
+                    <Select
                       value={match.player2?.id || ''}
                       onChange={(e) => handlePlayerChange(index, 'player2', e.target.value)}
+                      displayEmpty
                       fullWidth
                     >
-                      {event.participants?.restults
-                        ?.filter((option) => option.content_object.id !== match.player1?.id)
-                        .map((option) => (
-                          <MenuItem key={option.content_object.id} value={option.content_object.id}>
-                            {option.content_object.name}
-                          </MenuItem>
-                        ))}
-                    </TextField>
-                  </Box>
-                </TableCell>
-                <TableCell>{match.result ? match.result : 'N/A'}</TableCell>
-              </TableRow>
-            ))}
+                      <MenuItem value="" disabled>
+                        Select Player 2
+                      </MenuItem>
+                      {player2Options.map((player) => (
+                        <MenuItem key={player.id} value={player.id}>
+                          {player.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </TableCell>
+                  <TableCell>{match.result || 'N/A'}</TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
-      <Button
-        variant="contained"
-        color="secondary"
-        onClick={handleUpdateSchedule}
-        disabled={loading}
-        sx={{ mt: 2 }}
-      >
-        Save Changes
-      </Button>
+      <Box sx={{ mt: 2 }}>
+        <TextField
+          label="Search Participants"
+          value={searchTerm}
+          onChange={handleInputChange}
+          fullWidth
+          placeholder="Type to search for participants"
+          InputProps={{
+            endAdornment: loading ? <CircularProgress size={20} /> : null,
+          }}
+        />
+      </Box>
+      <Box sx={{ mt: 2 }}>
+        <Typography variant="body2">Type to dynamically add more participants.</Typography>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => setSchedule(localSchedule)}
+          disabled={loading}
+          sx={{ mt: 2 }}
+        >
+          Save Changes
+        </Button>
+      </Box>
     </Box>
   );
 };

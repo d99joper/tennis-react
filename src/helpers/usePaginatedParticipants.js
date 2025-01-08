@@ -7,10 +7,10 @@ const usePaginatedParticipants = (eventId) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchParticipants = async (page = 1) => {
+  const fetchParticipants = async (query=null, page = 1) => {
     try {
       setLoading(true);
-      const response = await eventAPI.getParticipants(eventId, page);
+      const response = await eventAPI.getParticipants(eventId, query, page);
       setParticipants((prev) => [...prev, ...response.results]);
       setNextPage(page < response.total_pages ? page + 1 : null); // Determine if more pages exist
     } catch (err) {
