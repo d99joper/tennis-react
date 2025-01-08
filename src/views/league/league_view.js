@@ -27,7 +27,6 @@ import AddParticipants from 'components/forms/League/addParticipants';
 import ScheduleView from './schedule_view';
 import { GiPencil } from 'react-icons/gi';
 import LeagueAdminTools from 'components/forms/League/adminTools';
-import Wizard from 'components/forms/Wizard/Wizard';
 import usePaginatedParticipants from 'helpers/usePaginatedParticipants';
 
 const LeagueViewPage = () => {
@@ -89,23 +88,23 @@ const LeagueViewPage = () => {
     setSelectedParticipant(null);
   };
 
-  const addParticipants = () => {
-    const leagueToUpdate = {
-      id: event.id,
-      participants_data: [
-        { id: 'e3335b3d-a6e9-4f7d-aca3-0aa62b3414cc' },
-        { id: '000ef295-2298-4b1a-8ea2-15c4563971d3' },
-        { id: "00121742-17a8-4183-92e2-9c1697042696" },
-        { id: "001e8f31-42a8-4d53-ad03-bb55ed9db669" },
-        { id: "004f9bdd-cf06-495a-a862-b6523c4c9658" },
-        { id: "00504ee0-f6fa-49f2-b1e1-b7a56b701ab0" },
-        { id: "0069542e-d7ca-43e8-9bb2-a2564a7fd068" },
-      ],
-      admins_data: [{ id: 'a0ee264b-9486-49dc-908a-ee9b7d0485aa' }]
-    }
-    console.log(leagueToUpdate)
-    eventAPI.updateEvent(leagueToUpdate);
-  }
+  // const addParticipants = () => {
+  //   const leagueToUpdate = {
+  //     id: event.id,
+  //     participants_data: [
+  //       { id: 'e3335b3d-a6e9-4f7d-aca3-0aa62b3414cc' },
+  //       { id: '000ef295-2298-4b1a-8ea2-15c4563971d3' },
+  //       { id: "00121742-17a8-4183-92e2-9c1697042696" },
+  //       { id: "001e8f31-42a8-4d53-ad03-bb55ed9db669" },
+  //       { id: "004f9bdd-cf06-495a-a862-b6523c4c9658" },
+  //       { id: "00504ee0-f6fa-49f2-b1e1-b7a56b701ab0" },
+  //       { id: "0069542e-d7ca-43e8-9bb2-a2564a7fd068" },
+  //     ],
+  //     admins_data: [{ id: 'a0ee264b-9486-49dc-908a-ee9b7d0485aa' }]
+  //   }
+  //   console.log(leagueToUpdate)
+  //   eventAPI.updateEvent(leagueToUpdate);
+  // }
 
   if (!event) {
     return <Typography variant="h6">Loading...</Typography>;
@@ -118,7 +117,7 @@ const LeagueViewPage = () => {
       </Typography>
       <Typography variant="body1" color="text.secondary" gutterBottom>
         {event.description}
-        <Button onClick={() => { addParticipants() }}>Add participants and admins</Button>
+        {/* <Button onClick={() => { addParticipants() }}>Add participants and admins</Button> */}
       </Typography>
 
       <Tabs

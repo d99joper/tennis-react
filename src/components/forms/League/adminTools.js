@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import leagueAPI from 'api/services/league';
 import { eventAPI } from 'api/services';
+import EventRestrictions from './restrictions';
 
 const LeagueAdminTools = ({ league, participants, setLeague }) => {
   const [selectedSection, setSelectedSection] = useState('settings');
@@ -31,7 +32,7 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
   const [startDate, setStartDate] = useState(league.start_date || '');
   const [endDate, setEndDate] = useState(league.end_date || '');
   const [description, setDescription] = useState(league.description || '');
-  
+
   const handleSendInvites = async () => {
     if (selectedPlayers.length === 0 || !message) return;
     try {
@@ -89,7 +90,12 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
         <List component="nav">
           <ListItem disablePadding>
             <ListItemButton selected={selectedSection === 'settings'} onClick={() => setSelectedSection('settings')}>
-              <ListItemText primary="League Settings" />
+              <ListItemText primary="General Settings" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton selected={selectedSection === 'restrictions'} onClick={() => setSelectedSection('restrictions')}>
+              <ListItemText primary="Restrictions" />
             </ListItemButton>
           </ListItem>
           <Divider />
@@ -147,81 +153,93 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
         )}
 
         {/* League Settings Section */}
-        {selectedSection === 'settings' && (
+        {selectedSection === 'restrictions' && (
           <Box>
-            <Typography variant="h6">Update League Settings</Typography>
-            <TextField
-              label="Max Participants"
-              type="number"
-              value={maxParticipants}
-              onChange={(e) => setMaxParticipants(e.target.value)}
-              fullWidth
-              sx={{ mb: 2 }}
+            <EventRestrictions
+              restrictions={league.restrictions}
+              updateRestrictions={(newRestrictions) => {
+                setRestrictions(newRestrictions)
+              }}
             />
-            <TextField
-              label="Start Date"
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              fullWidth
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              label="End Date"
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              fullWidth
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              label="Description"
-              multiline
-              rows={4}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              fullWidth
-              sx={{ mb: 2 }}
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleUpdateSettings}
-              disabled={loading}
-            >
-              Update League
-            </Button>
-          </Box>
+            <Button onClick={handleUpdateSettings}>Update</Button>
+            </Box>
         )}
+            {/* League Settings Section */}
+            {selectedSection === 'settings' && (
+              <Box>
+                <Typography variant="h6">Update League Settings</Typography>
+                <TextField
+                  label="Max Participants"
+                  type="number"
+                  value={maxParticipants}
+                  onChange={(e) => setMaxParticipants(e.target.value)}
+                  fullWidth
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  label="Start Date"
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  fullWidth
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  label="End Date"
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  fullWidth
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  label="Description"
+                  multiline
+                  rows={4}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  fullWidth
+                  sx={{ mb: 2 }}
+                />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleUpdateSettings}
+                  disabled={loading}
+                >
+                  Update League
+                </Button>
+              </Box>
+            )}
 
-        {/* Send Notifications Section */}
-        {selectedSection === 'notifications' && (
-          <Box>
-            <Typography variant="h6">Send Notifications</Typography>
-            <TextField
-              label="Message to Players"
-              multiline
-              rows={4}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              fullWidth
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSendNotifications}
-              disabled={loading || !message}
-              sx={{ mt: 2 }}
-            >
-              Send Notifications
-            </Button>
+            {/* Send Notifications Section */}
+            {selectedSection === 'notifications' && (
+              <Box>
+                <Typography variant="h6">Send Notifications</Typography>
+                <TextField
+                  label="Message to Players"
+                  multiline
+                  rows={4}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  fullWidth
+                />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleSendNotifications}
+                  disabled={loading || !message}
+                  sx={{ mt: 2 }}
+                >
+                  Send Notifications
+                </Button>
+              </Box>
+            )}
           </Box>
-        )}
-      </Box>
     </Box>
-  );
+      );
 };
 
-export default LeagueAdminTools;
+      export default LeagueAdminTools;
