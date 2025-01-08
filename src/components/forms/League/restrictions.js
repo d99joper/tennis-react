@@ -1,27 +1,37 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Container, TextField, MenuItem, IconButton, Chip } from '@mui/material';
 import { CiSquarePlus, CiTrash } from "react-icons/ci";
 
 const EventRestrictions = ({ restrictions, updateRestrictions }) => {
   const [restrictionType, setRestrictionType] = useState('');
   const [restrictionValue, setRestrictionValue] = useState({});
+  const [availableClubs, setAvailableClubs] = useState([]);
 
   const addRestriction = () => {
-    if (restrictionType && Object.keys(restrictionValue).length > 0) {
-      const newRestrictions = {
-        ...restrictions,
-        [restrictionType]: restrictionValue,
-      };
-      updateRestrictions(newRestrictions);
-      setRestrictionType('');
-      setRestrictionValue({});
+    if (!restrictionType) {
+      console.error("Restriction type is required.");
+      return;
     }
+    const newRestrictions = { ...restrictions, [restrictionType]: restrictionValue };
+    updateRestrictions(newRestrictions);
+    setRestrictionType('');
+    setRestrictionValue({});
   };
 
   const removeRestriction = (key) => {
     const updatedRestrictions = { ...restrictions };
     delete updatedRestrictions[key];
     updateRestrictions(updatedRestrictions);
+  };
+
+  const renderRestrictionLabel = (key, value) => {
+    if (key === 'age') {
+      let retVal = `${key}: ${value.type}`;
+      if (value.type === 'between') return `${retVal} ${value.min}-${value.max}`;
+      if (value.type === 'under') return `${retVal} ${value.max}`;
+      if (value.type === 'over') return `${retVal} ${value.min}`;
+    }
+    return `${key}: ${value.value || value.type || ''}`;
   };
 
   const renderRestrictionInput = () => {
@@ -150,7 +160,7 @@ const EventRestrictions = ({ restrictions, updateRestrictions }) => {
         {Object.entries(restrictions).map(([key, value]) => (
           <Chip
             key={key}
-            label={`${key}: ${typeof value === 'object' ? JSON.stringify(value) : value}`}
+            label={renderRestrictionLabel(key, value)}
             onDelete={() => removeRestriction(key)}
             deleteIcon={<CiTrash />}
             color="primary"

@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import leagueAPI from 'api/services/league';
 import { eventAPI } from 'api/services';
+import EventRestrictions from './restrictions';
 
 const LeagueAdminTools = ({ league, participants, setLeague }) => {
   const [selectedSection, setSelectedSection] = useState('settings');
@@ -31,7 +32,7 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
   const [startDate, setStartDate] = useState(league.start_date || '');
   const [endDate, setEndDate] = useState(league.end_date || '');
   const [description, setDescription] = useState(league.description || '');
-  
+
   const handleSendInvites = async () => {
     if (selectedPlayers.length === 0 || !message) return;
     try {
@@ -89,7 +90,13 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
         <List component="nav">
           <ListItem disablePadding>
             <ListItemButton selected={selectedSection === 'settings'} onClick={() => setSelectedSection('settings')}>
-              <ListItemText primary="League Settings" />
+              <ListItemText primary="General Settings" />
+            </ListItemButton>
+          </ListItem>
+          <Divider />
+          <ListItem disablePadding>
+            <ListItemButton selected={selectedSection === 'restrictions'} onClick={() => setSelectedSection('restrictions')}>
+              <ListItemText primary="Restrictions" />
             </ListItemButton>
           </ListItem>
           <Divider />
@@ -196,6 +203,18 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
           </Box>
         )}
 
+        {/* Send Notifications Section */}
+        {selectedSection === 'restrictions' && (
+          <Box>
+            <EventRestrictions 
+              restrictions={league.restrictions} 
+              updateRestrictions={(newRestrictions) => {
+                setRestrictions(newRestrictions);
+                handleUpdateSettings();
+              }} 
+            />
+          </Box>
+        )}
         {/* Send Notifications Section */}
         {selectedSection === 'notifications' && (
           <Box>

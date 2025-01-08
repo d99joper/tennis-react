@@ -29,6 +29,7 @@ import { GiPencil } from 'react-icons/gi';
 import LeagueAdminTools from 'components/forms/League/adminTools';
 import Wizard from 'components/forms/Wizard/Wizard';
 import usePaginatedParticipants from 'helpers/usePaginatedParticipants';
+import { MdClose } from 'react-icons/md';
 
 const LeagueViewPage = () => {
   const theme = useTheme();
@@ -193,20 +194,26 @@ const LeagueViewPage = () => {
           <Typography variant="h5" gutterBottom>
             Schedule &nbsp;&nbsp;
             {event.is_admin &&
-              <GiPencil className='pointer' onClick={() => setEditSchedule(!editSchedule)} />
+              editSchedule 
+                ? <MdClose className='pointer' onClick={() => setEditSchedule(false)} />
+                : <GiPencil className='pointer' onClick={() => setEditSchedule(true)} />
             }
           </Typography>
 
           {editSchedule
             ? <LeagueScheduler
               event={event}
-              setEvent={setEvent}
-              setStandings={setStandings}
-              setSchedule={setSchedule}
-              setMatches={setMatches}
-              onSave={() => setEditSchedule(!editSchedule)}
+              schedule={schedule}
+              // setEvent={setEvent}
+              // setSchedule={setSchedule}
+              // setMatches={setMatches}
+              onSave={(newSchedule, keepOpen=true) => {
+                setSchedule(newSchedule)
+                //setEditSchedule(keepOpen)
+                setEvent((prev) => ({ ...prev, league_schedule: newSchedule}));
+              }}
             />
-            : <ScheduleView schedule={event.league_schedule} />
+            : <ScheduleView schedule={schedule} />
           }
 
         </Box>
