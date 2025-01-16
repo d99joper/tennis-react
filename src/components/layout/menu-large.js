@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import MuiAppBar from '@mui/material/AppBar';
 import MuiDrawer from '@mui/material/Drawer'
 import {
+  AppBar,
   Divider,
   IconButton,
   List,
@@ -10,7 +11,8 @@ import {
   ListItemIcon,
   ListItemText,
   styled,
-  Toolbar
+  Toolbar,
+  useMediaQuery
 } from '@mui/material';
 import { BsSearch } from 'react-icons/bs'
 import { SlUser } from 'react-icons/sl';
@@ -22,40 +24,37 @@ import { BiLogInCircle, BiLogOutCircle } from 'react-icons/bi'
 import { GiWhistle } from 'react-icons/gi';
 import { Flex } from '@aws-amplify/ui-react';
 import authAPI from 'api/auth';
+import { useTheme } from '@emotion/react';
+
+const drawerWidthLarge = 240;
+const drawerWidthSmall = 60;
 
 const LargeMenu = (props) => {
   //console.log("largeMenu")
-  //const theme = useTheme()
-  const [open, setOpen] = useState(true);
-  const drawerWidth = 240
+  const theme = useTheme()
+  const isLargeScreen = useMediaQuery(theme.breakpoints.up('md'));
+  const [drawerWidth, setDrawerWidth] = useState(isLargeScreen ? drawerWidthLarge : drawerWidthSmall);
+  const [open, setOpen] = useState(isLargeScreen);
   const prevLocation = useLocation()
   const navigate = useNavigate()
 
-  const handleDrawerOpenClose = () => {
-    console.log('open-close', !open)
-    setOpen(!open);
-  }
+  const handleDrawerToggle = () => {
+    setOpen((prev) => !prev);
+    setDrawerWidth((prev) => (prev === drawerWidthLarge ? drawerWidthSmall : drawerWidthLarge));
+  };
 
   useEffect(() => {
-    function updateDrawer() {
-      document.body.style.paddingLeft = open ? '240px' : '60px'// `${marginSizes[currentScreen][strOpen].margin}px` //open ? drawerWidth : 0
+    setDrawerWidth(open ? drawerWidthLarge : drawerWidthSmall);
+    const appDiv = document.getElementById("app");
+    if (appDiv) {
+      appDiv.style.marginLeft = `${drawerWidth}px`; // Dynamically adjust the margin of the #app container
     }
+  }, [drawerWidth, open]);
 
-    function handleResize() {
-      updateDrawer()
-    }
-    // Add event listener
-    window.addEventListener("resize", handleResize)
-    // Call handler right away so state gets updated with initial window size
-    handleResize()
-    // Remove event listener on cleanup
-    return () => window.removeEventListener("resize", handleResize)
-
-  }, [open])
 
   const openedMixin = (theme) => ({
     width: drawerWidth,
-    transition: theme.transitions.create('all', {
+    transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
@@ -63,15 +62,12 @@ const LargeMenu = (props) => {
   });
 
   const closedMixin = (theme) => ({
-    transition: theme.transitions.create('all', {
+    transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
     overflowX: 'hidden',
-    width: `calc(${theme.spacing(7)} + 1px)`,
-    [theme.breakpoints.up('sm')]: {
-      width: `calc(${theme.spacing(8)} + 1px)`,
-    },
+    width: drawerWidth,
   });
 
   const DrawerHeader = styled('div')(({ theme }) => ({
@@ -80,25 +76,8 @@ const LargeMenu = (props) => {
     justifyContent: 'flex-end',
     padding: theme.spacing(0, 1),
     // necessary for content to be below app bar
-    ...theme.mixins.toolbar,
+    //...theme.mixins.toolbar,
   }));
-
-  const AppBar = styled(MuiAppBar, { shouldForwardProp: (prop) => prop !== 'open', })
-    (({ theme, open }) => ({
-      zIndex: theme.zIndex.drawer + 1,
-      transition: theme.transitions.create(['width', 'margin'], {
-        easing: theme.transitions.easing.easeInOut,
-        duration: theme.transitions.duration.leavingScreen,
-      }),
-      ...(open && {
-        marginLeft: drawerWidth,
-        width: `calc(100% - ${drawerWidth}px)`,
-        transition: theme.transitions.create(['width', 'margin'], {
-          easing: theme.transitions.easing.easeInOut,
-          duration: theme.transitions.duration.enteringScreen,
-        }),
-      }),
-    }));
 
   //const Drawer = styled(MuiDrawer)(
   const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
@@ -107,6 +86,18 @@ const LargeMenu = (props) => {
       flexShrink: 0,
       whiteSpace: 'nowrap',
       boxSizing: 'border-box',
+      position: 'fixed',
+      // transition: theme.transitions.create("width", {
+      //   easing: theme.transitions.easing.sharp,
+      //   duration: 1000,
+      // }),
+      // "& .MuiDrawer-paper": {
+      //   width: drawerWidth,
+      //   transition: theme.transitions.create("width", {
+      //     easing: theme.transitions.easing.sharp,
+      //     duration: 1000,
+      //   }),
+      // },
       ...(open && {
         ...openedMixin(theme),
         '& .MuiDrawer-paper': openedMixin(theme),
@@ -131,8 +122,8 @@ const LargeMenu = (props) => {
   }
 
   return (
-    <AppBar position="fixed" open={open} className='banner'>
-      <Toolbar>
+    <AppBar position="static" elevation={0} open={open} sx={{ backgroundColor: 'transparent' }}>
+      <Toolbar className='banner'>
         <div className='banner-title'>
           <h1>My Tennis Space</h1>
         </div>
@@ -140,9 +131,10 @@ const LargeMenu = (props) => {
           <Drawer
             variant={"permanent"}
             open={open}
+            anchor='left'
           >
             <DrawerHeader>
-              <span className={'drawer-puller'} onClick={handleDrawerOpenClose} >
+              <span className={'drawer-puller'} onClick={handleDrawerToggle} >
                 {open ?
                   <IconButton>
                     <AiOutlineMenuFold size="1.5rem" />
@@ -226,10 +218,12 @@ const LargeMenu = (props) => {
         <div className='banner-settings'>
           {props.isLoggedIn === true ?
             <Flex direction={"row"} gap="1rem">
-              <span>
-                <Link to={`/profile/${props.currentUser?.id}`} className='bannerLink'>{props.currentUser?.name}</Link>
-              </span>
-              <Link  className='bannerLink' onClick={handleLogout}>
+              {isLargeScreen &&
+                <span>
+                  <Link to={`/profile/${props.currentUser?.id}`} className='bannerLink'>{props.currentUser?.name}</Link>
+                </span>
+              }
+              <Link className='bannerLink' onClick={handleLogout}>
                 <BiLogOutCircle
                   title="Logout"
                   size={'1.5rem'}

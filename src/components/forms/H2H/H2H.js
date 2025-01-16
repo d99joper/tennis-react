@@ -1,9 +1,8 @@
-import { Badge, Card, Divider, Flex, Grid, Image, Loader, Table, TableBody, TableCell, TableHead, TableRow, Text, View } from "@aws-amplify/ui-react";
+import { Card, Divider, Flex, Grid, Loader, Text, View } from "@aws-amplify/ui-react";
 import React, { useEffect, useState } from "react";
-import { SlUser } from "react-icons/sl";
 import './H2H.css'
 import { userHelper as uf } from "helpers";
-import { Match, Matches, ProfileImage } from "../index";
+import { Match, ProfileImage } from "../index";
 import { playerAPI } from "api/services";
 
 const H2H = ({ winners, losers, ...props }) => {
@@ -30,7 +29,7 @@ const H2H = ({ winners, losers, ...props }) => {
 					<View className={"profileImageContainer_100"}>
 						<ProfileImage player={data.player1} size={100} />
 					</View>
-					<Text marginLeft={'.25rem'}>{uf.SetPlayerName(data.player1)}</Text>
+					<Text marginLeft={'.25rem'}>{uf.SetPlayerName([data.player1])}</Text>
 				</Card>
 
 				{/*** vs ****/}
@@ -57,7 +56,7 @@ const H2H = ({ winners, losers, ...props }) => {
 					<View className={"profileImageContainer_100"}>
 						<ProfileImage player={data.player2} size={100} />
 					</View>
-					<Text marginLeft={'.25rem'}>{uf.SetPlayerName(data.player2)}</Text>
+					<Text marginLeft={'.25rem'}>{uf.SetPlayerName([data.player2])}</Text>
 				</Card>
 
 				{/*** Stats section ****/}
@@ -90,28 +89,6 @@ const H2H = ({ winners, losers, ...props }) => {
 						/>
 					) : null}
 				</Flex>
-				{/* <Table columnStart={1} columnEnd={-1}>
-					<TableHead>
-						<TableRow backgroundColor={'#555'} borderRadius="5px">
-							<TableCell as="th" color="white">Played On</TableCell>
-							{// <TableCell as="th" color="white">Ladder</TableCell> 
-							}
-							<TableCell as="th" color="white">Winner</TableCell>
-							<TableCell as="th" color="white">Score</TableCell>
-						</TableRow>
-					</TableHead>
-					<TableBody>
-						{data ? data.matches.map(m =>
-							<TableRow key={m.id} className={m.winner[0].id === data.player1.id ? "player1" : "player2"}>
-								<TableCell as="td">{m.played_on}</TableCell>
-								{// <TableCell as="td">{m.ladder.name}</TableCell> 
-								}
-								<TableCell as="td">{m.winner[0].id === data.player1.id ? data.player1.name : data.player2.name}</TableCell>
-								<TableCell as="td">{m.score}</TableCell>
-							</TableRow>
-						) : null}
-					</TableBody>
-				</Table> */}
 
 			</Grid>
 			: <h2><Loader /> Loading</h2>

@@ -4,31 +4,22 @@ import {
   Tabs,
   Tab,
   Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   useMediaQuery,
   Grid2,
   Button,
-  ListItem,
-  List,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate, useParams } from 'react-router-dom';
 import MyModal from 'components/layout/MyModal';
-import { MatchEditor, ProfileImage } from 'components/forms';
+import { InfoPopup, MatchEditor, Matches, ProfileImage } from 'components/forms';
 import LeagueScheduler from '../../components/forms/League/leagueScheduler';
 import { authAPI, eventAPI } from 'api/services';
 import AddParticipants from 'components/forms/League/addParticipants';
 import ScheduleView from './schedule_view';
 import { GiPencil } from 'react-icons/gi';
 import LeagueAdminTools from 'components/forms/League/adminTools';
-import usePaginatedParticipants from 'helpers/usePaginatedParticipants';
 import { MdClose } from 'react-icons/md';
+import StandingsView from './standings_view';
 
 const LeagueViewPage = () => {
   const theme = useTheme();
@@ -42,10 +33,9 @@ const LeagueViewPage = () => {
   const [matches, setMatches] = useState([]);
   const [editSchedule, setEditSchedule] = useState(false);
   const currentUser = authAPI.getCurrentUser()
-  const [showAddMatch, setShowAddMatch] = useState(false);
+  const [matchModalOpen, setMatchModalOpen] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams();
-  const { participants, loadMore, loading, hasMore } = usePaginatedParticipants(id);
 
   useEffect(() => {
     const fetchLeague = async () => {
@@ -70,42 +60,21 @@ const LeagueViewPage = () => {
   }, [id]);
 
 
-  const handleMatchSubmit = () => {
-    setShowAddMatch(false);
+  const handleMatchEditorSubmit = (newMatch) => {
+    console.log(newMatch);
   }
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
   };
 
-  const handlePlayerClick = (participant) => {
-    setSelectedParticipant(participant);
-    console.log(participant)
-    setModalOpen(true);
+  const handleMatchModalClose = () => {
+    setMatchModalOpen(false);
   };
-
   const handleModalClose = () => {
     setModalOpen(false);
     setSelectedParticipant(null);
   };
-
-  // const addParticipants = () => {
-  //   const leagueToUpdate = {
-  //     id: event.id,
-  //     participants_data: [
-  //       { id: 'e3335b3d-a6e9-4f7d-aca3-0aa62b3414cc' },
-  //       { id: '000ef295-2298-4b1a-8ea2-15c4563971d3' },
-  //       { id: "00121742-17a8-4183-92e2-9c1697042696" },
-  //       { id: "001e8f31-42a8-4d53-ad03-bb55ed9db669" },
-  //       { id: "004f9bdd-cf06-495a-a862-b6523c4c9658" },
-  //       { id: "00504ee0-f6fa-49f2-b1e1-b7a56b701ab0" },
-  //       { id: "0069542e-d7ca-43e8-9bb2-a2564a7fd068" },
-  //     ],
-  //     admins_data: [{ id: 'a0ee264b-9486-49dc-908a-ee9b7d0485aa' }]
-  //   }
-  //   console.log(leagueToUpdate)
-  //   eventAPI.updateEvent(leagueToUpdate);
-  // }
 
   if (!event) {
     return <Typography variant="h6">Loading...</Typography>;
@@ -131,7 +100,6 @@ const LeagueViewPage = () => {
         <Tab label="Standings" />
         <Tab label="Schedule" />
         <Tab label="Matches" />
-        <Tab label="Participants" />
         {event.is_admin && <Tab label="Admin Tools" />} {/* Admin-only tab */}
       </Tabs>
 
@@ -141,7 +109,8 @@ const LeagueViewPage = () => {
           <Typography variant="h5" gutterBottom>
             Standings
           </Typography>
-          <TableContainer component={Paper}>
+          <StandingsView standings={standings} />
+          {/* <TableContainer component={Paper}>
             <Table>
               <TableHead>
                 <TableRow>
@@ -184,7 +153,7 @@ const LeagueViewPage = () => {
                 ))}
               </TableBody>
             </Table>
-          </TableContainer>
+          </TableContainer> */}
         </Box>
       )}
       {/** SCHEDULE TAB */}
@@ -193,9 +162,9 @@ const LeagueViewPage = () => {
           <Typography variant="h5" gutterBottom>
             Schedule &nbsp;&nbsp;
             {event.is_admin &&
-              editSchedule 
-                ? <MdClose className='pointer' onClick={() => setEditSchedule(false)} />
-                : <GiPencil className='pointer' onClick={() => setEditSchedule(true)} />
+              editSchedule
+              ? <MdClose className='pointer' onClick={() => setEditSchedule(false)} />
+              : <GiPencil className='pointer' onClick={() => setEditSchedule(true)} />
             }
           </Typography>
 
@@ -206,13 +175,13 @@ const LeagueViewPage = () => {
               // setEvent={setEvent}
               // setSchedule={setSchedule}
               // setMatches={setMatches}
-              onSave={(newSchedule, keepOpen=true) => {
+              onSave={(newSchedule, keepOpen = true) => {
                 setSchedule(newSchedule)
                 //setEditSchedule(keepOpen)
-                setEvent((prev) => ({ ...prev, league_schedule: newSchedule}));
+                setEvent((prev) => ({ ...prev, league_schedule: newSchedule }));
               }}
             />
-            : <ScheduleView schedule={schedule} />
+            : <ScheduleView event={event} schedule={schedule} onScoreReported={() => { console.log('someone reported a score') }} />
           }
 
         </Box>
@@ -227,81 +196,47 @@ const LeagueViewPage = () => {
 
           {/* Add Match Button */}
           {event?.is_participant && (
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => setShowAddMatch(true)} // Show wizard editor
-                sx={{ mb: 2 }}
-              >
-                Add Match
-              </Button>
-            )}
-
-          {/* Table to Display Matches */}
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Match</TableCell>
-                  <TableCell>Score</TableCell>
-                  <TableCell>Date</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {matches.map((match, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      {match.player1.name} vs {match.player2.name}
-                    </TableCell>
-                    <TableCell>{match.score || 'N/A'}</TableCell>
-                    <TableCell>{match.date || 'Not scheduled'}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-
-          {/* Add Match Wizard */}
-          {showAddMatch && (
-            <MatchEditor
-              participants={event.participants}
-              onSubmit={handleMatchSubmit}
-              leagueId={event.id}
-            />
-          )}
-        </Box>
-      )}
-      {currentTab === 3 && (
-        <Box>
-          <List>
-            {participants.map((participant) => (
-              <ListItem key={participant.id}>
-                {participant.players.map((p) => (
-                  p.name
-                ))}
-              </ListItem>
-            ))}
-          </List>
-          {hasMore && (
-            <Button onClick={loadMore} disabled={loading}>
-              {loading ? 'Loading...' : 'Load More'}
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setMatchModalOpen(true)} // Show wizard editor
+              sx={{ mb: 2 }}
+            >
+              Add Match
             </Button>
           )}
+
+          <Matches 
+            originType={'event'}
+            originId={event.id}
+            initialMatches={event.matches}
+            pageSize={10}
+            showComments={true}
+            showH2H={true}
+          />
+          
+
+          {/* Add Match Wizard */}
+          {/* Match Editor Modal */}
+          <MyModal showHide={matchModalOpen} onClose={handleMatchModalClose} title="Report Match">
+            <MatchEditor
+              participant={currentUser}
+              event={event}
+              onSubmit={(matchData) => {
+                console.log("Match reported:", matchData);
+                handleMatchEditorSubmit(matchData);
+                handleMatchModalClose();
+              }}
+            />
+          </MyModal>
         </Box>
       )}
 
       {/* Admin Tools Tab */}
-      {currentTab === 4 && event.is_admin && (
+      {currentTab === 3 && event.is_admin && (
         <Grid2 container direction={'column'}>
-          {/* 1. invite players
-          2. update restrictions
-          3. update max participants
-          4. update start and end dates
-          5. update description
-          6. send out league notifications */}
           <LeagueAdminTools league={event} participants={event.participants || []} setLeague={setEvent} />
           <AddParticipants league={event} />
-
         </Grid2>
       )}
 

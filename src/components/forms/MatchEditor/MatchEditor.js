@@ -4,12 +4,14 @@ import Wizard from '../Wizard/Wizard';
 import { playerAPI, courtAPI, matchAPI, authAPI } from 'api/services';
 import SetInput from './SetInput';
 import InfoPopup from '../infoPopup';
+import { helpers } from 'helpers';
 
-const MatchEditor = ({ participant, event = null, availableEvents = [], onSubmit }) => {
+const MatchEditor = ({ participant, event = null, availableEvents = [], limitedParticipants = [], scheduleMatchId, onSubmit }) => {
 	const [selectedEvent, setSelectedEvent] = useState(event || null);
 	const [playedOn, setPlayedOn] = useState('');
 	const [opponents, setOpponents] = useState([]);
 	const [selectedOpponents, setSelectedOpponents] = useState([]);
+	const [selectedWinners, setSelectedWinners] = useState([]);
 	const [courts, setCourts] = useState([]);
 	const [selectedCourt, setSelectedCourt] = useState('');
 	const [sets, setSets] = useState([{ set: 1, value: '' }, { set: 2, value: '' }]);
@@ -20,14 +22,18 @@ const MatchEditor = ({ participant, event = null, availableEvents = [], onSubmit
 	const [comment, setComment] = useState('');
 	const [isPrivate, setIsPrivate] = useState(false);
 	const [retired, setRetired] = useState(false);
+	const isLimited = limitedParticipants.length > 0;
 
 	useEffect(() => {
 		// Fetch opponents and courts
 		async function fetchData() {
 			try {
-				const opponentsData = await playerAPI.getParticipants(selectedEvent || null, null); // Adjust API call as necessary
-				setOpponents(opponentsData.data.players);
+				if (!isLimited) {
 
+					const opponentsData = await playerAPI.getParticipants(selectedEvent || null, null); // Adjust API call as necessary
+					setOpponents(opponentsData.data.players);
+
+				}
 				const courtsData = await courtAPI.getCourts();
 				setCourts(courtsData.courts);
 			} catch (error) {
@@ -42,13 +48,14 @@ const MatchEditor = ({ participant, event = null, availableEvents = [], onSubmit
 		// Create an object with the match result data
 
 		let match = {
-			winner: [], // should be list of players in participants or, if !winner, a list of opponents  
-			loser: [], // should be list of the opponents or, if !winner, a list of players in participants  
-			score: '',// from the sets, listed like 6-3, 4-6, 1-0(3), for example
-			type: 'singles', // should be singles or doubles,
+			winners: winner ? selectedWinners : selectedOpponents,
+			losers: winner ? selectedOpponents : selectedWinners,
+			score: sets.filter(set => set.value).map(set => set.value).join(', '),
+			type: event.league_type ?? 'singles', // should be singles or doubles,
 			played_on: new Date(playedOn).toISOString().split('T')[0],
 			...selectedEvent ? { event_id: selectedEvent.id } : null,
-			retired: retired, // need to add a retired checkbox for score
+			retired: retired,
+			schedule_match_id: scheduleMatchId,
 			comments: []
 		}
 
@@ -83,6 +90,8 @@ const MatchEditor = ({ participant, event = null, availableEvents = [], onSubmit
 	};
 
 	const validateSets = () => {
+		if (retired) return true;
+
 		let winCount = 0;
 		let loseCount = 0;
 		let isValid = true;
@@ -113,7 +122,22 @@ const MatchEditor = ({ participant, event = null, availableEvents = [], onSubmit
 		return true;
 	};
 
+	const getPlayers = (playerList) => {
+		const names = playerList.map((opponentId) => {
+			const opponent = availablePlayers.find((player) => player.id === opponentId);
+			return opponent ? opponent.name : null;
+		})
+			.filter(Boolean) // Remove any null values if an ID doesn't match
+			.join(", ");
+		return names;
+	}
+
+	const getScore = () => { return sets.filter(set => set.value).map(set => set.value).join(', ') }
+
+	const availablePlayers = isLimited ? limitedParticipants : [participant, ...opponents];
+
 	const steps = [
+		!event &&
 		{
 			label: 'Event Selection',
 			content: (
@@ -149,17 +173,40 @@ const MatchEditor = ({ participant, event = null, availableEvents = [], onSubmit
 						type="date"
 						label="Played On"
 						fullWidth
+						required
 						error={error.playedOn}
 						helperText={error.playedOn ? 'Date is required' : ''}
 						value={playedOn}
 						onChange={(e) => setPlayedOn(e.target.value)}
-						InputLabelProps={{ shrink: true }}
 						sx={{ mb: 2 }}
 					/>
+					{isLimited && (
+						<TextField
+							select
+							label="Winner(s)"
+							fullWidth
+							required
+							error={error.winner}
+							helperText={error.winner ? 'Winner is required' : ''}
+							value={Array.isArray(selectedWinners) ? selectedWinners : []}
+							onChange={(e) => setSelectedWinners(Array.isArray(e.target.value) ? e.target.value : [e.target.value])}
+							multiple={isDoubles}
+							sx={{ mb: 2 }}
+						>
+							{availablePlayers
+								//.filter((player) => !selectedOpponents.some((opponent) => opponent === player.id))
+								.map((p) => (
+									<MenuItem key={p.id} value={p.id}>
+										{p.name}
+									</MenuItem>
+								))}
+						</TextField>
+					)}
 					<TextField
 						select
 						label="Opponent(s)"
 						fullWidth
+						required
 						error={error.opponents}
 						helperText={error.opponents ? 'Opponent is required' : ''}
 						value={Array.isArray(selectedOpponents) ? selectedOpponents : []}
@@ -167,11 +214,13 @@ const MatchEditor = ({ participant, event = null, availableEvents = [], onSubmit
 						multiple={isDoubles}
 						sx={{ mb: 2 }}
 					>
-						{opponents.map((opponent) => (
-							<MenuItem key={opponent.id} value={opponent.id}>
-								{opponent.name}
-							</MenuItem>
-						))}
+						{availablePlayers
+							.filter((player) => !selectedWinners.some((winner) => winner === player.id))
+							.map((p) => (
+								<MenuItem key={p.id} value={p.id}>
+									{p.name}
+								</MenuItem>
+							))}
 					</TextField>
 					<TextField
 						select
@@ -191,8 +240,9 @@ const MatchEditor = ({ participant, event = null, availableEvents = [], onSubmit
 			handleNext: () => {
 				const playedOnError = !playedOn;
 				const opponentsError = selectedOpponents.length === 0;
-				setError({ playedOn: playedOnError, opponents: opponentsError });
-				return !playedOnError && !opponentsError;
+				const winnersError = selectedWinners.length === 0 && isLimited;
+				setError({ playedOn: playedOnError, opponents: opponentsError, winners: winnersError });
+				return !playedOnError && !opponentsError && !winnersError;
 			},
 		},
 		{
@@ -200,16 +250,18 @@ const MatchEditor = ({ participant, event = null, availableEvents = [], onSubmit
 			content: (
 				<Box>
 					<Typography variant="h6">Report Score</Typography>
-					<FormControlLabel
-						control={
-							<Switch
-								checked={winner}
-								onChange={() => setWinner(!winner)}
-							/>
-						}
-						label={winner ? 'I Won' : 'I Lost'}
-						sx={{ mb: 2 }}
-					/>
+					{!selectedWinners &&
+						<FormControlLabel
+							control={
+								<Switch
+									checked={winner}
+									onChange={() => setWinner(!winner)}
+								/>
+							}
+							label={winner ? 'I Won' : 'I Lost'}
+							sx={{ mb: 2 }}
+						/>
+					}
 					<FormControlLabel
 						control={
 							<Switch
@@ -217,35 +269,42 @@ const MatchEditor = ({ participant, event = null, availableEvents = [], onSubmit
 								onChange={() => setRetired(!retired)}
 							/>
 						}
-						label={retired && winner
-							? (opponents.find(o => o.id === selectedOpponents[0])?.name || '') + 'retired'
-							: retired && !winner 
-								? participant.name + ' retired'
-								: ''
-						}
+						label='Retired'
 						sx={{ mb: 2 }}
 					/>
 					<Typography variant="body1" sx={{ mb: 2 }}>
-						{winner
-							? `${participant.name} defeated ${opponents.find(o => o.id === selectedOpponents[0])?.name || ''} with score: ${sets.filter(set => set.value).map(set => set.value).join(', ')}`
-							: `${opponents.find(o => o.id === selectedOpponents[0])?.name || ''} defeated ${participant.name} with score: ${sets.filter(set => set.value).map(set => set.value).join(', ')}`}
+						{retired ? (
+							winner
+								? `${getPlayers(selectedWinners) ?? participant.name} won by default.`
+								: `${getPlayers(selectedOpponents)} won by default.`
+						) : (
+							winner
+								? `${getPlayers(selectedWinners) ?? participant.name} defeated ${getPlayers(selectedOpponents)}: 
+										${getScore()}`
+								: `${getPlayers(selectedOpponents)} defeated ${getPlayers(selectedWinners) ?? participant.name}: 
+										${getScore()}`
+						)}
 					</Typography>
-					{sets.map((set, index) => (
-						<SetInput
-							key={index}
-							value={set.value}
-							label={`Set ${set.set}`}
-							onChange={(newVal) => handleSetChange(index, newVal)}
-							sx={{ mb: 1, width: '7ch', mr: 0.3 }}
-						/>
-					))}
-					{sets.length < 5 && (
-						<IconButton onClick={addSet} color="primary" sx={{ mb: 2 }}>
-							+ Add Set
-						</IconButton>
-					)}
-					{setErrorText && (
-						<Typography color="error" variant="body2">{setErrorText}</Typography>
+					{!retired && (
+						<>
+							{sets.map((set, index) => (
+								<SetInput
+									key={index}
+									value={set.value}
+									label={`Set ${set.set}`}
+									onChange={(newVal) => handleSetChange(index, newVal)}
+									sx={{ mb: 1, width: '7ch', mr: 0.3 }}
+								/>
+							))}
+							{sets.length < 5 && (
+								<IconButton onClick={addSet} color="primary" sx={{ mb: 2 }}>
+									+ Add Set
+								</IconButton>
+							)}
+							{setErrorText && (
+								<Typography color="error" variant="body2">{setErrorText}</Typography>
+							)}
+						</>
 					)}
 				</Box>
 			),
@@ -288,13 +347,16 @@ const MatchEditor = ({ participant, event = null, availableEvents = [], onSubmit
 				<Box>
 					<Typography variant="h6">Review Match Details</Typography>
 					<Typography>Date: {playedOn}</Typography>
-					<Typography>{winner ? 'Winner' : 'Loser'}: {participant.name}</Typography>
 					<Typography>
-						{!winner ? 'Winner' : 'Loser'}: {selectedOpponents.map(id => opponents.find(o => o.id === id)?.name).join(', ')}
-
+						{winner ? 'Winner' : 'Opponent'}: &nbsp;
+						{getPlayers(selectedWinners) || participant.name}
+					</Typography>
+					<Typography>
+						{!winner ? 'Winner' : 'Opponent'}: &nbsp;
+						{selectedOpponents.map(id => availablePlayers.find(o => o.id === id)?.name).join(', ')}
 					</Typography>
 					<Typography>Court: {courts.find(c => c.id === selectedCourt)?.name}</Typography>
-					<Typography>Score: {sets.filter(set => set.value).map(set => set.value).join(', ')}</Typography>
+					<Typography>Score: {retired ? 'Default' : sets.filter(set => set.value).map(set => set.value).join(', ')}</Typography>
 					<Typography>Comment: <i>{comment}</i></Typography>
 					<Typography>Note Type: {isPrivate ? 'Private' : 'Public'}</Typography>
 				</Box>
@@ -303,7 +365,8 @@ const MatchEditor = ({ participant, event = null, availableEvents = [], onSubmit
 				const matchData = {
 					event: selectedEvent?.id || null,
 					played_on: playedOn,
-					opponents: selectedOpponents,
+					losers: selectedOpponents,
+					winners: isLimited ? selectedWinners : [participant],
 					court: selectedCourt,
 					score: sets.filter(set => set.value).map(set => set.value).join(', '),
 					comment,
@@ -313,7 +376,7 @@ const MatchEditor = ({ participant, event = null, availableEvents = [], onSubmit
 				return true;
 			},
 		},
-	];
+	].filter(Boolean);
 
 	return <Wizard steps={steps} submitText="Submit Match" handleSubmit={onSubmitMatch} />;
 };

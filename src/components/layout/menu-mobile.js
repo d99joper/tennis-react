@@ -1,26 +1,33 @@
-import { Menu, MenuItem, View } from '@aws-amplify/ui-react';
 import { Link } from 'react-router-dom';
-import React, { useEffect, useState } from "react";
-import MuiAppBar from '@mui/material/AppBar';
-import { userHelper } from '../../helpers'
-import { AppBar, Box, CssBaseline, Divider, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, makeStyles, Popover, styled, SwipeableDrawer, Toolbar, Typography, useTheme } from '@mui/material';
-import { Global } from '@emotion/react';
-import { BsLadder, BsSearch } from 'react-icons/bs'
+import React, { useState } from "react";
+import { userHelper } from '../../helpers';
+import { 
+    AppBar, 
+    Divider, 
+    IconButton, 
+    List, 
+    ListItemButton, 
+    ListItemIcon, 
+    ListItemText, 
+    styled, 
+    SwipeableDrawer, 
+    Toolbar,
+} from '@mui/material';
+import { BsSearch } from 'react-icons/bs'
 import { SlUser } from 'react-icons/sl';
 import {
     AiOutlineMenuFold, AiOutlineMenuUnfold, AiOutlineHome,
-    AiOutlineQuestionCircle, AiOutlineMail, AiOutlineSetting, AiOutlineInfoCircle
+    AiOutlineQuestionCircle, AiOutlineSetting, 
 } from 'react-icons/ai'
-import { BiLogInCircle, BiLogOutCircle } from 'react-icons/bi'
-// import bannerImage from '../../images/banner_tennis.jpg'
-import bannerImage from '../../images/tennisbanner.png'
+import { BiLogInCircle, BiLogOutCircle } from 'react-icons/bi';
 //import './layout.css'
 import { GiWhistle } from 'react-icons/gi';
 
-const MobileMenu = (props) => {
-    console.log("mobileMenu props", props)
 
+const MobileMenu = (props) => {
     const [open, setOpen] = useState(false)
+
+    document.getElementById("app").style.marginLeft = '0px';
 
     const DrawerHeader = styled('div')(({ theme }) => ({
         display: 'flex',
@@ -38,8 +45,8 @@ const MobileMenu = (props) => {
 
     return (
 
-        <AppBar className={"banner"}>
-            <Toolbar>
+        <AppBar position="static" elevation={0} open={open} sx={{ backgroundColor: 'transparent' }}>
+            <Toolbar className={"banner"}>
                 <div className='banner-title'>
                     <h1>My Tennis Space</h1>
                 </div>

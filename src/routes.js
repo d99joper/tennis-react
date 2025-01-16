@@ -3,18 +3,16 @@ import {
   Route,
   useLocation
 } from 'react-router-dom';
-import { Loader } from '@aws-amplify/ui-react';
-// import Login from './views/login'
-import Login from './views/Auth/login_django'
-import { lazy, useEffect } from 'react';
-import { Suspense } from 'react';
+import { LinearProgress } from '@mui/joy';
+import React, { lazy, useEffect, Suspense } from 'react';
 import { useNavigate } from "react-router-dom";
 import Registration from 'views/Auth/registration';
 import Header from 'components/layout/header';
 import { Box } from '@mui/material';
 import Footer from 'components/layout/footer';
+import {AboutPage, ClubViewPage, FAQPage, LeagueViewPage, Profile, RulesPage, SearchPage, Login} from './views/index'
 
-const Profile = lazy(() => import('./views/profile'))
+// const Profile = lazy(() => import('./views/profile'))
 const ProfileInfo = lazy(() => import('./views/profile-information'))
 const UserConfirmation = lazy(() => import('./views/Auth/user-confirmation'))
 const UserMerge = lazy(() => import('./views/Auth/user-merge'))
@@ -25,24 +23,27 @@ const CourtsCreate = lazy(() => import('./views/court/create'))
 const CourtsView = lazy(() => import('./views/court/view'))
 const NoPage = lazy(() => import('./views/NoPage'))
 const AdminTasks = lazy(() => import('./views/adminTasks'))
-const AboutPage = lazy(() => import('./views/about'))
-const FAQPage = lazy(() => import('./views/faq'))
-const RulesPage = lazy(() => import('./views/rules'))
-const SearchPage = lazy(() => import('./views/searchPage'))
 const PrivacyPolicyPage = lazy(() => import('./views/privacyPolicyPage'))
 const TermsOfServicePage = lazy(() => import('./views/termsOfServicePage'))
 const LeagueCreate = lazy(() => import('./components/forms/League/create'))
-const LeagueView = lazy(() => import('./views/league/league_view'))
+
+const preloadPage = (page) => page().then((module) => module.default);
+
+// preloadPage(() => import('./views/about'));
+// preloadPage(() => import('./views/profile'));
+// preloadPage(() => import('./views/faq'));
+// preloadPage(() => import('./views/rules'));
+// preloadPage(() => import('./views/searchPage'));
 
 const MyRouter = (props) => {
 
   let navigate = useNavigate()
   const location = useLocation()
 
-  useEffect(() => {
-    navigate(props.navigateTo)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.navigateTo])
+  // useEffect(() => {
+  //   navigate(props.navigateTo)
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [props.navigateTo])
 
   function showHeaderOrFooter(path) {
     switch (path) {
@@ -54,10 +55,17 @@ const MyRouter = (props) => {
         return true
     }
   }
+  const MemoizedHeader = React.memo(Header);
+  const MemoizedFooter = React.memo(Footer);
 
   return (
-    <Suspense fallback={<h2><Loader />Loading...</h2>}>
-      <Header show={showHeaderOrFooter(location.pathname)} isLoggedIn={props.isLoggedIn} currentUser={props.currentUser}></Header>
+    <Suspense fallback={<LinearProgress size="large" />}>
+      <MemoizedHeader 
+        show={showHeaderOrFooter(location.pathname)} 
+        isLoggedIn={props.isLoggedIn} 
+        currentUser={props.currentUser}
+      />
+
       <Box component="main" className='content'
         sx={{
           display: 'flex',
@@ -84,6 +92,9 @@ const MyRouter = (props) => {
           <Route path="/terms-of-service" element={<TermsOfServicePage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/adminTasks" element={<AdminTasks />} />
+          <Route path='/clubs'>
+            <Route path=":clubId" element={<ClubViewPage />} />
+          </Route>
           <Route path='/courts'>
             <Route index={true} element={<CourtsView {...props } />} />
             <Route path="new" element={<CourtsCreate {...props} />} />
@@ -96,12 +107,12 @@ const MyRouter = (props) => {
             {/* <Route index element={<Home />} /> */}
           </Route>
           <Route path='league'>
-            <Route path=":id" element={<LeagueView isLoggedIn={props.isLoggedIn} />} />
+            <Route path=":id" element={<LeagueViewPage isLoggedIn={props.isLoggedIn} />} />
             <Route path="create" element={<LeagueCreate isLoggedIn={props.isLoggedIn} />} />
           </Route>
           <Route path="*" element={<NoPage />} />
         </Routes>
-        {showHeaderOrFooter(location.pathname) ? <Footer /> : null}
+        {showHeaderOrFooter(location.pathname) ? <MemoizedFooter /> : null}
       </Box>
     </Suspense>
   )

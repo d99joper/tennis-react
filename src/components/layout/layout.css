@@ -4,14 +4,15 @@
     /* grid-template-columns: auto 1fr;
     display: grid; 
     margin-bottom: 2rem; */
-    
-  box-sizing: border-box;
+
+    box-sizing: border-box;
   }
+
   header .col1 {
-      background-color: aquamarine;
-      /* padding: 1rem; */
-      /* grid-column: 1 / span 2; */
-    }
+    background-color: aquamarine;
+    /* padding: 1rem; */
+    /* grid-column: 1 / span 2; */
+  }
 
   @media (min-width: 768px) {
     header {
@@ -24,30 +25,36 @@
     padding: 1rem;
     text-align: center;
     background-color: #edfdf0;
-  
+
   }
+
   .active {
     text-decoration: underline;
   }
+
   .bannerLink {
     color: white;
   }
+
   a.bannerLink {
     color: white;
   }
+
   a.bannerLink:hover {
     color: #c8e6c9;
   }
 
   .icon-hover-red:hover {
-    fill: red; 
+    fill: red;
   }
+
   .icon-hover-orange:hover {
-    fill: #c4a003; 
+    fill: #c4a003;
     background-color: black;
   }
+
   .icon-hover-green:hover {
-    fill: #04cd00; 
+    fill: #04cd00;
     background-color: black;
   }
 
@@ -65,55 +72,64 @@
   .myPop {
     background-color: aqua;
   }
-  
+
   .banner {
-    /* background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../../images/banner_tennis.jpg); */
     background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(../../images/tennisbanner.png);
     opacity: 100%;
-    /* Set a specific height */
-    /* height: 65px; */
-  
-    /* Position and center the image to scale nicely on all screens */
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
     position: relative;
-    z-index: 9;
+    z-index: 1;
+    background-size: cover;
+    background-position: center;
   }
 
   /* Place text in the middle of the image */
-.banner-title {
-  text-align: center;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100%;
-  transform: translate(-50%, -50%);
-  color: white;
-  /* font-family: belleFair, sans-serif; */
-}
+  .banner-title {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+    text-align: center;
+    z-index: 2;
+    width: 100%;
+    color: white;
+  }
 
-.banner-settings {
-  text-align: right;
-  top: 30%;
-  right: 5%;
-  position: absolute;
-  color: white;
-}
-.banner-hamburger-icon {
-  left: 0.5rem;
-  position: absolute;
-  color: white;
-}
+  .banner-settings {
+    text-align: right;
+    top: 30%;
+    right: 5%;
+    position: absolute;
+    color: white;
+    z-index: 3;
+  }
 
-.drawer-puller {
-  /* background-color: rgba(200,233,201, 0) #c8e6c9; #edfdf0; c8e6c9 */
-  /* background-color: black; */
-  display: block;
-  cursor: pointer;
-  height: 65px;
-  border-radius: 0 10px 10px 10px;
-  width: 50px;
-  padding: 5px;
-  padding-top: 15px;
-}
+  .banner-hamburger-icon {
+    left: 0.5rem;
+    position: absolute;
+    color: white;
+    z-index: 4;
+  }
+
+  .drawer-puller {
+    /* background-color: rgba(200,233,201, 0) #c8e6c9; #edfdf0; c8e6c9 */
+    /* background-color: black; */
+    display: block;
+    cursor: pointer;
+    height: 65px;
+    border-radius: 0 10px 10px 10px;
+    width: 50px;
+    padding: 5px;
+    z-index: 5;
+    padding-top: 15px;
+  }
+
+  #app {
+    transition: margin-left 0.5s ease;
+  }
+  .MuiDrawer-paper {
+    transition: width 0.5s ease-in-out;
+  }

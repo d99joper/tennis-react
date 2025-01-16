@@ -1,401 +1,308 @@
-// Matches.js
-import { Button, Collection, Divider, Flex, Grid, Loader, Pagination, Text, View } from "@aws-amplify/ui-react";
-import { enums, helpers, userHelper as uf, userHelper } from "helpers";
-import React, { Suspense, useState, lazy, useEffect, useRef } from "react";
-import { Comments, DynamicTable, H2H, InfoPopup, Match } from "../index.js"
-import "./Matches.css"
-import { Box, CircularProgress, LinearProgress } from "@mui/material";
-import { Link } from "react-router-dom";
-import { matchAPI } from "api/services/index.js"
-import { AiFillAndroid, AiFillApple, AiFillFacebook, AiTwotoneCrown } from "react-icons/ai";
-import { GoCommentDiscussion } from "react-icons/go";
-import { GiCrossedSwords } from "react-icons/gi";
-import { MdOutlineSportsTennis } from "react-icons/md";
-import MyModal from "components/layout/MyModal.js";
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import {
+	Box,
+	Pagination,
+	CircularProgress,
+	Typography,
+	Autocomplete,
+	TextField,
+	useMediaQuery,
+} from '@mui/material';
+import { matchAPI, playerAPI } from 'api/services';
+import ResponsiveDataLayout from 'components/layout/Data/responsiveDataLayout';
+import { userHelper as uh } from 'helpers';
+import { GiCrossedSwords } from 'react-icons/gi';
+import { GoCommentDiscussion } from 'react-icons/go';
+import { MdMoreVert } from 'react-icons/md';
+import InfoPopup from '../infoPopup';
+import { useTheme } from '@emotion/react';
+import MyModal from 'components/layout/MyModal';
+import H2H from '../H2H/H2H';
+import { Comments } from '../Comments/Comments';
 
 const Matches = ({
-	player,
-	startDate,
-	endDate,// = new Date(),
-	ladder,
-	matchType = enums.MATCH_TYPE.SINGLES,
-	ladderMatches,
-	onAddMatches,
-	showHeader = true,
-	displayAs = enums.DISPLAY_MODE.Table,
-	allowAdd = true,
-	allowDelete = false,
-	excludeColumns,
-	useColorCode = true,
-	sortingField = "played_on",
-	sortDirection = "DESC",
+	originType,
+	originId,
 	pageSize = 10,
-	refreshMatches = 0,
-	hightlightedMatch,
 	showH2H = false,
 	showComments = false,
-	showChallenge = false,
-	isLoggedIn = false,
-	...props
 }) => {
+	const [matchesCache, setMatchesCache] = useState({}); // Cache matches by page
+	const [pagedMatches, setPagedMatches] = useState([]); // Matches for current page
+	const [allMatches, setAllMatches] = useState([]);
+	const [currentPage, setCurrentPage] = useState(1);
+	const [totalPages, setTotalPages] = useState(1);
+	const [loading, setLoading] = useState(false);
+	const [playerSearch, setPlayerSearch] = useState('');
+	const [selectedPlayer, setSelectedPlayer] = useState(null);
+	const [playerOptions, setPlayerOptions] = useState([]);
+	const [isFetchingMore, setIsFetchingMore] = useState(false); // Track infinite scrolling state
+	const [pagesLoaded, setPagesLoaded] = useState(new Set()); const [modalContent, setModalContent] = useState(null);
+	const [modalTitle, setModalTitle] = useState("");
+	const [isModalOpen, setIsModalOpen] = useState(false);
 
-	const MatchEditor = lazy(() => import("../MatchEditor/MatchEditor").then(module => { return { default: module.MatchEditor } }))
+	const openModal = (content, title) => {
+		setModalContent(content);
+		setModalTitle(title);
+		setIsModalOpen(true);
+	};
 
-	const [matches, setMatches] = useState([])
-	// const [sortField, setSortField] = useState(sortingField)
-	// const [direction, setDirection] = useState(sortDirection)
-	//const [{ sortField, direction }, setSort] = useState({ sortField: sortingField, direction: sortDirection })
-	const [page, setPage] = useState(1)
-	const [totalPages, setTotalPages] = useState()
-	const [showLoader, setShowLoader] = useState(true)
-	const [showH2HModal, setShowH2HModal] = useState()
-	const [showCommentsModal, setShowCommentsModal] = useState()
-	const [showChallengeModal, setShowChallengeModal] = useState()
-	const matchPrefix = matches?.[0]?.hasOwnProperty('match') ? 'match.' : ''
-	const useMatchPrefix = matches?.[0]?.hasOwnProperty('match') ? true : false
-	const [isLoading, setIsLoading] = useState(false)
-	const [highlightedItem, setHighlightedItem] = useState(hightlightedMatch)
-	const prevPlayer = useRef(player)
-	const prevLadder = useRef(ladder)
+	const theme = useTheme();
+	const isLargeScreen = useMediaQuery(theme.breakpoints.up("md"));
+	const observer = useRef(null);
 
-	const tableHeaders = [
-		{ label: "Date", accessor: matchPrefix + "played_on", sortable: false, parts: useMatchPrefix ? 2 : 1, link: 'Match/id' },
-		{ label: "Winner", accessor: matchPrefix + "winners.name", sortable: false, parts: useMatchPrefix ? 3 : 2, link: 'Profile/id' },
-		{ label: "Loser", accessor: matchPrefix + "losers.name", sortable: false, parts: useMatchPrefix ? 3 : 2, link: 'Profile/id' },
-		{ label: "Score", accessor: matchPrefix + "score", sortable: false, parts: useMatchPrefix ? 2 : 1, link: 'Match/id' },
-		...notExclude('ladder') ? [{ label: "Ladder", accessor: matchPrefix + "ladder.name", sortable: false, parts: useMatchPrefix ? 3 : 2, link: 'Ladders/id' }] : [],
-		{ label: "", accessor: "games", sortable: false, parts: 0 }
-	]
+	const fetchMatches = useCallback(
+		async (page = 1) => {
+			if (matchesCache[page]) {
+				setPagedMatches(matchesCache[page]);
+				return;
+			}
 
-	function notExclude(columnName) {
-		if (!excludeColumns) return true
+			const effectiveSkip = (page - 1) * pageSize;
+			setLoading(true);
+			try {
+				const response = await matchAPI.getMatches(
+					originType,
+					originId,
+					page,
+					pageSize,
+					effectiveSkip
+				);
 
-		return !excludeColumns.includes(columnName)
-	}
+				setMatchesCache((prev) => ({ ...prev, [page]: response.matches }));
+				setPagedMatches(response.matches);
+				setAllMatches((prev) => [...prev, ...response.matches]);
+				setTotalPages(response.num_pages);
+				setPagesLoaded((prev) => new Set(prev).add(page)); // Track the page as loaded
+			} catch (error) {
+				console.error("Failed to fetch matches:", error);
+			} finally {
+				setLoading(false);
+			}
+		},
+		[originType, originId, pageSize, matchesCache]
+	);
 
-	const removeHighlight = () => {
-		setTimeout(() => {
-			setHighlightedItem(null) // Reset highlightedItem after 5 seconds
-		}, 5000) // 5000 milliseconds = 5 seconds
-	}
+	const fetchPlayerSuggestions = useCallback(
+		async (searchTerm) => {
+			try {
+				const response = await playerAPI.getPlayers({ search: searchTerm });
+				setPlayerOptions(response.players);
+			} catch (error) {
+				console.error('Failed to fetch player suggestions:', error);
+			}
+		},
+		[]
+	);
 
+	// Fetch matches on component mount and page change
 	useEffect(() => {
-		setShowLoader(true)
-		setIsLoading(true)
-		if (player) {
-			// if there's a new player, reset the page to 1
-			if (prevPlayer.current !== player) {
-				setPage(1)
-				prevPlayer.current = player
-			}
-			setShowLoader(true)
-			matchAPI.getMatchesForPlayer(player.id, matchType, page, pageSize, 'desc').then((data) => {
-				//console.log(data.matches)
-				setMatches(data.matches)
-				setTotalPages(Math.ceil(data.total_count / pageSize))
-				setShowLoader(false)
-				setIsLoading(false)
-				setShowH2HModal(Array(data.matches.length).fill(false))
-				setShowCommentsModal(Array(data.matches.length).fill(false))
-				setShowChallengeModal(Array(data.matches.length).fill(false))
-			})
-		}
-		else setShowLoader(false)
+		fetchMatches(currentPage);
+	}, [fetchMatches, currentPage]);
 
-		if (ladderMatches) {
-			setMatches(ladderMatches)
-			setTotalPages(Math.ceil(ladderMatches.length / pageSize))
-			setShowLoader(false)
-			setIsLoading(false)
+	// Fetch player suggestions dynamically as the user types
+	useEffect(() => {
+		if (playerSearch.trim()) {
+			fetchPlayerSuggestions(playerSearch);
+		} else {
+			setPlayerOptions([]);
 		}
-		else
-			if (ladder) {
-				// if there's a new ladder, reset the page to 1
-				if (prevLadder.current !== ladder) {
-					setPage(1)
-					prevLadder.current = ladder
+	}, [playerSearch, fetchPlayerSuggestions]);
+
+	const loadMoreMatches = useCallback(() => {
+		if (currentPage < totalPages && !isFetchingMore && !pagesLoaded.has(currentPage + 1)) {
+			setIsFetchingMore(true);
+			const nextPage = currentPage + 1; // Calculate the next page
+			fetchMatches(nextPage).then(() => {
+				setCurrentPage(nextPage); // Update the currentPage state
+				setIsFetchingMore(false);
+			});
+		}
+	}, [currentPage, totalPages, fetchMatches, isFetchingMore, pagesLoaded]);
+
+	const lastMatchRef = useCallback(
+		(node) => {
+			if (isLargeScreen) return; // Prevent infinite scrolling on large screens
+			if (observer.current) observer.current.disconnect();
+			observer.current = new IntersectionObserver((entries) => {
+				if (entries[0].isIntersecting && currentPage < totalPages && !isFetchingMore) {
+					loadMoreMatches();
 				}
-				//mf.getMatchesForLadder(ladder.id, 'DESC', nextToken, 10).then((data) => {
-				matchAPI.getMatchesForEvent(ladder.id, matchType, page, pageSize, 'DESC', 'playedOn').then((data) => {
-					console.log(data)
-					setMatches(data.matches)
-					//setNextToken(data.nextToken)
-					setTotalPages(Math.ceil(data.total_count / pageSize))
-					//setDataIsFetched(true)
-					setShowLoader(false)
-					setIsLoading(false)
-					setShowH2HModal(Array(data.matches.length).fill(false))
-					setShowCommentsModal(Array(data.matches.length).fill(false))
-					setShowChallengeModal(Array(data.matches.length).fill(false))
-				})
+			});
+			if (node) observer.current.observe(node);
+		},
+		[loadMoreMatches, currentPage, totalPages, isFetchingMore, isLargeScreen]
+	);
+
+	const handlePlayerChange = (event, value) => {
+		setSelectedPlayer(value); // Update selected player
+		setPagedMatches([]); // Clear matches when filter changes
+		setAllMatches([]); // Clear all matches
+		setMatchesCache({}); // Clear cache
+		setCurrentPage(1); // Reset to the first page
+	};
+
+	const handlePageChange = (event, value) => {
+		setCurrentPage(value);
+	};
+
+	const renderBasicContent = (match) => (
+		<Box>
+			<Typography variant="body2">
+				Score: {match.score}
+			</Typography>
+		</Box>
+	);
+
+	const renderExpandableContent = (match, isSmall, isMedium) => (
+
+		<Box>
+			{match.court &&
+				<Typography variant="body1">Court: {match.court?.name}</Typography>
 			}
-	}, [endDate, ladder, ladderMatches, player, startDate, page, refreshMatches])
-
-	const setColor = ((match, index) => {
-		//console.log('setColor winnerId', match.winner)
-		if (player) // win gets green and loss gets red
-			return (match.winner.id === player.id) ? 'lightgreen' : '#ff5c5cb0'
-		else // even gets white and odd gets grey
-			return (index % 2 === 0) ? 'white' : 'grey'
-
-	})
-
-	if (showLoader) {
+			{renderIconData(match)}
+		</Box>
+	);
+	const renderTitleForScreen = (match, isSmall, isMedium) => {
+		if (!match) return 'No match data';
 		return (
-			<div style={{ width: '100%' }}>
-				<LinearProgress />
-			</div>
+			<Box sx={{ pb: 2 }}>
+				<Typography
+					variant={isSmall ? "body2" : "body1"}
+					sx={{ marginBottom: 1 }}
+				>
+					{new Date(match.played_on).toISOString().split("T")[0]}
+
+				</Typography>
+				<Typography variant="body1" sx={{ fontWeight: "bold", fontSize: isMedium ? "1.2rem" : "1rem" }}>
+					{uh.getPlayerNames(match.winners)} vs {uh.getPlayerNames(match.losers)}
+				</Typography>
+			</Box>
 		)
-	}
+	};
 
-	function displayGames(score) {
-		const sets = score.split(',')
 
-		let games = sets.map((set, i) => {
-			const games = set.match(/\d+/g).map(Number)
+	const renderIconData = (match) => (
+		<Box display="flex" justifyContent="flex-end" alignItems="center">
+			<Box sx={{ mr: { xs: '0.25rem', md: '0.5rem' } }}>
+				{showH2H && (
+					<GiCrossedSwords
+						size={20}
+						className="cursorHand"
+						title="Head-to-Head"
+						onClick={() => openModal(<H2H winners={match.winners} losers={match.losers} />, "Head-to-Head")}
+					/>
+				)}
+			</Box>
+			<Box sx={{ mr: { xs: '0.25rem', md: '0.5rem' } }}>
+				{showComments && (
+					<GoCommentDiscussion
+						size={20}
+						className="cursorHand"
+						title="Comments"
+						onClick={() => openModal(
+							<Comments entityId={match.id} entityType='match' />,
+							`${uh.getPlayerNames(match.winners)} vs ${uh.getPlayerNames(match.losers)}`
+						)}
+					/>
+				)
+				}
+			</Box>
+			<Box sx={{ mr: { xs: '0.25rem', md: '0.5rem' } }}>
+				{match.court &&
+					<InfoPopup iconType='custom' size={20} customIcon={<MdMoreVert />}>
+						Court: {match.court.name}
+					</InfoPopup>
+				}
+			</Box>
+			{/* <Box sx={{ mr: { xs: '0.25rem', md: '0.5rem' } }}>
+				<MdMoreVert
+					size={20}
+					className="cursorHand"
+					title="More Actions"
+					onClick={() => alert(`Show additional actions for match ${row.id}`)}
+				/>
+			</Box> */}
+		</Box>
+	);
 
-			return (
-				<React.Fragment key={`matchScore_${i}`}>
-					<Text marginLeft={'1rem'} columnStart={i + 2} columnEnd={i + 3} rowStart="2">
-						{games[0]}
-						{/* there's a tiebreak score, check what side to put it */}
-						{(games[2] && games[0] < games[1]) && <sup>({games[2]})</sup>}
-					</Text>
-					<Text marginLeft={'1rem'} columnStart={i + 2} columnEnd={i + 3} rowStart="4">
-						{games[1]}
-						{/* there's a tiebreak score, check what side to put it */}
-						{(games[2] && games[0] > games[1]) && <sup>({games[2]})</sup>}
-					</Text>
-				</React.Fragment>
-			)
-		})
-		return games
-	}
-	function handleNextPage() {
-		setPage(page + 1)
-	}
-	function handlePreviousPage() {
-		setPage(page - 1)
-	}
-	function handleOnChange(newPageIndex) {
-		console.log(newPageIndex)
-		setPage(newPageIndex)
-	}
-	function modalSwitch(index, type, open) {
-		switch (type) {
-			case 'h2h':
-				setShowH2HModal(prevState => {
-					const newState = [...prevState]
-					newState[index] = open
-					return newState
-				})
-				break;
-			case 'comments':
-				setShowCommentsModal(prevState => {
-					const newState = [...prevState]
-					newState[index] = open
-					return newState
-				})
-				break;
-			case 'challenge':
-				setShowChallengeModal(prevState => {
-					const newState = [...prevState]
-					newState[index] = open
-					return newState
-				})
-				break;
-			default:
-				break;
-		}
-	}
+	const getRowData = (row) => [
+		row.played_on,
+		row.winners[0]?.name || 'N/A',
+		row.losers[0]?.name || 'N/A',
+		row.score,
+		renderIconData(row)
+	];
 
 	return (
-		isLoading === true ? <CircularProgress size={200} /> :
-			<section {...props}>
-				{displayAs === enums.DISPLAY_MODE.Inline ?
-					<>
-						<Collection className="matchCollection"
-							items={matches}
-							direction="column"
-							paddingTop={".5rem"}
-							paddingBottom={".5rem"}
-							gap={"3px"}
-						>
-							{(item, index) => (
-								<Match props={props}
-									key={index}
-									displayAs={displayAs}
-									index={index}
-									match={item}
-									allowDelete={allowDelete}
-									color={'lightgrey'}
-									showHeader={false}
-									showComments={showComments}
-								></Match>
-							)}
-						</Collection>
-						{( // keep false for now (it's moved into the profile)
-							false && allowAdd && displayAs === enums.DISPLAY_MODE.Inline &&
-							<Flex >
-								<Button>Add New</Button>
-								<Suspense fallback={<h2><Loader />Loading...</h2>}>
-									<MatchEditor player={player} onSubmit={(m) => { setMatches(...matches, m) }} />
-								</Suspense>
-							</Flex>
-						)}
-					</>
-					: null
-				}
-				{displayAs === enums.DISPLAY_MODE.Table ?
-					<>
-						<DynamicTable
-							key={"matches"}
-							columns={tableHeaders}
-							allowDelete={allowDelete}
-							deleteFunc={(match) => {
-								console.log(match.id)
-								matchAPI.deleteMatch(match.id)
-								setMatches(matches.filter(x => x.id !== match.id))
-							}}
-							// sortHandler={sortHandler}
-							// sortField={sortField}
-							// direction={direction}
-							data={matches}//{matches?.slice((page - 1)* pageSize, page * pageSize)}
-							iconSet={[
-								showH2H ? { name: 'H2H' } : {},
-								showComments ? { name: 'Comments' } : {},
-								showChallenge ? { name: 'Challenge' } : {}
-							]}
-							//nextToken={nextToken}
-							nextText={"View more matches"}
-							//onNextClick={addMatches}
-							onLinkClick={(p) => { if (p != player.id) setShowLoader(true) }}
-							styleConditionColor={useColorCode ? ['win-accent', 'lose-accent'] : null}
-							styleConditionVariable={useColorCode ? 'win' : null}
-							styleConditionVariable2={useColorCode ? player.id : null}
-						/>
-						<Pagination
-							currentPage={page}
-							totalPages={totalPages}
-							onNext={handleNextPage}
-							onPrevious={handlePreviousPage}
-							onChange={handleOnChange}
-						/>
-					</>
-					: null
-				}
-				{displayAs === enums.DISPLAY_MODE.SimpleList ?
-					matches && matches.length > 0 ? (
-						matches?.map((m, i) => {
-							const isHighlighted = highlightedItem && m.id === highlightedItem.id
-							//console.log(isHighlighted, highlightedItem, m.id)
-							// Call removeHighlight function if the item is highlighted
-							if (isHighlighted) {
-								removeHighlight()
-							}
-							return (
-								<Grid key={'m_' + i}
-									templateColumns={'auto 1fr'}
-									paddingRight={'1rem'}
-								>
-									<Grid key={i}
-										templateColumns="auto 1fr 1fr 1fr 1fr 1fr 1fr"
-										marginBottom={'1rem'}
-										width={'250px'}
-										className={isHighlighted ? 'highlight' : ''}
-									//backgroundColor={isHighlighted ? 'yellow' : 'transparent'}
-									//backgroundColor={'blue'}
-									>
-										<Text columnStart="1" columnEnd="-1" fontSize="0.8em" fontStyle="italic">
-											{m?.played_on}
-										</Text>
-										<View columnStart="1" columnEnd="2">
-											{userHelper.SetPlayerName(m.winners)}
-										</View>
-										<Divider columnStart="1" columnEnd="-1" />
-										<View columnStart="1" columnEnd="2">
-											{userHelper.SetPlayerName(m.losers)}
-										</View>
-										{displayGames(m.score)}
+		<Box>
+			{/* Player Search */}
+			<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+				<Typography variant="h6">Matches</Typography>
+				<Autocomplete
+					options={playerOptions}
+					getOptionLabel={(option) => option.name}
+					onInputChange={(event, value) => setPlayerSearch(value)} // Search as user types
+					onChange={handlePlayerChange} // Set selected player
+					value={selectedPlayer}
+					renderInput={(params) => (
+						<TextField {...params} label="Search Player" placeholder="Type a player's name" />
+					)}
+					sx={{ width: 300 }}
+				/>
+			</Box>
 
-									</Grid>
-									<View margin={'auto'} marginLeft={'1rem'} padding={'0.5rem'}>
-										{showH2H &&
-											<>
-												<GiCrossedSwords
-													size={30}
-													color="#058d0c"
-													className={'cursorHand'}
-													onClick={() => { modalSwitch(i, 'h2h', true) }}
-												/>
-												<MyModal
-													showHide={showH2HModal[i]}
-													onClose={() => { modalSwitch(i, 'h2h', false) }}
-													title='H2H'
-													height="500px"
-													overflow="auto"
-												>
-													<H2H winners={m.winner} losers={m.loser} />
-												</MyModal>
-											</>
-										}
-										&nbsp;
-										{showChallenge &&
-											<>
-												<MdOutlineSportsTennis
-													size={30}
-													color="#058d0c"
-													className={'cursorHand'}
-													onClick={() => { modalSwitch(i, 'challenge', true) }}
-												/>
-												<MyModal
-													showHide={showChallengeModal[i]}
-													onClose={() => { modalSwitch(i, 'challenge', false) }}
-													title='Challenge'
-													height="500px"
-													overflow="auto"
-												>
-													Challenge
-												</MyModal>
-											</>
-										}
-										&nbsp;
-										{showComments &&
-											<>
-												<GoCommentDiscussion
-													size={30}
-													color="#058d0c"
-													className={'cursorHand'}
-													onClick={() => { modalSwitch(i, 'comments', true) }}
-												/>
-												<MyModal
-													showHide={showCommentsModal[i]}
-													onClose={() => { modalSwitch(i, 'comments', false) }}
-													title={'Match comments'}
-													height="500px"
-													overflow="auto"
-												>
-													<Match match={m} showComments={true} />
-													<Comments
-														showComments={true}
-														entityId={m.id}
-														entityType="match"
-														data={m.comments}
-														allowAdd={isLoggedIn}
-													/>
-												</MyModal>
-											</>
-										}
-									</View>
-								</Grid>
-							)
-						})) : <p>0 matches played</p>
+			<ResponsiveDataLayout
+				headers={[
+					{ label: 'Date', accessor: 'played_on' },
+					{ label: 'Winner', accessor: 'winners[0].name' },
+					{ label: 'Loser', accessor: 'losers[0].name' },
+					{ label: 'Score', accessor: 'score' },
+					{ label: '', accessor: 'actions' },
+				]}
+				rows={isLargeScreen ? pagedMatches : allMatches}
+				rowKey={(match) => match.id}
+				getRowData={getRowData}
+				sortableColumns={['played_on']}
+				onSort={() => { alert('should sort') }}
+				titleForScreen={renderTitleForScreen} // Always pass a function
+				basicContentForScreen={renderBasicContent} // Always pass a function
+				expandableContentForScreen={renderExpandableContent}
+				loading={loading}
+			/>
 
-					: null
-				}
-			</section>
-	)
+			{!loading && currentPage < totalPages && !pagesLoaded.has(currentPage + 1) && (
+				<Box ref={lastMatchRef} sx={{ textAlign: 'center', py: 2 }}>
+					{isFetchingMore ? <CircularProgress /> : <Typography>Scroll to load more</Typography>}
+				</Box>
+			)}
 
-}
+			{!loading && allMatches.length === 0 && <Typography>No matches found.</Typography>}
 
-export { Matches };
+			{isLargeScreen && (
+				<Pagination
+					count={totalPages}
+					page={currentPage}
+					onChange={handlePageChange}
+					sx={{ mt: 2 }}
+				/>
+			)}
+			{!isLargeScreen && (
+				<Box ref={lastMatchRef} sx={{ textAlign: "center", py: 2 }}>
+					{loading && <CircularProgress />}
+				</Box>
+			)}
+
+			<MyModal
+				showHide={isModalOpen}
+				onClose={() => setIsModalOpen(false)}
+				title={modalTitle}
+			>
+				{modalContent}
+			</MyModal>
+
+		</Box>
+	);
+};
+
+export default Matches;
