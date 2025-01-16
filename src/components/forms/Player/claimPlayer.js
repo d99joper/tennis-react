@@ -4,7 +4,7 @@ import PlayerCard from './playerCard';
 import { Link } from 'react-router-dom';
 import InfoPopup from '../infoPopup';
 import { GiTennisCourt } from 'react-icons/gi';
-import { Matches } from '../Matches/Matches';
+import Matches from '../Matches/Matches';
 import { useState } from 'react';
 import { enums } from 'helpers';
 

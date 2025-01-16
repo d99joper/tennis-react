@@ -1,12 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Container, TextField, MenuItem, IconButton, Chip, Autocomplete } from '@mui/material';
 import { CiSquarePlus, CiTrash } from "react-icons/ci";
 import clubAPI from 'api/services/club';
 
-const EventRestrictions = ({ restrictions, updateRestrictions }) => {
+const EventRestrictions = ({ restrictions: parentRestrictions, updateRestrictions }) => {
+  const [localRestrictions, setLocalRestrictions] = useState(parentRestrictions || {});
   const [restrictionType, setRestrictionType] = useState('');
   const [restrictionValue, setRestrictionValue] = useState({});
   const [availableClubs, setAvailableClubs] = useState([]);
+
+  useEffect(() => {
+    setLocalRestrictions(parentRestrictions);
+  }, [parentRestrictions]);
 
   const addRestriction = () => {
     // Ensure restriction type and values are valid before adding
@@ -41,17 +46,23 @@ const EventRestrictions = ({ restrictions, updateRestrictions }) => {
 
     // Add the restriction
     const newRestrictions = {
-      ...restrictions,
+      ...localRestrictions,
       [restrictionType]: restrictionValue,
     };
+    // Update local state immediately for optimistic UI
+    setLocalRestrictions(newRestrictions);
+
     updateRestrictions(newRestrictions);
     setRestrictionType('');
     setRestrictionValue({});
   };
 
   const removeRestriction = (key) => {
-    const updatedRestrictions = { ...restrictions };
+    const updatedRestrictions = { ...localRestrictions  };
     delete updatedRestrictions[key];
+    // Update local state immediately for optimistic UI
+    setLocalRestrictions(updatedRestrictions);
+
     updateRestrictions(updatedRestrictions);
   };
 
@@ -160,7 +171,6 @@ const EventRestrictions = ({ restrictions, updateRestrictions }) => {
       )
     }
 
-
     if (restrictionType === 'rating') {
       return (
         <TextField
@@ -205,7 +215,7 @@ const EventRestrictions = ({ restrictions, updateRestrictions }) => {
           margin="normal"
         >
           {['gender', 'rating', 'age', 'club']
-            .filter((type) => !Object.keys(restrictions).includes(type))
+            .filter((type) => !Object.keys(localRestrictions).includes(type))
             .map((type) => (
               <MenuItem key={type} value={type}>
                 {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -218,7 +228,7 @@ const EventRestrictions = ({ restrictions, updateRestrictions }) => {
         </IconButton>
       </Box>
       <Box mt={2}>
-        {Object.entries(restrictions).map(([key, value]) => (
+        {Object.entries(localRestrictions).map(([key, value]) => (
           <Chip
             key={key}
             label={renderRestrictionLabel(key, value)}

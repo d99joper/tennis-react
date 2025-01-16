@@ -1,4 +1,4 @@
-import { Button, Card, CardContent, Divider, Grid, TextField, Typography } from "@mui/material"
+import { Box, Button, Card, CardContent, Divider, Grid2 as Grid, LinearProgress, TextField, Typography } from "@mui/material"
 import { authAPI, commentsAPI } from "api/services"
 import { helpers } from "helpers"
 import React, { useEffect, useState } from "react"
@@ -11,21 +11,29 @@ const Comments = ({ data = null, entityId = null, entityType = 'match', showComm
   const [error, setError] = useState(false)
   const [newComment, setNewComment] = useState({})
   const currentUser = authAPI.getCurrentUser()
+  const [loading, setLoading] = useState(false)
 
-  console.log('allowAdd', allowAdd)
+  //console.log('allowAdd', allowAdd)
 
   useEffect(() => {
-    if (showComments && entityId) {
-      commentsAPI.getComments(entityId, entityType).then((data) => {
-        console.log('comments data', data)
-        console.log('comments', data.comments)
-        if (data.comments?.length > 0) setComments(data.comments)
-        else setComments([])
-      })
+    async function fetchComments() {
+      if (showComments && entityId) {
+        setLoading(true)
+        try {
+          const data = await commentsAPI.getComments(entityId, entityType)
+          if (data.comments?.length > 0)
+            setComments(data.comments)
+        } catch (error) {
+          console.error("Failed to fetch comments:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
     }
+    fetchComments()
   }, [showComments, entityId])
 
-  function handleSubmit() {
+  async function handleSubmit() {
     newComment.postedBy = currentUser.id
     switch (entityType) {
       case 'match':
@@ -38,15 +46,23 @@ const Comments = ({ data = null, entityId = null, entityType = 'match', showComm
         setError(true)
         return
     }
-    console.log(newComment)
+    //console.log(newComment)
     if ((!newComment.content) || newComment.content?.length < 3)
       setError(true)
     else
       setError(false)
-    commentsAPI.createComment(newComment).then((c) => {
-      setComments(prevComments => [...prevComments, c])
-      setNewComment({})
-    })
+    try{
+      setLoading(true)
+      setShowAdd(false)
+      await commentsAPI.createComment(newComment).then((c) => {
+        setComments(prevComments => [...prevComments, c])
+        setNewComment({})
+      })
+    } catch(e) {
+      console.log(e)
+    } finally {
+      setLoading(false)
+    }
   }
 
   function deleteComment(id) {
@@ -72,8 +88,9 @@ const Comments = ({ data = null, entityId = null, entityType = 'match', showComm
   };
 
   return (
-    <Grid container={true} direction={'column'} gap={1}>
+    <Grid container direction={'column'} gap={1}>
       <Divider>Comments</Divider>
+      {loading && <LinearProgress />}
       {comments?.map((comment, i) => {
         return (
           <Card key={'comment_' + i} sx={{ minWidth: 275, backgroundColor: 'whitesmoke' }}>
@@ -100,6 +117,9 @@ const Comments = ({ data = null, entityId = null, entityType = 'match', showComm
           </Card>
         )
       })}
+      {!loading && comments.length === 0 &&
+        <Box><i>Be the first to comment.</i></Box>
+      }
 
       <div className="cursorHand" onClick={() => { setShowAdd(!showAdd) }}>
         {showAdd

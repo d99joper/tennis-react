@@ -16,6 +16,24 @@ const matchAPI = {
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get match' }
   },
 
+  getMatches: async function(originType, originId, page, pageSize, skip) {
+    console.log(originType, originId, page, pageSize, skip)
+    const requestOptions = authAPI.getRequestOptions('GET')
+    const url = apiUrl + 'matches2/'
+      + '?originType=' + originType
+      + (originId ? '&originId=' + originId : '')
+      + (page ? '&page=' + page : '')
+      + (pageSize ? '&pageSize=' + pageSize : '')
+      + (skip ? '&skip=' + skip : '')
+
+    let response = await fetch(url, requestOptions)
+
+    if (response.ok)
+      return await response.json()
+    else
+      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get matches' }
+  },
+
   getMatchesForPlayer: async function (playerId, type, page, numPerPage, sortDirection, sortOrder) {
     const requestOptions = authAPI.getRequestOptions('GET')
     const url = matchesUrl

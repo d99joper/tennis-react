@@ -1,5 +1,4 @@
-import { View } from "@aws-amplify/ui-react";
-import { Popover, Typography } from "@mui/material"
+import { Box, Popover, Typography } from "@mui/material"
 import React, { useState } from "react";
 import { AiFillWarning } from "react-icons/ai";
 import { MdOutlineInfo } from "react-icons/md";
@@ -20,16 +19,15 @@ function InfoPopup({ children, iconType = 'info', customIcon = null, ...props })
   }
 
   const iconProps = {
-    size: size ?? 16,
-    color: color ?? '#44F',
+    size: size ?? null,
+    color: color ?? null,
     onClick: (e) => handleClick(e),
     className: 'cursorHand'
   }
   
   return (
-    <View as='span'
-      paddingLeft={paddingLeft}
-      paddingRight={paddingRight}
+    <Box
+      sx={{pl: paddingLeft, pr: paddingRight}}
       onClick={(e) => e.stopPropagation()}
     >
       {/******** POPOVER FOR INFO   *********/}
@@ -56,7 +54,7 @@ function InfoPopup({ children, iconType = 'info', customIcon = null, ...props })
         React.cloneElement(customIcon, { ...iconProps })
       }
       
-    </View>
+    </Box>
   )
 }
 

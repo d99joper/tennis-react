@@ -1,5 +1,6 @@
 import { authAPI } from "."
 import apiUrl from "config"
+import axios from 'axios';
 
 const clubUrl = apiUrl+'clubs/'
 
@@ -15,6 +16,20 @@ const clubAPI = {
     }
     else
       return { success: response.ok, statusCode: response.statusCode, statusMessage: 'Error: Failed to get club' }
+  },
+  getArchivedEvents: async function(clubId) {
+    const requestOptions = authAPI.getRequestOptions('GET')
+    return await fetch(clubUrl + clubId + '/archived-events', requestOptions);
+  },
+  getMembers: async function(clubId) {
+    const requestOptions = authAPI.getRequestOptions('GET')
+    const response = await fetch(clubUrl + clubId + '/members', requestOptions);
+    if (response.ok) {
+      const data = await response.json()
+      return {success: response.ok, statusCode: response.statusCode, data:data}
+    }
+    else
+      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get club members' }
   },
   
   getClubs: async function (filter) {

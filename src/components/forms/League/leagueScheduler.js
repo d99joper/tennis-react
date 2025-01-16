@@ -20,6 +20,7 @@ import {
   IconButton,
   Button,
 } from '@mui/material';
+import { v4 as uuidv4 } from 'uuid'; 
 import leagueAPI from 'api/services/league';
 import eventAPI from 'api/services/event';
 import { CiTrash } from 'react-icons/ci';
@@ -108,13 +109,16 @@ const LeagueScheduler = ({ event, schedule, onSave }) => {
   };
 
   const handleAddMatch = () => {
-    const { round, player1, player2, scheduled_date } = newMatch;
+    const {  round, player1, player2, scheduled_date } = newMatch;
 
     if (!round || !player1 || !player2 || !scheduled_date) {
       alert('Please fill in all fields.');
       return;
     }
-    const updatedSchedule = sortSchedule([...localSchedule, newMatch]);
+    const updatedSchedule = sortSchedule([
+      ...localSchedule, 
+      { ...newMatch, id: uuidv4(), round: parseInt(newMatch.round, 10), reported: false },
+    ]);
     setLocalSchedule(updatedSchedule);
     setIsDialogOpen(false);
     setNewMatch({ round: '', player1: null, player2: null, scheduled_date: '' });

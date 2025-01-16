@@ -1,35 +1,37 @@
 import React, { useEffect } from "react"
-import {  Breadcrumbs, Toolbar, Typography } from '@mui/material'
+import {  Box, Breadcrumbs, Toolbar, Typography, useMediaQuery } from '@mui/material'
 import { useLocation } from "react-router-dom"
 import './layout.css'
 import MobileMenu from "./menu-mobile"
 import LargeMenu from "./menu-large"
+import { useTheme } from "@emotion/react"
 
 function Header(props) {
 
   const location = useLocation()
   const pathnames = location.pathname.split('/').filter((x) => x)
-
-  let isSmallScreen = window.matchMedia("(max-width: 768px)").matches
+  const theme = useTheme()
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   if(props.show === false) return
   return (
-    <header>
+    <>
       
       {isSmallScreen
         ? <MobileMenu {...props} />
-        :  <LargeMenu {...props} />//<MiniDrawer /> // 
+        :  <LargeMenu {...props} />
       }
-      <Toolbar />
+      {/* <Toolbar /> */}
 
-      <Breadcrumbs className='breadcrumbs'>
+      {/* <Breadcrumbs className='breadcrumbs'>
         {pathnames.map((elem, index) => {
+          console.log(elem)
           return (
             <Typography key={`${elem}_${index}`}>{elem}</Typography>
           )
         })}
-      </Breadcrumbs>
-    </header>
+      </Breadcrumbs> */}
+    </>
   );
 }
 export default Header;

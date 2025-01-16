@@ -52,11 +52,12 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
     }
   };
 
-  const handleUpdateSettings = async () => {
+  const handleUpdateSettings = async (newRestrictions=restrictions) => {
     try {
       setLoading(true);
+      console.log(newRestrictions, restrictions)
       const updatedLeague = await eventAPI.updateEvent(league.id, {
-        restrictions,
+        restrictions: newRestrictions,
         max_participants: maxParticipants,
         start_date: startDate,
         end_date: endDate,
@@ -208,10 +209,10 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
         {selectedSection === 'restrictions' && (
           <Box>
             <EventRestrictions
-              restrictions={league.restrictions}
+              restrictions={restrictions}
               updateRestrictions={(newRestrictions) => {
                 setRestrictions(newRestrictions);
-                handleUpdateSettings();
+                handleUpdateSettings(newRestrictions);
               }}
             />
           </Box>
