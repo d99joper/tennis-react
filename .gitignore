@@ -44,3 +44,4 @@ amplifytools.xcconfig
 #amplify-do-not-edit-end
 .env
 src/todo.txt
+public/firebase-messaging-sw.js
