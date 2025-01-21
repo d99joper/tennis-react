@@ -1,15 +1,15 @@
-import "@aws-amplify/ui-react/styles.css";
+//import "@aws-amplify/ui-react/styles.css";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import MyRouter from './routes';
-import Footer from './components/layout/footer';
 import { green, blue, red, purple } from '@mui/material/colors';
 import { BrowserRouter } from 'react-router-dom';
-import Header from './components/layout/header';
 import { Box, CssBaseline } from '@mui/material';
 import authAPI from 'api/auth';
 import { ProfileImageProvider } from "components/forms";
+import { requestNotificationPermission } from "./firebase/requestNotificationPermission";
+import { setupNotificationListener } from "./firebase/notificationService";
 
 function App() {
   let PrimaryMainTheme = createTheme({
@@ -69,7 +69,34 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState({})
 
-  useEffect(() => { // useEffect hook
+  // request notification permission
+  requestNotificationPermission();
+  
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      if (registrations.length === 0) {
+        // No service workers registered, so register it
+        navigator.serviceWorker
+          .register(`${process.env.PUBLIC_URL}/firebase-messaging-sw.js`)
+          .then((registration) => {
+            console.log("Service Worker registered with scope:", registration.scope);
+          })
+          .catch((error) => {
+            console.error("Service Worker registration failed:", error);
+          });
+      } else {
+        console.log("Service Worker already registered.");
+      }
+    });
+  }
+  useEffect(() => {
+    setupNotificationListener((notification) => {
+      console.log("New notification:", notification);
+      // Handle notification here (e.g., update UI or show a badge)
+    });
+  }, []); // Runs only once when the app loads
+
+  useEffect(() => { // 
 
     function handleLoginLogout(e) {
       console.log(e)

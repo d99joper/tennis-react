@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Grid2 as Grid, Box, Typography, CircularProgress } from "@mui/material";
+import { Grid2 as Grid, Box, Typography, CircularProgress, LinearProgress } from "@mui/material";
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md";
 
 const TableLayout = ({
@@ -88,7 +88,7 @@ const TableLayout = ({
       </Grid>
 
       {/* Table Rows */}
-      {loading ? <CircularProgress />
+      {loading ? <LinearProgress  />
         :
         sortedRows.map((row, index) => {
           const currentGroup = groupingKey ? groupingKey(row) : null;

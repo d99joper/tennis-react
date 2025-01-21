@@ -20,7 +20,7 @@ const ResponsiveDataLayout = ({ headers,
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const isMediumScreen = useMediaQuery(theme.breakpoints.between("sm", "md"));
-  console.log(rows)
+
   if (isSmallScreen || isMediumScreen) {
     return (
       <CardLayout

@@ -67,7 +67,7 @@ const clubAPI = {
 
   addPlayerToClub: async function(clubId, playerId) {
     const requestOptions = authAPI.getRequestOptions('POST')
-    const response = await fetch(`${clubUrl}add_player_to_club/${clubId}/${playerId}`, requestOptions)
+    const response = await fetch(`${clubUrl}add-player-to-club/${clubId}/${playerId}`, requestOptions)
     if (response.ok) {
       return {success: response.ok, statusCode: response.statusCode, message: response.message}
     }
@@ -77,7 +77,7 @@ const clubAPI = {
 
   addAdminToClub: async function(clubId, playerId) {
     const requestOptions = authAPI.getRequestOptions('POST')
-    const response = await fetch(`${clubUrl}add_admin_to_club/${clubId}/${playerId}`, requestOptions)
+    const response = await fetch(`${clubUrl}add-admin-to-club/${clubId}/${playerId}`, requestOptions)
     if (response.ok) {
       return {success: response.ok, statusCode: response.statusCode, message: response.message}
     }

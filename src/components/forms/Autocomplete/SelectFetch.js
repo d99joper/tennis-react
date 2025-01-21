@@ -1,4 +1,3 @@
-import { Text, Grid, Flex } from '@aws-amplify/ui-react';
 import {
   Autocomplete, TextField, Button, Typography, Popover, Modal, Box, Dialog, DialogTitle
 } from '@mui/material'; //https://mui.com/material-ui/react-autocomplete/
@@ -212,7 +211,7 @@ const SelectWithFetch = ({ allowCreate = false, disabledItemList = [], disabled,
         sx={{ width: 300 }}
         //renderInput={(params) => <TextField required variant='outlined' {...params} label={props.label} />}
         renderInput={(params) => (
-          <Flex direction={'row'}>
+          <Box sx={{flex:true, direction:'row'}}>
             <TextField
               {...params}
               label={props.placeholder ?? "Search"}
@@ -235,7 +234,7 @@ const SelectWithFetch = ({ allowCreate = false, disabledItemList = [], disabled,
                 onClick={handleLocation} 
               />
             }
-          </Flex>
+          </Box>
         )}
         renderOption={(props, option) => {
           return (

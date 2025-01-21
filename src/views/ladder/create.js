@@ -1,10 +1,8 @@
 import React, { useEffect } from "react";
 import { enums } from "helpers";
-import { createMap, createAmplifyGeocoder } from "maplibre-gl-js-amplify";
-import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import "@maplibre/maplibre-gl-geocoder/dist/maplibre-gl-geocoder.css";
-import "maplibre-gl-js-amplify/dist/public/amplify-geocoder.css"; // Optional CSS for Amplify recommended styling
+//import "@maplibre/maplibre-gl-geocoder/dist/maplibre-gl-geocoder.css";
+//import "maplibre-gl-js-amplify/dist/public/amplify-geocoder.css"; // Optional CSS for Amplify recommended styling
 import { Button, Flex, Grid } from "@aws-amplify/ui-react";
 // import { LocationSearch } from "@aws-amplify/ui-react-geo";
 import "./ladder.css"

@@ -3,17 +3,16 @@ import {
   Route,
   useLocation
 } from 'react-router-dom';
-import { LinearProgress } from '@mui/joy';
 import React, { lazy, useEffect, Suspense } from 'react';
 import { useNavigate } from "react-router-dom";
 import Registration from 'views/Auth/registration';
 import Header from 'components/layout/header';
-import { Box } from '@mui/material';
+import { Box, LinearProgress } from '@mui/material';
 import Footer from 'components/layout/footer';
 import {AboutPage, ClubViewPage, FAQPage, LeagueViewPage, Profile, RulesPage, SearchPage, Login} from './views/index'
 
 // const Profile = lazy(() => import('./views/profile'))
-const ProfileInfo = lazy(() => import('./views/profile-information'))
+const ProfileInfo = lazy(() => import('./views/player/profile-information'))
 const UserConfirmation = lazy(() => import('./views/Auth/user-confirmation'))
 const UserMerge = lazy(() => import('./views/Auth/user-merge'))
 const LadderCreate = lazy(() => import('./views/ladder/create'))
@@ -59,7 +58,7 @@ const MyRouter = (props) => {
   const MemoizedFooter = React.memo(Footer);
 
   return (
-    <Suspense fallback={<LinearProgress size="large" />}>
+    <Suspense fallback={<LinearProgress  size="large" />}>
       <MemoizedHeader 
         show={showHeaderOrFooter(location.pathname)} 
         isLoggedIn={props.isLoggedIn} 
