@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 const userHelper = {
 
 	getPlayerNames: function(players) {
-		return players.map((p) => p.name).join(', ')
+		return players.map((p) => p.name).join('<br>, ')
 	},
 
 	SetPlayerName_old: function (player, lastnameOnly, boldText) {

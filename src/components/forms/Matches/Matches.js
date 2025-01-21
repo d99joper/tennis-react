@@ -8,9 +8,9 @@ import {
 	TextField,
 	useMediaQuery,
 } from '@mui/material';
-import { matchAPI, playerAPI } from 'api/services';
+import { authAPI, matchAPI, playerAPI } from 'api/services';
 import ResponsiveDataLayout from 'components/layout/Data/responsiveDataLayout';
-import { userHelper as uh } from 'helpers';
+import { enums, userHelper as uh, userHelper } from 'helpers';
 import { GiCrossedSwords } from 'react-icons/gi';
 import { GoCommentDiscussion } from 'react-icons/go';
 import { MdMoreVert } from 'react-icons/md';
@@ -19,10 +19,12 @@ import { useTheme } from '@emotion/react';
 import MyModal from 'components/layout/MyModal';
 import H2H from '../H2H/H2H';
 import { Comments } from '../Comments/Comments';
+import PlayerNameView from 'views/player/playerNameView';
 
 const Matches = ({
 	originType,
 	originId,
+	matchType='singles',
 	pageSize = 10,
 	showH2H = false,
 	showComments = false,
@@ -40,6 +42,7 @@ const Matches = ({
 	const [pagesLoaded, setPagesLoaded] = useState(new Set()); const [modalContent, setModalContent] = useState(null);
 	const [modalTitle, setModalTitle] = useState("");
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const currentUser = authAPI.getCurrentUser();
 
 	const openModal = (content, title) => {
 		setModalContent(content);
@@ -64,6 +67,7 @@ const Matches = ({
 				const response = await matchAPI.getMatches(
 					originType,
 					originId,
+					matchType,
 					page,
 					pageSize,
 					effectiveSkip
@@ -215,21 +219,18 @@ const Matches = ({
 					</InfoPopup>
 				}
 			</Box>
-			{/* <Box sx={{ mr: { xs: '0.25rem', md: '0.5rem' } }}>
-				<MdMoreVert
-					size={20}
-					className="cursorHand"
-					title="More Actions"
-					onClick={() => alert(`Show additional actions for match ${row.id}`)}
-				/>
-			</Box> */}
 		</Box>
 	);
 
+	const isCurrentUser = (player) => {return originType==='player' && player.id === currentUser.id}
 	const getRowData = (row) => [
 		row.played_on,
-		row.winners[0]?.name || 'N/A',
-		row.losers[0]?.name || 'N/A',
+		matchType === enums.MATCH_TYPE.SINGLES
+			? <PlayerNameView player={row.winners[0]} asLink={!isCurrentUser(row.winners[0])} />
+			: userHelper.getPlayerNames(row.losers) || 'N/A',
+			matchType === enums.MATCH_TYPE.SINGLES
+			? <PlayerNameView player={row.losers[0]} asLink={!isCurrentUser(row.losers[0])} />
+			: userHelper.getPlayerNames(row.losers) || 'N/A',
 		row.score,
 		renderIconData(row)
 	];

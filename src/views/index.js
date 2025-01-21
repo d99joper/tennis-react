@@ -5,7 +5,7 @@ import FAQPage from "./faq"
 import LeagueViewPage from "./league/league_view"
 import Login from "./Auth/login_django"
 import NoPage from "./NoPage"
-import Profile from "./profile"
+import Profile from "./player/profile"
 import RulesPage from "./rules"
 import SearchPage from "./searchPage"
 

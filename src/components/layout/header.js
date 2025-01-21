@@ -1,27 +1,16 @@
-import React, { useEffect } from "react"
-import {  Box, Breadcrumbs, Toolbar, Typography, useMediaQuery } from '@mui/material'
-import { useLocation } from "react-router-dom"
+import React from "react"
 import './layout.css'
-import MobileMenu from "./menu-mobile"
-import LargeMenu from "./menu-large"
-import { useTheme } from "@emotion/react"
+import ResponsiveMenu from "./Menu/responsiveMenu"
 
 function Header(props) {
 
-  const location = useLocation()
-  const pathnames = location.pathname.split('/').filter((x) => x)
-  const theme = useTheme()
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  // const location = useLocation()
+  // const pathnames = location.pathname.split('/').filter((x) => x)
 
   if(props.show === false) return
   return (
     <>
-      
-      {isSmallScreen
-        ? <MobileMenu {...props} />
-        :  <LargeMenu {...props} />
-      }
-      {/* <Toolbar /> */}
+      <ResponsiveMenu {...props} />
 
       {/* <Breadcrumbs className='breadcrumbs'>
         {pathnames.map((elem, index) => {

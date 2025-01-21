@@ -3,8 +3,6 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import {Amplify} from 'aws-amplify';
-import awsconfig from './aws-exports';
 import { helpers } from 'helpers';
 //Amplify.configure(config);
 
@@ -20,30 +18,6 @@ const isLocalhost = Boolean(
 
  helpers.loadGoogleMapsAPI()
   
- // Assuming you have two redirect URIs, and the first is for production and second is for localhost
-//  const [
-//    productionRedirectSignIn,
-//    localRedirectSignIn
-//  ] = awsconfig.oauth.redirectSignIn.split(",");
- 
-//  const [
-//    productionRedirectSignOut,
-//    localRedirectSignOut
-//  ] = awsconfig.oauth.redirectSignOut.split(",");
- 
-//  //console.log(isLocalhost ? localRedirectSignIn : productionRedirectSignIn);
- 
-//  const updatedAwsConfig = {
-//    ...awsconfig,
-//    oauth: {
-//      ...awsconfig.oauth,
-//      redirectSignIn: isLocalhost ? localRedirectSignIn : productionRedirectSignIn,
-//      redirectSignOut: isLocalhost ? localRedirectSignOut : productionRedirectSignOut,
-//    }
-//  }
-//  //console.log(updatedAwsConfig);
- 
-//  Amplify.configure(updatedAwsConfig);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

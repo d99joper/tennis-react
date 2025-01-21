@@ -1,19 +1,20 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import {
-	Button, Card, Flex, Grid, Text, TextField, SelectField, View,
-	TextAreaField, Divider, Loader, TabItem, Tabs
-} from "@aws-amplify/ui-react";
+// import {
+// 	Button, Card, Flex, Grid, Text, TextField, SelectField, View,
+// 	TextAreaField, Divider, Loader, TabItem, Tabs
+// } from "@aws-amplify/ui-react";
 import { enums, helpers } from 'helpers'
-import { Editable, Matches, PhoneNumber, UserStats, TopRivals, UnlinkedMatches, ProfileImage, InfoPopup, MergeProfiles } from '../components/forms/index.js'
+import { Editable, Matches, PhoneNumber, UserStats, TopRivals, UnlinkedMatches, ProfileImage, InfoPopup, MergeProfiles } from '../../components/forms/index.js'
 import './profile.css';
-import { Modal, Box, Typography, Dialog, DialogTitle, Popover, CircularProgress } from '@mui/material';
+import { Modal, Box, Typography, Dialog, DialogTitle, CircularProgress, LinearProgress, Button, Card, Tabs, Tab, Grid2 as Grid, Divider, Select, TextField } from '@mui/material';
 import { AiOutlineEdit, AiOutlineMail, AiOutlinePhone, AiOutlineUsergroupAdd } from 'react-icons/ai';
-import { MdOutlineCancel, MdOutlineCheck, MdOutlineInfo, MdOutlineRefresh } from 'react-icons/md'
+import { MdOutlineCancel, MdOutlineCheck, MdOutlineRefresh } from 'react-icons/md'
 import { authAPI, playerAPI } from 'api/services/index.js';
 import { useContext } from 'react';
 import { ProfileImageContext } from 'components/forms/ProfileImage.js';
 import MyModal from 'components/layout/MyModal.js';
+import notificationAPI from 'api/services/notifications.js';
 
 function Profile(props) {
 
@@ -54,7 +55,7 @@ function Profile(props) {
 	const navigate = useNavigate()
 
 
-	const MatchEditor = lazy(() => import("../components/forms/index") //MatchEditor/MatchEditor")
+	const MatchEditor = lazy(() => import("../../components/forms/index") //MatchEditor/MatchEditor")
 		.then(module => { return { default: module.MatchEditor } }))
 
 	const handleUpdatedPhoneNumber = newNumber => {
@@ -94,14 +95,8 @@ function Profile(props) {
 		const smallImage = await helpers.resizeImage(origImage, 800)
 		//console.log(smallImage)
 		let p = await playerAPI.updatePlayerImage(player.id, smallImage)
-		//console.log("updateProfilePic", p)
 		setProfileImage(player.id, player.image)
-		// update the localstorage cache
-		//localStorage.setItem(`profile_image_${player.id}`, `${player.image}?dummy=${Math.random()}`)
-		//setPlayer(prevState => ({ ...prevState, image: p.image }))
 		setUpdatingImage(false)
-		// to avoid caching images, set a random number to add to the url
-		//setRandomImageNumber(Math.floor(Math.random() * 1000000))
 	}
 
 	async function updateProfileData(e) {
@@ -225,12 +220,12 @@ function Profile(props) {
 	if (error.status) {
 		return <div>Error: {error.message}</div>;
 	} else if (!isLoaded) {
-		return <h2><Loader />Loading...</h2>;
+		return <h2><LinearProgress />Loading...</h2>;
 	} else {
 		return (
-			<Flex className='profile-main' id="profile">
+			<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }} className='profile-main' id="profile">
 
-				<Flex as="form"
+				<Box as="form"
 					id="profileForm"
 					className='profile-form'
 					onSubmit={updateProfileData}
@@ -245,7 +240,7 @@ function Profile(props) {
 							<Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={'1rem'}>
 								{`Update profile picture`}
 							</Typography>
-							<View
+							<Box
 								name="profilePic"
 								as="input"
 								type="file"
@@ -304,9 +299,9 @@ function Profile(props) {
 							/>
 						}
 						{/************ NAME   *************/}
-						<Text fontSize='x-large' className='name'>
+						<Typography fontSize='x-large' className='name'>
 							{player.name}
-						</Text>
+						</Typography>
 
 					</Card>
 
@@ -316,7 +311,7 @@ function Profile(props) {
 							currentIndex={tabIndex}
 							onChange={(i) => setTabIndex(i)}
 							justifyContent="flex-start">
-							<TabItem title="General">
+							<Tab title="General">
 								<Grid
 									className='profile-info-grid'
 									// templateColumns="1fr 5fr"
@@ -325,17 +320,17 @@ function Profile(props) {
 									position={'relative'}
 								>
 
-									<View className='profile-contact' columnStart="1" columnEnd={'-1'}>
+									<Box className='profile-contact' columnStart="1" columnEnd={'-1'}>
 										{/************ EMAIL   *************/}
-										<Text fontSize='medium'>
+										<Typography fontSize='medium'>
 											<AiOutlineMail />
 											{isLoggedIn
 												? <>&nbsp;<a href={`mailto:${player.email}`}>{player.email}</a></>
 												: <>&nbsp;Hidden</>
 											}
-										</Text>
+										</Typography>
 										{/************ PHONE   *************/}
-										<Text fontSize='medium'>
+										<Typography fontSize='medium'>
 											{(player.phone || isEdit) && <AiOutlinePhone />}
 											{isLoggedIn
 												?
@@ -344,17 +339,17 @@ function Profile(props) {
 												</>
 												: <>&nbsp;Hidden</>
 											}
-										</Text>
+										</Typography>
 										{/************ MERGERS   *************/}
 										{(player.potential_mergers?.length > 0 && canEdit) &&
 											<>
-												<Text fontSize='medium' className='cursorHand' onClick={() => setShowMergers(true)}>
+												<Typography fontSize='medium' className='cursorHand' onClick={() => setShowMergers(true)}>
 													<AiOutlineUsergroupAdd />
 													<a>
 														&nbsp;
 														Is this you? There's a potential merger.
 													</a>
-												</Text>
+												</Typography>
 												<MyModal
 													showHide={showMergers}
 													onClose={() => setShowMergers(false)}
@@ -366,11 +361,18 @@ function Profile(props) {
 											</>
 										}
 
-									</View>
+									</Box>
 
-									<View columnStart={'1'} columnEnd={'-1'}>
+									<Box columnStart={'1'} columnEnd={'-1'}>
+										<Button onClick={async () => {
+											const newNotification = await notificationAPI.createNotification({
+												recipient_id: 'a0ee264b-9486-49dc-908a-ee9b7d0485aa',
+												title: 'New Event',
+												message: 'Don’t miss this awesome event!',
+											});
+										}}>Add comment</Button>
 										<Divider paddingBottom={'.5rem'} />
-									</View>
+									</Box>
 
 									{/************ EDIT TOOGLE   *************/}
 									<div className="mobile-only" style={{ textAlign: 'right', paddingRight: '1rem', flexGrow: 1, position: 'absolute', top: 0, right: 0, padding: '1rem', zIndex: 9999 }}>
@@ -395,13 +397,13 @@ function Profile(props) {
 
 										}
 									</div>
-									<View >Location </View>
+									<Box >Location </Box>
 									<div>
 										{player.location ?? 'Unknown'}
 
 									</div>
 									{/************ NTRP   *************/}
-									<View>NTRP
+									<Box>NTRP
 										<InfoPopup paddingLeft={"0.1rem"}>
 											<a
 												href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'
@@ -411,35 +413,35 @@ function Profile(props) {
 											</a>
 										</InfoPopup>
 										:
-									</View>
+									</Box>
 									<div>
-										<Flex direction={"row"}>
+										<Box sx={{ display: 'flex', direction:'row', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
 											<Editable
 												text={player.NTRP ?? '-'}
 												isEditing={isEdit}
 												direction="row"
 												gap="0.5rem"
 											>
-												<SelectField
+												<Select
 													name="NTPR"
 													size='small'
 													defaultValue={player.NTRP ? player.NTRP : '2.0'}
 													options={NTRPItems}
-												></SelectField>
+												></Select>
 
 											</Editable>
-										</Flex>
+										</Box>
 									</div>
 									{/************ UTR   *************/}
-									<View>UTR
+									<Box>UTR
 										<InfoPopup paddingLeft={"0.1rem"}>
 											Add your UTR id to link up with your UTR account
 										</InfoPopup>:
-									</View>
-									<Flex direction={"row"}>
+									</Box>
+									<Box sx={{ display: 'flex', direction:'row', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
 										<Editable
 											text={
-												<Flex direction={"column"} gap={"0"}>
+												<Box sx={{ display: 'flex', direction:'column', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
 													{!player.UTR ? <div>'Add your UTR id'</div> : ''}
 													<div>
 														Singles: {showUtrRefreshing ? <CircularProgress size={14} /> : (utrRankSingles > 0 ? utrRankSingles : 'UR')}
@@ -455,7 +457,7 @@ function Profile(props) {
 															onClick={() => updateUTR()} />
 													}
 													{utrLink ? <a target='_blank' href={utrLink}>{`View UTR profile >>`}</a> : ''}
-												</Flex>
+												</Box>
 											}
 											isEditing={isEdit}
 										>
@@ -463,9 +465,9 @@ function Profile(props) {
 
 										</Editable>
 
-									</Flex>
+									</Box>
 									{/************ LADDERS   *************/}
-									<View>Events:</View>
+									<Box>Events:</Box>
 									<Grid templateRows={"auto"}>
 										{player.events?.map((event, i) => {
 											if (event.event_type === 'league') {
@@ -478,11 +480,11 @@ function Profile(props) {
 									{/************ ABOUT   *************/}
 									{(player.about || isEdit === true) &&
 										<>
-											<View><Text>About:</Text></View>
+											<Box><Typography>About:</Typography></Box>
 											<Editable
 												text={player.about}
 												isEditing={isEdit}>
-												<TextAreaField name="about" defaultValue={player.about}></TextAreaField>
+												<TextField multiline name="about" defaultValue={player.about}></TextField>
 											</Editable>
 										</>
 									}
@@ -492,8 +494,8 @@ function Profile(props) {
                                         </Button>
                                     } */}
 								</Grid>
-							</TabItem>
-							<TabItem title="Stats" onClick={handleStatsClick} >
+							</Tab>
+							<Tab title="Stats" onClick={handleStatsClick} >
 								{/************ STATS   *************/}
 								<UserStats
 									stats={stats}
@@ -509,18 +511,21 @@ function Profile(props) {
 									displayAs={enums.DISPLAY_MODE.Table}
 									className="desktop-only"
 								/>
-							</TabItem>
-							<TabItem title="Greatest Rivals" onClick={handleRivalsClick} >
+							</Tab>
+							<Tab title="Greatest Rivals" onClick={handleRivalsClick} >
 								{/************ RIVALS   *************/}
 								<TopRivals data={rivals} rivalsFetched={rivalsFetched} player={player} paddingTop={10} />
-							</TabItem>
+							</Tab>
+							<Tab title='Notifications'>
+								test
+							</Tab>
 						</Tabs>
 					</Card>
-				</Flex>
+				</Box>
 
 				{/************ MATCHES   *************/}
 
-				<Flex direction="row" gap="1rem">
+				<Box sx={{direction:"row", display:'flex', gap:"1rem"}}>
 					<Card className='card' variation="elevated" style={{ width: "100%" }}>
 						<Tabs
 							autoSave=''
@@ -528,15 +533,16 @@ function Profile(props) {
 							onChange={(i) => setMatchTabIndex(i)}
 							justifyContent="flex-start"
 						>
-							<TabItem title="Singles">
+							<Tab title="Singles">
 								<UnlinkedMatches matches={unLinkedMatches} player={player} handleMatchAdded={handleUnlinkedMatchAdded} />
 								<Matches
-									player={player}
+									originId={player.id}
+									originType={'player'}
 									hightlightedMatch={highLightedMatch}
 									refreshMatches={refreshMatchesCounter}
 									pageSize="10"
 									matchType={enums.MATCH_TYPE.SINGLES}
-									displayAs={enums.DISPLAY_MODE.SimpleList}
+									// displayAs={enums.DISPLAY_MODE.SimpleList}
 									allowDelete={loggedInPlayer?.isAdmin}
 									className="desktop-only"
 									showH2H={true}
@@ -544,25 +550,12 @@ function Profile(props) {
 									showComments={true}
 									isLoggedIn={isLoggedIn}
 								/>
-								<Matches
-									player={player}
-									hightlightedMatch={highLightedMatch}
-									refreshMatches={refreshMatchesCounter}
-									pageSize="10"
-									matchType={enums.MATCH_TYPE.SINGLES}
-									allowDelete={loggedInPlayer?.isAdmin}
-									displayAs={enums.DISPLAY_MODE.SimpleList}
-									className="mobile-only"
-									showH2H={true}
-									showChallenge={true}
-									showComments={true}
-									isLoggedIn={isLoggedIn}
-								/>
 
-							</TabItem>
-							<TabItem title="Doubles">
+							</Tab>
+							<Tab title="Doubles">
 								<Matches
-									player={player}
+									originId={player.id}
+									originType={'player'}
 									hightlightedMatch={highLightedMatch}
 									refreshMatches={refreshMatchesCounter}
 									pageSize="10"
@@ -575,21 +568,7 @@ function Profile(props) {
 									isLoggedIn={isLoggedIn}
 									displayAs={enums.DISPLAY_MODE.SimpleList}
 								/>
-								<Matches
-									player={player}
-									hightlightedMatch={highLightedMatch}
-									refreshMatches={refreshMatchesCounter}
-									pageSize="10"
-									matchType={enums.MATCH_TYPE.DOUBLES}
-									allowDelete={loggedInPlayer?.isAdmin}
-									displayAs={enums.DISPLAY_MODE.SimpleList}
-									className="mobile-only"
-									showH2H={true}
-									showChallenge={true}
-									showComments={true}
-									isLoggedIn={isLoggedIn}
-								/>
-							</TabItem>
+							</Tab>
 						</Tabs>
 						{canEdit &&
 							<Button label="Add new match"
@@ -622,8 +601,8 @@ function Profile(props) {
 							</Box>
 						</Dialog>
 					</Card>
-				</Flex>
-			</Flex>
+				</Box>
+			</Box>
 		)
 	}
 

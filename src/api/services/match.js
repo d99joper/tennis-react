@@ -16,14 +16,15 @@ const matchAPI = {
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get match' }
   },
 
-  getMatches: async function(originType, originId, page, pageSize, skip) {
-    console.log(originType, originId, page, pageSize, skip)
+  getMatches: async function(originType, originId, matchType, page, pageSize, skip) {
+    
     const requestOptions = authAPI.getRequestOptions('GET')
     const url = apiUrl + 'matches2/'
-      + '?originType=' + originType
-      + (originId ? '&originId=' + originId : '')
+      + '?origin-type=' + originType
+      + (originId ? '&origin-id=' + originId : '')
+      + (matchType ? '&match-type=' + matchType : '')
       + (page ? '&page=' + page : '')
-      + (pageSize ? '&pageSize=' + pageSize : '')
+      + (pageSize ? '&page-size=' + pageSize : '')
       + (skip ? '&skip=' + skip : '')
 
     let response = await fetch(url, requestOptions)

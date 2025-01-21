@@ -4,20 +4,16 @@ import React, { Suspense, lazy, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import './Ladder.css'
 import { Modal, Typography, Table, TableHead, TableCell, TableBody, Avatar, TableRow, CardHeader, Box, Select, MenuItem, FormControl, InputLabel, Dialog, DialogTitle, TextField, CircularProgress } from "@mui/material"
-import '@fontsource/roboto/300.css'
-import '@fontsource/roboto/400.css'
-import '@fontsource/roboto/500.css'
-import '@fontsource/roboto/700.css'
+// import '@fontsource/roboto/300.css'
+// import '@fontsource/roboto/400.css'
+// import '@fontsource/roboto/500.css'
+// import '@fontsource/roboto/700.css'
 import { GiSwordsPower, GiTennisRacket } from "react-icons/gi"
 import { AiOutlineMail, AiOutlinePhone } from "react-icons/ai"
 import { MdOutlineSms } from "react-icons/md"
-import { Storage } from "aws-amplify"
 import { Matches, ProfileImage } from "../../forms/index.js"
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers"
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { eventAPI, ladderAPI, matchAPI, playerAPI } from "api/services";
 // import Modal from "components/layout/Modal/modal.js";
-// import { Modal, ModalClose, ModalDialog, Sheet } from "@mui/joy";
 
 const Ladder = ({
   id,
