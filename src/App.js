@@ -74,19 +74,27 @@ function App() {
   
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.getRegistrations().then((registrations) => {
-      if (registrations.length === 0) {
-        // No service workers registered, so register it
-        navigator.serviceWorker
-          .register(`firebase-messaging-sw.js`)
-          .then((registration) => {
-            console.log("Service Worker registered with scope:", registration.scope);
-          })
-          .catch((error) => {
-            console.error("Service Worker registration failed:", error);
+      if (registrations.length > 0) {
+        // Unregister all existing service workers
+        registrations.forEach((registration) => {
+          registration.unregister().then((success) => {
+            if (success) {
+              console.log("Old Service Worker unregistered.");
+            }
           });
-      } else {
-        console.log("Service Worker already registered.");
+        });
       }
+  
+      // Register the new service worker
+      navigator.serviceWorker
+        .register(`${process.env.PUBLIC_URL}/firebase-messaging-sw.js`)  
+      //.register('https://9vonq7kpti.execute-api.us-west-1.amazonaws.com/firebase-messaging-sw.js')
+        .then((registration) => {
+          console.log("New Service Worker registered with scope:", registration.scope);
+        })
+        .catch((error) => {
+          console.error("Service Worker registration failed:", error);
+        });
     });
   }
   useEffect(() => {
