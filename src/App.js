@@ -77,7 +77,7 @@ function App() {
       if (registrations.length === 0) {
         // No service workers registered, so register it
         navigator.serviceWorker
-          .register(`${process.env.PUBLIC_URL}/firebase-messaging-sw.js`)
+          .register(`firebase-messaging-sw.js`)
           .then((registration) => {
             console.log("Service Worker registered with scope:", registration.scope);
           })
