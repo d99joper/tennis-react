@@ -3,101 +3,56 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import MyRouter from './routes';
-import { green, blue, red, purple } from '@mui/material/colors';
 import { BrowserRouter } from 'react-router-dom';
 import { Box, CssBaseline } from '@mui/material';
 import authAPI from 'api/auth';
 import { ProfileImageProvider } from "components/forms";
 import { requestNotificationPermission } from "./firebase/requestNotificationPermission";
 import { setupNotificationListener } from "./firebase/notificationService";
+import {theme, PrimaryMainTheme} from 'theme_config';
 
 function App() {
-  let PrimaryMainTheme = createTheme({
-    palette: {
-      primary: {
-        main: green[500],
-        light: green[200],
-        dark: green[700],
-        //contrastText: purple
-      }, // Primary color
-      success: { main: '#edfdf0' },//
-      divider: green[300],
-      secondary: { main: '#edfdf0' }, // Secondary color
-      login: { main: green[700], hover: green[300], text: '#FFF' },
-      info: { main: blue[400]},
-      submit: { main: green[500], hover: green[300] },
-      ochre: {
-        main: '#E3D026',
-        light: '#E9DB5D',
-        dark: '#A29415',
-        contrastText: '#242105',
-      },
-      background: {
-        default: '#edfdf0',
-        secondary: blue[50], // Secondary background color
-        success: blue[100],
-        paper: green[100],
-      },
-    },
-    components: {
-      MuiOutlinedInput: {
-        styleOverrides: {
-          root: {
-            backgroundColor: '#fff', // Apply background color globally
-            '&.Mui-focused': {
-              backgroundColor: '#f9f9f9', // Optional: change color when focused
-            },
-          },
-        },
-      },
-    },
-  });
-  PrimaryMainTheme = createTheme(PrimaryMainTheme, {
-    palette: {
-
-      tennis: PrimaryMainTheme.palette.augmentColor({
-        color: {
-          main: '#a34',
-        },
-        background: { main: '#7AD' },
-        name: 'tennis',
-      }),
-    }
-  });
+  
 
   const [isLoading, setLoading] = useState(true); // Loading state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState({})
 
+  console.log('app is starting...')
   // request notification permission
-  requestNotificationPermission();
-  
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
-      if (registrations.length > 0) {
-        // Unregister all existing service workers
-        registrations.forEach((registration) => {
-          registration.unregister().then((success) => {
-            if (success) {
-              console.log("Old Service Worker unregistered.");
-            }
-          });
-        });
-      }
-  
-      // Register the new service worker
-      navigator.serviceWorker
-        .register(`${process.env.PUBLIC_URL}/firebase-messaging-sw.js`)  
-      //.register('https://9vonq7kpti.execute-api.us-west-1.amazonaws.com/firebase-messaging-sw.js')
-        .then((registration) => {
-          console.log("New Service Worker registered with scope:", registration.scope);
-        })
-        .catch((error) => {
-          console.error("Service Worker registration failed:", error);
-        });
-    });
-  }
+
   useEffect(() => {
+    console.log("App.js: Setting up service worker and notification permissions");
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => {
+          registration.unregister().then(() => console.log("Old service worker unregistered."));
+        });
+
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted") {
+            console.log("Notification permission granted.");
+            setTimeout(() => {
+              navigator.serviceWorker
+                .register(`${process.env.PUBLIC_URL}/firebase-messaging-sw.js`)
+                .then((registration) => {
+                  console.log("Service Worker registered with scope:", registration.scope);
+                })
+                .catch((error) => {
+                  console.error("Service Worker registration failed:", error);
+                });
+            }, 1000);
+          } else {
+            console.error("Notification permission denied.");
+          }
+        });
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    requestNotificationPermission();
     setupNotificationListener((notification) => {
       console.log("New notification:", notification);
       // Handle notification here (e.g., update UI or show a badge)
@@ -105,18 +60,16 @@ function App() {
   }, []); // Runs only once when the app loads
 
   useEffect(() => { // 
-
     function handleLoginLogout(e) {
       console.log(e)
       getCurrentUser()
     }
-
     async function getCurrentUser() {
       try {
         // get the current user (it's okay if it's null)
         const user = authAPI.getCurrentUser()
         setCurrentUser(user)
-        
+
         // check if there is a user and set the isLoggedIn flag
         const isSignedIn = typeof user === 'object' ? true : false
         setIsLoggedIn(isSignedIn)
@@ -142,18 +95,15 @@ function App() {
 
   }, [])
 
+  useEffect(() => {
+    console.log("App.js: Mounted");
+    return () => {
+      console.log("App.js: Unmounted");
+    };
+  }, []);
+
   if (isLoading) {
-    return (
-      <div style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh",
-      }}>
-        Loading the data {console.log("loading state")}
-      </div>
-    )
+    return <div>Loading...</div>;
   }
 
   return (
@@ -162,10 +112,10 @@ function App() {
         <CssBaseline />
         <ThemeProvider theme={PrimaryMainTheme}>
           <BrowserRouter>
-            
-              <MyRouter isLoggedIn={isLoggedIn} currentUser={currentUser} />
-              {/* </main> */}
-              
+
+            <MyRouter isLoggedIn={isLoggedIn} currentUser={currentUser} />
+            {/* </main> */}
+
             {/* </Box> */}
           </BrowserRouter>
         </ThemeProvider>
