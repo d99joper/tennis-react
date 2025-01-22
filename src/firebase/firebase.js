@@ -5,7 +5,6 @@ import { getMessaging, onMessage } from "firebase/messaging";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-console.log(process.env.PUBLIC_URL)
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
   authDomain: "mytennis-space.firebaseapp.com",
