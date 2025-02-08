@@ -29,9 +29,10 @@ const notificationAPI = {
 
   // Get all notifications for the user
   getAllNotifications: async function () {
+    console.log('get all notifications')
     const requestOptions = authAPI.getRequestOptions('GET');
-    const response = await fetch(notificationsUrl, requestOptions);
-
+    console.log(notificationsUrl)
+    const response = await fetch(notificationsUrl+`?_=${new Date().getTime()}`, requestOptions);
     if (response.ok) {
       const data = await response.json();
       return data.notifications;
@@ -113,7 +114,7 @@ const notificationAPI = {
   // Delete a specific notification
   deleteNotification: async function (id) {
     const requestOptions = authAPI.getRequestOptions('DELETE');
-    const response = await fetch(`${notificationsUrl}?id=${id}`, requestOptions);
+    const response = await fetch(`${notificationsUrl}delete?id=${id}`, requestOptions);
 
     if (response.ok) {
       return { success: true };

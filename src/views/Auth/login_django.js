@@ -5,8 +5,9 @@ import { Box, Button, CircularProgress, Divider, LinearProgress, TextField, Typo
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { enums } from 'helpers'
 import { UserInformation } from 'components/forms'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import MyGoogleCheck from './MyGoogleCheck';
+import { AuthContext } from 'contexts/AuthContext'
 
 function Login({ mode, ...props }) {
 
@@ -18,6 +19,7 @@ function Login({ mode, ...props }) {
   const [player, setPlayer] = useState()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
+  const {login} = useContext(AuthContext);
 
   function sendVerificationEmail(user) {
     playerAPI.sendVerificationEmail(user).then(() => {
@@ -42,16 +44,16 @@ function Login({ mode, ...props }) {
     setErrors([])
     setShowLoader(true)
     authAPI.login(username, pwd)
-      .then((user) => {
+      .then((player) => {
         // if the user doesn't have a name, go to the more information page
-        console.log(user)
+        console.log(player)
         // disable verification for now, perhaps add it back in if it becomes a problem later on
         // if (!user.verified) {
         //   errors.push(
         //     <span key='login_error' className='error'>
         //       This user has not been verified. Please check your inbox for a verification email.
         //       <Box sx={{p:2}}>
-        //         <Button color={'info'} variant='contained' onClick={() => sendVerificationEmail(user.id)}>
+        //         <Button color={'info'} variant='contained' onClick={() => sendVerificationEmail(player.id)}>
         //           Send new verification email
         //         </Button>
         //       </Box>
@@ -60,7 +62,8 @@ function Login({ mode, ...props }) {
         // }
         // else
         //  redirect()
-        redirect()
+        login();
+        redirect(player.id)
       })
       .catch((error) => {
         console.log(error);
@@ -72,18 +75,13 @@ function Login({ mode, ...props }) {
       });
   }
 
-  function redirect(page) {
-
-    if (page) {
-      navigate(page, { replace: false })
-    }
-    else {
+  function redirect(id) {
       const redirectTo = searchParams.get("redirectTo")
-      if (redirectTo?.startsWith('profile') || redirectTo === 'search' || redirectTo === 'ladders')
+      if (redirectTo?.startsWith('players') || redirectTo === 'search' || redirectTo === 'ladders')
         navigate(redirectTo, { replace: false })
       else
-        navigate("/profile", { replace: false })
-    }
+        navigate("/players/"+id, { replace: false })
+   
   }
 
   const handleGoogleAuth = (data, credentialResponse) => {
@@ -93,7 +91,7 @@ function Login({ mode, ...props }) {
       setShowLoader(true)
       // user already exists, so login and redirect to profile page
       authAPI.googleLogin(credentialResponse.credential).then((user) => {
-        navigate("/profile", { replace: false })
+        navigate("/players/"+user.id, { replace: false })
       })
     }
     // it's a new user

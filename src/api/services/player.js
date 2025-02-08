@@ -1,13 +1,18 @@
 import apiUrl from "config"
-import { authAPI } from "."
+import { authAPI, eventAPI } from "."
+import { helpers } from "helpers"
 
 const playersUrl = apiUrl + 'players/'
 
 const playerAPI = {
 
-  getPlayer: async function (id) {
+  getPlayer: async function (id, shortVersion=false) {
     const requestOptions = authAPI.getRequestOptions('GET')
-    let response = await fetch(playersUrl + id, requestOptions)
+    const shortUrl =  shortVersion ? '/short' : ''
+    let playerId = id ?? authAPI.getCurrentUser()?.id;
+    if(!helpers.hasValue(playerId)) return {}
+    
+    let response = await fetch(playersUrl + playerId + shortUrl, requestOptions)
 
     if (response.ok) {
       const player = await response.json()
@@ -45,16 +50,6 @@ const playerAPI = {
     }
     else
       return { statusCode: response.statusCode, statusMessage: 'No players found' }
-  },
-
-  getParticipants: async function(event, filter) {
-    if(event) {
-      if (event.type === 'singles') {
-        filter = {...filter, event: event}
-      }
-    }
-    else 
-      return this.getPlayers(filter)
   },
 
   getPlayers: async function (filter) {

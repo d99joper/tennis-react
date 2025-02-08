@@ -1,7 +1,7 @@
 import { Button, Grid, View } from "@aws-amplify/ui-react"
 import { Box, Checkbox, Dialog, DialogTitle } from "@mui/material"
 import { useState } from "react"
-import { Match } from "../Match/Match"
+import { Match } from "../index"
 import { matchHelper, userHelper } from "helpers"
 
 const UnlinkedMatches = ({

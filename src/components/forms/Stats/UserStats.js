@@ -1,141 +1,230 @@
-import { Loader, Table, TableBody, TableCell, TableFoot, TableHead, TableRow } from "@aws-amplify/ui-react";
-import { Card, Grid } from "@mui/material";
-import { enums } from "helpers";
-import React, { useEffect, useState } from "react";
-import { GoTriangleDown, GoTriangleUp } from 'react-icons/go';
-import "./stats.css"
+import React, { useState } from "react";
+import {
+  Box,
+  Card,
+  CardContent,
+  Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableFooter,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import { GoTriangleDown, GoTriangleUp } from "react-icons/go";
 
-const UserStats = ({ stats: data, ...props }) => {
-
+const UserStats = ({ stats: data, statsFetched }) => {
   const [sortField, setSortField] = useState("year");
   const [direction, setDirection] = useState("asc");
+  const theme = useTheme();
+  const isLargeScreen = useMediaQuery(theme.breakpoints.up("md"));
+
   const columns = [
     { label: "Year", accessor: "year", sortable: true },
     { label: "Matches", accessor: "matches", sortable: true },
     { label: "Sets", accessor: "sets", sortable: true },
     { label: "Tiebreaks", accessor: "tiebreaks", sortable: true },
-    { label: "Games", accessor: "games", sortable: true }
-  ]
+    { label: "Games", accessor: "games", sortable: true },
+  ];
 
-  function handleSortingChange(e, col) {
-    const sortOrder = (col === sortField && direction === "asc") ? "desc" : "asc";
+  const handleSortingChange = (col) => {
+    const sortOrder = col === sortField && direction === "asc" ? "desc" : "asc";
     setSortField(col);
     setDirection(sortOrder);
 
-    switch (col) {
-      case "year":
-        data.years.sort((a, b) => (a.year > b.year ? 1 : -1) * (sortOrder === "asc" ? 1 : -1))
-        break;
-      default:
-        data.years.sort((a, b) => (a.stats[col]["percentage"] - b.stats[col]["percentage"]) * (sortOrder === "asc" ? 1 : -1))
-        break;
-    }
-    data.sortField = col
+    const sortedData = [...data.years];
+    sortedData.sort((a, b) => {
+      if (col === "year") {
+        return (a.year > b.year ? 1 : -1) * (sortOrder === "asc" ? 1 : -1);
+      }
+      return (
+        (a.stats[col]?.percentage - b.stats[col]?.percentage) *
+        (sortOrder === "asc" ? 1 : -1)
+      );
+    });
+    data.years = sortedData;
+  };
+
+  if (!statsFetched) {
+    return <Typography variant="h5">Loading...</Typography>;
   }
 
+  if (data?.years.length === 0) {
+    return <Typography variant="h6">No matches found</Typography>;
+  }
+
+  const textColor = (percentage) => ({
+    color: percentage >= 50 ? "rgb(16, 116, 16)" : "rgb(177, 38, 14)"
+  })
+
   return (
-    (props.statsFetched && data?.years.length > 0) ?
-      <div className={props.className}>
-        {props.displayAs === enums.DISPLAY_MODE.SimpleList &&
-          <Grid gap={'1rem'} display={'grid'} paddingTop={'.5rem'}>
-            {data.years.map(({ year, stats: s }) =>
-              <Card key={'card_' + year} className={"stat-card " + (s.matches.percentage >= 50 ? 'win-card' : 'lose-card')}>
-                <b>{year}:</b>
-                <div className="indent">
-                  Won {s.matches.wins} of {s.matches.total} matches ({s.matches.percentage}%)
-                </div>
-                <div className="indent">
-                  Won {s.sets.wins} of {s.sets.total} sets ({s.sets.percentage}%)
-                </div>
-                <div className="indent">
-                  Won {s.games.wins} of {s.games.total} games ({s.games.percentage}%)
-                </div>
-              </Card>
-            )}
-            <Card className={"stat-card " + (data.totals.stats.matches.percentage >= 50 ? 'win-card' : 'lose-card')}>
-              <b>Total all years:</b>
-              <div className="indent">
-                Won {data.totals.stats.matches.wins} of {data.totals.stats.matches.total} matches ({data.totals.stats.matches.percentage}%)
-              </div>
-              <div className="indent">
-                Won {data.totals.stats.sets.wins} of {data.totals.stats.sets.total} sets ({data.totals.stats.sets.percentage}%)
-              </div>
-              <div className="indent">
-                Won {data.totals.stats.games.wins} of {data.totals.stats.games.total} games ({data.totals.stats.games.percentage}%)
-              </div>
-            </Card>
-          </Grid>
-        }
-        {props.displayAs === enums.DISPLAY_MODE.Table &&
-          <div>
-            <Table highlightOnHover={true} marginTop="1em" variation="striped" backgroundColor={'white'}>
-              <TableHead backgroundColor={'blue.20'} >
-                <TableRow>
-                  {columns.map(col =>
-                    <TableCell as="th"
-                      key={col.accessor}
-                      className={col.sortable ? "cursorHand" : null}
-                      onClick={col.sortable ? (e) => handleSortingChange(e, col.accessor) : null}
-                    >
-                      {col.label + " "}
-                      {  // Set the search arrow (default year desc)
-                        (!data.sortField && col.accessor == "year"
-                          ? <GoTriangleUp />
-                          // asc -> arrow down
-                          : data.sortField === col.accessor && direction === "asc")
-                          ? <GoTriangleDown />
-                          // desc -> arrow up
-                          : (data.sortField === col.accessor && direction === "desc")
-                            ? <GoTriangleUp />
-                            // grey with 100 opacity to act as space filler 
-                            : (col.sortable)
-                              ? <GoTriangleDown color="#aaaaaa00" />
-                              // otherwise nothing
-                              : null
-                      }
-                    </TableCell>
-                  )}
+    <Box>
+      {/* Table for Larger Screens */}
+      {isLargeScreen ? (
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                {columns.map((col) => (
+                  <TableCell
+                    key={col.accessor}
+                    onClick={col.sortable ? () => handleSortingChange(col.accessor) : null}
+                    style={{
+                      cursor: col.sortable ? "pointer" : "default",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {col.label}{" "}
+                    {col.sortable &&
+                      (sortField === col.accessor ? (
+                        direction === "asc" ? (
+                          <GoTriangleDown />
+                        ) : (
+                          <GoTriangleUp />
+                        )
+                      ) : (
+                        <GoTriangleDown style={{ opacity: 0.3 }} />
+                      ))}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.years.map(({ year, stats: s }) => (
+                <TableRow
+                  key={year}
+                  sx={{
+                    "& > *": {
+                      color: s.matches.percentage >= 50
+                        ? "rgb(16, 116, 16)"
+                        : "rgb(177, 38, 14)",
+                    }
+                  }}
+                >
+                  <TableCell>{year}</TableCell>
+                  <TableCell>
+                    {s.matches.wins}/{s.matches.total} ({s.matches.percentage}%)
+                  </TableCell>
+                  <TableCell>
+                    {s.sets.wins}/{s.sets.total} ({s.sets.percentage}%)
+                  </TableCell>
+                  <TableCell>
+                    {s.tiebreaks.wins}/{s.tiebreaks.total} ({s.tiebreaks.percentage}%)
+                  </TableCell>
+                  <TableCell>
+                    {s.games.wins}/{s.games.total} ({s.games.percentage}%)
+                  </TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {data.years.map(({ year, stats: s }) =>
-                  <TableRow key={year}>
-                    <TableCell>{year}</TableCell>
-                    <TableCell color={s.matches.percentage >= 50 ? 'green' : 'red'}>
-                      {s.matches.wins}/{s.matches.total} ({s.matches.percentage}%)</TableCell>
-                    <TableCell color={s.sets.percentage >= 50 ? 'green' : s.sets.total !== 0 ? 'red' : null}>
-                      {s.sets.wins}/{s.sets.total} ({s.sets.percentage}%)</TableCell>
-                    <TableCell color={s.tiebreaks.percentage >= 50 ? 'green' : s.tiebreaks.total !== 0 ? 'red' : null}>
-                      {s.tiebreaks.wins}/{s.tiebreaks.total} ({s.tiebreaks.percentage}%)</TableCell>
-                    <TableCell color={s.games.percentage >= 50 ? 'green' : s.games.total !== 0 ? 'red' : null}>
-                      {s.games.wins}/{s.games.total} ({s.games.percentage}%)</TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-              {data.totals.stats &&
-                <TableFoot>
-                  <TableRow key="foot">
-                    <TableCell as="th">Total</TableCell>
-                    <TableCell as="th" color={data.totals.stats.matches.percentage >= 50 ? 'green' : 'red'}>
-                      {data.totals.stats.matches.wins}/{data.totals.stats.matches.total} ({data.totals.stats.matches.percentage}%)</TableCell>
-                    <TableCell as="th" color={data.totals.stats.sets.percentage >= 50 ? 'green' : 'red'}>
-                      {data.totals.stats.sets.wins}/{data.totals.stats.sets.total} ({data.totals.stats.sets.percentage}%)</TableCell>
-                    <TableCell as="th" color={data.totals.stats.tiebreaks.percentage >= 50 ? 'green' : 'red'}>
-                      {data.totals.stats.tiebreaks.wins}/{data.totals.stats.tiebreaks.total} ({data.totals.stats.tiebreaks.percentage}%)</TableCell>
-                    <TableCell as="th" color={data.totals.stats.games.percentage >= 50 ? 'green' : 'red'}>
-                      {data.totals.stats.games.wins}/{data.totals.stats.games.total} ({data.totals.stats.games.percentage}%)</TableCell>
-                  </TableRow>
-                </TableFoot>
-              }
-            </Table>
-          </div>
-        }
-      </div>
-      : data?.years.length === 0 ?
-        <div>'No matches found'</div>
-        : <h5><Loader /> Loading ...</h5>
+              ))}
+            </TableBody>
+            <TableFooter>
+              <TableRow
+                sx={{
+                  "& > *": {
+                    color: data.totals.stats.matches.percentage >= 50
+                      ? "rgb(16, 116, 16)"
+                      : "rgb(177, 38, 14)",
+                    fontWeight: 'bold'
+                  }
+                }}
+              >
+                <TableCell>Total</TableCell>
+                <TableCell>
+                  {data.totals.stats.matches.wins}/{data.totals.stats.matches.total} (
+                  {data.totals.stats.matches.percentage}%)
+                </TableCell>
+                <TableCell>
+                  {data.totals.stats.sets.wins}/{data.totals.stats.sets.total} (
+                  {data.totals.stats.sets.percentage}%)
+                </TableCell>
+                <TableCell>
+                  {data.totals.stats.tiebreaks.wins}/{data.totals.stats.tiebreaks.total} (
+                  {data.totals.stats.tiebreaks.percentage}%)
+                </TableCell>
+                <TableCell>
+                  {data.totals.stats.games.wins}/{data.totals.stats.games.total} (
+                  {data.totals.stats.games.percentage}%)
+                </TableCell>
+              </TableRow>
+            </TableFooter>
+          </Table>
+        </TableContainer>
+      ) : (
+        /* Cards for Smaller Screens */
+        <Box>
+          <Box
+            sx={{
+              backgroundColor:
+                data.totals.stats.matches.percentage >= 50
+                  ? "rgba(144, 238, 144, 0.1)"
+                  : "rgba(255, 99, 71, 0.1)",
+              color: data.totals.stats.matches.percentage >= 50
+                ? "rgb(16, 116, 16)"
+                : "rgb(177, 38, 14)",
+              borderRadius: 1,
+              boxShadow: 1,
+              p: 2,
+              mb: 2,
+            }}
+          >
+            <Typography variant="h6">Total</Typography>
+            <Typography>
+              Matches: {data.totals.stats.matches.wins}/{data.totals.stats.matches.total} (
+              {data.totals.stats.matches.percentage}%)
+            </Typography>
+            <Typography>
+              Sets: {data.totals.stats.sets.wins}/{data.totals.stats.sets.total} (
+              {data.totals.stats.sets.percentage}%)
+            </Typography>
+            <Typography>
+              Tiebreaks: {data.totals.stats.tiebreaks.wins}/{data.totals.stats.tiebreaks.total} (
+              {data.totals.stats.tiebreaks.percentage}%)
+            </Typography>
+            <Typography>
+              Games: {data.totals.stats.games.wins}/{data.totals.stats.games.total} (
+              {data.totals.stats.games.percentage}%)
+            </Typography>
+          </Box>
+          {data.years.map(({ year, stats: s }) => (
+            <Box
+              key={year}
+              sx={{
+                p: 2,
+                mb: 2,
+                backgroundColor:
+                  s.matches.percentage >= 50
+                    ? "rgba(144, 238, 144, 0.1)"
+                    : "rgba(255, 99, 71, 0.1)",
+                
+                borderRadius: 1,
+                borderRadius: 1,
+                boxShadow: 1,
+              }}
+            >
+              <Typography variant="h6" sx={textColor(s.matches.percentage)}>{year}</Typography>
+              <Typography sx={textColor(s.matches.percentage)}>
+                Matches: {s.matches.wins}/{s.matches.total} ({s.matches.percentage}%)
+              </Typography>
+              <Typography sx={textColor(s.sets.percentage)}>
+                Sets: {s.sets.wins}/{s.sets.total} ({s.sets.percentage}%)
+              </Typography>
+              <Typography sx={textColor(s.tiebreaks.percentage)}>
+                Tiebreaks: {s.tiebreaks.wins}/{s.tiebreaks.total} ({s.tiebreaks.percentage}%)
+              </Typography>
+              <Typography sx={textColor(s.games.percentage)}>
+                Games: {s.games.wins}/{s.games.total} ({s.games.percentage}%)
+              </Typography>
+            </Box>
+          ))}
 
-  )
-}
+        </Box>
+      )}
+    </Box>
+  );
+};
 
-export default UserStats
+export default UserStats;

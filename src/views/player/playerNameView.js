@@ -15,7 +15,7 @@ const PlayerNameView = ({ player, asLink = false, size = 30 }) => {
   return (
     asLink 
     ? (
-      <Link to={"/profile/"+player.id}>{boxContent}</Link>
+      <Link to={"/players/"+player.id}>{boxContent}</Link>
     )
     : boxContent
     

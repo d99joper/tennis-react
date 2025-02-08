@@ -216,14 +216,19 @@ const SelectWithFetch = ({ allowCreate = false, disabledItemList = [], disabled,
               {...params}
               label={props.placeholder ?? "Search"}
               variant="outlined"
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: (
-                  <>
-                    {loading ? 'Loading...' : null}
-                    {params.InputProps.endAdornment}
-                  </>
-                ),
+              slotProps={{
+                textField: {
+                  ...params,
+                  InputProps: {
+                    ...params.InputProps,
+                  },
+                  endAdornment: (
+                    <>
+                      {loading ? 'Loading...' : null}
+                      {params.InputProps?.endAdornment}
+                    </>
+                  ),
+                },
               }}
             />
             {showLocationIcon &&

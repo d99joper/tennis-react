@@ -1,21 +1,21 @@
 import React from "react";
 import { Badge } from "@mui/material";
-import { SlUser } from "react-icons/sl";
-import useNotifications from "helpers/useNotifications";
+import { useNotificationsContext } from "contexts/NotificationContext";
 
-const NotificationBadge = () => {
-  const { notificationCount, isPolling } = useNotifications();
+const NotificationBadge = ({ children, vertical, horizontal }) => {
+  const { notificationCount } = useNotificationsContext();
 
   return (
     <Badge
+      showZero={false}
       badgeContent={notificationCount}
-      color={isPolling ? "warning" : "error"} // Different color for polling
+      color="error"
       anchorOrigin={{
-        vertical: "top",
-        horizontal: "right",
+        vertical: vertical || "top",
+        horizontal: horizontal || "right",
       }}
     >
-      <SlUser size="1.5rem" />
+      {children}
     </Badge>
   );
 };

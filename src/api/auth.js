@@ -1,12 +1,16 @@
 import apiUrl from "config"
 import { playerAPI } from "./services"
+import { requestNotificationPermission } from "../firebase/requestNotificationPermission";
 
 const authUrl = apiUrl + 'rest-auth/'
 
 const authAPI = {
-	getUser: async function (key) {
+	getUser: async function () {
+		const key = getAttribute('tempkey') || this.getToken();
+		console.log(key)
 		const requestOptions = {
 			method: 'GET',
+			credentials: 'include', // Ensure cookies are included
 			headers: {
 				'Content-Type': 'application/json',
 				'Authorization': 'Token ' + key
@@ -15,7 +19,6 @@ const authAPI = {
 		let response = await fetch(authUrl + 'user/', requestOptions)
 		if (response.ok) {
 			const user = await response.json()
-			console.log(user)
 			return user
 		}
 		else
@@ -131,8 +134,9 @@ const authAPI = {
 		//console.log(bearer, process.env.REACT_APP_ADMIN_TOKEN)
 		return {
 			method: method,
+			credentials: 'include', // Ensure cookies are included
 			headers: {
-				'Content-Type': 'application/json',
+				'Content-Type': 'application/json',//,
 				'Authorization': 'Token ' + bearer
 			},
 			body: jsonBody
@@ -194,23 +198,29 @@ async function handleLogin(url, body) {
 		if (response.ok) {
 			const objKey = await response.json()
 			// Get the user 
-			const user = await authAPI.getUser(objKey.key)
+			setAttribute('tempkey', objKey.key);
+			const user = await authAPI.getUser()//objKey.key)
 			//set the user info in localStorage
 			setUser(user, objKey.key)
-
+			localStorage.removeItem('tempkey');
 			// create and trigger a custom event for logging in
 			const myEvent = new CustomEvent('login', { detail: user })
 			window.dispatchEvent(myEvent)
 
 			// now get the full player details
-			const player = await playerAPI.getPlayer(user.pk)
+			const player = await playerAPI.getPlayer(user.pk, true)
 			//if the player has been merged, overwrite the info in localStorage
-			if(player.id !== user.pk) {
-				setAttribute('user_email', player.email)
-				setAttribute('user_id', player.id)
-				setAttribute('username', player.username)
-				setAttribute('user_name', player.name)
-			}
+			// if(player.id !== user.pk) {
+			// 	setAttribute('user_email', player.email)
+			// 	setAttribute('user_id', player.id)
+			// 	setAttribute('username', player.username)
+			// 	setAttribute('user_name', player.name)
+			//}
+			setAttribute('user_image', player.image)
+
+			// initialize the notifications
+			requestNotificationPermission();
+
 			// return the newly logged in user
 			return player
 		}

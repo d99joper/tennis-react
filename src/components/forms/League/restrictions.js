@@ -1,17 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box, Container, TextField, MenuItem, IconButton, Chip, Autocomplete } from '@mui/material';
 import { CiSquarePlus, CiTrash } from "react-icons/ci";
 import clubAPI from 'api/services/club';
+import { AuthContext } from 'contexts/AuthContext';
 
 const EventRestrictions = ({ restrictions: parentRestrictions, updateRestrictions }) => {
   const [localRestrictions, setLocalRestrictions] = useState(parentRestrictions || {});
   const [restrictionType, setRestrictionType] = useState('');
   const [restrictionValue, setRestrictionValue] = useState({});
   const [availableClubs, setAvailableClubs] = useState([]);
+  const {user} = useContext(AuthContext)
 
   useEffect(() => {
     setLocalRestrictions(parentRestrictions);
+    console.log(localRestrictions)
   }, [parentRestrictions]);
+
+  const fetchClubs = async () => {
+    try {
+      const response = await clubAPI.getClubs(`admin_id=${user.id}`);
+      setAvailableClubs(response.data || []); // Ensure it's always an array
+    } catch (error) {
+      console.error("Error fetching clubs:", error);
+      setAvailableClubs([]); // Fallback to empty array in case of failure
+    }
+  }
 
   const addRestriction = () => {
     // Ensure restriction type and values are valid before adding
@@ -43,11 +56,16 @@ const EventRestrictions = ({ restrictions: parentRestrictions, updateRestriction
         return;
       }
     }
+    console.log(restrictionValue.value)
+    const newRestrictionValue =
+    restrictionType === 'club' && restrictionValue
+      ? { id: restrictionValue.value.id, name: restrictionValue.value.name }
+      : restrictionValue;
 
     // Add the restriction
     const newRestrictions = {
       ...localRestrictions,
-      [restrictionType]: restrictionValue,
+      [restrictionType]: newRestrictionValue,
     };
     // Update local state immediately for optimistic UI
     setLocalRestrictions(newRestrictions);
@@ -73,7 +91,10 @@ const EventRestrictions = ({ restrictions: parentRestrictions, updateRestriction
       if (value.type === 'under') return `${retVal} ${value.max}`;
       if (value.type === 'over') return `${retVal} ${value.min}`;
     }
-    return `${key}: ${value.value || value.type || ''}`;
+    if (key === 'club') {
+      return `${key}: ${value.name}`;
+    }
+    return `${key}: ${value.value || value || value.type || ''}`;
   };
 
   const renderAgeFields = () => {
@@ -195,7 +216,7 @@ const EventRestrictions = ({ restrictions: parentRestrictions, updateRestriction
           getOptionLabel={(option) => option.name}
           onChange={(e, value) => setRestrictionValue({ value })}
           renderInput={(params) => <TextField {...params} label="Club" margin="normal" fullWidth />}
-          //onFocus={fetchClubs}
+          onFocus={fetchClubs}
         />
       );
     }

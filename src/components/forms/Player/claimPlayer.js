@@ -56,7 +56,6 @@ export const ClaimPlayer = ({ players, onClaim, onAbort, ...props }) => {
                 // alignItems: 'center', // Vertically centers the items
                 padding: '1rem',
               }} >
-                {/* <Link to={`/profile/${p.id}`} target='_blank'>View profile</Link> */}
                 <InfoPopup iconType='custom' size={30} onHoverHighlight={true} color="green" customIcon={
                   <Box
                     sx={{

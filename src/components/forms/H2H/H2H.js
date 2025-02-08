@@ -1,99 +1,128 @@
-import { Card, Divider, Flex, Grid, Loader, Text, View } from "@aws-amplify/ui-react";
 import React, { useEffect, useState } from "react";
-import './H2H.css'
-import { userHelper as uf } from "helpers";
-import { Match, ProfileImage } from "../index";
+import { Box, Card, Grid2 as Grid, Typography, Divider } from "@mui/material";
 import { playerAPI } from "api/services";
+import { ProfileImage } from "../ProfileImage";
+import { Match } from "../index";
 
-const H2H = ({ winners, losers, ...props }) => {
-	const [data, setData] = useState()
+const H2H = ({ winners, losers }) => {
+  const [data, setData] = useState(null);
+  const [totals, setTotals] = useState(null);
 
-	//console.log("H2H", winners[0], losers[0])
+  useEffect(() => {
+    async function fetchH2HData() {
+      const stats = await playerAPI.getPlayerH2H(winners[0], losers[0]);
+      setData(stats);
+      setTotals(stats.stats.totals.stats)
+    }
+    fetchH2HData();
+  }, [winners, losers]);
 
-	useEffect(() => {
-		async function getData() {
-			const stats = await playerAPI.getPlayerH2H(winners[0], losers[0])
-			console.log(stats)
-			setData(stats)
-		}
-		getData()
-	}, [winners, losers])
+  return data ? (
+    <Box>
+      <Grid container alignItems="center" spacing={2} >
+        <Grid size={{ xs: 4 }}>
+          <Box display="flex"
+            flexDirection="column"
+            alignItems="center"
+            textAlign="center"
+          >
+            <ProfileImage player={data.player1} size={100} />
+            <Typography variant="h6">{data.player1.name}</Typography>
+            <Typography color="primary">
+              {totals.matches.percentage.toFixed(0)}% Wins
+            </Typography>
+          </Box>
+        </Grid>
 
-	return (
-		data?.player1 ?
-			<Grid gap="0.1rem"
-				templateColumns="1fr 1fr 1fr"
-			>
-				{/*** Player 1 ****/}
-				<Card columnStart={1} columnEnd={2} className="center">
-					<View className={"profileImageContainer_100"}>
-						<ProfileImage player={data.player1} size={100} />
-					</View>
-					<Text marginLeft={'.25rem'}>{uf.SetPlayerName([data.player1])}</Text>
-				</Card>
+        <Grid size={{ xs: 4 }} >
+          <Box display="flex" justifyContent="center" height="100%">
+            <Divider orientation="vertical" flexItem />
+          </Box>
+        </Grid>
 
-				{/*** vs ****/}
-				<Card columnStart={2} columnEnd={3}>
-					<Grid gap="0" templateColumns={"1fr 0fr 1fr"}>
-						<span style={{ textAlign: 'center' }}>
-							<View className="circle_60 player1">
-								<Text fontSize={'2.3rem'}>{data.stats.totals.stats.matches.wins}</Text>
-							</View>
-							<Text variation="success">{data.stats.totals.stats.matches.percentage.toFixed(0)} % wins</Text>
-						</span>
-						<Divider orientation="vertical" marginLeft="1rem" marginRight={'1rem'} />
-						<span style={{ textAlign: 'center' }}>
-							<View className="circle_60 player2">
-								<Text fontSize={'2.3rem'}>{data.stats.totals.stats.matches.losses}</Text>
-							</View>
-							<Text>{100 - data.stats.totals.stats.matches.percentage.toFixed(0)} % wins</Text>
-						</span>
-					</Grid>
-				</Card>
+        <Grid size={{ xs: 4 }}>
+          <Box display="flex"
+            flexDirection="column"
+            alignItems="center"
+            textAlign="center"
+          >
+            <ProfileImage player={data.player2} size={100} />
+            <Typography variant="h6">{data.player2.name}</Typography>
+            <Typography color="primary">
+              {100 - totals.matches.percentage.toFixed(0)}% Wins
+            </Typography>
+          </Box>
+        </Grid>
+      </Grid>
 
-				{/*** Player 2 ****/}
-				<Card columnStart={3} columnEnd={-1} className="center">
-					<View className={"profileImageContainer_100"}>
-						<ProfileImage player={data.player2} size={100} />
-					</View>
-					<Text marginLeft={'.25rem'}>{uf.SetPlayerName([data.player2])}</Text>
-				</Card>
+      <Divider sx={{ my: 2 }} />
 
-				{/*** Stats section ****/}
-				{[{ name: 'sets' }, { name: 'games' }, { name: 'tiebreaks' }].map((x, i) =>
-					<React.Fragment key={i}>
-						<Card columnStart={1} columnEnd={2} className="statsCard">
-							{`${data.stats.totals.stats[x.name].wins}/${data.stats.totals.stats[x.name].total} (${data.stats.totals.stats[x.name].percentage.toFixed(0)}%)`}
-						</Card>
-						<Card columnStart={2} columnEnd={3} className="statsCard statsName">
-							{x.name.charAt(0).toUpperCase() + x.name.slice(1)} Won
-						</Card>
-						<Card columnStart={3} columnEnd={-1} className="statsCard">
-							{
-								`${data.stats.totals.stats[x.name].losses}/${data.stats.totals.stats[x.name].total} (${100 - data.stats.totals.stats[x.name].percentage.toFixed(0)}%)`}
-						</Card>
-					</React.Fragment>
-				)}
+      {/*** Stats Section ***/}
+      <Box>
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Detailed Stats
+        </Typography>
+        <Grid container spacing={2}>
+          {["matches", "sets", "games", "tiebreaks"].map((statName, index) => (
+            <React.Fragment key={index}>
+              <Grid size={{ xs: 4 }}>
+                <Card sx={{
+                  p: 2,
+                  textAlign: "center",
+                  backgroundColor:
+                    totals[statName].total !== 0
+                      ? totals[statName].percentage > 50
+                        ? "rgba(144, 238, 144, 0.3)" // Soft green
+                        : "rgba(255, 99, 71, 0.3)"  // Tinted red
+                      : "", // Default background for total = 0
+                }}>
+                  <Typography variant="body1">
+                    {`${totals[statName].wins}/${totals[statName].total} (${totals[statName].percentage.toFixed(0)}%)`}
+                  </Typography>
+                </Card>
+              </Grid>
+              <Grid size={{ xs: 4 }} textAlign={'center'} alignContent={'center'}>
+                <Typography variant="body1" >
+                  {statName.charAt(0).toUpperCase() + statName.slice(1)} Won
+                </Typography>
+              </Grid>
+              <Grid size={{ xs: 4 }}>
+                <Card sx={{
+                  p: 2,
+                  textAlign: "center",
+                  backgroundColor:
+                    totals[statName].total !== 0
+                      ? 100 - totals[statName].percentage > 50
+                        ? "rgba(144, 238, 144, 0.3)" // Soft green
+                        : "rgba(255, 99, 71, 0.3)"  // Tinted red
+                      : "", // Default background for total = 0
+                }}>
+                  <Typography variant="body1">
+                    {`${totals[statName].losses}/${totals[statName].total} (${100 - totals[statName].percentage.toFixed(0)}%)`}
+                  </Typography>
+                </Card>
+              </Grid>
+            </React.Fragment>
+          ))}
+        </Grid>
+      </Box>
 
-				{/*** All matches ****/}
-				<Flex direction={'column'}>
-					<h3>Matches</h3>
-					{data ? data.matches.map(m =>
-						<Match 
-							displayAs="card" 
-							match={m} 
-							color={'blue'} 
-							showH2H={false}
-							showComments={true} 
-							key={'m' + m.id} 
-						/>
-					) : null}
-				</Flex>
+      <Divider sx={{ my: 2 }} />
 
-			</Grid>
-			: <h2><Loader /> Loading</h2>
+      <Typography variant="h6">Matches</Typography>
+      {data.matches.map((m) => (
+        <Match
+          displayAs="card"
+          match={m}
+          color={'white'}
+          showH2H={false}
+          key={'m' + m.id}
+        />
+      ))}
+    </Box>
+  ) : (
+    <Typography>Loading...</Typography>
+  );
+};
 
-	)
-}
-
-export default H2H
+export default H2H;

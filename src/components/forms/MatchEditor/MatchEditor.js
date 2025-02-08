@@ -1,18 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { TextField, MenuItem, Box, Typography, IconButton, Switch, FormControlLabel } from '@mui/material';
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import { TextField, MenuItem, Box, Typography, IconButton, Switch, FormControlLabel, CircularProgress, Autocomplete, Divider } from '@mui/material';
 import Wizard from '../Wizard/Wizard';
-import { playerAPI, courtAPI, matchAPI, authAPI } from 'api/services';
+import { playerAPI, courtAPI, matchAPI, authAPI, eventAPI } from 'api/services';
 import SetInput from './SetInput';
 import InfoPopup from '../infoPopup';
+import { debounce } from 'lodash';
+import { ProfileImage } from '../ProfileImage';
+import { AuthContext } from 'contexts/AuthContext';
 import { helpers } from 'helpers';
+import CourtSearchAutocomplete from '../Courts/searchCourt';
+import PlayerSearch from '../Player/playerSearch';
+import GetParticipants from '../Event/getParticipants';
 
-const MatchEditor = ({ participant, event = null, availableEvents = [], limitedParticipants = [], scheduleMatchId, onSubmit }) => {
+const MatchEditor = ({
+	participant,
+	event = null,
+	availableEvents = [],
+	scheduleMatchId,
+	limitedParticipants = [],
+	date = '',
+	onSubmit
+}) => {
 	const [selectedEvent, setSelectedEvent] = useState(event || null);
-	const [playedOn, setPlayedOn] = useState('');
-	const [opponents, setOpponents] = useState([]);
-	const [selectedOpponents, setSelectedOpponents] = useState([]);
-	const [selectedWinners, setSelectedWinners] = useState([]);
-	const [courts, setCourts] = useState([]);
+	const [playedOn, setPlayedOn] = useState(date);
+	const [selectedOpponents, setSelectedOpponents] = useState([limitedParticipants[1]] || []);
+	const [selectedWinners, setSelectedWinners] = useState([limitedParticipants[0] ?? participant] || []);
+	const [winnerParticipant, setWinnerParticipant] = useState(null);
+	const [opponentParticipant, setOpponentParticipant] = useState(null);
 	const [selectedCourt, setSelectedCourt] = useState('');
 	const [sets, setSets] = useState([{ set: 1, value: '' }, { set: 2, value: '' }]);
 	const [isDoubles, setIsDoubles] = useState(false);
@@ -22,36 +36,22 @@ const MatchEditor = ({ participant, event = null, availableEvents = [], limitedP
 	const [comment, setComment] = useState('');
 	const [isPrivate, setIsPrivate] = useState(false);
 	const [retired, setRetired] = useState(false);
-	const isLimited = limitedParticipants.length > 0;
+	const { user } = useContext(AuthContext)
 
+	// Fetch opponents only once for events
 	useEffect(() => {
-		// Fetch opponents and courts
-		async function fetchData() {
-			try {
-				if (!isLimited) {
+		setIsDoubles(selectedEvent?.match_type)
+	}, [selectedEvent]);
 
-					const opponentsData = await playerAPI.getParticipants(selectedEvent || null, null); // Adjust API call as necessary
-					setOpponents(opponentsData.data.players);
-
-				}
-				const courtsData = await courtAPI.getCourts();
-				setCourts(courtsData.courts);
-			} catch (error) {
-				console.error('Failed to fetch data:', error);
-			}
-		}
-
-		fetchData();
-	}, []);
-
-	const onSubmitMatch = () => {
+	const onSubmitMatch = async () => {
 		// Create an object with the match result data
 
 		let match = {
-			winners: winner ? selectedWinners : selectedOpponents,
-			losers: winner ? selectedOpponents : selectedWinners,
+			winners: (winner ? selectedWinners : selectedOpponents).map(p => p.id), // Convert Player objects to IDs
+			losers: (winner ? selectedOpponents : selectedWinners).map(p => p.id),
 			score: sets.filter(set => set.value).map(set => set.value).join(', '),
-			type: event.league_type ?? 'singles', // should be singles or doubles,
+			type: isDoubles ? 'doubles' : 'singles', // should be singles or doubles,
+			court_id: selectedCourt?.id || null,
 			played_on: new Date(playedOn).toISOString().split('T')[0],
 			...selectedEvent ? { event_id: selectedEvent.id } : null,
 			retired: retired,
@@ -69,12 +69,15 @@ const MatchEditor = ({ participant, event = null, availableEvents = [], limitedP
 			match.comments.push(matchComment)
 		}
 
-		matchAPI.createMatch(match).then((result) => {
-			console.log(result)
-			// Call the onSubmit prop (callback) and pass the result object
-			if (onSubmit)
-				onSubmit(match)
-		})
+		const newMatch = await matchAPI.createMatch(match);
+		if(onSubmit)
+				onSubmit(newMatch)
+		// .then((result) => {
+		// 	console.log(result)
+		// 	// Call the onSubmit prop (callback) and pass the result object
+		// 	if (onSubmit)
+		// 		onSubmit(result)
+		// })
 	};
 
 	const handleSetChange = (index, value) => {
@@ -123,10 +126,7 @@ const MatchEditor = ({ participant, event = null, availableEvents = [], limitedP
 	};
 
 	const getPlayers = (playerList) => {
-		const names = playerList.map((opponentId) => {
-			const opponent = availablePlayers.find((player) => player.id === opponentId);
-			return opponent ? opponent.name : null;
-		})
+		const names = playerList.map((p) => p?.name)
 			.filter(Boolean) // Remove any null values if an ID doesn't match
 			.join(", ");
 		return names;
@@ -134,15 +134,18 @@ const MatchEditor = ({ participant, event = null, availableEvents = [], limitedP
 
 	const getScore = () => { return sets.filter(set => set.value).map(set => set.value).join(', ') }
 
-	const availablePlayers = isLimited ? limitedParticipants : [participant, ...opponents];
-
 	const steps = [
 		!event &&
 		{
 			label: 'Event Selection',
 			content: (
-				<Box>
-					<Typography variant="h6">Select Event</Typography>
+				<Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1 }}>
+					<Typography variant="h6">Friendly match</Typography>
+					<InfoPopup>
+						If you want to post a match result from a league or tournament, please do so on the respective event's site. <br />
+						Only friendly matches can be posted from your profile page.
+					</InfoPopup>
+					{/* <Typography variant="h6">Select Event</Typography>
 					<TextField
 						select
 						label="Event"
@@ -159,7 +162,7 @@ const MatchEditor = ({ participant, event = null, availableEvents = [], limitedP
 						{availableEvents.map((ev) => (
 							<MenuItem key={ev.id} value={ev.id}>{ev.name}</MenuItem>
 						))}
-					</TextField>
+					</TextField> */}
 				</Box>
 			),
 			handleNext: () => !!selectedEvent || availableEvents.length === 0,
@@ -167,80 +170,114 @@ const MatchEditor = ({ participant, event = null, availableEvents = [], limitedP
 		{
 			label: 'Match Details',
 			content: (
-				<Box >
+				<Box display={'flex'} flexDirection={'column'} gap={2}>
 					<Typography variant="h6">Match Details</Typography>
+
+					{selectedEvent ?
+						limitedParticipants.length > 0 ?
+							<Typography variant='body1'>
+								{limitedParticipants[0]?.name} vs {limitedParticipants[1]?.name}
+							</Typography>
+							: <>
+								<GetParticipants
+									eventId={event.id}
+									selectedParticipant={winnerParticipant}
+									setSelectedParticipant={setWinnerParticipant}
+									setParticipantPlayers={setSelectedWinners}
+									excludeParticipants={[opponentParticipant]}
+									label="Winners"
+									required
+									error={error.winners}
+								/>
+								<GetParticipants
+									eventId={event.id}
+									selectedParticipant={opponentParticipant}
+									setSelectedParticipant={setOpponentParticipant}
+									setParticipantPlayers={setSelectedOpponents}
+									excludeParticipants={[winnerParticipant]}
+									label="Opponents"
+									required
+									error={error.opponents}
+								/>
+							</>
+						: // no event set (friendly match)
+						<>
+							{/* {isDoubles &&
+								<Divider sx={{ pt: 2 }} >Players </Divider>
+							} */}
+							<Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1 }}>
+								<ProfileImage player={selectedWinners[0]} /> {selectedWinners[0].name}
+							</Box>
+							{/* <PlayerSearch
+								selectedPlayer={selectedWinners[0]}
+								setSelectedPlayer={(p) => setSelectedWinners([p, selectedWinners[1]].filter(Boolean))}
+								excludePlayers={[...selectedWinners, ...selectedOpponents].filter(p => p !== selectedWinners[0])}
+								label="Player 1"
+								required
+								error={error.winners}
+								errorMessage={error.winners ? 'Winner is required' : ''}
+							/> */}
+							{isDoubles &&
+								<Box>
+									<PlayerSearch
+										selectedPlayer={selectedWinners[1]}
+										setSelectedPlayer={(p) => setSelectedWinners([selectedWinners[0], p].filter(Boolean))}
+										excludePlayers={[...selectedWinners, ...selectedOpponents].filter(p => p !== selectedWinners[1])}
+										label="Winner partner"
+										required
+										error={error.winners}
+										errorMessage={error.winners ? 'Partner is required in doubles' : ''}
+									/>
+									<Divider sx={{ pt: 2 }} >Opponents</Divider>
+								</Box>
+							}
+
+							<PlayerSearch
+								selectedPlayer={selectedOpponents[0]}
+								setSelectedPlayer={(p) => setSelectedOpponents([p, selectedOpponents[1]].filter(Boolean))}
+								excludePlayers={[...selectedWinners, ...selectedOpponents].filter(p => p !== selectedOpponents[0])}
+								label="Opponent"
+								required
+								error={error.opponents}
+								errorMessage={error.opponents ? 'Opponent is required' : ''}
+							/>
+							{isDoubles &&
+								<PlayerSearch
+									selectedPlayer={selectedOpponents[1]}
+									setSelectedPlayer={(p) => setSelectedOpponents([selectedOpponents[0], p].filter(Boolean))}
+									excludePlayers={[...selectedWinners, ...selectedOpponents].filter(p => p !== selectedOpponents[1])}
+									label="Opponent partner"
+									required
+									error={error.opponents}
+									errorMessage={error.winners ? 'Partner is required in doubles' : ''}
+								/>
+							}
+						</>
+					}
+
+					{/* {selectedWinners.map((p) => p.name)}
+					{selectedOpponents.map((p) => p.name)} */}
+
 					<TextField
 						type="date"
 						label="Played On"
 						fullWidth
+						slotProps={{ inputLabel: { shrink: true } }}
 						required
 						error={error.playedOn}
 						helperText={error.playedOn ? 'Date is required' : ''}
 						value={playedOn}
 						onChange={(e) => setPlayedOn(e.target.value)}
-						sx={{ mb: 2 }}
 					/>
-					{isLimited && (
-						<TextField
-							select
-							label="Winner(s)"
-							fullWidth
-							required
-							error={error.winner}
-							helperText={error.winner ? 'Winner is required' : ''}
-							value={Array.isArray(selectedWinners) ? selectedWinners : []}
-							onChange={(e) => setSelectedWinners(Array.isArray(e.target.value) ? e.target.value : [e.target.value])}
-							multiple={isDoubles}
-							sx={{ mb: 2 }}
-						>
-							{availablePlayers
-								//.filter((player) => !selectedOpponents.some((opponent) => opponent === player.id))
-								.map((p) => (
-									<MenuItem key={p.id} value={p.id}>
-										{p.name}
-									</MenuItem>
-								))}
-						</TextField>
-					)}
-					<TextField
-						select
-						label="Opponent(s)"
-						fullWidth
-						required
-						error={error.opponents}
-						helperText={error.opponents ? 'Opponent is required' : ''}
-						value={Array.isArray(selectedOpponents) ? selectedOpponents : []}
-						onChange={(e) => setSelectedOpponents(Array.isArray(e.target.value) ? e.target.value : [e.target.value])}
-						multiple={isDoubles}
-						sx={{ mb: 2 }}
-					>
-						{availablePlayers
-							.filter((player) => !selectedWinners.some((winner) => winner === player.id))
-							.map((p) => (
-								<MenuItem key={p.id} value={p.id}>
-									{p.name}
-								</MenuItem>
-							))}
-					</TextField>
-					<TextField
-						select
-						label="Court"
-						fullWidth
-						value={selectedCourt}
-						onChange={(e) => setSelectedCourt(e.target.value)}
-						sx={{ mb: 2 }}
-					>
-						{courts.map((court) => (
-							<MenuItem key={court.id} value={court.id}>
-								{court.name}</MenuItem>
-						))}
-					</TextField>
+
+					<CourtSearchAutocomplete selectedCourt={selectedCourt} setSelectedCourt={setSelectedCourt} />
+
 				</Box>
 			),
 			handleNext: () => {
 				const playedOnError = !playedOn;
 				const opponentsError = selectedOpponents.length === 0;
-				const winnersError = selectedWinners.length === 0 && isLimited;
+				const winnersError = selectedWinners.length === 0;
 				setError({ playedOn: playedOnError, opponents: opponentsError, winners: winnersError });
 				return !playedOnError && !opponentsError && !winnersError;
 			},
@@ -250,18 +287,18 @@ const MatchEditor = ({ participant, event = null, availableEvents = [], limitedP
 			content: (
 				<Box>
 					<Typography variant="h6">Report Score</Typography>
-					{!selectedWinners &&
-						<FormControlLabel
-							control={
-								<Switch
-									checked={winner}
-									onChange={() => setWinner(!winner)}
-								/>
-							}
-							label={winner ? 'I Won' : 'I Lost'}
-							sx={{ mb: 2 }}
-						/>
-					}
+					{/* {(!selectedWinners || limitedParticipants.length > 0) && */}
+					<FormControlLabel
+						control={
+							<Switch
+								checked={winner}
+								onChange={() => setWinner(!winner)}
+							/>
+						}
+						label={(winner ? getPlayers(selectedWinners) : getPlayers(selectedOpponents)) + ' Won'}
+						sx={{ mb: 2 }}
+					/>
+					{/* } */}
 					<FormControlLabel
 						control={
 							<Switch
@@ -349,16 +386,19 @@ const MatchEditor = ({ participant, event = null, availableEvents = [], limitedP
 					<Typography>Date: {playedOn}</Typography>
 					<Typography>
 						{winner ? 'Winner' : 'Opponent'}: &nbsp;
-						{getPlayers(selectedWinners) || participant.name}
+						{getPlayers(selectedWinners)}
 					</Typography>
 					<Typography>
 						{!winner ? 'Winner' : 'Opponent'}: &nbsp;
-						{selectedOpponents.map(id => availablePlayers.find(o => o.id === id)?.name).join(', ')}
+						{getPlayers(selectedOpponents)}
 					</Typography>
-					<Typography>Court: {courts.find(c => c.id === selectedCourt)?.name}</Typography>
+					<Typography>Court: {selectedCourt?.name}</Typography>
 					<Typography>Score: {retired ? 'Default' : sets.filter(set => set.value).map(set => set.value).join(', ')}</Typography>
-					<Typography>Comment: <i>{comment}</i></Typography>
-					<Typography>Note Type: {isPrivate ? 'Private' : 'Public'}</Typography>
+					{comment && <>
+						<Typography>Comment: <i>{comment}</i></Typography>
+						<Typography>Note Type: {isPrivate ? 'Private' : 'Public'}</Typography>
+					</>
+					}
 				</Box>
 			),
 			handleNext: async () => {
@@ -366,14 +406,19 @@ const MatchEditor = ({ participant, event = null, availableEvents = [], limitedP
 					event: selectedEvent?.id || null,
 					played_on: playedOn,
 					losers: selectedOpponents,
-					winners: isLimited ? selectedWinners : [participant],
+					winners: selectedWinners,
 					court: selectedCourt,
 					score: sets.filter(set => set.value).map(set => set.value).join(', '),
 					comment,
 					is_private: isPrivate,
 				};
-				await onSubmit(matchData);
-				return true;
+				try {
+					await onSubmit(matchData); // Perform async action
+					return true; // Proceed to next step
+				} catch (error) {
+					console.error("Error submitting match data:", error);
+					return false; //  Prevent moving to the next step if an error occurs
+				}
 			},
 		},
 	].filter(Boolean);

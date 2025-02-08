@@ -72,7 +72,7 @@ const userHelper = {
 				return (
 					<React.Fragment key={`Fragment_${i}`}>
 						<View as='span'>{i > 0 ? ' / ' : ''}</View>
-						<Link to={`/profile/${p.id}`} >{name}</Link>
+						<Link to={`/players/${p.id}`} >{name}</Link>
 					</React.Fragment>
 				)
 			}

@@ -2,12 +2,14 @@ import { Box, Popover, Typography } from "@mui/material"
 import React, { useState } from "react";
 import { AiFillWarning } from "react-icons/ai";
 import { MdOutlineInfo } from "react-icons/md";
+import { useTheme } from "@mui/material";
 
 function InfoPopup({ children, iconType = 'info', customIcon = null, ...props }) {
   const [anchorEl, setAnchorEl] = useState(null)
   const { paddingLeft, color, paddingRight, width, size } = props
   const open = Boolean(anchorEl)
-  
+  const theme = useTheme();
+
   const handleClick = (e) => {
     console.log(e)
     e.stopPropagation();
@@ -20,7 +22,7 @@ function InfoPopup({ children, iconType = 'info', customIcon = null, ...props })
 
   const iconProps = {
     size: size ?? null,
-    color: color ?? null,
+    color: color ?? theme.palette.primary.info,
     onClick: (e) => handleClick(e),
     className: 'cursorHand'
   }
@@ -29,6 +31,7 @@ function InfoPopup({ children, iconType = 'info', customIcon = null, ...props })
     <Box
       sx={{pl: paddingLeft, pr: paddingRight}}
       onClick={(e) => e.stopPropagation()}
+      as='span'
     >
       {/******** POPOVER FOR INFO   *********/}
       <Popover

@@ -233,7 +233,7 @@ const toggleProfileLink = (id) => {
                           <TableRow id='standing' key={i} hover>
                             <TableCell width="1px"><Typography variant="h6">{i + 1}.</Typography></TableCell>
                             <TableCell key={s.player.id} className="cursorHand" onClick={e => { toggleProfileLink(s.player.id) }}>
-                              {/* <Link to={`../../profile/${s.player.id}`}> */}
+                              {/* <Link to={`../../players/${s.player.id}`}> */}
                               <CardHeader sx={{ padding: 0 }}
                                 //avatar={<Avatar {...userHelper.stringAvatar(s.player, 50)} />}
                                 avatar={<ProfileImage player={s.player} size={50} />}
@@ -241,7 +241,7 @@ const toggleProfileLink = (id) => {
                               />
                               {showProfileClickOptions && selectedPlayer === s.player.id && (
                                 <div className="options">
-                                  <Link to={`../../profile/${s.player.id}`}>Go to profile</Link>
+                                  <Link to={`../../players/${s.player.id}`}>Go to profile</Link>
                                   <Link onClick={(e) => { e.stopPropagation(); handleChallenge(s.player.id) }}>Challenge</Link>
                                 </div>
                               )}

@@ -73,9 +73,6 @@ const Registration = () => {
 
   const handleSubmit = () => {
     navigate('/login')
-    // authAPI.login(formState.data.email, formState.data.password).then((user) => {
-    //   navigate('/profile/'+user.id)
-    // });
   }
 
   const errorCheck = () => {

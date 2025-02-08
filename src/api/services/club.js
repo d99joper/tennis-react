@@ -1,6 +1,5 @@
 import { authAPI } from "."
 import apiUrl from "config"
-import axios from 'axios';
 
 const clubUrl = apiUrl+'clubs/'
 
@@ -54,9 +53,9 @@ const clubAPI = {
       throw new Error(response.status + ': Failed to create club') 
   },
 
-  updateClub: async function(club) {
+  updateClub: async function(clubId, club) {
     const requestOptions = authAPI.getRequestOptions('PUT', club)
-    const response = await fetch(clubUrl+club.id+'/update', requestOptions)
+    const response = await fetch(clubUrl+clubId+'/update', requestOptions)
     if (response.ok) {
       const data = await response.json()
       return {success: response.ok, statusCode: response.statusCode, data: data}
@@ -65,7 +64,7 @@ const clubAPI = {
       throw new Error(response.status + ': Failed to update club') 
   },
 
-  addPlayerToClub: async function(clubId, playerId) {
+  addPlayer: async function(clubId, playerId) {
     const requestOptions = authAPI.getRequestOptions('POST')
     const response = await fetch(`${clubUrl}add-player-to-club/${clubId}/${playerId}`, requestOptions)
     if (response.ok) {
@@ -75,7 +74,17 @@ const clubAPI = {
       throw new Error(response.status + response.error) 
   },
 
-  addAdminToClub: async function(clubId, playerId) {
+  removePlayer: async function(clubId, playerId) {
+    const requestOptions = authAPI.getRequestOptions('POST')
+    const response = await fetch(`${clubUrl}remove-player-from-club/${clubId}/${playerId}`, requestOptions)
+    if (response.ok) {
+      return {success: response.ok, statusCode: response.statusCode, message: response.message}
+    }
+    else
+      throw new Error(response.status + response.error) 
+  },
+
+  addAdmin: async function(clubId, playerId) {
     const requestOptions = authAPI.getRequestOptions('POST')
     const response = await fetch(`${clubUrl}add-admin-to-club/${clubId}/${playerId}`, requestOptions)
     if (response.ok) {
