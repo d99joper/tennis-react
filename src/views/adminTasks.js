@@ -1,6 +1,6 @@
 import { Button, Card, Grid, TabItem, Tabs } from "@aws-amplify/ui-react";
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
-import { ladderAPI, playerAPI } from "api/services";
+import { ButtonBase, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { authAPI, ladderAPI, playerAPI } from "api/services";
 import { AddPlayerToClub, CreateClub, ErrorHandler, MatchEditor, SelectWithFetch } from "components/forms";
 import ClubSearchAutocomplete from "components/forms/Club/club_search";
 import { enums, helpers, ladderHelper, matchHelper, userHelper } from "helpers";
@@ -75,7 +75,9 @@ const AdminTasks = (() => {
       updatedPlayer.name = value
     setPlayer(updatedPlayer)
   }
-
+	const handleGetUser = () => {
+    authAPI.getUser()
+  } 
   return (
     <>
       <ErrorHandler error={error} />
@@ -90,13 +92,14 @@ const AdminTasks = (() => {
             </Card>
             <Card>
               <div>
-                <MatchEditor
+                <Button onClick={handleGetUser}>get user</Button>
+                {/* <MatchEditor
                   ladders={ladders}
                   player={{ id: 0, name: '' }}
                   isAdmin={true}
                   minDate={helpers.setDate(-90)}
                   onSubmit={onMatchSubmit}
-                />
+                /> */}
               </div>
             </Card>
           </Grid>

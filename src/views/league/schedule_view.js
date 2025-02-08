@@ -6,8 +6,9 @@ import authAPI from "api/auth";
 import { matchHelper } from "helpers";
 import ResponsiveDataLayout from "components/layout/Data/responsiveDataLayout";
 
-const ScheduleView = ({ event, schedule, onScoreReported }) => {
+const ScheduleView = ({ event, schedule: initialSchedule, onScoreReported }) => {
   const [editingMatch, setEditingMatch] = useState(null);
+  const [schedule, setSchedule] = useState(initialSchedule)
   const [modalOpen, setModalOpen] = useState(false);
 
   const currentUser = authAPI.getCurrentUser();
@@ -19,7 +20,16 @@ const ScheduleView = ({ event, schedule, onScoreReported }) => {
 
   const handleMatchEditorSubmit = (updatedMatch) => {
     setEditingMatch(null);
+    const schedule_match = updatedMatch?.schedule_match;
+    if (schedule_match) {
+      setSchedule((prevSchedule) =>
+        prevSchedule.map((match) =>
+          match.id === schedule_match.id ? { ...match, ...schedule_match } : match
+        )
+      );
+    }
     if (onScoreReported) {
+      // report back to parent
       onScoreReported(updatedMatch);
     }
   };
@@ -118,9 +128,9 @@ const ScheduleView = ({ event, schedule, onScoreReported }) => {
               {row.reported ? (
                 row.played_on !== row.scheduled_date ? (
                   <>
-                     <s>{new Date(row.scheduled_date).toISOString().split("T")[0]}</s>
-                      played {new Date(row.played_on).toISOString().split("T")[0]} 
-                   
+                    <s>{new Date(row.scheduled_date).toISOString().split("T")[0]}</s>
+                    played {new Date(row.played_on).toISOString().split("T")[0]}
+
                   </>
                 ) : (
                   new Date(row.played_on).toISOString().split("T")[0]
@@ -137,7 +147,7 @@ const ScheduleView = ({ event, schedule, onScoreReported }) => {
         basicContentForScreen={(row, isSmall, isMedium) => (
           <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
             {row.score
-              ? <Typography variant={isSmall ? "body2" : "body1"}>Score: {row.score}</Typography>
+              ? <Typography variant={isSmall ? "body2" : "body1"}>Score: {(isPlayer1Winner(row) ? row.score : reverseScore(row.score))}</Typography>
               : matchHelper.canReportScheduledMatch(event, row, currentUser)
                 ? <Button
                   variant="contained"
@@ -160,6 +170,7 @@ const ScheduleView = ({ event, schedule, onScoreReported }) => {
             event={event}
             scheduleMatchId={editingMatch.id}
             limitedParticipants={[editingMatch.player1, editingMatch.player2]}
+            date={editingMatch.scheduled_date}
             onSubmit={(matchData) => {
               console.log("Match reported:", matchData);
               handleMatchEditorSubmit(matchData);

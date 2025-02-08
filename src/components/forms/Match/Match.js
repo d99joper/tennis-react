@@ -1,146 +1,97 @@
 import React, { useState } from "react";
-import { Divider, Flex, Grid, Text, View } from "@aws-amplify/ui-react";
-import { GiCrossedSwords } from 'react-icons/gi';
-import { GoCommentDiscussion } from 'react-icons/go';
-import { helpers, enums, userHelper } from "../../../helpers";
+import { Box, Card, Divider, Typography, CardActions, Button } from "@mui/material";
+import { AiOutlineComment } from "react-icons/ai";
 import { Link } from "react-router-dom";
-import "./Match.css"
-import { Comments, H2H } from "../index"
-import { Box, Modal } from "@mui/material";
-// import Modal from "components/layout/Modal/modal";
+import MyModal from "components/layout/MyModal";
+import { Comments } from "../Comments/Comments";
+import { H2H } from "..";
 
-const Match = ({
-    index,
-    match,
-    color,
-    showH2H = true,
-    showComments = false,
-    showHeader = true,
-    displayAs = enums.DISPLAY_MODE.Card, // default to card
-    ...props
-}) => {
+const Match = ({ match, showH2H = false, color }) => {
+  const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
+  const [isH2HModalOpen, setIsH2HModalOpen] = useState(false);
 
-    const [isShowComments, setIsShowComments] = useState(showComments)
-    const [isShowH2H, setIsShowH2H] = useState(false)
-    const [isH2HDataFetched, setIsH2HDataFetched] = useState(false)
-    const [h2HData, setH2HData] = useState()
+  const scores = match.score.split(",").map((set) => {
+    const [p1, p2] = set.match(/\d+/g).map(Number);
+    return { p1, p2 };
+  });
 
-    function openH2HModal() {
-        if (!isH2HDataFetched) {
-            console.log("openH2H", match.winner.id)
-            userHelper.getPlayerH2H(match.winner, match.loser).then((data) => {
-                setH2HData(data)
-                console.log(data)
-            })
-            setIsH2HDataFetched(true)
-        }
-        setIsShowH2H(true)
-    }
+  return (
+    <Card sx={{ p: 2, mb: 2, ...(color && {backgroundColor: color}) }} >
+      {/* Played Date */}
+      <Typography variant="subtitle2" fontStyle="italic" align="center" gutterBottom>
+        {match.played_on}
+      </Typography>
 
-    function displayGames(score) {
-        const sets = score.split(',')
+      {/* Player1 and Scores */}
+      <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+        <Typography variant="h6">
+          <Link to={`/players/${match.winners[0]?.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+            {match.winners[0]?.name}
+          </Link>
+        </Typography>
+        <Box display="flex" gap={2}>
+          {scores.map((set, index) => (
+            <Typography key={index} variant="h6">
+              {set.p1}
+            </Typography>
+          ))}
+        </Box>
+      </Box>
 
-        let games = sets.map((set, i) => {
-            const games = set.match(/\d+/g).map(Number)
+      {/* Divider */}
+      <Divider />
 
-            return (
-                <React.Fragment key={`matchScore_${i}`}>
-                    <Text marginLeft={'1rem'} columnStart={i + 2} columnEnd={i + 3} rowStart="2">{games[0]}</Text>
-                    <Text marginLeft={'1rem'} columnStart={i + 2} columnEnd={i + 3} rowStart="4">
-                        {games[1]}{games[2] && <sup>({games[2]})</sup>}
-                    </Text>
-                </React.Fragment>
-            )
-        })
-        return games
-    }
+      {/* Player2 and Scores */}
+      <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mt: 1 }}>
+        <Typography variant="h6">
+          <Link to={`/players/${match.losers[0]?.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+            {match.losers[0]?.name}
+          </Link>
+        </Typography>
+        <Box display="flex" gap={2}>
+          {scores.map((set, index) => (
+            <Typography key={index} variant="h6">
+              {set.p2}
+            </Typography>
+          ))}
+        </Box>
+      </Box>
 
-    if (displayAs === enums.DISPLAY_MODE.Inline) {
-        return (
-            <section {...props}>
-                {(showHeader && index === 0) ?
-                    <Flex className="matchHeaderRow">
-                        <View className="date">Date</View>
-                        <View className="playerName">Winner</View>
-                        <View className="playerName">Loser</View>
-                        <View className="score">Score</View>
-                        {/* <View className="ladderName">Ladder</View> */}
-                        <View className="iconSet"></View>
-                    </Flex>
-                    : null
-                }
-                <Flex className="matchRow" backgroundColor={color}>
-                    <View className="date">{helpers.formatDate(match.played_on)}</View>
-                    <View className="playerName"><Link to={"/profile/" + match.winner.id}>{match.winner[0].name}</Link></View>
-                    <View className="playerName"><Link to={"/profile/" + match.loser.id}>{match.loser[0].name}</Link></View>
-                    <View className="score">{match.score}</View>
-                    {/* <View className="ladderName"><Link to={"/ladders/" + match.ladder.id}>{match.ladder.name}</Link></View> */}
-                    <View className="iconSet">
-                        {showComments === true ?
-                            <>
-                                <div className={"hoverText-container" + (!isShowComments ? " hide" : "")}>
-                                    <div className="hoverText">
-                                        <Comments key={match.id} matchId={match.id} showComments={showComments} />
-                                    </div>
-                                </div>
-                                <GoCommentDiscussion
-                                    aria-label="Comments"
-                                    title="Comments"
-                                    onClick={() => { setIsShowComments(!isShowComments) }}
-                                    // onMouseOver={() => { setIsShowComments(true) }}
-                                    className="middleIcon"
-                                    color="#3e3333"
-                                />
-                            </>
-                            : ""
-                        }
-                        {showH2H ?
-                            <>
-                                <GiCrossedSwords
-                                    title="H2H"
-                                    className="middleIcon"
-                                    color="#3e3333"
-                                    onClick={openH2HModal} />
-                                <Modal
-                                    aria-labelledby={'Head to Head'}
-                                    aria-describedby="Head to Head"
-                                    onClose={() => setIsShowH2H(false)}
-                                    open={isShowH2H}
-                                >
-                                    <Box sx={helpers.modalStyle}>
-                                        <div>{`${match.winner.name} vs ${match.loser.name}`}</div>
-                                        <H2H data={h2HData} />
-                                    </Box>
+      {/* Action Icons */}
+      <Box display="flex" justifyContent="center" alignItems="center" gap={2} sx={{ mt: 2 }}>
+       
+        <CardActions>
+          {/* Comments Icon */}
+          <Button size="small" color="primary" onClick={() => setIsCommentsModalOpen(true)}>
+            <AiOutlineComment size={24} /> Comments
+          </Button>
+          {/* H2H Icon (conditionally shown) */}
+          {showH2H && (<Button size="small" color="primary" onClick={() => setIsH2HModalOpen(true)}>
+            See H2H
+          </Button>
+          )}
+        </CardActions>
+      </Box>
 
-                                </Modal>
-                            </>
-                            : ""
-                        }
-                    </View>
-                </Flex>
-            </section>
-        )
-    }
-    else if (displayAs === enums.DISPLAY_MODE.Card) {
-        return (
-            <Grid 
-                templateColumns="auto 1fr 1fr 1fr 1fr 1fr 1fr" 
-                marginBottom={'1rem'}
-                backgroundColor={props.backgroundColor ?? null}
-            >
-                <Text columnStart="1" columnEnd="-1" fontSize="0.8em" fontStyle="italic">{match?.played_on}</Text>
-                <View columnStart="1" columnEnd="2">{userHelper.SetPlayerName(match.winners, false)}</View>
-                <Divider columnStart="1" columnEnd="-1" />
-                <View columnStart="1" columnEnd="2">{userHelper.SetPlayerName(match.losers, false)}</View>
-                {displayGames(match.score)}
-            </Grid>
-        )
-    }
-}
+      {/* Comments Modal */}
+      <MyModal
+        showHide={isCommentsModalOpen}
+        onClose={() => setIsCommentsModalOpen(false)}
+        title="Comments"
+      >
+        <Comments entityId={match.id} entityType="match" showComments />
+      </MyModal>
 
-// const displayMode = {
-//     Inline: 'inline',
-//     Card: 'card'
-// }
+      {/* H2H Modal */}
+      <MyModal
+        showHide={isH2HModalOpen}
+        onClose={() => setIsH2HModalOpen(false)}
+        title={`H2H: ${match.winners[0]?.name} vs ${match.losers[0]?.name}`}
+      >
+        <H2H winners={[match.winners[0]]} losers={[match.losers[0]]} />
+      </MyModal>
+    </Card>
+  );
+};
 
-export { Match }
+export default Match;

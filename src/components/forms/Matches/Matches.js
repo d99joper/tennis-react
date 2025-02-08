@@ -7,11 +7,13 @@ import {
 	Autocomplete,
 	TextField,
 	useMediaQuery,
+	Badge,
+	Button,
 } from '@mui/material';
 import { authAPI, matchAPI, playerAPI } from 'api/services';
 import ResponsiveDataLayout from 'components/layout/Data/responsiveDataLayout';
-import { enums, userHelper as uh, userHelper } from 'helpers';
-import { GiCrossedSwords } from 'react-icons/gi';
+import { enums, helpers, userHelper as uh, userHelper } from 'helpers';
+import { GiCrossedSwords, GiTennisCourt } from 'react-icons/gi';
 import { GoCommentDiscussion } from 'react-icons/go';
 import { MdMoreVert } from 'react-icons/md';
 import InfoPopup from '../infoPopup';
@@ -20,14 +22,19 @@ import MyModal from 'components/layout/MyModal';
 import H2H from '../H2H/H2H';
 import { Comments } from '../Comments/Comments';
 import PlayerNameView from 'views/player/playerNameView';
+import PlayerSearch from '../Player/playerSearch';
+import GetParticipants from '../Event/getParticipants';
+import MatchEditor from '../MatchEditor/MatchEditor';
 
 const Matches = ({
 	originType,
 	originId,
-	matchType='singles',
+	matchType = 'singles',
 	pageSize = 10,
 	showH2H = false,
 	showComments = false,
+	showAddMatch = false,
+	callback,
 }) => {
 	const [matchesCache, setMatchesCache] = useState({}); // Cache matches by page
 	const [pagedMatches, setPagedMatches] = useState([]); // Matches for current page
@@ -36,10 +43,11 @@ const Matches = ({
 	const [totalPages, setTotalPages] = useState(1);
 	const [loading, setLoading] = useState(false);
 	const [playerSearch, setPlayerSearch] = useState('');
-	const [selectedPlayer, setSelectedPlayer] = useState(null);
+	const [selectedPlayers, setSelectedPlayers] = useState([]);
 	const [playerOptions, setPlayerOptions] = useState([]);
 	const [isFetchingMore, setIsFetchingMore] = useState(false); // Track infinite scrolling state
-	const [pagesLoaded, setPagesLoaded] = useState(new Set()); const [modalContent, setModalContent] = useState(null);
+	const [pagesLoaded, setPagesLoaded] = useState(new Set());
+	const [modalContent, setModalContent] = useState(null);
 	const [modalTitle, setModalTitle] = useState("");
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const currentUser = authAPI.getCurrentUser();
@@ -64,10 +72,15 @@ const Matches = ({
 			const effectiveSkip = (page - 1) * pageSize;
 			setLoading(true);
 			try {
+				console.log(selectedPlayers)
+				const filter = {
+					...originType ? { "origin-type": originType } : {},
+					...originId ? { "origin-id": originId } : {},
+					...matchType ? { "match-type": matchType } : {},
+					...selectedPlayers.length > 0 ? { "player-ids": selectedPlayers.map(p => p.id) } : {}
+				}
 				const response = await matchAPI.getMatches(
-					originType,
-					originId,
-					matchType,
+					filter,
 					page,
 					pageSize,
 					effectiveSkip
@@ -87,31 +100,12 @@ const Matches = ({
 		[originType, originId, pageSize, matchesCache]
 	);
 
-	const fetchPlayerSuggestions = useCallback(
-		async (searchTerm) => {
-			try {
-				const response = await playerAPI.getPlayers({ search: searchTerm });
-				setPlayerOptions(response.players);
-			} catch (error) {
-				console.error('Failed to fetch player suggestions:', error);
-			}
-		},
-		[]
-	);
 
 	// Fetch matches on component mount and page change
 	useEffect(() => {
 		fetchMatches(currentPage);
 	}, [fetchMatches, currentPage]);
 
-	// Fetch player suggestions dynamically as the user types
-	useEffect(() => {
-		if (playerSearch.trim()) {
-			fetchPlayerSuggestions(playerSearch);
-		} else {
-			setPlayerOptions([]);
-		}
-	}, [playerSearch, fetchPlayerSuggestions]);
 
 	const loadMoreMatches = useCallback(() => {
 		if (currentPage < totalPages && !isFetchingMore && !pagesLoaded.has(currentPage + 1)) {
@@ -138,8 +132,11 @@ const Matches = ({
 		[loadMoreMatches, currentPage, totalPages, isFetchingMore, isLargeScreen]
 	);
 
-	const handlePlayerChange = (event, value) => {
-		setSelectedPlayer(value); // Update selected player
+	const handlePlayerChange = (player) => {
+		if (!player)
+			setSelectedPlayers([])
+		else
+			setSelectedPlayers(Array.isArray(player) ? player : [player]); // Update selected player
 		setPagedMatches([]); // Clear matches when filter changes
 		setAllMatches([]); // Clear all matches
 		setMatchesCache({}); // Clear cache
@@ -200,21 +197,23 @@ const Matches = ({
 			</Box>
 			<Box sx={{ mr: { xs: '0.25rem', md: '0.5rem' } }}>
 				{showComments && (
-					<GoCommentDiscussion
-						size={20}
-						className="cursorHand"
-						title="Comments"
-						onClick={() => openModal(
-							<Comments entityId={match.id} entityType='match' />,
-							`${uh.getPlayerNames(match.winners)} vs ${uh.getPlayerNames(match.losers)}`
-						)}
-					/>
+					<Badge badgeContent={match.comment_count}>
+						<GoCommentDiscussion
+							size={20}
+							className="cursorHand"
+							title="Comments"
+							onClick={() => openModal(
+								<Comments entityId={match.id} entityType='match' />,
+								`${uh.getPlayerNames(match.winners)} vs ${uh.getPlayerNames(match.losers)}`
+							)}
+						/>
+					</Badge>
 				)
 				}
 			</Box>
 			<Box sx={{ mr: { xs: '0.25rem', md: '0.5rem' } }}>
 				{match.court &&
-					<InfoPopup iconType='custom' size={20} customIcon={<MdMoreVert />}>
+					<InfoPopup iconType='custom' size={20} customIcon={<GiTennisCourt />}>
 						Court: {match.court.name}
 					</InfoPopup>
 				}
@@ -222,57 +221,94 @@ const Matches = ({
 		</Box>
 	);
 
-	const isCurrentUser = (player) => {return originType==='player' && player.id === currentUser.id}
-	const getRowData = (row) => [
-		row.played_on,
-		matchType === enums.MATCH_TYPE.SINGLES
-			? <PlayerNameView player={row.winners[0]} asLink={!isCurrentUser(row.winners[0])} />
-			: userHelper.getPlayerNames(row.losers) || 'N/A',
-			matchType === enums.MATCH_TYPE.SINGLES
-			? <PlayerNameView player={row.losers[0]} asLink={!isCurrentUser(row.losers[0])} />
-			: userHelper.getPlayerNames(row.losers) || 'N/A',
-		row.score,
-		renderIconData(row)
-	];
+	const isCurrentUser = (player) => { return originType === 'player' && player.id === currentUser.id }
+	const getRowData = (row) => {
+		//console.log(row)
+		return [
+			row.played_on,
+			row.match_type?.toLowerCase() === enums.MATCH_TYPE.SINGLES.toLowerCase()
+				? <PlayerNameView player={row.winners[0]} asLink={!isCurrentUser(row.winners[0])} />
+				: userHelper.getPlayerNames(row.winners) || 'N/A',
+			row.match_type?.toLowerCase() === enums.MATCH_TYPE.SINGLES.toLowerCase()
+				? <PlayerNameView player={row.losers[0]} asLink={!isCurrentUser(row.losers[0])} />
+				: userHelper.getPlayerNames(row.losers) || 'N/A',
+			row.score,
+			renderIconData(row)
+		]
+	};
 
 	return (
 		<Box>
 			{/* Player Search */}
-			<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-				<Typography variant="h6">Matches</Typography>
-				<Autocomplete
-					options={playerOptions}
-					getOptionLabel={(option) => option.name}
-					onInputChange={(event, value) => setPlayerSearch(value)} // Search as user types
-					onChange={handlePlayerChange} // Set selected player
-					value={selectedPlayer}
-					renderInput={(params) => (
-						<TextField {...params} label="Search Player" placeholder="Type a player's name" />
-					)}
-					sx={{ width: 300 }}
-				/>
+			<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, gap: 2 }} >
+
+				{showAddMatch &&
+					<Box sx={{ width: '100%' }}>
+						<Button
+							variant="contained"
+							color="primary"
+							onClick={() => openModal(
+								<MatchEditor
+									participant={currentUser}
+									onSubmit={(matchData) => {
+										console.log("Match reported:", matchData);
+										let matches = isLargeScreen ? pagedMatches : allMatches;
+										matches.push(matchData.match);
+										matches.sort((a, b) => new Date(b.played_on) - new Date(a.played_on)); 
+										if (isLargeScreen) {
+											setPagedMatches(matches)
+										} else {
+											setAllMatches(matches)
+										}
+										if (callback) {
+											callback(matchData)
+										}
+										//handleMatchEditorSubmit(matchData);
+										setIsModalOpen(false);
+									}}
+								/>,
+								"Add match"
+							)} // Show wizard editor
+							sx={{ mb: 2 }}
+						>
+							Add Match
+						</Button>
+					</Box>
+				}
+				{originType.toLowerCase() === 'event' ?
+					<GetParticipants eventId={originId} label={'Filter on a participant ...'}
+						//selectedParticipant={selectedPlayers}
+						setParticipantPlayers={handlePlayerChange}
+						setSelectedParticipant={() => { }}
+					/>
+					:
+					<PlayerSearch
+						label={'Filter on a player ...'}
+						selectedPlayer={selectedPlayers[0]}
+						setSelectedPlayer={handlePlayerChange}
+					/>
+				}
 			</Box>
 
 			<ResponsiveDataLayout
 				headers={[
-					{ label: 'Date', accessor: 'played_on' },
-					{ label: 'Winner', accessor: 'winners[0].name' },
-					{ label: 'Loser', accessor: 'losers[0].name' },
-					{ label: 'Score', accessor: 'score' },
-					{ label: '', accessor: 'actions' },
+					{ label: 'Date', key: 'played_on' },
+					{ label: 'Winner', key: 'winners[0].name' },
+					{ label: 'Loser', key: 'losers[0].name' },
+					{ label: 'Score', key: 'score' },
+					{ label: '', key: 'actions' },
 				]}
 				rows={isLargeScreen ? pagedMatches : allMatches}
 				rowKey={(match) => match.id}
 				getRowData={getRowData}
 				sortableColumns={['played_on']}
-				onSort={() => { alert('should sort') }}
 				titleForScreen={renderTitleForScreen} // Always pass a function
 				basicContentForScreen={renderBasicContent} // Always pass a function
 				expandableContentForScreen={renderExpandableContent}
 				loading={loading}
 			/>
 
-			{!loading && currentPage < totalPages && !pagesLoaded.has(currentPage + 1) && (
+			{!loading && currentPage < totalPages && !isLargeScreen && !pagesLoaded.has(currentPage + 1) && (
 				<Box ref={lastMatchRef} sx={{ textAlign: 'center', py: 2 }}>
 					{isFetchingMore ? <CircularProgress /> : <Typography>Scroll to load more</Typography>}
 				</Box>

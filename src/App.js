@@ -8,15 +8,18 @@ import { Box, CssBaseline } from '@mui/material';
 import authAPI from 'api/auth';
 import { ProfileImageProvider } from "components/forms";
 import { requestNotificationPermission } from "./firebase/requestNotificationPermission";
-import { setupNotificationListener } from "./firebase/notificationService";
-import {theme, PrimaryMainTheme} from 'theme_config';
+import { setupNotificationListener, onNotificationReceived, removeNotificationListener } from "./firebase/notificationService";
+import { theme, PrimaryMainTheme } from 'theme_config';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Import default styles
+import { AuthProvider } from 'contexts/AuthContext';
+import { NotificationsProvider } from 'contexts/NotificationContext';
 
 function App() {
-  
-
-  const [isLoading, setLoading] = useState(true); // Loading state
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState({})
+  //const [isLoading, setLoading] = useState(true); // Loading state
+  // const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // const [currentUser, setCurrentUser] = useState({})
+  const originalTitle = useRef(document.title);
 
   console.log('app is starting...')
   // request notification permission
@@ -53,47 +56,79 @@ function App() {
 
   useEffect(() => {
     requestNotificationPermission();
-    setupNotificationListener((notification) => {
-      console.log("New notification:", notification);
-      // Handle notification here (e.g., update UI or show a badge)
-    });
-  }, []); // Runs only once when the app loads
+    // Initialize notification listener
+    const unsubscribe = setupNotificationListener();
 
-  useEffect(() => { // 
-    function handleLoginLogout(e) {
-      console.log(e)
-      getCurrentUser()
-    }
-    async function getCurrentUser() {
-      try {
-        // get the current user (it's okay if it's null)
-        const user = authAPI.getCurrentUser()
-        setCurrentUser(user)
+    // Handle notifications globally
+    const handleNotification = (payload) => {
+      console.log("Global notification received:", payload);
 
-        // check if there is a user and set the isLoggedIn flag
-        const isSignedIn = typeof user === 'object' ? true : false
-        setIsLoggedIn(isSignedIn)
+      const title = payload?.notification.title || "New Notification";
+      const body = payload?.notification.body || "You have received a new message.";
 
-        // loading complete
-        setLoading(false)
-      }
-      catch (e) {
-        console.log(e)
-      }
-    }
-    getCurrentUser()
+      // Display toast
+      toast.info(`${title}: ${body}`, {
+        position: "top-right",
+        autoClose: 7000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
 
-    // Register the event listeners for login and logout
-    window.addEventListener("login", handleLoginLogout)
-    window.addEventListener("logout", handleLoginLogout)
+      // Update the tab title
+      document.title = `New message - ${originalTitle.current}`;
+      setTimeout(() => {
+        document.title = originalTitle.current;
+      }, 7000);
+    };
 
-    // Unregister the event listeners when the component is unmounted
+    // Subscribe to notification events
+    onNotificationReceived(handleNotification);
+
     return () => {
-      window.removeEventListener("login", handleLoginLogout)
-      window.removeEventListener("logout", handleLoginLogout)
-    }
+      // Cleanup listeners
+      unsubscribe();
+      removeNotificationListener(handleNotification);
+    };
+  }, []);
 
-  }, [])
+  // useEffect(() => { // 
+  //   function handleLoginLogout(e) {
+  //     console.log(e)
+  //     getCurrentUser()
+  //   }
+  //   async function getCurrentUser() {
+  //     try {
+  //       // get the current user (it's okay if it's null)
+  //       const user = authAPI.getCurrentUser()
+  //       setCurrentUser(user)
+
+  //       // check if there is a user and set the isLoggedIn flag
+  //       const isSignedIn = typeof user === 'object' ? true : false
+  //       setIsLoggedIn(isSignedIn)
+
+  //       // loading complete
+  //       setLoading(false)
+  //     }
+  //     catch (e) {
+  //       console.log(e)
+  //     }
+  //   }
+  //   getCurrentUser()
+
+  //   // Register the event listeners for login and logout
+  //   window.addEventListener("login", handleLoginLogout)
+  //   window.addEventListener("logout", handleLoginLogout)
+
+  //   // Unregister the event listeners when the component is unmounted
+  //   return () => {
+  //     window.removeEventListener("login", handleLoginLogout)
+  //     window.removeEventListener("logout", handleLoginLogout)
+  //   }
+
+  // }, [])
 
   useEffect(() => {
     console.log("App.js: Mounted");
@@ -102,21 +137,23 @@ function App() {
     };
   }, []);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  // if (isLoading) {
+  //   return <div>Loading...</div>;
+  // }
 
   return (
     <ProfileImageProvider>
       <Box className="App" id="app" sx={{ display: 'flex', flexDirection: 'column' }}>
+        <ToastContainer />
         <CssBaseline />
-        <ThemeProvider theme={PrimaryMainTheme}>
+        <ThemeProvider theme={theme}>
           <BrowserRouter>
-
-            <MyRouter isLoggedIn={isLoggedIn} currentUser={currentUser} />
-            {/* </main> */}
-
-            {/* </Box> */}
+            <AuthProvider>
+              <NotificationsProvider>
+                {/* <MyRouter isLoggedIn={isLoggedIn} currentUser={currentUser} /> */}
+                <MyRouter />
+              </NotificationsProvider>
+            </AuthProvider>
           </BrowserRouter>
         </ThemeProvider>
       </Box>

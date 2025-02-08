@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   AppBar,
@@ -11,7 +11,6 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Badge,
   useMediaQuery,
   Box,
 } from "@mui/material";
@@ -27,22 +26,22 @@ import { BiLogInCircle, BiLogOutCircle } from "react-icons/bi";
 import { BsSearch } from "react-icons/bs";
 import { SlUser } from "react-icons/sl";
 import { GiWhistle } from "react-icons/gi";
-import authAPI from "api/auth";
-import UserInitialsIcon from "./usersInitialsIcon";
-import notificationAPI from "api/services/notifications";
+import { CiMail } from "react-icons/ci";
+import NotificationBadge from "./NotificationBadge";
+import { AuthContext } from "contexts/AuthContext";
 
 const drawerWidthLarge = 240;
 const drawerWidthSmall = 60;
 
-const ResponsiveMenu = (props) => {
+const ResponsiveMenu = ({ ...props }) => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMediumScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [open, setOpen] = useState(!isSmallScreen);
-  const [notificationCount, setNotificationCount] = useState(0);
   const [drawerWidth, setDrawerWidth] = useState(drawerWidthLarge);
-
   const navigate = useNavigate();
   const location = useLocation();
+  const { isLoggedIn, user, logout } = useContext(AuthContext);
 
   const handleDrawerToggle = () => {
     setOpen((prev) => !prev);
@@ -50,19 +49,6 @@ const ResponsiveMenu = (props) => {
       prev === drawerWidthLarge ? drawerWidthSmall : drawerWidthLarge
     );
   };
-
-  useEffect(() => {
-    // Fetch notification count on mount
-    async function fetchNotifications() {
-      try {
-        const count = await notificationAPI.getUnreadCount();
-        setNotificationCount(count || 0);
-      } catch (error) {
-        console.error('Failed to fetch notification count:', error);
-      }
-    }
-    fetchNotifications();
-  }, []);
 
   useEffect(() => {
     setDrawerWidth(open ? drawerWidthLarge : drawerWidthSmall);
@@ -75,14 +61,21 @@ const ResponsiveMenu = (props) => {
     }
   }, [drawerWidth, open, isSmallScreen]);
 
+  useEffect(() => {
+    // close the menu drawer when moving to a medium screen
+    if(isMediumScreen)
+      setOpen(false)
+  }, [isMediumScreen])
+
   const handleLogin = (e) => {
     e.preventDefault();
     navigate(`/login?redirectTo=${location.pathname}`);
   };
 
   const handleLogout = () => {
-    authAPI.signOut();
-    navigate(location.pathname);
+    logout();
+    // authAPI.signOut();
+    // navigate(location.pathname);
   };
 
   const MenuContent = () => (
@@ -93,23 +86,35 @@ const ResponsiveMenu = (props) => {
         </ListItemIcon>
         <ListItemText primary={open ? "Home" : ""} />
       </ListItemButton>
-      {props.isLoggedIn && (
-        <ListItemButton title="My Profile" component={Link} to="/profile">
-          <ListItemIcon>
-            <Badge
-              badgeContent={notificationCount}
-              color="error"
-              showZero={false}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-            >
+      {isLoggedIn && (
+        <React.Fragment>
+          <ListItemButton title="My Profile" component={Link} to={"/players/" + props.currentUser?.id}>
+            <ListItemIcon>
+
               <SlUser size="1.5rem" />
-            </Badge>
-          </ListItemIcon>
-          <ListItemText primary={open ? "My Profile" : ""} />
-        </ListItemButton>
+            </ListItemIcon>
+            <ListItemText primary={open ? "My Profile" : ""} />
+          </ListItemButton>
+          <ListItemButton title="Messages" component={Link} to="/notifications">
+            <ListItemIcon>
+              <NotificationBadge>
+                <CiMail size="1.5rem" />
+              </NotificationBadge>
+              {/* <Badge
+                badgeContent={notificationCount}
+                color="error"
+                showZero={false}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+              >
+                <CiMail size="1.5rem" />
+              </Badge> */}
+            </ListItemIcon>
+            <ListItemText primary={open ? "Messages" : ""} />
+          </ListItemButton>
+        </React.Fragment>
       )}
       <ListItemButton title="Search" component={Link} to="/search">
         <ListItemIcon>
@@ -129,7 +134,7 @@ const ResponsiveMenu = (props) => {
         </ListItemIcon>
         <ListItemText primary={open ? "Rules" : ""} />
       </ListItemButton>
-      {!props.isLoggedIn ? (
+      {!isLoggedIn ? (
         <ListItemButton title="Login" component={Link} to="/login" onClick={handleLogin}>
           <ListItemIcon>
             <BiLogInCircle size="1.5rem" />
@@ -144,7 +149,7 @@ const ResponsiveMenu = (props) => {
           <ListItemText primary={open ? "Logout" : ""} />
         </ListItemButton>
       )}
-      {props.currentUser?.isAdmin && (
+      {user?.isAdmin && (
         <ListItemButton title="Admin" component={Link} to="/adminTasks">
           <ListItemIcon>
             <AiOutlineSetting size="1.5rem" />
@@ -175,7 +180,7 @@ const ResponsiveMenu = (props) => {
             open={open}
             sx={{
               width: drawerWidth,
-              "& .MuiDrawer-paper": { width: drawerWidth },
+              "& .MuiDrawer-paper": { width: drawerWidth, backgroundColor: theme.palette.background.header },
             }}
           >
             <div
@@ -205,12 +210,15 @@ const ResponsiveMenu = (props) => {
           </SwipeableDrawer>
         )}
         <div className='banner-settings'>
-          {props.isLoggedIn === true ?
+          {isLoggedIn ?
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 2 }}>
               {!isSmallScreen &&
                 <span>
-                  <Link to={`/profile/${props.currentUser?.id}`} className='bannerLink'>
-                    <UserInitialsIcon user={props.currentUser} notificationCount={notificationCount} />
+                  <Link to={`/players/${props.currentUser?.id}`} className='bannerLink'>
+                    <NotificationBadge>
+                      <SlUser size={'1.5rem'} />
+                    </NotificationBadge>
+                    {/* <UserInitialsIcon user={props.currentUser} notificationCount={notificationCount} /> */}
                   </Link>
                 </span>
               }

@@ -99,7 +99,7 @@ const MergeProfiles = ({ mainPlayer, potentialMergers, ...props }) => {
                 <ProfileImage player={player} size={75}
                   className={`image`}
                 />
-                <Link to={"/profile/" + player.id}>
+                <Link to={"/players/" + player.id}>
                   <Typography
                     variant="h5"
                     component="h2"

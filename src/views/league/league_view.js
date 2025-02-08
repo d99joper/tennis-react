@@ -7,11 +7,12 @@ import {
   useMediaQuery,
   Grid2,
   Button,
+  Snackbar,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate, useParams } from 'react-router-dom';
 import MyModal from 'components/layout/MyModal';
-import { InfoPopup, MatchEditor, Matches, ProfileImage } from 'components/forms';
+import { MatchEditor, Matches, ProfileImage } from 'components/forms';
 import LeagueScheduler from '../../components/forms/League/leagueScheduler';
 import { authAPI, eventAPI } from 'api/services';
 import AddParticipants from 'components/forms/League/addParticipants';
@@ -20,21 +21,26 @@ import { GiPencil } from 'react-icons/gi';
 import LeagueAdminTools from 'components/forms/League/adminTools';
 import { MdClose } from 'react-icons/md';
 import StandingsView from './standings_view';
+import JoinRequest from 'components/forms/joinRequests';
 
-const LeagueViewPage = () => {
+const LeagueViewPage = (props) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [currentTab, setCurrentTab] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedParticipant, setSelectedParticipant] = useState(null);
-  const [event, setEvent] = useState(null);
-  const [standings, setStandings] = useState([]);
-  const [schedule, setSchedule] = useState([]);
-  const [matches, setMatches] = useState([]);
+  const [event, setEvent] = useState(props.event || null);
+  const [standings, setStandings] = useState(props.event?.league_standings || []);
+  const [schedule, setSchedule] = useState(props.event?.league_schedule || []);
+  const [matches, setMatches] = useState(props.event?.matches || []);
   const [editSchedule, setEditSchedule] = useState(false);
   const currentUser = authAPI.getCurrentUser()
   const [matchModalOpen, setMatchModalOpen] = useState(false);
+  const [isParticipant, setIsParticipant] = useState(props.event?.is_participant || false)
+  const [isAdmin, setIsAdmin] = useState(props.event?.is_admin || false)
+  const [snackbar, setSnackbar] = useState({ open: false, message: '' });
   const navigate = useNavigate();
+
   const { id } = useParams();
 
   useEffect(() => {
@@ -47,6 +53,8 @@ const LeagueViewPage = () => {
           setStandings(event.league_standings || []);
           setSchedule(event.league_schedule || []);
           setMatches(event.matches || []);
+          setIsAdmin(event.is_admin);
+          setIsParticipant(event.is_participant);
         } else {
           console.error(event.statusMessage);
         }
@@ -54,8 +62,8 @@ const LeagueViewPage = () => {
         console.error('Failed to fetch league:', error);
       }
     };
-
-    fetchLeague();
+    if (!event)
+      fetchLeague();
 
   }, [id]);
 
@@ -76,6 +84,12 @@ const LeagueViewPage = () => {
     setSelectedParticipant(null);
   };
 
+  const hasStarted = () => {
+    const today = new Date().getTime(); // Get current time in milliseconds
+    const startDate = new Date(`${event.start_date}T00:00:00Z`).getTime(); // for UTC time
+    return startDate < today;
+  }
+
   if (!event) {
     return <Typography variant="h6">Loading...</Typography>;
   }
@@ -85,10 +99,33 @@ const LeagueViewPage = () => {
       <Typography variant="h4" gutterBottom>
         {event.name}
       </Typography>
+      {!hasStarted() &&
+        <Typography variant="body1" color="text.secondary" gutterBottom>
+          <i>League starts {event.start_date}</i>
+        </Typography>
+      }
       <Typography variant="body1" color="text.secondary" gutterBottom>
         {event.description}
-        {/* <Button onClick={() => { addParticipants() }}>Add participants and admins</Button> */}
       </Typography>
+
+      <JoinRequest
+        objectType={'event'}
+        id={event.id}
+        isMember={isParticipant}
+        memberText={'You are participating'}
+        isOpenRegistration={event.is_open_registration}
+        startDate={event.start_date}
+        registrationDate={event.registration_open_date}
+        callback={async() => {
+          const response = await eventAPI.getEvent(id);
+        if (response && !response.statusCode) {
+          setStandings(response.league_standings || []);
+          setIsParticipant(response.is_participant);
+        } else {
+          console.error(event.statusMessage);
+        }
+        }}
+      />
 
       <Tabs
         value={currentTab}
@@ -100,7 +137,7 @@ const LeagueViewPage = () => {
         <Tab label="Standings" />
         <Tab label="Schedule" />
         <Tab label="Matches" />
-        {event.is_admin && <Tab label="Admin Tools" />} {/* Admin-only tab */}
+        {isAdmin && <Tab label="Admin Tools" />} {/* Admin-only tab */}
       </Tabs>
 
       {/** STANDINGS TAB */}
@@ -110,50 +147,6 @@ const LeagueViewPage = () => {
             Standings
           </Typography>
           <StandingsView standings={standings} />
-          {/* <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Rank</TableCell>
-                  <TableCell>Player</TableCell>
-                  <TableCell>Wins</TableCell>
-                  <TableCell>Losses</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {standings.map((participant, index) => (
-                  <TableRow
-                    key={participant.id}
-                    sx={{
-                      '&:hover': {
-                        backgroundColor: theme.palette.action.hover,
-                      },
-                    }}
-                  >
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>
-                      <Box display="flex" alignItems="center" gap={1}>
-                        {event.type === 'singles' ?
-                          <ProfileImage player={participant.players[0]} size={40} />
-                          : ''
-                        }
-                        <Typography
-                          variant="body1"
-                          color="primary"
-                          sx={{ cursor: 'pointer' }}
-                          onClick={() => handlePlayerClick(participant)}
-                        >
-                          {participant.name}
-                        </Typography>
-                      </Box>
-                    </TableCell>
-                    <TableCell>{participant.wins}</TableCell>
-                    <TableCell>{participant.losses}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer> */}
         </Box>
       )}
       {/** SCHEDULE TAB */}
@@ -161,7 +154,7 @@ const LeagueViewPage = () => {
         <Box mt={3}>
           <Typography variant="h5" gutterBottom>
             Schedule &nbsp;&nbsp;
-            {event.is_admin &&
+            {isAdmin &&
               editSchedule
               ? <MdClose className='pointer' onClick={() => setEditSchedule(false)} />
               : <GiPencil className='pointer' onClick={() => setEditSchedule(true)} />
@@ -172,9 +165,6 @@ const LeagueViewPage = () => {
             ? <LeagueScheduler
               event={event}
               schedule={schedule}
-              // setEvent={setEvent}
-              // setSchedule={setSchedule}
-              // setMatches={setMatches}
               onSave={(newSchedule, keepOpen = true) => {
                 setSchedule(newSchedule)
                 //setEditSchedule(keepOpen)
@@ -195,18 +185,19 @@ const LeagueViewPage = () => {
           </Typography>
 
           {/* Add Match Button */}
-          {event?.is_participant && (
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => setMatchModalOpen(true)} // Show wizard editor
-              sx={{ mb: 2 }}
-            >
-              Add Match
-            </Button>
+          {(event?.is_participant || isAdmin) && (
+            // <Button
+            //   variant="contained"
+            //   color="primary"
+            //   onClick={() => setMatchModalOpen(true)} // Show wizard editor
+            //   sx={{ mb: 2 }}
+            // >
+            //   Add Match
+            // </Button>
+            <Typography>Submit new match results from the schedule tab.</Typography>
           )}
 
-          <Matches 
+          <Matches
             originType={'event'}
             originId={event.id}
             initialMatches={event.matches}
@@ -214,7 +205,7 @@ const LeagueViewPage = () => {
             showComments={true}
             showH2H={true}
           />
-          
+
 
           {/* Add Match Wizard */}
           {/* Match Editor Modal */}
@@ -233,7 +224,7 @@ const LeagueViewPage = () => {
       )}
 
       {/* Admin Tools Tab */}
-      {currentTab === 3 && event.is_admin && (
+      {currentTab === 3 && isAdmin && (
         <Grid2 container direction={'column'}>
           <LeagueAdminTools league={event} participants={event.participants || []} setLeague={setEvent} />
           <AddParticipants league={event} />
@@ -257,7 +248,7 @@ const LeagueViewPage = () => {
                     variant="body1"
                     color="primary"
                     sx={{ cursor: 'pointer' }}
-                    onClick={() => navigate(`/profile/${selectedParticipant.players[0].id}`)}
+                    onClick={() => navigate(`/players/${selectedParticipant.players[0].id}`)}
                   >
                     View Full Profile
                   </Typography>
@@ -275,7 +266,7 @@ const LeagueViewPage = () => {
                           variant="body1"
                           color="primary"
                           sx={{ cursor: 'pointer' }}
-                          onClick={() => navigate(`/profile/${player.id}`)}
+                          onClick={() => navigate(`/players/${player.id}`)}
                         >
                           View Full Profile
                         </Typography>
@@ -298,6 +289,13 @@ const LeagueViewPage = () => {
           </Box>
         )}
       </MyModal>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ open: false, message: '' })}
+        message={snackbar.message}
+      />
     </Box>
   );
 };

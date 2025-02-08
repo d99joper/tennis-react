@@ -418,7 +418,7 @@ const SearchPage = (props) => {
                 justifyContent={'space-between'}
               >
                 {(player, index) => (
-                  <Link to={"/profile/" + player.id} key={player.id + '_' + index}>
+                  <Link to={"/players/" + player.id} key={player.id + '_' + index}>
                     <Card key={`player_card_${index}`}
                       //backgroundColor={'blue.10'}
                       variation="outlined"

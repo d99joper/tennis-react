@@ -46,8 +46,8 @@ const LeagueScheduler = ({ event, schedule, onSave }) => {
     const fetchParticipants = async () => {
       setLoading(true);
       try {
-        const data = await eventAPI.getParticipants(event.id, 0); // Fetch all participants
-        setParticipants(data.results);
+        const response = await eventAPI.getParticipants(event.id, null, 0); // Fetch all participants
+        setParticipants(response.data);
       } catch (error) {
         console.error('Error fetching participants:', error);
       } finally {

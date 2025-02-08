@@ -13,10 +13,13 @@ import {
   ListItemButton,
   ListItemText,
   Divider,
+  Checkbox,
+  FormControlLabel,
 } from '@mui/material';
 import leagueAPI from 'api/services/league';
 import { eventAPI } from 'api/services';
 import EventRestrictions from './restrictions';
+import InfoPopup from '../infoPopup';
 
 const LeagueAdminTools = ({ league, participants, setLeague }) => {
   const [selectedSection, setSelectedSection] = useState('settings');
@@ -31,6 +34,8 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
   const [maxParticipants, setMaxParticipants] = useState(league.max_participants || '');
   const [startDate, setStartDate] = useState(league.start_date || '');
   const [endDate, setEndDate] = useState(league.end_date || '');
+  const [registrationDate, setRegistrationDate] = useState(league.registration_open_date || '');
+  const [isOpenRegistration, setIsOpenRegistration] = useState(league.is_open_registration);
   const [description, setDescription] = useState(league.description || '');
 
 
@@ -52,7 +57,7 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
     }
   };
 
-  const handleUpdateSettings = async (newRestrictions=restrictions) => {
+  const handleUpdateSettings = async (newRestrictions = restrictions) => {
     try {
       setLoading(true);
       console.log(newRestrictions, restrictions)
@@ -61,6 +66,8 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
         max_participants: maxParticipants,
         start_date: startDate,
         end_date: endDate,
+        is_open_registration: isOpenRegistration,
+        registration_open_date: registrationDate,
         description,
       });
       setLeague(updatedLeague);
@@ -170,7 +177,7 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
             <TextField
               label="Start Date"
               type="date"
-              InputLabelProps={{ shrink: true }}
+              slotProps={{ inputLabel: { shrink: true } }}
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               fullWidth
@@ -179,12 +186,35 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
             <TextField
               label="End Date"
               type="date"
-              InputLabelProps={{ shrink: true }}
+              slotProps={{ inputLabel: { shrink: true } }}
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               fullWidth
               sx={{ mb: 2 }}
             />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={isOpenRegistration}
+                  onChange={(e) => setIsOpenRegistration(e.target.checked)}
+                />
+              }
+              label="Open Registration"
+            />
+            <InfoPopup size={20}>
+              By selecting <b>Open Registration</b>, you allow players to sign themselves up for the league without needing admin approval, given that they meet the restrictions (set in next step).
+            </InfoPopup>
+            {isOpenRegistration &&
+              <TextField
+                label="Registration Open"
+                type="date"
+                slotProps={{ inputLabel: { shrink: true } }}
+                value={registrationDate}
+                onChange={(e) => setRegistrationDate(e.target.value)}
+                fullWidth
+                sx={{ mb: 2 }}
+              />
+            }
             <TextField
               label="Description"
               multiline

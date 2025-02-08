@@ -16,18 +16,19 @@ const matchAPI = {
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get match' }
   },
 
-  getMatches: async function(originType, originId, matchType, page, pageSize, skip) {
+  getMatches: async function(filter, page=1, pageSize=20, skip=0) {
     
     const requestOptions = authAPI.getRequestOptions('GET')
-    const url = apiUrl + 'matches2/'
-      + '?origin-type=' + originType
-      + (originId ? '&origin-id=' + originId : '')
-      + (matchType ? '&match-type=' + matchType : '')
-      + (page ? '&page=' + page : '')
-      + (pageSize ? '&page-size=' + pageSize : '')
-      + (skip ? '&skip=' + skip : '')
+    const params = new URLSearchParams({page:page, page_size:pageSize, skip: skip, ...(filter ? filter : {})}) 
+    // const url = apiUrl + 'matches/'
+    //   + '?origin-type=' + originType
+    //   + (originId ? '&origin-id=' + originId : '')
+    //   + (matchType ? '&match-type=' + matchType : '')
+    //   + (page ? '&page=' + page : '')
+    //   + (pageSize ? '&page-size=' + pageSize : '')
+    //   + (skip ? '&skip=' + skip : '')
 
-    let response = await fetch(url, requestOptions)
+    let response = await fetch(`${matchesUrl}?${params}`, requestOptions)
 
     if (response.ok)
       return await response.json()

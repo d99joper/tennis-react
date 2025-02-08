@@ -1,16 +1,21 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import './layout.css'
 import ResponsiveMenu from "./Menu/responsiveMenu"
+import notificationAPI from "api/services/notifications";
+import { onNotificationReceived, removeNotificationListener } from "../../firebase/notificationService";
+import { Box } from "@mui/material";
 
 function Header(props) {
 
+  //const [notificationCount, setNotificationCount] = useState(0);
   // const location = useLocation()
   // const pathnames = location.pathname.split('/').filter((x) => x)
 
-  if(props.show === false) return
+
+  if (props.show === false) return
   return (
-    <>
-      <ResponsiveMenu {...props} />
+    <Box>
+      <ResponsiveMenu {...props}  />
 
       {/* <Breadcrumbs className='breadcrumbs'>
         {pathnames.map((elem, index) => {
@@ -20,7 +25,7 @@ function Header(props) {
           )
         })}
       </Breadcrumbs> */}
-    </>
+    </Box>
   );
 }
 export default Header;

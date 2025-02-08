@@ -5,10 +5,10 @@ import playerAPI from 'api/services/player';
 import debounce from 'lodash.debounce';
 import { helpers } from 'helpers';
 
-const AddPlayerToClub = () => {
+const AddPlayerToClub = ({ club }) => {
   const [clubs, setClubs] = useState([]);
   const [players, setPlayers] = useState([]);
-  const [selectedClub, setSelectedClub] = useState(null);
+  const [selectedClub, setSelectedClub] = useState(club || null);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [loading, setLoading] = useState(false);
   const [clubSearch, setClubSearch] = useState('');
@@ -30,7 +30,7 @@ const AddPlayerToClub = () => {
     if (searchTerm.length < 3) return;
     try {
       const response = await playerAPI.getPlayers({ name: searchTerm });
-      setPlayers(response.players || []);
+      setPlayers(response.data.players || []);
     } catch (error) {
       console.error('Failed to fetch players:', error);
     }
@@ -59,8 +59,10 @@ const AddPlayerToClub = () => {
     }
     try {
       setLoading(true);
-      await clubAPI.addPlayerToClub(selectedClub.id, selectedPlayer.id);
+      await clubAPI.addPlayer(selectedClub.id, selectedPlayer.id);
       alert('Player added to club successfully.');
+      setSelectedPlayer(null)
+      setPlayerSearch("")
     } catch (error) {
       console.error('Failed to add player to club:', error);
       alert('Failed to add player.');
@@ -71,27 +73,31 @@ const AddPlayerToClub = () => {
 
   return (
     <Box>
-      <Typography variant="h5">Add Player to Club</Typography>
-      <Autocomplete
-        options={clubs}
-        getOptionLabel={(option) => option.name}
-        onChange={(event, value) => setSelectedClub(value)}
-        inputValue={clubSearch}
-        onInputChange={(event, value) => setClubSearch(value)}
-        renderInput={(params) => <TextField {...params} label="Select Club" />}
-        fullWidth
-        margin="normal"
-      />
+      {helpers.hasValue(club) ?
+        <Typography>Club: {club.name}</Typography>
+        : <Autocomplete
+          options={clubs}
+          defaultValue={clubs[0] || null}
+          getOptionLabel={(option) => option.name}
+          onChange={(event, value) => setSelectedClub(value)}
+          inputValue={clubSearch}
+          onInputChange={(event, value) => setClubSearch(value)}
+          renderInput={(params) => <TextField {...params} label="Select Club" />}
+          fullWidth
+          margin="normal"
+        />
+      }
       <Autocomplete
         options={players}
-        getOptionLabel={(option) => `${option.name} ${helpers.hasValue(option.location) ? '('+option.location+')' : ''}`}
+        getOptionLabel={(option) => `${option.name} ${helpers.hasValue(option.location) ? '(' + option.location + ')' : ''}`}
         onChange={(event, value) => setSelectedPlayer(value)}
         inputValue={playerSearch}
+        value={selectedPlayer}
         onInputChange={(event, value) => setPlayerSearch(value)}
         renderInput={(params) => <TextField {...params} label="Select Player" />}
         renderOption={(props, option) => (
           <li {...props} key={option.id}>
-            {`${option.name} ${helpers.hasValue(option.location) ? '('+option.location+')' : ''}`}
+            {`${option.name} ${helpers.hasValue(option.location) ? '(' + option.location + ')' : ''}`}
           </li>
         )}
         fullWidth

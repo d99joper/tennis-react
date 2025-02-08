@@ -3,13 +3,16 @@ import {
   Route,
   useLocation
 } from 'react-router-dom';
-import React, { lazy, useEffect, Suspense } from 'react';
+import React, { lazy, useEffect, Suspense, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
 import Registration from 'views/Auth/registration';
 import Header from 'components/layout/header';
 import { Box, LinearProgress } from '@mui/material';
 import Footer from 'components/layout/footer';
 import {AboutPage, ClubViewPage, FAQPage, LeagueViewPage, Profile, RulesPage, SearchPage, Login} from './views/index'
+import EventView from 'views/event_view';
+import NotificationsView from 'views/NotificationsView';
+import { AuthContext } from 'contexts/AuthContext';
 
 // const Profile = lazy(() => import('./views/profile'))
 const ProfileInfo = lazy(() => import('./views/player/profile-information'))
@@ -25,7 +28,6 @@ const AdminTasks = lazy(() => import('./views/adminTasks'))
 const PrivacyPolicyPage = lazy(() => import('./views/privacyPolicyPage'))
 const TermsOfServicePage = lazy(() => import('./views/termsOfServicePage'))
 const LeagueCreate = lazy(() => import('./components/forms/League/create'))
-
 const preloadPage = (page) => page().then((module) => module.default);
 
 // preloadPage(() => import('./views/about'));
@@ -35,9 +37,8 @@ const preloadPage = (page) => page().then((module) => module.default);
 // preloadPage(() => import('./views/searchPage'));
 
 const MyRouter = (props) => {
-
-  let navigate = useNavigate()
   const location = useLocation()
+  const {isLoggedIn, user} = useContext(AuthContext)
 
   // useEffect(() => {
   //   navigate(props.navigateTo)
@@ -61,8 +62,9 @@ const MyRouter = (props) => {
     <Suspense fallback={<LinearProgress  size="large" />}>
       <MemoizedHeader 
         show={showHeaderOrFooter(location.pathname)} 
-        isLoggedIn={props.isLoggedIn} 
-        currentUser={props.currentUser}
+        isLoggedIn={isLoggedIn} 
+        //currentUser={props.currentUser}
+        currentUser={user}
       />
 
       <Box component="main" className='content'
@@ -74,16 +76,18 @@ const MyRouter = (props) => {
           flexGrow: 1, p: 3,
           transition: 'flex-grow 0.2s ease',
           overflowX: 'hidden', // Hide overflowing content
-        }}>
+        }}
+        >
         <Routes key="MyMainRoutes">
-          <Route exact path="/" element={<AboutPage isLoggedIn={props.isLoggedIn} />} />
-          <Route exact path="/about" element={<AboutPage isLoggedIn={props.isLoggedIn} />} />
+          <Route exact path="/" element={<AboutPage isLoggedIn={isLoggedIn} />} />
+          <Route exact path="/about" element={<AboutPage isLoggedIn={isLoggedIn} />} />
           <Route exact path="/faq" element={<FAQPage />} />
           <Route exact path="/rules" element={<RulesPage />} />
           <Route exact path="/search" element={<SearchPage />} />
-          <Route path="/profile" element={<Profile isLoggedIn={props.isLoggedIn} currentUser={props.currentUser} />} />
-          <Route path="/profile/:userid" element={<Profile isLoggedIn={props.isLoggedIn} currentUser={props.currentUser} />} />
-          <Route path="/profile-information" element={<ProfileInfo isLoggedIn={props.isLoggedIn} currentUser={props.currentUser} />} />
+          <Route path="/players" element={<Profile isLoggedIn={isLoggedIn} currentUser={user} />} />
+          <Route path="/players/:userid" element={<Profile isLoggedIn={isLoggedIn} currentUser={user} />} />
+          <Route path="/profile-information" element={<ProfileInfo isLoggedIn={isLoggedIn} currentUser={user} />} />
+          <Route path='/notifications' element={<NotificationsView />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registration" element={<Registration />} />
           <Route path="/user-confirmation/:userid/:key" element={<UserConfirmation />} />
@@ -99,15 +103,19 @@ const MyRouter = (props) => {
             <Route path="new" element={<CourtsCreate {...props} />} />
           </Route>
           <Route path="ladders">
-            <Route index={true} element={<LadderView isLoggedIn={props.isLoggedIn} currentUser={props.currentUser} />} />
-            <Route path=":ladderId" element={<LadderView isLoggedIn={props.isLoggedIn} currentUser={props.currentUser} />} />
-            <Route path="search" element={<LadderSearch isLoggedIn={props.isLoggedIn} />} />
-            <Route path="new" element={<LadderCreate isLoggedIn={props.isLoggedIn} />} />
+            <Route index={true} element={<LadderView isLoggedIn={isLoggedIn} currentUser={user} />} />
+            <Route path=":ladderId" element={<LadderView isLoggedIn={isLoggedIn} currentUser={user} />} />
+            <Route path="search" element={<LadderSearch isLoggedIn={isLoggedIn} />} />
+            <Route path="new" element={<LadderCreate isLoggedIn={isLoggedIn} />} />
             {/* <Route index element={<Home />} /> */}
           </Route>
           <Route path='league'>
-            <Route path=":id" element={<LeagueViewPage isLoggedIn={props.isLoggedIn} />} />
-            <Route path="create" element={<LeagueCreate isLoggedIn={props.isLoggedIn} />} />
+            <Route path=":id" element={<LeagueViewPage isLoggedIn={isLoggedIn} />} />
+            <Route path="create" element={<LeagueCreate isLoggedIn={isLoggedIn} />} />
+          </Route>
+          <Route path='events'>
+            <Route path=":id" element={<EventView isLoggedIn={isLoggedIn} />} />
+            <Route path="create" element={<LeagueCreate isLoggedIn={isLoggedIn} />} />
           </Route>
           <Route path="*" element={<NoPage />} />
         </Routes>

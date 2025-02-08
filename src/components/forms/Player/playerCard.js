@@ -49,12 +49,12 @@ const PlayerCard = ({
       <Flex direction={'column'}>
         <Flex direction={'row'}>
           {headerAsLink
-            ? <Link to={"/profile/" + player.id} {...openToBlank && { target: "_blank" }}>{profilePic}</Link>
+            ? <Link to={"/players/" + player.id} {...openToBlank && { target: "_blank" }}>{profilePic}</Link>
             : profilePic
           }
           <Flex direction={'column'} gap="0.1rem">
             {headerAsLink
-              ? <Link to={"/profile/" + player.id} {...openToBlank && { target: "_blank" }}>{profileName}</Link>
+              ? <Link to={"/players/" + player.id} {...openToBlank && { target: "_blank" }}>{profileName}</Link>
               : profileName
             }
             {player.location &&
@@ -78,7 +78,7 @@ const PlayerCard = ({
   return (
 
     asLink ? (
-      <Link to={"/profile/" + player.id} {...openToBlank && { target: "_blank" }}>
+      <Link to={"/players" + player.id} {...openToBlank && { target: "_blank" }}>
         {cardContent}
       </Link>
     ) :

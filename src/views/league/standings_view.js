@@ -5,6 +5,7 @@ import {
 } from "@mui/material";
 import ResponsiveDataLayout from "components/layout/Data/responsiveDataLayout";
 import { ProfileImage } from "components/forms";
+import { Link } from "react-router-dom";
 
 const StandingsView = ({ standings }) => {
 
@@ -37,10 +38,12 @@ const StandingsView = ({ standings }) => {
         getRowData={(row, index) => [
           `#${row.rank}`,
           (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <ProfileImage player={row.players[0]} size={30} />
-              <Typography>{row.name}</Typography>
-            </Box>
+            <Link to={'/players/' + row.players[0].id}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <ProfileImage player={row.players[0]} size={30} />
+                <Typography>{row.name}</Typography>
+              </Box>
+            </Link>
           ),
           row.wins,
           row.losses,
@@ -52,28 +55,30 @@ const StandingsView = ({ standings }) => {
           <>
             {isMedium &&
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Typography 
+                <Typography
                   variant="h5"
                   sx={{ fontWeight: "bold", color: "primary.main", pr: 2 }}
                 >
                   #{row.rank}
                 </Typography>
-                <ProfileImage player={row.players[0]} size={30} />
-                <Typography 
-                  variant="h5"
-                  sx={{ fontWeight: "bold", color: "primary.main" }}
-                >
-                  {row.name}
-                </Typography>
+                <Link to={'/players/' + row.players[0].id}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <ProfileImage player={row.players[0]} size={30} />
+                    <Typography
+                      variant="h5"
+                      sx={{ fontWeight: "bold", color: "primary.main" }}
+                    >{row.name}</Typography>
+                  </Box>
+                </Link>
               </Box>
             }
             {isSmall &&
-            <Typography
-              variant={"h6"}
-              sx={{ fontWeight: "bold", color: "primary.main" }}
-            >
-              #{row.rank} {row.name}
-            </Typography>
+              <Typography
+                variant={"h6"}
+                sx={{ fontWeight: "bold", color: "primary.main" }}
+              >
+                #{row.rank} {row.name}
+              </Typography>
             }
           </>
         )}

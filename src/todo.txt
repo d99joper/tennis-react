@@ -1,4 +1,22 @@
 current:
+    [x] Create events
+        [x] League 
+    [*] Check event requirement when adding/joining/approving new participants
+    [ ] League admin tools
+        [ ] Invite players
+        [ ] Approve / Deny join requests
+        [ ] Send Notifications
+    [*] Create a match from
+        [x] League page
+        [ ] Profile page 
+    [ ] Add hosting club to event (league) page
+    [x] League open registration (no join request, participants can join on their own)
+    [ ] Add player to league without Invite
+    [ ] Delete player from league (before start date, or played 0 matches)
+    [ ] Generate schedule with or without dates
+
+
+------------------
     [*] Merge profiles
         [*] On your profile page, if there are other profiles with the same name, offer merge
             [x] View for merging

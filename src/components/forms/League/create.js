@@ -1,59 +1,76 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Box, Container, TextField, Checkbox, FormControlLabel, MenuItem, Typography, IconButton, Chip } from '@mui/material';
 import Wizard from 'components/forms/Wizard/Wizard';
 import { useNavigate } from 'react-router-dom';
-import { AutoCompletePlaces } from 'components/forms';
-import { CiSquarePlus, CiTrash } from "react-icons/ci";
+import { AutoCompletePlaces, InfoPopup } from 'components/forms';
 import leagueAPI from 'api/services/league';
 import authAPI from 'api/auth';
 import { helpers } from 'helpers';
 import EventRestrictions from './restrictions';
+import clubAPI from 'api/services/club';
+import { AuthContext } from 'contexts/AuthContext';
+import { eventAPI } from 'api/services';
 
-const CreateLeague = () => {
+const CreateLeague = ({ club, onSuccess }) => {
   const navigate = useNavigate();
   const [formState, setFormState] = useState({
     name: '',
     startDate: '',
     endDate: '',
-    location: '',
+    location: club?.location||'',
+    lat: club?.lat||'',
+    lng: club?.lng||'',
     description: '',
     maxParticipants: '',
     type: 'singles',
     isOpenRegistration: false,
     registrationOpenDate: new Date().toISOString().split('T')[0],
     restrictions: {},
-    club: 'none',
+    club: club?.id || '',
+    event_type: 'league', // Set event type explicitly
+    content_object: { // Store League-specific data separately
+      type: 'singles',
+      schedule: null
+    }
   });
 
   const [errors, setErrors] = useState({});
-  const [restrictionType, setRestrictionType] = useState('');
-  const [restrictionValue, setRestrictionValue] = useState({});
-  const [userClubs, setUserClubs] = useState([]);
-  const [loadingClubs, setLoadingClubs] = useState(true);
+  const [userClubs, setUserClubs] = useState(club ? [club] : []);
+  const { isLoggedIn, user } = useContext(AuthContext)
 
   useEffect(() => {
     const fetchUserClubs = async () => {
       try {
-        const currentUser = authAPI.getCurrentUser();
-        if (currentUser) {
-          setUserClubs(currentUser.clubs ?? []);
-          }
+        if (!club) {
+          const clubs = await clubAPI.getClubs('admin_id=' + user.id)
+          if (clubs)
+            setUserClubs(clubs.data);
+        }
       }
+
       catch (error) {
         console.error('Failed to fetch user clubs:', error);
-      } finally {
-        setLoadingClubs(false);
-      }
-    };
-
+      };
+    }
     fetchUserClubs();
   }, []);
 
   const updateFormState = (key, value) => {
-    setFormState((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+    if (key.startsWith('content_object.')) {
+      const contentKey = key.split('.')[1];
+      setFormState((prev) => ({
+        ...prev,
+        content_object: {
+          ...prev.content_object,
+          [contentKey]: value
+        }
+      }));
+    } else {
+      setFormState((prev) => ({
+        ...prev,
+        [key]: value
+      }));
+    }
     setErrors((prev) => ({
       ...prev,
       [key]: '',
@@ -65,6 +82,7 @@ const CreateLeague = () => {
 
     if (step === 0) {
       if (!formState.name) newErrors.name = 'League name is required.';
+      if (!formState.club) newErrors.club = 'A league must belong to a club.';
       if (!formState.startDate) newErrors.startDate = 'Start date is required.';
       //if (!formState.endDate) newErrors.endDate = 'End date is required.';
     }
@@ -89,14 +107,15 @@ const CreateLeague = () => {
     });
     return processedData;
   };
-  
+
   const handleCreateLeague = async () => {
     try {
       const snakeCaseData = helpers.camelToSnake(preprocessFormData(formState))
       console.log('Creating league with data:', snakeCaseData);
-      const response = await leagueAPI.createLeague(snakeCaseData);
+      const response = await eventAPI.createEvent(snakeCaseData);  //leagueAPI.createLeague(snakeCaseData);
       if (response.success) {
-        navigate(`/league/${response.data.id}`);
+        onSuccess(response.event)
+        //navigate(`/league/${response.event.id}`);
       } else {
         throw new Error(response.message);
       }
@@ -116,6 +135,26 @@ const CreateLeague = () => {
       handleNext: () => validateStep(0),
       content: (
         <Container maxWidth="sm">
+          {club ? <Typography variant='h6'>Hosting club: {club.name}</Typography> :
+            <TextField
+              label="Hosting Club"
+              select
+              fullWidth
+              required
+              value={formState.club}
+              onChange={(e) => updateFormState('club', e.target.value)}
+              margin="normal"
+              error={!!errors.club}
+              helperText={errors.club}
+              disabled={userClubs.length === 0}
+            >
+              {userClubs.map((club) => (
+                <MenuItem key={club.id} value={club.id}>
+                  {club.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          }
           <TextField
             label="League Name"
             fullWidth
@@ -127,36 +166,13 @@ const CreateLeague = () => {
             helperText={errors.name}
           />
           <TextField
-            label="Hosting Club"
-            select
-            fullWidth
-            value={formState.club}
-            onChange={(e) => updateFormState('club', e.target.value)}
-            margin="normal"
-            disabled={userClubs.length === 0}
-            helperText={
-              userClubs.length === 0
-                ? "You don't belong to any clubs."
-                : 'Select a hosting club or choose "Not hosted by a club".'
-            }
-          >
-            <MenuItem value="none" disabled={userClubs.length === 0}>
-              Not hosted by a club
-            </MenuItem>
-            {userClubs.map((club) => (
-              <MenuItem key={club.id} value={club.id}>
-                {club.name}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
             label="Start Date"
             type="date"
             fullWidth
             value={formState.startDate}
             onChange={(e) => updateFormState('startDate', e.target.value)}
             required
-            InputLabelProps={{ shrink: true }}
+            slotProps={{ inputLabel: { shrink: true } }}
             margin="normal"
             error={!!errors.startDate}
             helperText={errors.startDate}
@@ -167,18 +183,23 @@ const CreateLeague = () => {
             fullWidth
             value={formState.endDate}
             onChange={(e) => updateFormState('endDate', e.target.value)}
+            slotProps={{ inputLabel: { shrink: true } }}
             margin="normal"
             error={!!errors.endDate}
             helperText={errors.endDate}
           />
-          <AutoCompletePlaces
-            onPlaceChanged={handlePlaceChanged}
-            required
-            error={Boolean(errors.location)}
-            helperText={errors.location}
-            initialCity={''}
-            showGetUserLocation={true}
-          />
+          {club
+            ? <Typography>Location: {club.location}</Typography>
+            :
+            <AutoCompletePlaces
+              onPlaceChanged={handlePlaceChanged}
+              required
+              error={Boolean(errors.location)}
+              helperText={errors.location}
+              initialCity={club?.location || ''}
+              showGetUserLocation={true}
+            />
+          }
           <TextField
             label="Description"
             fullWidth
@@ -208,14 +229,16 @@ const CreateLeague = () => {
             select
             label="League Type"
             fullWidth
-            value={formState.type}
-            onChange={(e) => updateFormState('type', e.target.value)}
+            value={formState.content_object.type}
+            onChange={(e) => updateFormState('content_object.type', e.target.value)}
             margin="normal"
           >
             <MenuItem value="singles">Singles</MenuItem>
             <MenuItem value="doubles">Doubles</MenuItem>
             <MenuItem value="teams">Teams</MenuItem>
           </TextField>
+
+          <Box display={'flex'} alignItems={'center'}>
           <FormControlLabel
             control={
               <Checkbox
@@ -225,6 +248,10 @@ const CreateLeague = () => {
             }
             label="Open Registration"
           />
+          <InfoPopup size={20}>
+            By selecting <b>Open Registration</b>, you allow players to sign themselves up for the league without needing admin approval, given that they meet the restrictions (set in next step).
+          </InfoPopup>
+          </Box>
           {formState.isOpenRegistration && (
             <TextField
               label="Registration Open Date"
@@ -232,7 +259,7 @@ const CreateLeague = () => {
               fullWidth
               value={formState.registrationOpenDate}
               onChange={(e) => updateFormState('registrationOpenDate', e.target.value)}
-              InputLabelProps={{ shrink: true }}
+              slotProps={{ inputLabel: { shrink: true } }}
               margin="normal"
             />
           )}
@@ -254,7 +281,7 @@ const CreateLeague = () => {
   return (
     <Box sx={{ mt: 4 }}>
       <Typography variant="h4" align="center" gutterBottom>
-        Create New League
+        {formState.name || 'Create New League'}
       </Typography>
       <Wizard
         steps={steps}
