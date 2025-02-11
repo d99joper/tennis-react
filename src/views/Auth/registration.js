@@ -122,8 +122,8 @@ const Registration = () => {
     }
 
     //login and redirect
-    await authAPI.googleLogin(formState.data.credentialResponse.credential).then(() => {
-      navigate("/profile", { replace: false })
+    await authAPI.googleLogin(formState.data.credentialResponse.credential).then((player) => {
+      navigate("/players/"+player.id, { replace: false })
     })    
     toggleLoader('step0')
   }

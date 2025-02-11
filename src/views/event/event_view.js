@@ -1,10 +1,10 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Typography } from "@mui/material";
-import LadderView from "./ladder/view";
-import TournamentView from "./Tournament/tournamentView";
-import LeagueViewPage from "./league/league_view";
 import { eventAPI } from "api/services";
+import LeagueViewPage from "views/league/league_view";
+import TournamentView from "views/Tournament/tournamentView";
+import LadderView from "views/ladder/view";
 
 const EventView = () => {
   const { id } = useParams();

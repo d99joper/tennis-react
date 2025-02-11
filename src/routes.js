@@ -4,13 +4,11 @@ import {
   useLocation
 } from 'react-router-dom';
 import React, { lazy, useEffect, Suspense, useContext } from 'react';
-import { useNavigate } from "react-router-dom";
 import Registration from 'views/Auth/registration';
 import Header from 'components/layout/header';
 import { Box, LinearProgress } from '@mui/material';
 import Footer from 'components/layout/footer';
-import {AboutPage, ClubViewPage, FAQPage, LeagueViewPage, Profile, RulesPage, SearchPage, Login} from './views/index'
-import EventView from 'views/event_view';
+import {AboutPage, ClubViewPage, EventView, FAQPage, LeagueViewPage, Profile, RulesPage, SearchPage, Login} from './views/index'
 import NotificationsView from 'views/NotificationsView';
 import { AuthContext } from 'contexts/AuthContext';
 

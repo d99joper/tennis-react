@@ -114,7 +114,7 @@ const ScheduleView = ({ event, schedule: initialSchedule, onScoreReported }) => 
                 color="primary"
                 onClick={() => handleReportScore(row)}
               >
-                Report
+                Report score
               </Button>
             ),
         ]}

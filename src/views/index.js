@@ -8,11 +8,13 @@ import NoPage from "./NoPage"
 import Profile from "./player/profile"
 import RulesPage from "./rules"
 import SearchPage from "./searchPage"
+import EventView from "./event/event_view"
 
 export {
   AboutPage, 
   AdminTasks,
   ClubViewPage,
+  EventView,
   FAQPage, 
   LeagueViewPage, 
   Login,

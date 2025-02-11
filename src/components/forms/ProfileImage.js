@@ -44,7 +44,7 @@ const ProfileImage = ({ player, size, ...props }) => {
 
     // Set the profile image when the component mounts and there is an image
     if (!isImageLoaded && imageUrlWithRandomNumber != 'none') {
-      setProfileImage(player.id, player.image);
+      setProfileImage(player.id, props.useFullImage ? player.image_urls?.full : player.image_urls?.thumbnail);
     }
   }, [player, getProfileImage, setProfileImage])
 
@@ -74,45 +74,3 @@ const ProfileImage = ({ player, size, ...props }) => {
 };
 
 export { ProfileImageProvider, ProfileImageContext, ProfileImage };
-
-//
-// *****************************************
-// profile image using localstorage
-// *****************************************
-//
-// const ProfileImage2 = ({ player, size, ...props }) => {
-
-//   function stringAvatar() {
-//     try {
-//       // try to get the image from localStorage
-//       let imageUrl = localStorage.getItem(`profile_image_${player.id}`)
-//       if (!imageUrl) {
-//         // there was no image stored, so set the image
-//         // it will be in local storage until player logs out, or player updates its image 
-//         imageUrl = `${player.image}?dummy=${Math.random()}`
-//         localStorage.setItem(`profile_image_${player.id}`, imageUrl)
-//       }
-
-//       const jsonObj = {
-//         sx: {
-//           ...player ? { bgcolor: helpers.stringToColor(player.name) } : null,
-//           width: size,
-//           height: size,
-//           border: 1
-//         },
-//         ...player && player.image
-//           ? { src: imageUrl }
-//           : { children: <SlUser {...size ? { size: size * 0.65 } : null} /> }
-//       }
-
-//       return jsonObj
-//     }
-//     catch (e) { console.log(e) }
-//   }
-
-//   return (
-//     <Avatar {...stringAvatar()} className={props.className} onClick={props.onClick} />
-//   )
-// }
-
-//export default ProfileImage2

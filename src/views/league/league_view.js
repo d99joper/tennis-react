@@ -10,7 +10,7 @@ import {
   Snackbar,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import MyModal from 'components/layout/MyModal';
 import { MatchEditor, Matches, ProfileImage } from 'components/forms';
 import LeagueScheduler from '../../components/forms/League/leagueScheduler';
@@ -98,6 +98,9 @@ const LeagueViewPage = (props) => {
     <Box sx={{ mt: 4, px: isMobile ? 2 : 4 }}>
       <Typography variant="h4" gutterBottom>
         {event.name}
+      </Typography>
+      <Typography variant="bod1" gutterBottom>
+        Hosted by <Link to={'clubs/'+event.club?.id} >{event.club?.name}</Link>
       </Typography>
       {!hasStarted() &&
         <Typography variant="body1" color="text.secondary" gutterBottom>
