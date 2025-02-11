@@ -1,11 +1,9 @@
-//import "@aws-amplify/ui-react/styles.css";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import MyRouter from './routes';
 import { BrowserRouter } from 'react-router-dom';
 import { Box, CssBaseline } from '@mui/material';
-import authAPI from 'api/auth';
 import { ProfileImageProvider } from "components/forms";
 import { requestNotificationPermission } from "./firebase/requestNotificationPermission";
 import { setupNotificationListener, onNotificationReceived, removeNotificationListener } from "./firebase/notificationService";
@@ -14,11 +12,9 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import default styles
 import { AuthProvider } from 'contexts/AuthContext';
 import { NotificationsProvider } from 'contexts/NotificationContext';
+import { HelmetProvider } from "react-helmet-async";
 
 function App() {
-  //const [isLoading, setLoading] = useState(true); // Loading state
-  // const [isLoggedIn, setIsLoggedIn] = useState(false);
-  // const [currentUser, setCurrentUser] = useState({})
   const originalTitle = useRef(document.title);
 
   console.log('app is starting...')
@@ -142,22 +138,24 @@ function App() {
   // }
 
   return (
-    <ProfileImageProvider>
-      <Box className="App" id="app" sx={{ display: 'flex', flexDirection: 'column' }}>
-        <ToastContainer />
-        <CssBaseline />
-        <ThemeProvider theme={theme}>
-          <BrowserRouter>
-            <AuthProvider>
-              <NotificationsProvider>
-                {/* <MyRouter isLoggedIn={isLoggedIn} currentUser={currentUser} /> */}
-                <MyRouter />
-              </NotificationsProvider>
-            </AuthProvider>
-          </BrowserRouter>
-        </ThemeProvider>
-      </Box>
-    </ProfileImageProvider>
+    <HelmetProvider>
+      <ProfileImageProvider>
+        <Box className="App" id="app" sx={{ display: 'flex', flexDirection: 'column' }}>
+          <ToastContainer />
+          <CssBaseline />
+          <ThemeProvider theme={theme}>
+            <BrowserRouter>
+              <AuthProvider>
+                <NotificationsProvider>
+                  {/* <MyRouter isLoggedIn={isLoggedIn} currentUser={currentUser} /> */}
+                  <MyRouter />
+                </NotificationsProvider>
+              </AuthProvider>
+            </BrowserRouter>
+          </ThemeProvider>
+        </Box>
+      </ProfileImageProvider>
+    </HelmetProvider>
   )
 }
 

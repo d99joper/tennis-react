@@ -24,6 +24,7 @@ import { enums, helpers } from 'helpers';
 import { AutoCompletePlaces, Editable, InfoPopup, Matches, TopRivals, UnlinkedMatches, UserStats } from 'components/forms';
 import { BsHouse } from 'react-icons/bs';
 import { useNotificationsContext } from 'contexts/NotificationContext';
+import { Helmet } from 'react-helmet-async';
 
 function Profile({ isLoggedIn }) {
 	const params = useParams();
@@ -281,6 +282,10 @@ function Profile({ isLoggedIn }) {
 				width: '100%', maxWidth: '100%', boxSizing: 'border-box'
 			}}
 			>
+				<Helmet>
+					<title>{player.name} | MyTennis Space</title>
+				</Helmet>
+
 				<Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
 					{/************ PROFILE PICTURE   *************/}
 					{updatingImage
@@ -346,7 +351,7 @@ function Profile({ isLoggedIn }) {
 						{/** Notifications */}
 						{canEdit &&
 							<Link to='/notifications/'>
-								You have {notificationCount} unread messages
+								{notificationCount > 0 && `You have ${notificationCount} unread messages`} 
 							</Link>
 						}
 
@@ -518,7 +523,7 @@ function Profile({ isLoggedIn }) {
 									showAddMatch={true}
 									showComments={true}
 									showH2H={true}
-									callback={(matchdata) => {console.log('new match to profile', matchdata)}}
+									callback={(matchdata) => { console.log('new match to profile', matchdata) }}
 								// highlightedMatch={highLightedMatch}
 								// refreshMatches={refreshMatchesCounter}
 								//allowDelete={true}

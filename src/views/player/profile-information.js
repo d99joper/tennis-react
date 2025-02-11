@@ -1,7 +1,7 @@
-import { Flex } from "@aws-amplify/ui-react"
 import "./profile.css"
 import { useEffect, useState } from "react"
 import { AutoCompletePlaces } from "components/forms"
+import { Box } from "@mui/material"
 
 function ProfileInfo({ ...props }) {
   const [initialCity, setInitialCity] = useState('')
@@ -53,13 +53,13 @@ function ProfileInfo({ ...props }) {
   }, [])
 
   return (
-    <Flex className="double-grid">
+    <Box display='flex' className="double-grid">
       First name:
       <input name="firstname" placeholder='First name' />
       Last name:
       <input name="lastname" placeholder='Last name' />
       <AutoCompletePlaces onPlaceChanged={(point) => setCity(point)} initialCity={initialCity} scriptIsLoaded={scriptIsLoaded} />
-    </Flex>
+    </Box>
   )
 
 }

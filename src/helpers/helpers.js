@@ -162,21 +162,6 @@ const helpers = {
 		return 'not a date'
 	},
 
-	formatAWSDate: (date, hoursToAdd = 0) => {
-		Date.prototype.addHours = function (h) {
-			this.setTime(this.getTime() + (h * 60 * 60 * 1000));
-			return this;
-		}
-		date = new Date(date).addHours(hoursToAdd)
-		if (Object.prototype.toString.call(date) === '[object Date]')
-			return [date.getFullYear(),
-			String(date.getMonth() + 1).padStart(2, '0'),
-			String(date.getDate()).padStart(2, '0')]
-				.join('-')
-
-		return 'not a date'
-	},
-
 	modalStyle: {
 		position: 'absolute',
 		top: '50%',

@@ -64,8 +64,20 @@ const Matches = ({
 
 	const fetchMatches = useCallback(
 		async (page = 1) => {
-			if (matchesCache[page]) {
-				setPagedMatches(matchesCache[page]);
+			// if (matchesCache[page]) {
+			// 	setPagedMatches(matchesCache[page]);
+			// 	return;
+			// }
+			// Reset cache if originId changes
+			setMatchesCache((prevCache) => {
+				if (prevCache.originId !== originId) {
+					return { originId, pages: {} }; // Clear cache and store new originId
+				}
+				return prevCache;
+			});
+	
+			if (matchesCache.pages?.[page]) {
+				setPagedMatches(matchesCache.pages[page]);
 				return;
 			}
 
@@ -86,7 +98,11 @@ const Matches = ({
 					effectiveSkip
 				);
 
-				setMatchesCache((prev) => ({ ...prev, [page]: response.matches }));
+				// setMatchesCache((prev) => ({ ...prev, [page]: response.matches }));
+				setMatchesCache((prev) => ({
+					originId,
+					pages: { ...prev.pages, [page]: response.matches }
+				}));
 				setPagedMatches(response.matches);
 				setAllMatches((prev) => [...prev, ...response.matches]);
 				setTotalPages(response.num_pages);
@@ -99,7 +115,6 @@ const Matches = ({
 		},
 		[originType, originId, pageSize, matchesCache]
 	);
-
 
 	// Fetch matches on component mount and page change
 	useEffect(() => {
@@ -227,10 +242,10 @@ const Matches = ({
 		return [
 			row.played_on,
 			row.match_type?.toLowerCase() === enums.MATCH_TYPE.SINGLES.toLowerCase()
-				? <PlayerNameView player={row.winners[0]} asLink={!isCurrentUser(row.winners[0])} />
+				? <PlayerNameView player={row.winners[0]} asLink={originId !== row.winners[0].id} />
 				: userHelper.getPlayerNames(row.winners) || 'N/A',
 			row.match_type?.toLowerCase() === enums.MATCH_TYPE.SINGLES.toLowerCase()
-				? <PlayerNameView player={row.losers[0]} asLink={!isCurrentUser(row.losers[0])} />
+				? <PlayerNameView player={row.losers[0]} asLink={originId !== row.losers[0].id} />
 				: userHelper.getPlayerNames(row.losers) || 'N/A',
 			row.score,
 			renderIconData(row)

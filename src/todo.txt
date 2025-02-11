@@ -15,6 +15,7 @@ current:
     [x] League open registration (no join request, participants can join on their own)
     [ ] Delete player from league (before start date, or played 0 matches)
     [ ] Create a club page (should probably be a locked feature)
+    [x] reset matches/stats/rivals for profile when the id changes
 
 
 ------------------

@@ -1,5 +1,4 @@
-import { Collection, Flex } from "@aws-amplify/ui-react"
-import { Button, MenuItem, Select, Slider } from "@mui/material"
+import { Box, Button, List, MenuItem, Select, Slider } from "@mui/material"
 import { ladderAPI } from "api/services"
 import { AutoCompletePlaces, ItemCard } from "components/forms"
 import { enums, helpers } from "helpers"
@@ -175,9 +174,9 @@ const LadderSearch = () => {
 	}
 
 	return (
-		<Flex direction={"row"} gap=".5rem">
-			<Flex direction={"column"} gap="1rem" paddingTop={'1rem'} >
-				<Flex direction={"column"}>
+		<Box display={'flex'} flexDirection={"row"} gap=".5rem">
+			<Box display={'flex'} flexDirection={"column"} gap="1rem" sx={{pt:1}} >
+				<Box display={'flex'} flexDirection={"column"}>
 					<AutoCompletePlaces onPlaceChanged={handlePlaceChanged} initialCity={initialCity} scriptIsLoaded={scriptIsLoaded} />
 					<div>
 						Radius: &nbsp;
@@ -222,13 +221,13 @@ const LadderSearch = () => {
 					<div>
 						<Button variant="contained" onClick={updateSearch}>Search</Button>
 					</div>
-				</Flex>
+				</Box>
 				<div id="map" style={{ minHeight: '400px', minWidth: '400px', border: '1px solid black' }}></div>
-			</Flex>
+			</Box>
 
-			<Flex direction={"column"}>
+			<Box display={'flex'} flexDirection={"column"}>
 				{`${totalCount} ladder${ladders.length > 1 ? 's' : ''} found`}
-				<Collection
+				<List
 					type="list"
 					items={ladders}
 					direction='column'
@@ -251,9 +250,9 @@ const LadderSearch = () => {
 							footerRight={`Level: ${ladder.level_min}${ladder.level_max !== ladder.level_min ? '-' + ladder.level_max : ''}`}
 						/>
 					)}
-				</Collection>
-			</Flex>
-		</Flex>
+				</List>
+			</Box>
+		</Box>
 	)
 }
 

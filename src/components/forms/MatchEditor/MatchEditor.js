@@ -64,7 +64,7 @@ const MatchEditor = ({
 				content: comment,
 				posted_by: authAPI.getCurrentUser.id,
 				private: isPrivate,
-				posted_on: Date.now//helpers.formatAWSDate(Date.now)
+				posted_on: Date.now
 			}
 			match.comments.push(matchComment)
 		}

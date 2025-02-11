@@ -13,6 +13,7 @@ import { AuthContext } from 'contexts/AuthContext';
 import { GiExitDoor } from 'react-icons/gi';
 import notificationAPI from 'api/services/notifications';
 import JoinRequest from 'components/forms/joinRequests';
+import { Helmet } from 'react-helmet-async';
 
 const ClubViewPage = () => {
   const { clubId } = useParams();
@@ -168,13 +169,13 @@ const ClubViewPage = () => {
   const renderEventForm = () => {
     switch (eventType) {
       case "league":
-        return <CreateLeague club={club} 
+        return <CreateLeague club={club}
           onSuccess={(newEvent) => {
             setActiveEvents((prev) => [...prev, newEvent])
             setShowCreate(false)
             setEventType("")
-            }} 
-          />;
+          }}
+        />;
       case "tournament":
         return <Typography>Not yet implemented</Typography>;
       case "social":
@@ -189,6 +190,9 @@ const ClubViewPage = () => {
     <Box p={2}>
       {club && (
         <Box as='form'>
+          <Helmet>
+            <title>{club.name} | MyTennis Space</title>
+          </Helmet>
           <Editable
             isEditing={editFields.name}
             text={
@@ -251,9 +255,9 @@ const ClubViewPage = () => {
           </Tabs>
           {activeTab === 0 && (
             <>
-              <MyModal 
-                showHide={showCreate} 
-                onClose={() => {setShowCreate(false)}} 
+              <MyModal
+                showHide={showCreate}
+                onClose={() => { setShowCreate(false) }}
                 title={`Create ${capitalize(eventType) || 'Event'}`}
               >
                 <DialogContent>

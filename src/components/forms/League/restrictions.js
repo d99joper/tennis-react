@@ -9,7 +9,7 @@ const EventRestrictions = ({ restrictions: parentRestrictions, updateRestriction
   const [restrictionType, setRestrictionType] = useState('');
   const [restrictionValue, setRestrictionValue] = useState({});
   const [availableClubs, setAvailableClubs] = useState([]);
-  const {user} = useContext(AuthContext)
+  const { user } = useContext(AuthContext)
 
   useEffect(() => {
     setLocalRestrictions(parentRestrictions);
@@ -58,9 +58,9 @@ const EventRestrictions = ({ restrictions: parentRestrictions, updateRestriction
     }
     console.log(restrictionValue.value)
     const newRestrictionValue =
-    restrictionType === 'club' && restrictionValue
-      ? { id: restrictionValue.value.id, name: restrictionValue.value.name }
-      : restrictionValue;
+      restrictionType === 'club' && restrictionValue
+        ? { id: restrictionValue.value.id, name: restrictionValue.value.name }
+        : restrictionValue;
 
     // Add the restriction
     const newRestrictions = {
@@ -76,7 +76,7 @@ const EventRestrictions = ({ restrictions: parentRestrictions, updateRestriction
   };
 
   const removeRestriction = (key) => {
-    const updatedRestrictions = { ...localRestrictions  };
+    const updatedRestrictions = { ...localRestrictions };
     delete updatedRestrictions[key];
     // Update local state immediately for optimistic UI
     setLocalRestrictions(updatedRestrictions);
@@ -93,6 +93,9 @@ const EventRestrictions = ({ restrictions: parentRestrictions, updateRestriction
     }
     if (key === 'club') {
       return `${key}: ${value.name}`;
+    }
+    if (key === 'rating') {
+      return `${key}: ${value.value.toFixed(1)}`;
     }
     return `${key}: ${value.value || value || value.type || ''}`;
   };
@@ -196,18 +199,21 @@ const EventRestrictions = ({ restrictions: parentRestrictions, updateRestriction
       return (
         <TextField
           select
-          label="Rating"
+          label="NTRP Rating"
           fullWidth
           value={restrictionValue.value || ''}
           onChange={(e) => setRestrictionValue({ value: e.target.value })}
           margin="normal"
         >
-          {[2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5].map((rating) => (
-            <MenuItem key={rating} value={rating}>{rating}</MenuItem>
+          {[2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0].map((rating) => (
+            <MenuItem key={rating} value={rating}>
+              {rating.toFixed(1)}
+            </MenuItem>
           ))}
         </TextField>
       );
     }
+    
 
     if (restrictionType === 'club') {
       return (

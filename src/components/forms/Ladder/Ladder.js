@@ -1,9 +1,8 @@
-import { Button, Grid, Loader, TabItem, Tabs, View } from "@aws-amplify/ui-react";
 import { enums, helpers, ladderHelper, userHelper } from "helpers"
 import React, { Suspense, lazy, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import './Ladder.css'
-import { Modal, Typography, Table, TableHead, TableCell, TableBody, Avatar, TableRow, CardHeader, Box, Select, MenuItem, FormControl, InputLabel, Dialog, DialogTitle, TextField, CircularProgress } from "@mui/material"
+import { Modal, Typography, Table, TableHead, TableCell, TableBody, Avatar, TableRow, CardHeader, Box, Select, MenuItem, FormControl, InputLabel, Dialog, DialogTitle, TextField, CircularProgress, Button, Tabs, Grid2, Tab } from "@mui/material"
 // import '@fontsource/roboto/300.css'
 // import '@fontsource/roboto/400.css'
 // import '@fontsource/roboto/500.css'
@@ -146,7 +145,7 @@ const toggleProfileLink = (id) => {
       {(isLoggedIn && !isPlayerInLadder) &&
         <Button onClick={joinLadder}>Join this ladder</Button>
       }
-      <View columnStart="1" columnEnd="-1">
+      <Box >
         <Typography variant="h4">{ladder?.name}</Typography>
         <Typography variant="caption">{ladder?.description}</Typography>
         {/** Profile click challenge Modal */}
@@ -179,15 +178,15 @@ const toggleProfileLink = (id) => {
             </Typography>
           </Box>
         </Modal>
-      </View>
+      </Box>
       <Tabs>
-        <TabItem title="Standings">
+        <Tab title="Standings">
           {ladder &&
             <div gap={10} id="ladderGrid">
               <div className="left">
                 <div className="header">
                   {/** Add a match button and dialog */}
-                  <View className="matchButton">
+                  <Box className="matchButton">
                     {isPlayerInLadder &&
                       <Button variation="primary" onClick={() => setShowAddMatchModal(true)}>Add a match</Button>
                     }
@@ -200,7 +199,7 @@ const toggleProfileLink = (id) => {
                     >
                       <DialogTitle>Add a new match</DialogTitle>
                       <Box padding={'1rem'}>
-                        <Suspense fallback={<h2><Loader />Loading...</h2>}>
+                        <Suspense fallback={<h2><CircularProgress />Loading...</h2>}>
                           <MatchEditor
                             ladderId={ladder.id}
                             player={currentUser}
@@ -209,7 +208,7 @@ const toggleProfileLink = (id) => {
                         </Suspense>
                       </Box>
                     </Dialog>
-                  </View>
+                  </Box>
                 </div>
                 {isLoading === true ? <CircularProgress size={200} /> :
                   /** STANDINGS table */
@@ -268,14 +267,14 @@ const toggleProfileLink = (id) => {
                 }
               </div>
               {/* Only visable on larger screens */}
-              <Grid
+              <Grid2
                 id='matches'
                 templateRows={"auto"}
                 className="desktop-only"
                 textAlign='left'
                 paddingRight='1rem'
               >
-                <View>
+                <Box>
                   <Typography variant="subtitle1">Lastest matches</Typography>
                   <Matches
                     ladderMatches={ladder.matches}
@@ -283,12 +282,12 @@ const toggleProfileLink = (id) => {
                     displayAs={enums.DISPLAY_MODE.SimpleList}
                     onAddMatches={() => { console.log('add matches click') }}
                   />
-                </View>
-              </Grid>
+                </Box>
+              </Grid2>
             </div>
           }
-        </TabItem>
-        <TabItem title="Matches">
+        </Tab>
+        <Tab title="Matches">
           <Matches
             ladderMatches={ladder?.matches||[]}
             //ladder={ladder}
@@ -299,7 +298,7 @@ const toggleProfileLink = (id) => {
             onAddMatches={addMatches}
             pageSize={3}
           />
-        </TabItem>
+        </Tab>
       </Tabs>
     </div >
   )

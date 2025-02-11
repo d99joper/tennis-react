@@ -1,7 +1,6 @@
 import { Box, Card, Checkbox, Typography } from "@mui/material";
 import { ProfileImage } from "../ProfileImage";
 import { Link } from "react-router-dom";
-import { Flex } from "@aws-amplify/ui-react";
 
 const PlayerCard = ({
   player,
@@ -46,13 +45,13 @@ const PlayerCard = ({
       //onClick={handleCardClick}
       variation="outlined"
     >
-      <Flex direction={'column'}>
-        <Flex direction={'row'}>
+      <Box display={'flex'} flexDirection={'column'}>
+        <Box display={'flex'} flexDirection={'row'}>
           {headerAsLink
             ? <Link to={"/players/" + player.id} {...openToBlank && { target: "_blank" }}>{profilePic}</Link>
             : profilePic
           }
-          <Flex direction={'column'} gap="0.1rem">
+          <Box display={'flex'} flexDirection={'column'} gap="0.1rem">
             {headerAsLink
               ? <Link to={"/players/" + player.id} {...openToBlank && { target: "_blank" }}>{profileName}</Link>
               : profileName
@@ -63,16 +62,16 @@ const PlayerCard = ({
               <Typography as='div'>NTRP: {player.NTRP}</Typography>}
             {player.cached_utr?.singles > 0 &&
               <Typography as='div'>UTR: {player.cached_utr.singles > 0 ? player.cached_utr.singles : 'UR'}</Typography>}
-          </Flex>
+          </Box>
 
-        </Flex>
+        </Box>
         {children}
         {typeof setSelectedPlayer === 'function' &&
           <span>
             <Checkbox onClick={handleCardClick} checked={isSelected} /> {checkboxText || 'Claim this profile'}
           </span>
         }
-      </Flex>
+      </Box>
     </Card>
 
   return (

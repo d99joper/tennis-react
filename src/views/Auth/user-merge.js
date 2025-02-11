@@ -1,5 +1,4 @@
-import { Flex } from "@aws-amplify/ui-react"
-import { Card, CardContent, CircularProgress, Typography } from "@mui/material"
+import { Box, Card, CardContent, CircularProgress, Typography } from "@mui/material"
 import { playerAPI } from "api/services"
 import { ProfileImage } from "components/forms"
 import { useEffect, useState } from "react"
@@ -24,7 +23,7 @@ function UserMerge() {
   }, [])
 
   return (
-    <Flex>
+    <Box display={'flex'}>
       {isMerged === true ?
         <>
           The profiles have been merged into the profile below. 
@@ -49,7 +48,7 @@ function UserMerge() {
         </>
         : <CircularProgress />
       }
-    </Flex>
+    </Box>
   )
 }
 
