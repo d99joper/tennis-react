@@ -180,7 +180,7 @@ function Profile({ isLoggedIn }) {
 			const imageFile = e.target.files[0];
 			const resizedImage = await helpers.resizeImage(imageFile, 800);
 			await playerAPI.updatePlayerImage(player.id, resizedImage);
-			setProfileImage(player.id, player.image);
+			setProfileImage(player.id, player.image_urls?.thumbnail);
 			setUpdatingImage(false)
 		} catch (error) {
 			console.error('Error updating image:', error);

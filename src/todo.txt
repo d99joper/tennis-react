@@ -6,14 +6,15 @@ current:
         [ ] Invite players
         [ ] Approve / Deny join requests
         [ ] Send Notifications
-    [*] Create a match from
+        [ ] Add player to league without Invite
+        [ ] Generate schedule with or without dates, or, admin can hide the dates
+    [x] Create a match from
         [x] League page
-        [ ] Profile page 
-    [ ] Add hosting club to event (league) page
+        [x] Profile page 
+    [x] Display hosting club to event (league) page
     [x] League open registration (no join request, participants can join on their own)
-    [ ] Add player to league without Invite
     [ ] Delete player from league (before start date, or played 0 matches)
-    [ ] Generate schedule with or without dates
+    [ ] Create a club page (should probably be a locked feature)
 
 
 ------------------
