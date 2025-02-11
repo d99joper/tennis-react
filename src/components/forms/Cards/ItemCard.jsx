@@ -1,7 +1,6 @@
 import * as React from "react";
-import { Card, Flex, Text, Grid } from "@aws-amplify/ui-react";
 import { helpers } from "helpers";
-import { decomposeColor } from "@mui/material";
+import { Card, decomposeColor, Grid2, Typography } from "@mui/material";
 
 const ItemCard = ({ highlight, onHover, onClick, header, description, footer, footerRight, ...props }) => {
     return (
@@ -16,22 +15,22 @@ const ItemCard = ({ highlight, onHover, onClick, header, description, footer, fo
             onMouseEnter={onHover}
             onMouseLeave={onHover}
         >
-            <Grid 
+            <Grid2
                 templateRows={'1fr 2fr auto'}
                 rowGap=".25rem"
             >
-                <Text fontSize={'1.1rem'} fontWeight='bold'>{header}</Text>
-                <Text className='tooltip' paddingBottom={'1rem'}>
+                <Typography fontSize={'1.1rem'} fontWeight='bold'>{header}</Typography>
+                <Typography className='tooltip' paddingBottom={'1rem'}>
                     {helpers.truncate(description, 70)}
                     <span className="tooltiptext">{description}</span>
-                </Text>
-                <Text>
+                </Typography>
+                <Typography>
                     {footer}
                     {footerRight && 
                         <span style={{float:'right'}}>{footerRight}</span>
                     }
-                </Text>
-            </Grid>
+                </Typography>
+            </Grid2>
         </Card>
 
         // <Flex

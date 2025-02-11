@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from 'react-router-dom';
-import { Button, Divider, Grid } from "@aws-amplify/ui-react";
 import { Link } from "react-router-dom";
 import { Ladder, Ladders } from "components/forms";
 import { enums } from "helpers";
-import { Typography } from "@mui/material";
+import { Button, Divider, Grid2, Typography } from "@mui/material";
 import { ladderAPI } from "api/services";
 
 
@@ -77,7 +76,7 @@ const LadderView = (props) => {
   if (params.ladderId)
     return (
       <>
-        <Grid
+        <Grid2
           templateRows={'1fr auto'}
         >
           {/* display the ladder */}
@@ -92,13 +91,13 @@ const LadderView = (props) => {
           }
           {/* Search for ladders */}
           {/* <LadderSearch /> */}
-        </Grid>
+        </Grid2>
       </>
     )
   else if (isLoggedIn) {// no ladderId, so display my ladders
     return (
       <>
-        <Grid templateColumns={"1fr"} templateRows={"1fr auto 1fr 1fr auto"} gap="1rem">
+        <Grid2 templateColumns={"1fr"} templateRows={"1fr auto 1fr 1fr auto"} gap="1rem">
           <Typography variant="h6">My Ladders</Typography>
           <Ladders
             ladders={playerLadders}
@@ -115,7 +114,7 @@ const LadderView = (props) => {
               displayAs={enums.DISPLAY_MODE.Card}
             />
           }
-        </Grid>
+        </Grid2>
 
         <LadderSearch />
       </>

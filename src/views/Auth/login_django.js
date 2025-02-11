@@ -1,4 +1,3 @@
-import { Flex } from '@aws-amplify/ui-react'
 import { authAPI, playerAPI } from 'api/services'
 import './login.css'
 import { Box, Button, CircularProgress, Divider, LinearProgress, TextField, Typography } from '@mui/material'
@@ -175,9 +174,9 @@ function Login({ mode, ...props }) {
           }
           {/* Additional information */}
           {showAdditionalInfo &&
-            <Flex>
+            <Box display={'flex'}>
               <UserInformation player={player} />
-            </Flex>
+            </Box>
           }
 
           {/* Footer */}

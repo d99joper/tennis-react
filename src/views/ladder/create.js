@@ -1,14 +1,9 @@
 import React, { useEffect } from "react";
 import { enums } from "helpers";
 import "maplibre-gl/dist/maplibre-gl.css";
-//import "@maplibre/maplibre-gl-geocoder/dist/maplibre-gl-geocoder.css";
-//import "maplibre-gl-js-amplify/dist/public/amplify-geocoder.css"; // Optional CSS for Amplify recommended styling
-import { Button, Flex, Grid } from "@aws-amplify/ui-react";
-// import { LocationSearch } from "@aws-amplify/ui-react-geo";
 import "./ladder.css"
-import { Geo } from "aws-amplify"
 import { useState } from "react";
-import { Autocomplete, TextField, Slider } from "@mui/material";
+import { Autocomplete, TextField, Slider, Grid2, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { ladderAPI } from "api/services";
 import { ErrorHandler } from "components/forms";
@@ -46,27 +41,27 @@ const LadderCreate = () => {
 		const searchText = e.target.value
 		if (searchText.length <= 2) return
 		console.log(searchText)
-		Geo.searchByText(
-			//Geo.searchForSuggestions(
-			searchText,
-			searchOptionsWithBiasPosition).then((result) => {
-				let counter = 0;
-				console.log(result)
-				let ps = result.map((p) => {
-					let place = {
-						id: counter,
-						name: p.label.substring(0, p.label.lastIndexOf(',')),
-						point: { lon: p.geometry.point[0], lat: p.geometry.point[1] },
-						zip: p.postalCode
-					}
-					counter++
-					return place
-				})
-				console.log(ps)
-				setPlaces(ps)
-				// get list of places close to this 
-			}
-			)
+		// Geo.searchByText(
+		// 	//Geo.searchForSuggestions(
+		// 	searchText,
+		// 	searchOptionsWithBiasPosition).then((result) => {
+		// 		let counter = 0;
+		// 		console.log(result)
+		// 		let ps = result.map((p) => {
+		// 			let place = {
+		// 				id: counter,
+		// 				name: p.label.substring(0, p.label.lastIndexOf(',')),
+		// 				point: { lon: p.geometry.point[0], lat: p.geometry.point[1] },
+		// 				zip: p.postalCode
+		// 			}
+		// 			counter++
+		// 			return place
+		// 		})
+		// 		console.log(ps)
+		// 		setPlaces(ps)
+		// 		// get list of places close to this 
+		// 	}
+		// 	)
 	}
 	const options = {
 		types: ['locality'],
@@ -114,7 +109,7 @@ const LadderCreate = () => {
 	return (
 		<>
 			Create a new ladder
-			<Grid as="form"
+			<Grid2 as="form"
 				gap="1rem"
 				width={300}
 				onSubmit={onCreate}
@@ -170,7 +165,7 @@ const LadderCreate = () => {
 					Create
 				</Button>
 				<ErrorHandler error={error} />
-			</Grid>
+			</Grid2>
 
 			{/* <Button onClick={createOtherLadder}>Create Other Ladder</Button> */}
 		</>

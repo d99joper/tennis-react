@@ -1,10 +1,6 @@
-import { API, Auth, DataStore, Storage } from 'aws-amplify';
-import { helpers, enums } from '../helpers/index';
-import { SlUser } from 'react-icons/sl';
-import { playerAPI } from 'api/services';
 import React from 'react';
-import { View } from '@aws-amplify/ui-react';
 import { Link } from 'react-router-dom';
+import { Box } from '@mui/material';
 
 const userHelper = {
 
@@ -71,7 +67,7 @@ const userHelper = {
 			if (setLink) {
 				return (
 					<React.Fragment key={`Fragment_${i}`}>
-						<View as='span'>{i > 0 ? ' / ' : ''}</View>
+						<Box>{i > 0 ? ' / ' : ''}</Box>
 						<Link to={`/players/${p.id}`} >{name}</Link>
 					</React.Fragment>
 				)
@@ -79,7 +75,7 @@ const userHelper = {
 			else 
 				return (
 					<React.Fragment key={`Fragment_${i}`}>
-					<View as='span'>{i > 0 ? ' / ' : ''}</View>
+					<Box>{i > 0 ? ' / ' : ''}</Box>
 					{name}
 				</React.Fragment>
 				)

@@ -1,4 +1,4 @@
-import { Flex } from "@aws-amplify/ui-react"
+import { Box } from "@mui/material"
 import authAPI from "api/auth"
 import { useEffect, useState } from "react"
 import { Link, useParams } from "react-router-dom"
@@ -22,13 +22,13 @@ function UserConfirmation() {
   }, [])
 
   return (
-    <Flex>
+    <Box display={'flex'}>
       {isVerified === true ? 
         <>
           This user has been verified. Please continue to the <Link to={{ pathname: '/login', state: {player:player} }}>Login.</Link>
         </>
         : 'This user is not verified'}
-    </Flex>
+    </Box>
   )
 }
 

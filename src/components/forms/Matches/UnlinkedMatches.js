@@ -1,5 +1,4 @@
-import { Button, Grid, View } from "@aws-amplify/ui-react"
-import { Box, Checkbox, Dialog, DialogTitle } from "@mui/material"
+import { Box, Button, Checkbox, Dialog, DialogTitle, Grid2 } from "@mui/material"
 import { useState } from "react"
 import { Match } from "../index"
 import { matchHelper, userHelper } from "helpers"
@@ -113,11 +112,11 @@ const UnlinkedMatches = ({
       >
         <DialogTitle>Link matches</DialogTitle>
         <Box padding={'1rem'}>
-          <Grid templateRows={"auto"}>
+          <Grid2 templateRows={"auto"}>
             {unLinkedMatches?.map((x, i) => {
               if (!x.checked) x.checked = false
               return (
-                <Grid templateColumns={"auto 1fr"} key={`unlinkedMatch_${i}`}>
+                <Grid2 templateColumns={"auto 1fr"} key={`unlinkedMatch_${i}`}>
                   <Checkbox
                     checked={x.checked}
                     //value={x.checked}
@@ -128,14 +127,14 @@ const UnlinkedMatches = ({
                     }}
                   />
                   <Match match={x.match} />
-                </Grid>
+                </Grid2>
               )
             })}
-            <View>
+            <Box>
               <Button variation='primary' onClick={handleLinkToProfile} >Link matches to my profile</Button>
               <Button variation='link' onClick={handleIgnoreLinkedMatches} >Ignore Selected</Button>
-            </View>
-          </Grid>
+            </Box>
+          </Grid2>
         </Box>
       </Dialog>
     </>

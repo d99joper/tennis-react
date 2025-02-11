@@ -22,6 +22,7 @@ import LeagueAdminTools from 'components/forms/League/adminTools';
 import { MdClose } from 'react-icons/md';
 import StandingsView from './standings_view';
 import JoinRequest from 'components/forms/joinRequests';
+import { Helmet } from 'react-helmet-async';
 
 const LeagueViewPage = (props) => {
   const theme = useTheme();
@@ -96,11 +97,14 @@ const LeagueViewPage = (props) => {
 
   return (
     <Box sx={{ mt: 4, px: isMobile ? 2 : 4 }}>
+      <Helmet>
+        <title>{event.name} | MyTennis Space</title>
+      </Helmet>
       <Typography variant="h4" gutterBottom>
         {event.name}
       </Typography>
       <Typography variant="bod1" gutterBottom>
-        Hosted by <Link to={'clubs/'+event.club?.id} >{event.club?.name}</Link>
+        Hosted by <Link to={'clubs/' + event.club?.id} >{event.club?.name}</Link>
       </Typography>
       {!hasStarted() &&
         <Typography variant="body1" color="text.secondary" gutterBottom>
@@ -119,14 +123,14 @@ const LeagueViewPage = (props) => {
         isOpenRegistration={event.is_open_registration}
         startDate={event.start_date}
         registrationDate={event.registration_open_date}
-        callback={async() => {
+        callback={async () => {
           const response = await eventAPI.getEvent(id);
-        if (response && !response.statusCode) {
-          setStandings(response.league_standings || []);
-          setIsParticipant(response.is_participant);
-        } else {
-          console.error(event.statusMessage);
-        }
+          if (response && !response.statusCode) {
+            setStandings(response.league_standings || []);
+            setIsParticipant(response.is_participant);
+          } else {
+            console.error(event.statusMessage);
+          }
         }}
       />
 

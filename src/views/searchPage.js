@@ -1,5 +1,4 @@
-import { Collection, Flex, Card, Text, View, Image } from "@aws-amplify/ui-react"
-import { Button, Checkbox, CircularProgress, Divider, FormControl, FormControlLabel, FormLabel, MenuItem, Radio, RadioGroup, Select, Slider } from "@mui/material"
+import { Box, Button, Card, Checkbox, CircularProgress, Divider, FormControl, FormControlLabel, FormLabel, List, MenuItem, Radio, RadioGroup, Select, Slider, Typography } from "@mui/material"
 import { courtAPI, ladderAPI, playerAPI } from "api/services"
 import { AutoCompletePlaces, ItemCard, ProfileImage } from "components/forms"
 import { enums, helpers, userHelper } from "helpers"
@@ -274,7 +273,7 @@ const SearchPage = (props) => {
   }
 
   return (
-    <Flex direction={"column"}>
+    <Box display={'flex'} flexDirection={"column"}>
       <FormControl>
         <FormLabel id="search-radio-buttons-group-label">Search for</FormLabel>
         <RadioGroup
@@ -292,9 +291,9 @@ const SearchPage = (props) => {
       <div>
         <Button variant="contained" onClick={updateSearch}>Search</Button>
       </div>
-      <Flex direction={"row"} gap=".5rem">
-        <Flex direction={"column"} gap="1rem" >
-          <Flex direction={"column"} gap={"0.5rem"} width={"450px"}>
+      <Box display={'flex'} flexDirection={"row"} gap=".5rem">
+        <Box display={'flex'} flexDirection={"column"} gap="1rem" >
+          <Box display={'flex'} flexDirection={"column"} gap={"0.5rem"} width={"450px"}>
             <div>
               Name:  &nbsp;
               <input id="search_name" />
@@ -402,7 +401,7 @@ const SearchPage = (props) => {
                 }
               </>
             }
-          </Flex>
+          </Box>
           <Divider />
           <div style={{ overflowY: "auto" }}>RESULTS:</div>
           {isLoading ?
@@ -411,7 +410,7 @@ const SearchPage = (props) => {
             selectedSearch === 'players' && totalCount >= 0 &&
             <>
               {`${totalCount} player${totalCount > 1 ? 's' : ''} found`}
-              <Collection
+              <List
                 type="list"
                 items={players}
                 direction='column'
@@ -419,37 +418,37 @@ const SearchPage = (props) => {
               >
                 {(player, index) => (
                   <Link to={"/players/" + player.id} key={player.id + '_' + index}>
-                    <Card key={`player_card_${index}`}
+                    <Card display={'flex'} flexD key={`player_card_${index}`}
                       //backgroundColor={'blue.10'}
                       variation="outlined"
                       padding={".3rem"}
                       borderRadius={'medium'}>
-                      <Flex direction={'row'}>
+                      <Box display={'flex'} flexDirection={'row'}>
                         {/* <View className={"profileImageContainer_small"}> */}
                         <ProfileImage player={player} size={80} />
                         {/* </View> */}
-                        <Flex direction={'column'} gap="0.1rem">
-                          <Text as='span'>
+                        <Box display={'flex'} flexDirection={'column'} gap="0.1rem">
+                          <Typography as='span'>
                             {userHelper.SetPlayerName(player, null, nameRef.current?.value)}
-                          </Text>
+                          </Typography>
                           {player.location &&
-                            <Text as='div'>{player.location}</Text>}
+                            <Typography as='div'>{player.location}</Typography>}
                           {player.NTRP &&
-                            <Text as='div'>NTRP: {player.NTRP}</Text>}
+                            <Typography as='div'>NTRP: {player.NTRP}</Typography>}
                           {player.cached_utr?.singles > 0 &&
-                            <Text as='div'>UTR: {player.cached_utr.singles > 0 ? player.cached_utr.singles : 'UR'}</Text>}
-                        </Flex>
-                      </Flex>
+                            <Typography as='div'>UTR: {player.cached_utr.singles > 0 ? player.cached_utr.singles : 'UR'}</Typography>}
+                        </Box>
+                      </Box>
                     </Card>
                   </Link>
                 )}
-              </Collection>
+              </List>
             </>
           }
           {selectedSearch === 'courts' &&
             <>
               {`${totalCount} court${courts.length > 1 ? 's' : ''} found`}
-              <Collection
+              <List
                 type="list"
                 items={courts}
                 direction={'column'}
@@ -472,13 +471,13 @@ const SearchPage = (props) => {
                     }
                   />
                 )}
-              </Collection>
+              </List>
             </>
           }
           {selectedSearch === 'ladders' &&
             <>
               {`${totalCount} ladder${ladders.length > 1 ? 's' : ''} found`}
-              <Collection
+              <List
                 type="list"
                 items={ladders}
                 direction='column'
@@ -504,15 +503,15 @@ const SearchPage = (props) => {
                     footerRight={`Level: ${ladder.level_min}${ladder.level_max !== ladder.level_min ? '-' + ladder.level_max : ''}`}
                   />
                 )}
-              </Collection>
+              </List>
             </>
           }
-        </Flex>
-        <Flex direction={"column"} height={"100vh"} overflow={"hidden"} >
+        </Box>
+        <Box display={'flex'} flexDirection={"column"} height={"100vh"} overflow={"hidden"} >
           <div id="map" style={{ minHeight: '400px', minWidth: '400px', border: '1px solid black' }}></div>
-        </Flex>
-      </Flex>
-    </Flex>
+        </Box>
+      </Box>
+    </Box>
   )
 }
 

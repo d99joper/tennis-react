@@ -1,10 +1,9 @@
-import { Collection } from "@aws-amplify/ui-react";
 import { helpers, enums, userHelper } from "helpers";
 import React from "react";
 import { Link, useParams } from "react-router-dom";
 import { ItemCard, Ladder } from "../index.js"
 import './Ladders.css'
-import { Avatar, Paper, Typography } from "@mui/material"
+import { Avatar, List, Paper, Typography } from "@mui/material"
 // import '@fontsource/roboto/300.css';
 // import '@fontsource/roboto/400.css';
 // import '@fontsource/roboto/500.css';
@@ -18,7 +17,7 @@ const Ladders = ({
 
     if(displayAs === enums.DISPLAY_MODE.Card)
         return (
-            <Collection
+            <List
                 type="list"
                 title={props.title}
                 items={ladders}
@@ -43,7 +42,7 @@ const Ladders = ({
                         footerRight={`[${item.matchType === enums.MATCH_TYPE.DOUBLES ? 'Doubles' : 'Singles'}, level: ${helpers.intToFloat(item.level.min)}${item.level.max !== item.level.min ? '-' + helpers.intToFloat(item.level.max) : ''}]`}
                     />
                 )}
-            </Collection>
+            </List>
         )
     if(displayAs === enums.DISPLAY_MODE.Inline)
         return (

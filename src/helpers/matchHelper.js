@@ -27,22 +27,22 @@ function scoreToString(score, flipScore) {
   return flippedScore.filter(Boolean).join(', ')
 }
 
-function setPlayerMatchInput(match, matchID, flipScoreOnLoss, winner) {
-  const scoreBreakdown = parseScore(match.score, winner ? flipScoreOnLoss : !flipScoreOnLoss)
-  const playerMatchInput =
-  {
-    matchID: matchID,
-    playerID: winner ? match.winner.id : match.loser.id,
-    opponentID: winner ? match.loser.id : match.winner.id,
-    ladderID: match.ladderID,
-    playedOn: helpers.formatAWSDate(match.playedOn, 0),
-    matchType: match.type,
-    win: winner,
-    ...scoreBreakdown
-  }
-  //console.log(playerMatchInput)
-  return playerMatchInput
-}
+// function setPlayerMatchInput(match, matchID, flipScoreOnLoss, winner) {
+//   const scoreBreakdown = parseScore(match.score, winner ? flipScoreOnLoss : !flipScoreOnLoss)
+//   const playerMatchInput =
+//   {
+//     matchID: matchID,
+//     playerID: winner ? match.winner.id : match.loser.id,
+//     opponentID: winner ? match.loser.id : match.winner.id,
+//     ladderID: match.ladderID,
+//     playedOn: helpers.formatAWSDate(match.playedOn, 0),
+//     matchType: match.type,
+//     win: winner,
+//     ...scoreBreakdown
+//   }
+//   //console.log(playerMatchInput)
+//   return playerMatchInput
+// }
 
 function parseScore(score, flipScore) {
 
