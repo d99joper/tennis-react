@@ -5,6 +5,9 @@ current:
     [ ] League admin tools
         [ ] Invite players
         [ ] Approve / Deny join requests
+        [ ] Set administrators 
+            [ ] auto-set the club admins
+            [ ] add and remove from list
         [ ] Send Notifications
         [ ] Add player to league without Invite
         [ ] Generate schedule with or without dates, or, admin can hide the dates
