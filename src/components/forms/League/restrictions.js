@@ -19,7 +19,7 @@ const EventRestrictions = ({ restrictions: parentRestrictions, updateRestriction
   const fetchClubs = async () => {
     try {
       const response = await clubAPI.getClubs(`admin_id=${user.id}`);
-      setAvailableClubs(response.data || []); // Ensure it's always an array
+      setAvailableClubs(response.data.clubs || []); // Ensure it's always an array
     } catch (error) {
       console.error("Error fetching clubs:", error);
       setAvailableClubs([]); // Fallback to empty array in case of failure

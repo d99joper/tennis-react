@@ -38,9 +38,9 @@ const CreateLeague = ({ club, admins, onSuccess }) => {
     const fetchUserClubs = async () => {
       try {
         if (!club) {
-          const clubs = await clubAPI.getClubs('admin_id=' + user.id)
-          if (clubs)
-            setUserClubs(clubs.data);
+          const results = await clubAPI.getClubs('admin_id=' + user.id)
+          if (results)
+            setUserClubs(results.data.clubs);
         }
       }
 
