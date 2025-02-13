@@ -129,16 +129,20 @@ const authAPI = {
 
 	// gets the request options for API calls
 	getRequestOptions: function (method, body, admin=false) {
-		const bearer = admin ? process.env.REACT_APP_ADMIN_TOKEN : this.getToken()
+		const bearer = admin ? process.env.REACT_APP_ADMIN_TOKEN : this.getToken() || ''
 		const jsonBody = body ? JSON.stringify(body) : null
 		//console.log(bearer, process.env.REACT_APP_ADMIN_TOKEN)
+		const headers = {
+			'Content-Type': 'application/json',
+		};
+		
+		if (bearer) {
+			headers['Authorization'] = 'Token ' + bearer;
+		}
 		return {
 			method: method,
 			credentials: 'include', // Ensure cookies are included
-			headers: {
-				'Content-Type': 'application/json',//,
-				'Authorization': 'Token ' + bearer
-			},
+			headers,
 			body: jsonBody
 		}
 	},

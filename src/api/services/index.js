@@ -1,4 +1,5 @@
 import playerAPI from './player'
+import clubAPI from './club'
 import courtAPI from './court'
 import matchAPI from './match'
 import ladderAPI from './ladder'
@@ -16,4 +17,5 @@ export {
   leagueAPI,
   matchAPI,
   playerAPI,
+  clubAPI,
 }
