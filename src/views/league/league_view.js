@@ -18,11 +18,11 @@ import { authAPI, eventAPI } from 'api/services';
 import AddParticipants from 'components/forms/League/addParticipants';
 import ScheduleView from './schedule_view';
 import { GiPencil } from 'react-icons/gi';
-import LeagueAdminTools from 'components/forms/League/adminTools';
 import { MdClose } from 'react-icons/md';
 import StandingsView from './standings_view';
 import JoinRequest from 'components/forms/joinRequests';
 import { Helmet } from 'react-helmet-async';
+import EventAdminTools from 'components/forms/League/adminTools';
 
 const LeagueViewPage = (props) => {
   const theme = useTheme();
@@ -104,7 +104,7 @@ const LeagueViewPage = (props) => {
         {event.name}
       </Typography>
       <Typography variant="bod1" gutterBottom>
-        Hosted by <Link to={'clubs/' + event.club?.id} >{event.club?.name}</Link>
+        Hosted by <Link to={'/clubs/' + event.club?.id} >{event.club?.name}</Link>
       </Typography>
       {!hasStarted() &&
         <Typography variant="body1" color="text.secondary" gutterBottom>
@@ -233,7 +233,7 @@ const LeagueViewPage = (props) => {
       {/* Admin Tools Tab */}
       {currentTab === 3 && isAdmin && (
         <Grid2 container direction={'column'}>
-          <LeagueAdminTools league={event} participants={event.participants || []} setLeague={setEvent} />
+          <EventAdminTools event={event} participants={event.participants || []} setEvent={setEvent} />
           <AddParticipants league={event} />
         </Grid2>
       )}

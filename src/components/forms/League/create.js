@@ -1,18 +1,14 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Box, Container, TextField, Checkbox, FormControlLabel, MenuItem, Typography, IconButton, Chip } from '@mui/material';
+import { Box, Container, TextField, Checkbox, FormControlLabel, MenuItem, Typography } from '@mui/material';
 import Wizard from 'components/forms/Wizard/Wizard';
-import { useNavigate } from 'react-router-dom';
 import { AutoCompletePlaces, InfoPopup } from 'components/forms';
-import leagueAPI from 'api/services/league';
-import authAPI from 'api/auth';
 import { helpers } from 'helpers';
 import EventRestrictions from './restrictions';
 import clubAPI from 'api/services/club';
 import { AuthContext } from 'contexts/AuthContext';
 import { eventAPI } from 'api/services';
 
-const CreateLeague = ({ club, onSuccess }) => {
-  const navigate = useNavigate();
+const CreateLeague = ({ club, admins, onSuccess }) => {
   const [formState, setFormState] = useState({
     name: '',
     startDate: '',
@@ -22,21 +18,21 @@ const CreateLeague = ({ club, onSuccess }) => {
     lng: club?.lng||'',
     description: '',
     maxParticipants: '',
-    type: 'singles',
+    match_type: 'singles',
     isOpenRegistration: false,
     registrationOpenDate: new Date().toISOString().split('T')[0],
     restrictions: {},
-    club: club?.id || '',
+    club_id: club?.id || '',
+    admins: admins || [],
     event_type: 'league', // Set event type explicitly
     content_object: { // Store League-specific data separately
-      type: 'singles',
       schedule: null
     }
   });
 
   const [errors, setErrors] = useState({});
   const [userClubs, setUserClubs] = useState(club ? [club] : []);
-  const { isLoggedIn, user } = useContext(AuthContext)
+  const { user } = useContext(AuthContext)
 
   useEffect(() => {
     const fetchUserClubs = async () => {
@@ -82,7 +78,7 @@ const CreateLeague = ({ club, onSuccess }) => {
 
     if (step === 0) {
       if (!formState.name) newErrors.name = 'League name is required.';
-      if (!formState.club) newErrors.club = 'A league must belong to a club.';
+      if (!formState.club_id) newErrors.club = 'A league must belong to a club.';
       if (!formState.startDate) newErrors.startDate = 'Start date is required.';
       //if (!formState.endDate) newErrors.endDate = 'End date is required.';
     }
@@ -215,6 +211,7 @@ const CreateLeague = ({ club, onSuccess }) => {
     {
       label: 'League Settings',
       description: 'Specify the league type and participation settings.',
+      handleNext: () => validateStep(1),
       content: (
         <Container maxWidth="sm">
           <TextField
@@ -229,7 +226,7 @@ const CreateLeague = ({ club, onSuccess }) => {
             select
             label="League Type"
             fullWidth
-            value={formState.content_object.type}
+            value={formState.match_type}
             onChange={(e) => updateFormState('content_object.type', e.target.value)}
             margin="normal"
           >
@@ -269,6 +266,7 @@ const CreateLeague = ({ club, onSuccess }) => {
     {
       label: 'Restrictions',
       description: 'Define restrictions for league participants.',
+      handleNext: () => validateStep(2),
       content: (
         <EventRestrictions
           restrictions={formState.restrictions}

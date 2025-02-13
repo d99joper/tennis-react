@@ -1,6 +1,7 @@
 import { enums, helpers } from "helpers"
 import { authAPI } from "."
 import apiUrl from "config"
+import { responsiveFontSizes } from "@mui/material"
 
 const eventsUrl = apiUrl+'events/'
 
@@ -25,7 +26,19 @@ const eventAPI = {
     if (response.ok)
       return await response.json()
     else
-      return { statusCode: response.status, statusMessage: 'Error: Failed to get leagues' }
+      return { statusCode: response.status, statusMessage: 'Error: Failed to get events' }
+  },
+
+  deleteEvent: async function(id) {
+    const requestOptions = authAPI.getRequestOptions('DELETE');
+
+    const response = await fetch(`${eventsUrl}${id}/delete`, requestOptions)
+    if (response.ok) {
+      return {status: response.status}
+    }
+    else
+      return { error: 'Error: Failed to delete event' }
+
   },
 
   checkRequirements: async function (event_id, player_id) {
@@ -86,7 +99,17 @@ const eventAPI = {
     }
     else
       throw new Error(response.status + ': Failed to update event')
-  }
+  }, 
+
+  sendNotifications: async function(id, message) {
+    const requestOptions = authAPI.getRequestOptions('POST', {message: message});
+    const response = await fetch(`${eventsUrl}send-notifications/${id}`, requestOptions)
+    if (response.ok) {
+      return true
+    }
+    else
+      throw new Error(response.status + ': Failed to send messages')
+  },
 
 }
 

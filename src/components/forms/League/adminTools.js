@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Button,
   Typography,
   TextField,
-  MenuItem,
-  Chip,
   Autocomplete,
   Paper,
   List,
@@ -15,43 +13,66 @@ import {
   Divider,
   Checkbox,
   FormControlLabel,
+  Chip,
+  InputAdornment,
+  Snackbar,
+  Alert,
 } from '@mui/material';
-import leagueAPI from 'api/services/league';
 import { eventAPI } from 'api/services';
 import EventRestrictions from './restrictions';
 import InfoPopup from '../infoPopup';
+import PlayerSearch from '../Player/playerSearch';
+import requestAPI from 'api/services/request';
 
-const LeagueAdminTools = ({ league, participants, setLeague }) => {
+const EventAdminTools = ({ event, participants, setEvent }) => {
   const [selectedSection, setSelectedSection] = useState('settings');
   const [loading, setLoading] = useState(false);
 
   // State for invitations and notifications
   const [selectedPlayers, setSelectedPlayers] = useState([]);
-  const [message, setMessage] = useState('');
+  const initialMessage = `Hello!\nI thought you might be interested in this event.`;
+  const [message, setMessage] = useState(initialMessage);
+  const [notification, setNotification] = useState('')
 
-  // State for league updates
-  const [restrictions, setRestrictions] = useState(league.restrictions || {});
-  const [maxParticipants, setMaxParticipants] = useState(league.max_participants || '');
-  const [startDate, setStartDate] = useState(league.start_date || '');
-  const [endDate, setEndDate] = useState(league.end_date || '');
-  const [registrationDate, setRegistrationDate] = useState(league.registration_open_date || '');
-  const [isOpenRegistration, setIsOpenRegistration] = useState(league.is_open_registration);
-  const [description, setDescription] = useState(league.description || '');
+  // State for event updates
+  const [restrictions, setRestrictions] = useState(event.restrictions || {});
+  const [maxParticipants, setMaxParticipants] = useState(event.max_participants || '');
+  const [startDate, setStartDate] = useState(event.start_date || '');
+  const [endDate, setEndDate] = useState(event.end_date || '');
+  const [registrationDate, setRegistrationDate] = useState(event.registration_open_date || '');
+  const [isOpenRegistration, setIsOpenRegistration] = useState(event.is_open_registration);
+  const [description, setDescription] = useState(event.description || '');
+  const [admins, setAdmins] = useState(event.admins || []) 
+
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [snackbarMessage, setSnackbarMessage] = useState('')
+  const [snackbarSeverity, setSnackbarSeverity] = useState('info')
+
+  const showSnackbar = (message, severity = 'info') => {
+    setSnackbarMessage(message)
+    setSnackbarSeverity(severity)
+    setSnackbarOpen(true)
+  }
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') return
+    setSnackbarOpen(false)
+  }
 
 
   const handleSendInvites = async () => {
     if (selectedPlayers.length === 0 || !message) return;
     try {
       setLoading(true);
-      await leagueAPI.sendInvites(league.id, {
-        recipients: selectedPlayers.map((player) => player.id),
-        message,
-      });
+      await requestAPI.sendInvites(event.id, 'event', selectedPlayers, message);
       //alert('Invitations sent successfully!');
       setSelectedPlayers([]);
-      setMessage('');
+      setMessage(initialMessage);
+      showSnackbar('Invites successfully sent.')
     } catch (error) {
       console.error('Failed to send invites:', error);
+      showSnackbar('Failed to send invites', 'error')
     } finally {
       setLoading(false);
     }
@@ -61,7 +82,7 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
     try {
       setLoading(true);
       console.log(newRestrictions, restrictions)
-      const updatedLeague = await eventAPI.updateEvent(league.id, {
+      const eventData = {
         restrictions: newRestrictions,
         max_participants: maxParticipants,
         start_date: startDate,
@@ -69,11 +90,12 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
         is_open_registration: isOpenRegistration,
         registration_open_date: registrationDate,
         description,
-      });
-      setLeague(updatedLeague);
-      //('League updated successfully!');
+      };
+      console.log('eventData', eventData)
+      const updatedEvent = await eventAPI.updateEvent(event.id, eventData);
+      setEvent(updatedEvent);
     } catch (error) {
-      console.error('Failed to update league:', error);
+      console.error('Failed to update event:', error);
     } finally {
       setLoading(false);
     }
@@ -82,18 +104,47 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
   const handleSendNotifications = async () => {
     try {
       setLoading(true);
-      await leagueAPI.sendNotifications(league.id, { message });
-      alert('Notification sent to all participants!');
-      setMessage('');
+      await eventAPI.sendNotifications(event.id, notification);
+      showSnackbar('Notification sent.');
     } catch (error) {
       console.error('Failed to send notifications:', error);
     } finally {
+      setNotification('');
       setLoading(false);
+    }
+  };
+
+  const handleAdminChange = async (e, newAdmins) => {
+    // Ensure the owner stays in the list
+    const filteredAdmins = newAdmins.some(admin => admin.id === event.created_by)
+      ? newAdmins
+      : [...newAdmins, [admins].find(member => member.id === event.created_by)];
+
+    setAdmins(filteredAdmins);
+
+    try {
+      // Send only IDs to the backend
+      await eventAPI.updateEvent(event.id, { admins: filteredAdmins.map(admin => admin.id) });
+      showSnackbar("Admins updated successfully");
+    } catch (error) {
+      showSnackbar("Failed to update admins");
     }
   };
 
   return (
     <Box display="flex">
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+
       {/* Left-hand Menu */}
       <Paper elevation={3} sx={{ minWidth: 200, mr: 3 }}>
         <List component="nav">
@@ -104,14 +155,14 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
           </ListItem>
           <Divider />
           <ListItem disablePadding>
-            <ListItemButton selected={selectedSection === 'restrictions'} onClick={() => setSelectedSection('restrictions')}>
-              <ListItemText primary="Restrictions" />
+            <ListItemButton selected={selectedSection === 'admins'} onClick={() => setSelectedSection('admins')}>
+              <ListItemText primary="Admins" />
             </ListItemButton>
           </ListItem>
           <Divider />
           <ListItem disablePadding>
-            <ListItemButton selected={selectedSection === 'invite'} onClick={() => setSelectedSection('invite')}>
-              <ListItemText primary="Invite Players" />
+            <ListItemButton selected={selectedSection === 'restrictions'} onClick={() => setSelectedSection('restrictions')}>
+              <ListItemText primary="Restrictions" />
             </ListItemButton>
           </ListItem>
           <Divider />
@@ -120,33 +171,82 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
               <ListItemText primary="Send Notifications" />
             </ListItemButton>
           </ListItem>
+          <Divider />
+          <ListItem disablePadding>
+            <ListItemButton selected={selectedSection === 'invite'} onClick={() => setSelectedSection('invite')}>
+              <ListItemText primary="Invite Players" />
+            </ListItemButton>
+          </ListItem>
         </List>
       </Paper>
 
       {/* Content Area */}
       <Box flex={1}>
         <Typography variant="h4" gutterBottom>
-          League Admin Tools
+          Admin Tools
         </Typography>
 
+        {selectedSection === 'admins' && (
+          <Box mt={3}>
+            <Typography variant="h6">Manage Admins</Typography>
+            <Autocomplete
+              multiple
+              options={event.admins}
+              getOptionLabel={(option) => option.name}
+              value={event.admins}
+              onChange={handleAdminChange}
+              isOptionEqualToValue={(option, value) => option.id === value.id} // Ensure correct comparison
+              renderInput={(params) => (
+                <TextField {...params} label="Select Admins" />
+              )}
+              renderTags={(selected, getTagProps) =>
+                selected.map((option, index) => {
+                  const { key, ...tagProps } = getTagProps({ index });
+                  return (
+                    <Chip
+                      key={key}
+                      //{...tagProps} 
+                      label={option.name}
+                      onDelete={option.id === event.created_by ? undefined : tagProps.onDelete} // Disable delete for owner
+                      color={option.id === event.created_by ? "primary" : "default"} // Highlight owner
+                    />
+                  );
+                })
+              }
+            />
+          </Box>
+        )}
         {/* Invite Players Section */}
         {selectedSection === 'invite' && (
           <Box>
-            <Typography variant="h6">Invite Players</Typography>
-            <Autocomplete
-              multiple
-              options={participants || []}
-              getOptionLabel={(option) => option.name}
-              onChange={(event, value) => setSelectedPlayers(value)}
-              value={selectedPlayers}
-              renderInput={(params) => <TextField {...params} label="Select Players" placeholder="Add Players" />}
+            <Typography variant="h6">
+              Invite Players
+              <InfoPopup>A link to the event will automatically be included in the message.</InfoPopup>
+            </Typography>
+            <PlayerSearch
+              setSelectedPlayer={(p) => {
+                if (p)
+                  setSelectedPlayers((prev) => [...prev, p])
+              }}
             />
+            <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+              {selectedPlayers.map((player) => (
+                <Chip
+                  key={player.id}
+                  label={player.name}
+                  onDelete={() => setSelectedPlayers((prev) => prev.filter(sp => sp.id !== player.id))}
+                />
+              ))}
+            </Box>
             <TextField
               label="Message"
               multiline
               rows={4}
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={(e) => {
+                setMessage(e.target.value)
+
+              }}
               fullWidth
               sx={{ mt: 2 }}
             />
@@ -162,10 +262,10 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
           </Box>
         )}
 
-        {/* League Settings Section */}
+        {/* Event Settings Section */}
         {selectedSection === 'settings' && (
           <Box>
-            <Typography variant="h6">Update League Settings</Typography>
+            <Typography variant="h6">Update Settings</Typography>
             <TextField
               label="Max Participants"
               type="number"
@@ -202,7 +302,7 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
               label="Open Registration"
             />
             <InfoPopup size={20}>
-              By selecting <b>Open Registration</b>, you allow players to sign themselves up for the league without needing admin approval, given that they meet the restrictions (set in next step).
+              By selecting <b>Open Registration</b>, you allow players to sign themselves up for the event without needing admin approval, given that they meet the restrictions.
             </InfoPopup>
             {isOpenRegistration &&
               <TextField
@@ -227,10 +327,10 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
             <Button
               variant="contained"
               color="primary"
-              onClick={handleUpdateSettings}
+              onClick={() => handleUpdateSettings()}
               disabled={loading}
             >
-              Update League
+              Save
             </Button>
           </Box>
         )}
@@ -250,20 +350,20 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
         {/* Send Notifications Section */}
         {selectedSection === 'notifications' && (
           <Box>
-            <Typography variant="h6">Send Notifications</Typography>
+            <Typography variant="h6">Notify all Participants</Typography>
             <TextField
-              label="Message to Players"
+              label="Message to Participants"
               multiline
               rows={4}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              value={notification}
+              onChange={(e) => setNotification(e.target.value)}
               fullWidth
             />
             <Button
               variant="contained"
               color="primary"
               onClick={handleSendNotifications}
-              disabled={loading || !message}
+              disabled={loading || !notification}
               sx={{ mt: 2 }}
             >
               Send Notifications
@@ -275,4 +375,4 @@ const LeagueAdminTools = ({ league, participants, setLeague }) => {
   );
 };
 
-export default LeagueAdminTools;
+export default EventAdminTools;

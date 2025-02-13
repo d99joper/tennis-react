@@ -63,7 +63,7 @@ function App() {
       const body = payload?.notification.body || "You have received a new message.";
 
       // Display toast
-      toast.info(`${title}: ${body}`, {
+      toast.info(`${title}`, {
         position: "top-right",
         autoClose: 7000,
         hideProgressBar: false,

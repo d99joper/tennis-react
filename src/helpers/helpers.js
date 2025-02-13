@@ -66,6 +66,7 @@ const helpers = {
 
 
   hasValue: (param) => {
+		console.log(param)
     // Check for null, undefined, or empty string
     if (param === null || param === '' || param === undefined) return false;
 

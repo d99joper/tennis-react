@@ -14,6 +14,8 @@ import { GiExitDoor } from 'react-icons/gi';
 import notificationAPI from 'api/services/notifications';
 import JoinRequest from 'components/forms/joinRequests';
 import { Helmet } from 'react-helmet-async';
+import { eventAPI } from 'api/services';
+import { helpers } from 'helpers';
 
 const ClubViewPage = () => {
   const { clubId } = useParams();
@@ -33,6 +35,7 @@ const ClubViewPage = () => {
   const [editFields, setEditFields] = useState({ name: false, description: false });
   const [formData, setFormData] = useState({ name: '', description: '' });
   const [memberToRemove, setMemberToRemove] = useState(null); // Track member for removal
+  const [eventToRemove, setEventToRemove] = useState(null); // Track event for removal
   const [showModal, setShowModal] = useState(false);
   const [requests, setRequests] = useState([]);
   const [eventType, setEventType] = useState("");
@@ -64,6 +67,7 @@ const ClubViewPage = () => {
         await clubAPI.removePlayer(clubId, memberToRemove.id); // API call to remove member
         setMembers((prev) => prev.filter((m) => m.id !== memberToRemove.id)); // Remove from UI
         setSnackbar({ open: true, message: `${memberToRemove.name} has been removed.` });
+        setMemberToRemove(null)
       } catch (error) {
         setSnackbar({ open: true, message: "Failed to remove member." });
       }
@@ -166,12 +170,39 @@ const ClubViewPage = () => {
     }
   };
 
+  const handleDeleteEvent = async () => {
+    if (eventToRemove) {
+      try {
+        const response = await eventAPI.deleteEvent(eventToRemove.id);
+        console.log(response)
+        setEventToRemove(null)
+        if (response.status !== 204) {
+          setSnackbar({ open: true, message: "Failed to remove event." });
+        }
+        else {
+          setActiveEvents((prev) => prev.filter((e) => e.id !== eventToRemove.id)); // Remove from UI
+          setArchivedEvents((prev) => prev.filter((e) => e.id !== eventToRemove.id)); // Remove from UI
+          setSnackbar({ open: true, message: `${eventToRemove.name} has been removed.` });
+        }
+      } catch (error) {
+        setSnackbar({ open: true, message: "Failed to remove event." });
+      }
+    }
+    setShowModal(false);
+  }
+
   const renderEventForm = () => {
     switch (eventType) {
       case "league":
-        return <CreateLeague club={club}
+        return <CreateLeague club={club} admins={admins}
           onSuccess={(newEvent) => {
-            setActiveEvents((prev) => [...prev, newEvent])
+            setActiveEvents((prev) =>
+              [...prev, newEvent].sort((a, b) => {
+                const dateDiff = new Date(a.start_date) - new Date(b.start_date);
+                if (dateDiff !== 0) return dateDiff; // Sort by start_date first
+                return a.name.localeCompare(b.name); // If same start_date, sort by name
+              })
+            );
             setShowCreate(false)
             setEventType("")
           }}
@@ -308,7 +339,9 @@ const ClubViewPage = () => {
                   { label: 'Matches Played', key: 'count_matches' },
                   { label: 'Participants', key: 'count_players' },
                   { label: 'Start date', key: 'start_date' },
+                  { label: '', key: '' },
                 ]}
+                columnWidths={['35%', '15%', '13%', '12%', '15%', '5%']}
                 rows={showArchivedEvents ? archivedEvents : activeEvents}
                 rowKey={(row) => row.id}
                 getRowData={(row) => [
@@ -316,9 +349,20 @@ const ClubViewPage = () => {
                     <Typography>{row.name}</Typography>
                   </Link>,
                   capitalize(row.event_type),
-                  row.count_matches,
-                  row.count_players,
-                  row.start_date //+ ' to ' + row.end_date
+                  row.count_matches || 0,
+                  row.count_players || 0,
+                  row.start_date,
+                  (row.count_players || 0) === 0 && (row.count_matches || 0) === 0 && isAdmin ?
+                    <MdDelete
+                      size={20}
+                      color="red"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => {
+                        setEventToRemove(row);
+                        setShowModal(true);
+                      }}
+                    />
+                    : ''
                 ]}
                 titleForScreen={(row) => (
                   <Link to={'/events/' + row.id}>
@@ -398,18 +442,37 @@ const ClubViewPage = () => {
             ))
 
           )}
-          <MyModal showHide={showModal} onClose={() => setShowModal(false)} title="Confirm Removal">
+          <MyModal showHide={showModal}
+            onClose={() => {
+              setShowModal(false)
+              setMemberToRemove(null)
+              setEventToRemove(null)
+            }}
+            title="Confirm Removal"
+          >
             <Typography>
-              {memberToRemove?.id === user?.id
-                ? 'Are you sure you want to leave the club?'
-                : `Are you sure you want to remove ${memberToRemove?.name} from the club?`
+              {memberToRemove &&
+                <>
+                  {memberToRemove?.id === user?.id
+                    ? 'Are you sure you want to leave the club?'
+                    : `Are you sure you want to remove ${memberToRemove?.name} from the club?`
+                  }
+                </>
               }
+              {eventToRemove && `Are you sure you want to remove ${eventToRemove?.name}?`}
             </Typography>
             <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
               <Button variant="outlined" onClick={() => setShowModal(false)}>Cancel</Button>
-              <Button variant="contained" color="error" onClick={handleRemoveMember} sx={{ ml: 2 }}>
-                Remove
-              </Button>
+              {memberToRemove &&
+                <Button variant="contained" color="error" onClick={handleRemoveMember} sx={{ ml: 2 }}>
+                  Remove Member
+                </Button>
+              }
+              {eventToRemove &&
+                <Button variant="contained" color="error" onClick={handleDeleteEvent} sx={{ ml: 2 }}>
+                  Remove Event
+                </Button>
+              }
             </Box>
           </MyModal>
           {activeTab === 2 && (

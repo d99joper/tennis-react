@@ -48,7 +48,7 @@ const PlayerSearch = ({
       options={filteredPlayers}
       getOptionLabel={(option) => option?.name || ''}
       value={selectedPlayer || null}
-      key={(option) => option.id}
+      //key={(option) => option.id}
       renderOption={(props, option) => (
         <li {...props} key={option.id}>
           {option.type === 'player' && <ProfileImage size={30} player={option} />}

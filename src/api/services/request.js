@@ -48,6 +48,18 @@ const requestAPI = {
     }
     else
       return { success: response.ok, statusCode: response.statusCode, statusMessage: 'Error: Failed to get pending request' }
+  },
+
+  
+
+  sendInvites: async function(object_id, content_type, recipients, message) {
+    const requestOptions = authAPI.getRequestOptions('POST', {recipients: recipients, message:message});
+    const response = await fetch(`${requestUrl}${object_id}/${content_type}/send-invites`, requestOptions)
+    if (response.ok) {
+      return await response.json()
+    }
+    else
+      throw new Error(response.status + ': Failed to send invites event')
   }
 
 }
