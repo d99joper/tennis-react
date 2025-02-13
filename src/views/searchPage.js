@@ -91,7 +91,7 @@ const SearchPage = () => {
           <ToggleButton value="clubs">Clubs</ToggleButton>
           <ToggleButton value="events">Events</ToggleButton>
           <ToggleButton value="courts">Courts</ToggleButton>
-          <ToggleButton value="ladders">Ladders</ToggleButton>
+          {/* <ToggleButton value="ladders">Ladders</ToggleButton> */}
         </ToggleButtonGroup>
       </FormControl>
 
