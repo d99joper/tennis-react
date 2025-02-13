@@ -25,7 +25,7 @@ const ClubSearchAutocomplete = () => {
 
       const response = await clubAPI.getClubs(queryParams.toString());
       if (response.success) {
-        setClubs(response.data);
+        setClubs(response.data.clubs);
       } else {
         console.error(response.statusMessage);
       }

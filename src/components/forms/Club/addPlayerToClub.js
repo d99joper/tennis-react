@@ -19,7 +19,7 @@ const AddPlayerToClub = ({ club }) => {
     if (searchTerm.length < 3) return;
     try {
       const response = await clubAPI.getClubs({ name: searchTerm });
-      setClubs(response.data || []);
+      setClubs(response?.data?.clubs || []);
     } catch (error) {
       console.error('Failed to fetch clubs:', error);
     }
