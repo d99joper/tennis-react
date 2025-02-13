@@ -41,9 +41,10 @@ const ProfileImage = ({ player, size, ...props }) => {
   useEffect(() => {
     // try to get the stored imagem, if there is one
     const { imageUrlWithRandomNumber, isImageLoaded } = getProfileImage(player.id);
-
     // Set the profile image when the component mounts and there is an image
+    console.log(imageUrlWithRandomNumber, isImageLoaded, player)
     if (!isImageLoaded && imageUrlWithRandomNumber != 'none') {
+      console.log('set player', player.image_urls)
       setProfileImage(player.id, props.useFullImage ? player.image_urls?.full : player.image_urls?.thumbnail);
     }
   }, [player, getProfileImage, setProfileImage])
@@ -51,6 +52,8 @@ const ProfileImage = ({ player, size, ...props }) => {
   function stringAvatar() {
     try {
       const { imageUrlWithRandomNumber, isImageLoaded } = getProfileImage(player.id);
+      
+    console.log(imageUrlWithRandomNumber, isImageLoaded)
       const jsonObj = {
         sx: {
           ...player ? { bgcolor: helpers.stringToColor(player.id) } : null,
