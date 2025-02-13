@@ -20,6 +20,7 @@ function Login({ mode, ...props }) {
   const [searchParams] = useSearchParams()
   const {login} = useContext(AuthContext);
 
+
   function sendVerificationEmail(user) {
     playerAPI.sendVerificationEmail(user).then(() => {
       setErrors('Verification sent, check your email.')
@@ -61,7 +62,7 @@ function Login({ mode, ...props }) {
         // }
         // else
         //  redirect()
-        login();
+        login(player);
         redirect(player.id)
       })
       .catch((error) => {
@@ -90,6 +91,7 @@ function Login({ mode, ...props }) {
       setShowLoader(true)
       // user already exists, so login and redirect to profile page
       authAPI.googleLogin(credentialResponse.credential).then((user) => {
+        login(user)
         navigate("/players/"+user.id, { replace: false })
       })
     }
