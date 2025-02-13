@@ -33,7 +33,9 @@ const clubAPI = {
   
   getClubs: async function (filter) {
     const requestOptions = authAPI.getRequestOptions('GET')
-    const response = await fetch(`${clubUrl}?${filter}`, requestOptions)
+    const params = new URLSearchParams(filter)
+    console.log(params)
+    const response = await fetch(`${clubUrl}?${params}`, requestOptions)
     if (response.ok) {
       const data = await response.json()
       return {success: response.ok, statusCode: response.statusCode, data:data}

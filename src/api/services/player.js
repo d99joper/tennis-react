@@ -54,11 +54,11 @@ const playerAPI = {
 
   getPlayers: async function (filter) {
     //console.log(filter)
-    const url = new URL(playersUrl)
+    //const url = new URL(playersUrl)
     const params = new URLSearchParams(filter) //helpers.parseFilter(filter)
     //console.log("params: ",params)
     const requestOptions = authAPI.getRequestOptions('GET')
-    const response = await fetch(url + '?' + params, requestOptions)//`${playersUrl}?filter=${filter}`, requestOptions)
+    const response = await fetch(playersUrl + '?' + params, requestOptions)//`${playersUrl}?filter=${filter}`, requestOptions)
     if (response.ok) {
       const data = await response.json()
       return {success: response.ok, statusCode: response.statusCode, data: data}

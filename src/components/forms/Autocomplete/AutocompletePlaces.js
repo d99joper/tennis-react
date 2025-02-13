@@ -71,7 +71,7 @@ const AutoCompletePlaces = ({ onPlaceChanged, initialCity = '', label, showGetUs
       }
     };
 
-  }, [])
+  }, [initialCity])
 
   function getUserCity() {
     if (navigator.geolocation) {
