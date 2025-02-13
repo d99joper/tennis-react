@@ -236,7 +236,6 @@ const Matches = ({
 		</Box>
 	);
 
-	const isCurrentUser = (player) => { return originType === 'player' && player.id === currentUser.id }
 	const getRowData = (row) => {
 		//console.log(row)
 		return [

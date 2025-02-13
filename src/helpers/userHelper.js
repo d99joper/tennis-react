@@ -5,7 +5,12 @@ import { Box } from '@mui/material';
 const userHelper = {
 
 	getPlayerNames: function(players) {
-		return players.map((p) => p.name).join('<br>, ')
+		return players.map((p, index) => (
+			<span key={p.id}>
+				{p.name}
+				{index < players.length - 1 && <br />}
+			</span>
+		));
 	},
 
 	SetPlayerName_old: function (player, lastnameOnly, boldText) {
