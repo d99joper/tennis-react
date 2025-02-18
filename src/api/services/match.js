@@ -19,7 +19,7 @@ const matchAPI = {
   getMatches: async function(filter, page=1, pageSize=20, skip=0) {
     
     const requestOptions = authAPI.getRequestOptions('GET')
-    const params = new URLSearchParams({page:page, page_size:pageSize, skip: skip, ...(filter ? filter : {})}) 
+    const params = new URLSearchParams({page:page, 'page-size':pageSize, skip: skip, ...(filter ? filter : {})}) 
     // const url = apiUrl + 'matches/'
     //   + '?origin-type=' + originType
     //   + (originId ? '&origin-id=' + originId : '')

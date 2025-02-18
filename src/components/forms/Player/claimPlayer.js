@@ -17,7 +17,7 @@ export const ClaimPlayer = ({ players, onClaim, onAbort, ...props }) => {
 
     // console.log(selectedPlayer, noClaim)
     if(noClaim === true)
-      onClaim({})
+      onClaim(null)
     else
       onClaim(selectedPlayer)
   }
@@ -73,9 +73,12 @@ export const ClaimPlayer = ({ players, onClaim, onAbort, ...props }) => {
                 }
                 >
                   <Matches
-                    player={p}
-                    displayAs={enums.DISPLAY_MODE.SimpleList}
-                    pageSize={5} />
+                    originId={p.id}
+                    originType={'player'}
+                    pageSize={5} 
+                    showFilterByPlayer={false}
+                    showAsSmallScreen={true}
+                  />
                 </InfoPopup>
               </Box>
             </PlayerCard >
