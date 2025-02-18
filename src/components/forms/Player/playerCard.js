@@ -77,7 +77,7 @@ const PlayerCard = ({
   return (
 
     asLink ? (
-      <Link to={"/players" + player.id} {...openToBlank && { target: "_blank" }}>
+      <Link to={"/players/" + player.id} {...openToBlank && { target: "_blank" }}>
         {cardContent}
       </Link>
     ) :

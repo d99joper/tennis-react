@@ -37,7 +37,7 @@ const playerAPI = {
 
   getPlayerByFilter: async function (username) {
     const requestOptions = authAPI.getRequestOptions('GET')
-    let response = await fetch(`${playersUrl}?stats&filter=${username}`, requestOptions)
+    let response = await fetch(`${playersUrl}?filter=${username}&include-deleted=true`, requestOptions)
 
     if (response.ok) {
       const data = await response.json()
@@ -147,7 +147,7 @@ const playerAPI = {
     //console.log(requestOptions)
     const response = await fetch(playersUrl + id + '/claim', requestOptions)
 
-    return { statusCode: response.statusCode, statusMessage: response.statusMessage }
+    return { status: response.status, message: response.message }
   },
 
   sendVerificationEmail: async function (id) {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { enums, helpers } from 'helpers';
 import Wizard from 'components/forms/Wizard/Wizard';
 import { Box, Button, CircularProgress, Container, Divider, TextField, Typography } from '@mui/material';
@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import MyGoogleCheck from './MyGoogleCheck';
 import MyModal from 'components/layout/MyModal';
 import PlayerCard from 'components/forms/Player/playerCard';
+import { AuthContext } from 'contexts/AuthContext';
 
 const Registration = () => {
 
@@ -30,7 +31,16 @@ const Registration = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [claimedPlayer, setClaimedPlayer] = useState(null);
   const [playersList, setPlayersList] = useState([]);
+  const [regType, setRegType] = useState('email')
 
+  const { login } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (password) {
+      updateFormState('password', password);
+    }
+  }, [password]); // Runs whenever password changes
+  
   const [formState, setFormState] = useState({
     data: {
       email: '',
@@ -77,7 +87,7 @@ const Registration = () => {
 
   const errorCheck = () => {
     let newErrors = {};
-    
+
     Object.keys(formState.data).forEach((key) => {
       const error = validateField(key, formState.data[key]);
       if (error) {
@@ -88,14 +98,15 @@ const Registration = () => {
       ...prev,
       errors: newErrors,
     }));
-    
+
     const hasErrors = Object.values(newErrors).some((error) => helpers.hasValue(error));
     console.log(newErrors, hasErrors);
     return hasErrors;
   };
-  
+
   const handleGoogleRegistration = async () => {
     toggleLoader('step0')
+    setRegType('google')
 
     const hasErrors = errorCheck();
     if (hasErrors) {
@@ -123,8 +134,8 @@ const Registration = () => {
 
     //login and redirect
     await authAPI.googleLogin(formState.data.credentialResponse.credential).then((player) => {
-      navigate("/players/"+player.id, { replace: false })
-    })    
+      navigate("/players/" + player.id, { replace: false })
+    })
     toggleLoader('step0')
   }
 
@@ -151,8 +162,11 @@ const Registration = () => {
 
   const handleClaim = (p) => {
     setShowClaimDisplay(false)
-    setShowGoogleAdditionalInformation(true)
-    if (p) {
+    console.log('handleClaim',p)
+    setClaimedPlayer(p)
+    if (regType === 'google')
+      setShowGoogleAdditionalInformation(true)
+    if (helpers.hasValue(p)) {
       console.log('claimedPlayer', p)
       updateFormState('claimedPlayer', p)
       if (p.UTR)
@@ -168,6 +182,7 @@ const Registration = () => {
   }
 
   const handleGoogleAuth = (data, credentialResponse) => {
+    setRegType('google')
     console.log(data)
     if (data.user_exists) {
       // user already exists, so login and redirect to profile page
@@ -197,6 +212,9 @@ const Registration = () => {
 
   const handleRegisterWithEmail = async (e) => {
     e.preventDefault();
+
+    setRegType('email')
+
     const form = new FormData(document.forms.registrationForm)//document.getElementById('registrationForm'))
     const username = form.get("username")
     console.log(formState, username)
@@ -212,9 +230,6 @@ const Registration = () => {
       setShowWizard(true)
       updateFormState('email', username)
     }
-    else {
-
-    }
   }
 
   const checkIfPlayerExists = async (email) => {
@@ -226,14 +241,14 @@ const Registration = () => {
       playerExists = true;
       // There should only be verified finds, 
       // but check if the email is verified
-      if (player.verified) {
-        updateFormState('verified', (
-          <>
-            The email {player.email} is already in use and verified. <br />
-            Try to either <a href="/login">login</a>, or to recover your password.
-          </>
-        ), true)
-      }
+      //if (player.verified) {
+      updateFormState('verified', (
+        <>
+          The email {player.email} is already in use and verified. <br />
+          Try to either <a href="/login">login</a>, or to recover your password.
+        </>
+      ), true)
+      //}
     }
     return playerExists;
   }
@@ -244,9 +259,9 @@ const Registration = () => {
       label: 'User Details',
       content: (
         <Container maxWidth="sm">
-          {showLoader['step1'] ?
-            <CircularProgress />
-            :
+          {!showLoader['step1'] &&
+            // <CircularProgress />
+            // :
             // <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
             <Box sx={{ mt: 2 }}>
               <UserInformation
@@ -255,17 +270,27 @@ const Registration = () => {
                 onUpdate={(key, value) => updateFormState(key, value)}
                 onError={(key, error) => updateFormState(key, error, true)}
               />
-              {/* Already exists information */}
-              {showClaimDisplay &&
-                <ClaimPlayer onSelect={() => { }} players={playersList} />
+              {claimedPlayer &&
+                <Box sx={{ mb: 2, p: 1, bgcolor: "#FAFAFA" }}>
+                  You are taking over this account.
+                  <PlayerCard player={claimedPlayer} asLink={true} openToBlank={true} />
+                </Box>
               }
+              {/* {formState.data.claimedPlayer &&
+                <Box display={'flex'} alignItems={'center'}>
+                  You are merging with
+                  <Link target="_blank" to={"/players" + formState.data.claimedPlayer.id}>
+                    <ProfileImage player={formState.data.claimedPlayer} /> {formState.data.claimedPlayer.name}
+                  </Link>
+                </Box>
+              } */}
             </Box>
           }
         </Container>
       ),
       handleNext: async () => {
         toggleLoader('step1')
-        const hasErrors = errorCheck();
+        let hasErrors = errorCheck();
         // if there are any basic errors, return now before checking further
         if (hasErrors) {
           toggleLoader('step1')
@@ -274,21 +299,27 @@ const Registration = () => {
 
         console.log(formState)
         const playerEmailExists = await checkIfPlayerExists(formState.data.email)
-        if (!playerEmailExists)
-          // check if the name exists with an unverified email nearby 
+        if (!playerEmailExists) {
+          // check if the name exists with an unverified email nearby
           // if there are already existing players listed, then don't check again  
           if (!formState.errors.existingPlayers) {
-            const data = await playerAPI.getPlayers({
+            const result = await playerAPI.getPlayers({
               name: formState.data.name,
-              geo: `${formState.data.lat}, ${formState.data.lng}, 75`, // lat,lng,radius
-              email: '@mytennis.space' // it's a dummy email
+              geo: `${formState.data.lat}, ${formState.data.lng}, 150`, // lat,lng,radius
+              email: '@mytennis.space', // it's a dummy email
+              full: true
             })
-            console.log(data.players)
-            if (data.total_count > 0) {
+            console.log(result.data)
+            console.log(result.data.total_count)
+            if (result.data.total_count > 0) {
+              console.log('show claim display with ', result.data.players)
               hasErrors = true
-              updateFormState('existingPlayers', data.players, true)
+              updateFormState('existingPlayers', 'There are existing players', true)
+              setPlayersList(result.data.players)
+              setShowClaimDisplay(true)
             }
           }
+        }
         toggleLoader('step1')
         return !hasErrors;
       }
@@ -329,6 +360,13 @@ const Registration = () => {
                 helperText={formState.errors.confirmPassword && password !== confirmPassword ? 'Passwords do not match' : ''}
                 sx={{ mb: 3 }}
               />
+              {(formState.errors.claim || formState.errors.create || formState.errors.login) &&
+                <Box>
+                  {formState.errors.claim}
+                  {formState.errors.create}
+                  {formState.errors.login}
+                </Box>
+              }
             </Box>
           }
         </Container >
@@ -337,7 +375,7 @@ const Registration = () => {
         if (checkPasswords()) {
           // passwords cleared check
           updateFormState('password', password)
-          //setFormData((prevData) => ({ ...prevData, 'password': password }))
+          //setFormData((prevData) => ({...prevData, 'password': password }))
           // start spinner/loader
           toggleLoader('step2')
           // if a profile has been claimed
@@ -346,12 +384,29 @@ const Registration = () => {
             console.log(claimedPlayer)
             if (claimedPlayer) {
               playerId = claimedPlayer.id
-              await playerAPI.claimPlayer(claimedPlayer.id, formState.data.email, password)
+              const response = await playerAPI.claimPlayer(claimedPlayer.id, formState.data, password)
+              if (response.status === 'error') {
+                updateFormState('claim', response.message, true)
+                return false
+              }
             }
             else {
               const player = await playerAPI.createPlayer(formState.data);
-              playerId = player.id
+              if (player?.error) {
+                updateFormState('create', 'Failed to create user', true)
+              }
+              else
+                playerId = player.id
             }
+            authAPI.login(formState.data.email, password)
+              .then((p) => {
+                login(p);
+                navigate("/players/" + playerId, { replace: false })
+              })
+              .catch((error) => {
+                updateFormState('login', 'failed to login new user', true)
+                authAPI.signOut()
+              });
             return true;
           }
           catch (error) {
@@ -386,12 +441,17 @@ const Registration = () => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        height: '90vh',
+        height: '90vh',  // Adjust height as needed
+        overflow: 'auto',  // Enables scrolling when content overflows
+        maxHeight: '90vh', // Ensures it doesn't exceed viewport height
+        width: '100%',  // Ensures it stretches fully
       }}
     >
       <Box
         sx={{
           width: 400,
+          maxHeight: '100%',
+          overflowY: 'auto',
           backgroundColor: '#fff',
           padding: 4,
           borderRadius: 2,
@@ -438,19 +498,6 @@ const Registration = () => {
                   />
                   <span>{formState.errors.verified}</span>
 
-                  {/* Already exists information */}
-                  <MyModal
-                    showHide={showClaimDisplay}
-                    onClose={() => setShowClaimDisplay(false)}
-                    title="Unclaimed accounts"
-                    height="500px"
-                    overflow="auto"
-                  >
-
-                    <ClaimPlayer onClaim={handleClaim} players={playersList} />
-
-                  </MyModal>
-
                   <Button type="submit" variant="contained" color="primary" fullWidth>
                     Sign Up
                   </Button>
@@ -461,7 +508,12 @@ const Registration = () => {
             {showWizard && (
               <Wizard
                 steps={steps}
-                submitText="Go to login"
+                content={
+                  <Box>
+                    <CircularProgress /> Logging you in ...
+                    If you are not automatically logged in, go to login page
+                  </Box>}
+                submitText={'Go to Login'}
                 handleSubmit={handleSubmit}
               />
             )}
@@ -511,6 +563,18 @@ const Registration = () => {
           </>
         )}
       </Box>
+      {/* Already exists information */}
+      <MyModal
+        showHide={showClaimDisplay}
+        onClose={() => setShowClaimDisplay(false)}
+        title="Unclaimed accounts"
+        height="500px"
+        overflow="auto"
+      >
+
+        <ClaimPlayer onClaim={handleClaim} players={playersList} />
+
+      </MyModal>
     </Box>
   );
 };

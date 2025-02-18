@@ -1,10 +1,17 @@
-import { Box, Checkbox, Container, Divider, MenuItem, Slider, TextField, Typography } from "@mui/material";
-import React, { useState } from "react";
+import { Box, FormControl, FormHelperText, InputLabel, MenuItem, NativeSelect, Slider, TextField } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import AutoCompletePlaces from "../Autocomplete/AutocompletePlaces";
 import { enums, helpers } from "helpers";
 import InfoPopup from "../infoPopup";
 
 function UserInformation({ onUpdate, onError, formData, errors, ...props }) {
+
+  const [data, setData] = useState(formData);
+
+  // make sure the data updates if/when the parent data updates
+  useEffect(() => {
+    setData(formData)
+  }, [formData])
 
   // Get the current year
   const currentYear = new Date().getFullYear();
@@ -43,8 +50,8 @@ function UserInformation({ onUpdate, onError, formData, errors, ...props }) {
       <TextField
         name="firstName"
         label="First Name"
-        value={formData.firstName}
-        disabled={formData.google_id?.length > 0}
+        value={data.firstName}
+        disabled={data.google_id?.length > 0}
         onChange={handleChange}
         required
         fullWidth
@@ -55,8 +62,8 @@ function UserInformation({ onUpdate, onError, formData, errors, ...props }) {
       <TextField
         name="lastName"
         label="Last Name"
-        value={formData.lastName}
-        disabled={formData.google_id?.length > 0}
+        value={data.lastName}
+        disabled={data.google_id?.length > 0}
         onChange={handleChange}
         required
         fullWidth
@@ -67,22 +74,47 @@ function UserInformation({ onUpdate, onError, formData, errors, ...props }) {
       <TextField
         name="email"
         label="Email"
-        value={formData.email}
+        value={data.email}
         disabled={true}
         onChange={handleChange}
         required
         fullWidth
         helperText={errors.email}
-        error={Boolean(errors.email) && !helpers.validateEmail(formData.email)}
+        error={Boolean(errors.email) && !helpers.validateEmail(data.email)}
         sx={{ mb: 3 }} // Add bottom margin to the TextField
       />
-
+      {/* <FormControl fullWidth sx={{ mb: 3 }} error={Boolean(errors.age)}>
+        <InputLabel htmlFor="birth-year-select">Birth Year</InputLabel>
+        <NativeSelect
+          id="birth-year-select"
+          name="age"
+          variant="filled"
+          value={data.age ?? ""}
+          onChange={handleChange}
+        >
+          <option value="" disabled>
+            Select a year
+          </option>
+          {years.map((year) => (
+            <option
+              key={year}
+              value={year}
+             >
+              {year}
+            </option>
+          ))}
+        </NativeSelect>
+        {errors.age && <FormHelperText>{errors.age}</FormHelperText>}
+      </FormControl> */}
       <TextField
         select
         name="age"
         label="Birth Year"
-        value={formData.age ?? ''}
+        value={data.age ?? ''}
         onChange={handleChange}
+        onBlur={() => {
+          if (data.age && years.length > 0) { }
+        }}
         fullWidth
         helperText={errors.age}
         error={Boolean(errors.age)}
@@ -101,11 +133,11 @@ function UserInformation({ onUpdate, onError, formData, errors, ...props }) {
         required
         error={Boolean(errors.location)}
         helperText={errors.location}
-        initialCity={formData.location ?? ''}
+        initialCity={data.location ?? ''}
         showGetUserLocation={true}
       />
       <Box sx={{ mt: 2 }}>
-        NTRP Level: {helpers.hasValue(formData.ntrp) ? parseFloat(formData.ntrp).toFixed(1) : ''}
+        NTRP Level: {helpers.hasValue(data.ntrp) ? parseFloat(data.ntrp).toFixed(1) : ''}
         <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
           <Slider
             sx={{ mr: 2 }}
@@ -115,10 +147,10 @@ function UserInformation({ onUpdate, onError, formData, errors, ...props }) {
             min={2}
             max={6.5}
             step={0.5}
-            value={helpers.hasValue(formData.ntrp) ? +formData.ntrp : 0}
+            value={helpers.hasValue(data.ntrp) ? +data.ntrp : 0}
             onChange={handleChange}
-            marks={helpers.hasValue(formData.ntrp) ? enums.LevelMarks : null}
-            valueLabelDisplay={helpers.hasValue(formData.ntrp) ? "auto" : "off"}
+            marks={helpers.hasValue(data.ntrp) ? enums.LevelMarks : null}
+            valueLabelDisplay={helpers.hasValue(data.ntrp) ? "auto" : "off"}
           />
           <InfoPopup paddingLeft={"0.1rem"}>
             <a

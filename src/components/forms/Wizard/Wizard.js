@@ -80,7 +80,7 @@ export default function Wizard({
 
               <Typography as='span'>{step.description}</Typography>
               <Typography as='span'>{step.content}</Typography>
-              
+
               {/* Display error message if any */}
               {error && <Typography as='span' color="error">{error}</Typography>}
 
@@ -90,8 +90,8 @@ export default function Wizard({
                   <CircularProgress size={30} /> // Show spinner while loading
                 ) : (
                   <Button variant="contained"
-                  onClick={async () => await handleNext(index)}
-                  
+                    onClick={async () => await handleNext(index)}
+
                     disabled={loading}>
                     {index === steps.length - 1 ? submitText : "Continue"}
                   </Button>
