@@ -46,3 +46,4 @@ amplifytools.xcconfig
 src/todo.txt
 public/firebase-messaging-sw.js
 src/todo.txt
+.env.production

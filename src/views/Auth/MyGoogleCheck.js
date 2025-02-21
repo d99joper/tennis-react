@@ -8,18 +8,18 @@ const { jwtDecode } = require("jwt-decode");
 const GoogleCheckUser = ({mode, callback, ... props}) => {
 
   const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID
-
+  console.log(mode)
   return (
 
     <GoogleOAuthProvider clientId={clientId}>
       <GoogleLogin
-        text={mode === enums.LOGIN_MODES.SIGN_UP ? 'signup_with' : 'signin_with'}
+        text={mode === enums.LOGIN_MODES.SIGN_UP ? 'signup_with' : 'signin'}
         context={mode === enums.LOGIN_MODES.SIGN_UP ? 'signup' : 'signin'}
         cancel_on_tap_outside={true}
         onSuccess={credentialResponse => {
 
           const decoded = jwtDecode(credentialResponse.credential);
-
+          console.log(decoded)
           const userData = {
             google_id: decoded.sub,      // Unique Google ID
             email: decoded.email,        // User's email

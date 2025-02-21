@@ -193,8 +193,8 @@ const Registration = () => {
     // it's a new user
     else {
       updateFormState('email', data.player.email)
-      updateFormState('firstName', data.player.firstName)
-      updateFormState('lastName', data.player.lastName)
+      updateFormState('firstName', data.player.first_name)
+      updateFormState('lastName', data.player.last_name)
       updateFormState('google_id', data.player.google_id)
       updateFormState('picture', data.player.picture)
       updateFormState('credentialResponse', credentialResponse)
