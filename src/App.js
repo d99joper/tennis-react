@@ -138,24 +138,24 @@ function App() {
   // }
 
   return (
-    <HelmetProvider>
-      <ProfileImageProvider>
-        <Box className="App" id="app" sx={{ display: 'flex', flexDirection: 'column' }}>
-          <ToastContainer />
-          <CssBaseline />
-          <ThemeProvider theme={theme}>
-            <BrowserRouter>
+    <BrowserRouter>
+      <HelmetProvider>
+        <ProfileImageProvider>
+          <Box className="App" id="app" sx={{ display: 'flex', flexDirection: 'column' }}>
+            <ToastContainer />
+            <CssBaseline />
+            <ThemeProvider theme={theme}>
               <AuthProvider>
                 <NotificationsProvider>
                   {/* <MyRouter isLoggedIn={isLoggedIn} currentUser={currentUser} /> */}
                   <MyRouter />
                 </NotificationsProvider>
               </AuthProvider>
-            </BrowserRouter>
-          </ThemeProvider>
-        </Box>
-      </ProfileImageProvider>
-    </HelmetProvider>
+            </ThemeProvider>
+          </Box>
+        </ProfileImageProvider>
+      </HelmetProvider>
+    </BrowserRouter>
   )
 }
 

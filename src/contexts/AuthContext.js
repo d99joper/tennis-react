@@ -16,7 +16,9 @@ export const AuthProvider = ({ children }) => {
       try {
         // Validate the token and fetch user details from the server
         //const user = await authAPI.getUser();
+        console.log('check if player is logged in')
         const player_short = await playerAPI.getPlayer(null, true)
+        console.log('player_short', player_short)
         if (helpers.hasValue(player_short)) {
           setUser(player_short);
           setIsLoggedIn(true);

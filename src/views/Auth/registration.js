@@ -187,7 +187,7 @@ const Registration = () => {
     if (data.user_exists) {
       // user already exists, so login and redirect to profile page
       authAPI.googleLogin(credentialResponse.credential).then((user) => {
-        navigate("/profile", { replace: false })
+        navigate("/players", { replace: false })
       })
     }
     // it's a new user
