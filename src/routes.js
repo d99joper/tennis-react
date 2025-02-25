@@ -8,7 +8,7 @@ import Registration from 'views/Auth/registration';
 import Header from 'components/layout/header';
 import { Box, LinearProgress } from '@mui/material';
 import Footer from 'components/layout/footer';
-import {AboutPage, ClubViewPage, EventView, FAQPage, LeagueViewPage, Profile, RulesPage, SearchPage, Login} from './views/index'
+import {AboutPage, ClubViewPage, EventView, FAQPage, LeagueViewPage, PlayersLandingPage, Profile, RulesPage, SearchPage, Login} from './views/index'
 import NotificationsView from 'views/NotificationsView';
 import { AuthContext } from 'contexts/AuthContext';
 
@@ -82,7 +82,7 @@ const MyRouter = (props) => {
           <Route exact path="/faq" element={<FAQPage />} />
           <Route exact path="/rules" element={<RulesPage />} />
           <Route exact path="/search" element={<SearchPage />} />
-          <Route path="/players" element={<Profile isLoggedIn={isLoggedIn} currentUser={user} />} />
+          <Route path="/players" element={<PlayersLandingPage />} />
           <Route path="/players/:userid" element={<Profile isLoggedIn={isLoggedIn} currentUser={user} />} />
           <Route path="/profile-information" element={<ProfileInfo isLoggedIn={isLoggedIn} currentUser={user} />} />
           <Route path='/notifications' element={<NotificationsView />} />

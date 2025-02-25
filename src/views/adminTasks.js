@@ -30,6 +30,7 @@ const AdminTasks = () => {
 
   async function importMatches(e) {
     const file = e.target.files[0];
+    console.log(file)
     const data = await file.arrayBuffer();
     const wb = XLSX.read(data);
     const matchArray = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { raw: false });
