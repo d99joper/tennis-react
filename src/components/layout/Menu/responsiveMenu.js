@@ -21,14 +21,16 @@ import {
   AiOutlineHome,
   AiOutlineQuestionCircle,
   AiOutlineSetting,
+  AiOutlineUsergroupAdd,
 } from "react-icons/ai";
 import { BiLogInCircle, BiLogOutCircle } from "react-icons/bi";
 import { BsSearch } from "react-icons/bs";
 import { SlUser } from "react-icons/sl";
-import { GiWhistle } from "react-icons/gi";
+import { GiTennisCourt, GiWhistle } from "react-icons/gi";
 import { CiMail } from "react-icons/ci";
 import NotificationBadge from "./NotificationBadge";
 import { AuthContext } from "contexts/AuthContext";
+import { MdGroups, MdOutlineEmojiEvents, MdOutlineSportsTennis } from "react-icons/md";
 
 const drawerWidthLarge = 240;
 const drawerWidthSmall = 60;
@@ -63,7 +65,7 @@ const ResponsiveMenu = ({ ...props }) => {
 
   useEffect(() => {
     // close the menu drawer when moving to a medium screen
-    if(isMediumScreen)
+    if (isMediumScreen)
       setOpen(false)
   }, [isMediumScreen])
 
@@ -116,12 +118,36 @@ const ResponsiveMenu = ({ ...props }) => {
           </ListItemButton>
         </React.Fragment>
       )}
-      <ListItemButton title="Search" component={Link} to="/search">
+      <ListItemButton title="Players" component={Link} to="/players">
+        <ListItemIcon>
+          <SlUser size="1.5rem" />
+        </ListItemIcon>
+        <ListItemText primary={open ? "Players" : ""} />
+      </ListItemButton>
+      <ListItemButton title="Clubs" component={Link} to="/clubs">
+        <ListItemIcon>
+          <AiOutlineUsergroupAdd size="1.5rem" />
+        </ListItemIcon>
+        <ListItemText primary={open ? "Clubs" : ""} />
+      </ListItemButton>
+      <ListItemButton title="Events" component={Link} to="/events">
+        <ListItemIcon>
+          <MdOutlineEmojiEvents size="1.5rem" />
+        </ListItemIcon>
+        <ListItemText primary={open ? "Events" : ""} />
+      </ListItemButton>
+      <ListItemButton title="Courts" component={Link} to="/courts">
+        <ListItemIcon>
+          <GiTennisCourt size="1.5rem" />
+        </ListItemIcon>
+        <ListItemText primary={open ? "Courts" : ""} />
+      </ListItemButton>
+      {/* <ListItemButton title="Search" component={Link} to="/search">
         <ListItemIcon>
           <BsSearch size="1.5rem" />
         </ListItemIcon>
         <ListItemText primary={open ? "Search" : ""} />
-      </ListItemButton>
+      </ListItemButton> */}
       <ListItemButton title="FAQ" component={Link} to="/faq">
         <ListItemIcon>
           <AiOutlineQuestionCircle size="1.5rem" />
@@ -210,39 +236,49 @@ const ResponsiveMenu = ({ ...props }) => {
           </SwipeableDrawer>
         )}
         <div className='banner-settings'>
-          {isLoggedIn ?
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 2 }}>
-              {!isSmallScreen &&
-                <span>
-                  <Link to={`/players/${props.currentUser?.id}`} className='bannerLink'>
-                    <NotificationBadge>
-                      <SlUser size={'1.5rem'} />
-                    </NotificationBadge>
-                    {/* <UserInitialsIcon user={props.currentUser} notificationCount={notificationCount} /> */}
-                  </Link>
-                </span>
-              }
-              <Link className='bannerLink' onClick={handleLogout}>
-                <BiLogOutCircle
-                  title="Logout"
-                  size={'1.5rem'}
-                  className="cursorHand"
-                />
-                <small> logout</small>
-              </Link>
-            </Box>
-            :
-            <Link to="/login" className='bannerLink' onClick={handleLogin}>
-              <BiLogInCircle
-                title="Login"
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 2 }}>
+            <Link className='bannerLink' to={'/search'}>
+              <BsSearch
+                title="Search"
                 size={'1.5rem'}
                 className="cursorHand"
-                component="Link"
-                to="/login"
               />
-              <small> login</small>
+              {/* <small> Search</small> */}
             </Link>
-          }
+            {isLoggedIn ?
+              <Box>
+                {!isSmallScreen &&
+                  <span>
+                    <Link to={`/players/${props.currentUser?.id}`} className='bannerLink'>
+                      <NotificationBadge>
+                        <SlUser size={'1.5rem'} />
+                      </NotificationBadge>
+                      {/* <UserInitialsIcon user={props.currentUser} notificationCount={notificationCount} /> */}
+                    </Link>
+                  </span>
+                }
+                <Link className='bannerLink' onClick={handleLogout}>
+                  <BiLogOutCircle
+                    title="Logout"
+                    size={'1.5rem'}
+                    className="cursorHand"
+                  />
+                  <small> logout</small>
+                </Link>
+              </Box>
+              :
+              <Link to="/login" className='bannerLink' onClick={handleLogin}>
+                <BiLogInCircle
+                  title="Login"
+                  size={'1.5rem'}
+                  className="cursorHand"
+                  component="Link"
+                  to="/login"
+                />
+                <small> login</small>
+              </Link>
+            }
+          </Box>
         </div>
       </Toolbar>
     </AppBar>
