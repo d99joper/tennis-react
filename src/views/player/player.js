@@ -14,11 +14,10 @@ import {
 	MenuItem,
 	TextField,
 	Divider,
-	IconButton
 } from '@mui/material';
 import { AiOutlineEdit, AiOutlineMessage } from 'react-icons/ai';
 import { MdOutlineCancel, MdOutlineCheck, MdOutlineRefresh, MdSportsTennis } from 'react-icons/md';
-import { authAPI, playerAPI } from 'api/services/index.js';
+import { playerAPI } from 'api/services/index.js';
 import { ProfileImage, ProfileImageContext } from 'components/forms/ProfileImage.js';
 import './profile.css';
 import { enums, helpers } from 'helpers';
