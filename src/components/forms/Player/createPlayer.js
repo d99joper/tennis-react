@@ -2,7 +2,7 @@ import { playerAPI } from "api/services";
 import { helpers } from "helpers";
 import { useState } from "react";
 
-const { Grid, Typography, TextField, Button, Popover } = require("@mui/material");
+const { Grid, Typography, TextField, Button, Popover, Grid2 } = require("@mui/material");
 const { GrCircleInformation } = require("react-icons/gr");
 
 const CreatePlayer = ({ newItem='', callback, ...props }) => {
@@ -41,7 +41,7 @@ const CreatePlayer = ({ newItem='', callback, ...props }) => {
   // }
 
   return (
-    <Grid container direction={'column'}>
+    <Grid2 container direction={'column'}>
       <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={'1rem'}>
         Add "<u>{newItem}</u>" to My Tennis Space
       </Typography>
@@ -81,7 +81,7 @@ const CreatePlayer = ({ newItem='', callback, ...props }) => {
       >
         <Typography fontSize=".9em" sx={{ p: 2 }}>If you know <i>{newItem}'s</i> email address, you can add it to send an invite for the player to join My Tennis Space. <br />If not, you can add the player by name only. If <i>{newItem}</i> decides to join in the future, the player has the option to link this match to their profile.</Typography>
       </Popover>
-    </Grid>
+    </Grid2>
   )
 }
 

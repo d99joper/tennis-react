@@ -33,6 +33,7 @@ const MyModal = ({
     <Dialog
       open={show}
       onClose={onClose}
+      disableEscapeKeyDown={true}
       scroll={'paper'}
       fullWidth // Ensures the dialog uses the full width of the container
       maxWidth="sm" // Set a maximum width for the dialog

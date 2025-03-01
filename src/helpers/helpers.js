@@ -64,6 +64,9 @@ const helpers = {
     return regex.test(email)
   },
 
+	truncateText: (text, length = 20) => {
+		return text?.length > length ? text.slice(0, length) + "..." : text || "No description available";
+	},
 
   hasValue: (param) => {
 		// console.log("param:", param, "typeof:", typeof param);

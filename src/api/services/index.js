@@ -7,6 +7,7 @@ import authAPI from 'api/auth'
 import commentsAPI from './comment'
 import eventAPI from './event'
 import leagueAPI from './league'
+import subscriptionAPI from './subscription'
 
 export {
   authAPI,
@@ -18,4 +19,5 @@ export {
   matchAPI,
   playerAPI,
   clubAPI,
+  subscriptionAPI
 }

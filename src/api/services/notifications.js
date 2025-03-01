@@ -45,6 +45,17 @@ const notificationAPI = {
     }
   },
 
+  getConversation: async function(playerId) {
+    const requestOptions = authAPI.getRequestOptions('GET')
+    const response = await fetch(notificationsUrl + 'conversations/' + playerId, requestOptions)
+    if(response.ok) {
+      return await response.json();
+    }
+    else {
+      throw new Error('Failed to get conversation')
+    }
+  },
+
   // Create a new notification
   createNotification: async function (notificationData) {
     const requestOptions = authAPI.getRequestOptions('POST', notificationData);

@@ -21,6 +21,11 @@
     }
   }
 
+  .pac-container {
+    z-index: 2000 !important;
+  }
+  
+
   footer {
     padding: 1rem;
     text-align: center;

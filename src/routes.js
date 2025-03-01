@@ -8,7 +8,7 @@ import Registration from 'views/Auth/registration';
 import Header from 'components/layout/header';
 import { Box, LinearProgress } from '@mui/material';
 import Footer from 'components/layout/footer';
-import {AboutPage, ClubViewPage, EventView, FAQPage, LeagueViewPage, PlayersLandingPage, Profile, RulesPage, SearchPage, Login} from './views/index'
+import { AboutPage, ClubViewPage, EventView, FAQPage, LeagueViewPage, PlayersLandingPage, Profile, RulesPage, SearchPage, Login } from './views/index'
 import NotificationsView from 'views/NotificationsView';
 import { AuthContext } from 'contexts/AuthContext';
 
@@ -19,8 +19,11 @@ const UserMerge = lazy(() => import('./views/Auth/user-merge'))
 const LadderCreate = lazy(() => import('./views/ladder/create'))
 const LadderSearch = lazy(() => import('./views/ladder/search'))
 const LadderView = lazy(() => import('./views/ladder/view'))
-const CourtsCreate = lazy(() => import('./views/court/create'))
-const CourtsView = lazy(() => import('./views/court/view'))
+const CourtsCreate = lazy(() => import('./components/forms/Courts/create'))
+const CourtsLanding = lazy(() => import('./views/court/courtsLanding'))
+const CourtView = lazy(() => import('./views/court/courtView'))
+const ClubsLandingPage = lazy(() => import('./views/club/clubsLanding'))
+const EventsLandingPage = lazy(() => import('./views/event/eventsLanding'))
 const NoPage = lazy(() => import('./views/NoPage'))
 const AdminTasks = lazy(() => import('./views/adminTasks'))
 const PrivacyPolicyPage = lazy(() => import('./views/privacyPolicyPage'))
@@ -36,7 +39,7 @@ const preloadPage = (page) => page().then((module) => module.default);
 
 const MyRouter = (props) => {
   const location = useLocation()
-  const {isLoggedIn, user} = useContext(AuthContext)
+  const { isLoggedIn, user } = useContext(AuthContext)
 
   // useEffect(() => {
   //   navigate(props.navigateTo)
@@ -57,10 +60,10 @@ const MyRouter = (props) => {
   const MemoizedFooter = React.memo(Footer);
 
   return (
-    <Suspense fallback={<LinearProgress  size="large" />}>
-      <MemoizedHeader 
-        show={showHeaderOrFooter(location.pathname)} 
-        isLoggedIn={isLoggedIn} 
+    <Suspense fallback={<LinearProgress size="large" />}>
+      <MemoizedHeader
+        show={showHeaderOrFooter(location.pathname)}
+        isLoggedIn={isLoggedIn}
         //currentUser={props.currentUser}
         currentUser={user}
       />
@@ -75,7 +78,7 @@ const MyRouter = (props) => {
           transition: 'flex-grow 0.2s ease',
           overflowX: 'hidden', // Hide overflowing content
         }}
-        >
+      >
         <Routes key="MyMainRoutes">
           <Route exact path="/" element={<AboutPage isLoggedIn={isLoggedIn} />} />
           <Route exact path="/about" element={<AboutPage isLoggedIn={isLoggedIn} />} />
@@ -94,10 +97,12 @@ const MyRouter = (props) => {
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/adminTasks" element={<AdminTasks />} />
           <Route path='/clubs'>
+            <Route index={true} element={<ClubsLandingPage />} />
             <Route path=":clubId" element={<ClubViewPage />} />
           </Route>
           <Route path='/courts'>
-            <Route index={true} element={<CourtsView {...props } />} />
+            <Route index={true} element={<CourtsLanding {...props} />} />
+            <Route path=":courtsId" element={<CourtView {...props} />} />
             <Route path="new" element={<CourtsCreate {...props} />} />
           </Route>
           <Route path="ladders">
@@ -112,6 +117,7 @@ const MyRouter = (props) => {
             <Route path="create" element={<LeagueCreate isLoggedIn={isLoggedIn} />} />
           </Route>
           <Route path='events'>
+            <Route index={true} element={<EventsLandingPage {...props} />} />
             <Route path=":id" element={<EventView isLoggedIn={isLoggedIn} />} />
             <Route path="create" element={<LeagueCreate isLoggedIn={isLoggedIn} />} />
           </Route>

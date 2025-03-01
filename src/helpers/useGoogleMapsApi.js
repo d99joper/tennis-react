@@ -19,6 +19,7 @@ const useGoogleMapsApi = () => {
 
       loadingPromise = new Promise((resolve, reject) => {
         const apiKey = process.env.REACT_APP_PLACES_API_KEY;
+        const mapId = process.env.REACT_APP_MAP_ID;
         if (!apiKey) {
           console.error("Google Maps API Key is missing");
           reject(new Error("API Key is required"));
@@ -26,12 +27,16 @@ const useGoogleMapsApi = () => {
         }
 
         const script = document.createElement("script");
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,marker&map_ids=${mapId}`;
         script.async = true;
         script.defer = true;
 
         script.onload = () => {
           if (window.google && window.google.maps) {
+            if (!window.google.maps.marker) {
+              reject(new Error("Google Maps Marker library failed to load"));
+              return;
+            }
             resolve(window.google.maps);
             setMapApi(window.google.maps);
           } else {

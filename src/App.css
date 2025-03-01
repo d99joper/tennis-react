@@ -15,6 +15,9 @@ body,html {
   box-sizing: inherit;
 }
 
+div[data-lastpass-icon-root] { display: none; }
+div[data-lastpass-root] { display: none; }
+
 .profileImageContainer_small {
   /* background-color: var(--amplify-colors-purple-10); */
   border-radius: 50%;
