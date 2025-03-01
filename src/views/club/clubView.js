@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Typography, Button, Tabs, Tab, Switch, Snackbar, Pagination, TextField, IconButton, capitalize, Autocomplete, Chip, DialogContent, Select, MenuItem, DialogActions } from '@mui/material';
+import { Box, Typography, Button, Tabs, Tab, Switch, Snackbar, Pagination, TextField, IconButton, capitalize, Autocomplete, Chip, DialogContent, Select, MenuItem } from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
 import clubAPI from 'api/services/club';
 import ResponsiveDataLayout from 'components/layout/Data/responsiveDataLayout';
@@ -8,14 +8,13 @@ import requestAPI from 'api/services/request';
 import { AiFillEdit } from 'react-icons/ai';
 import MyModal from 'components/layout/MyModal';
 import CreateLeague from 'components/forms/League/create';
-import { MdApproval, MdCheck, MdCheckCircle, MdCheckCircleOutline, MdClose, MdDelete } from 'react-icons/md';
+import {  MdCheckCircleOutline, MdClose, MdDelete } from 'react-icons/md';
 import { AuthContext } from 'contexts/AuthContext';
 import { GiExitDoor } from 'react-icons/gi';
 import notificationAPI from 'api/services/notifications';
-import JoinRequest from 'components/forms/joinRequests';
+import JoinRequest from 'components/forms/Notifications/joinRequests';
 import { Helmet } from 'react-helmet-async';
 import { eventAPI } from 'api/services';
-import { helpers } from 'helpers';
 
 const ClubViewPage = () => {
   const { clubId } = useParams();

@@ -12,50 +12,50 @@ const helpers = {
 		return snakeCaseObj;
 	},
 	
-	loadGoogleMapsAPI: async () => {
-		// Check if Google Maps API is already loaded
-		if (window.google && window.google.maps) {
-			console.log('Google Maps API already loaded');
-			return window.google.maps;
-		}
+	// loadGoogleMapsAPI: async () => {
+	// 	// Check if Google Maps API is already loaded
+	// 	if (window.google && window.google.maps) {
+	// 		console.log('Google Maps API already loaded');
+	// 		return window.google.maps;
+	// 	}
 
-		// If another function is already loading the script, wait for it to complete
-		if (loadingPromise) {
-			console.log('Waiting for Google Maps API script to load...');
-			return loadingPromise;
-		}
+	// 	// If another function is already loading the script, wait for it to complete
+	// 	if (loadingPromise) {
+	// 		console.log('Waiting for Google Maps API script to load...');
+	// 		return loadingPromise;
+	// 	}
 
-		// Create a new loading promise and start loading the script
-		loadingPromise = new Promise((resolve, reject) => {
-			console.log('Google Maps API not loaded, adding...');
-			const apiKey = process.env.REACT_APP_PLACES_API_KEY;
-			const script = document.createElement('script');
-			script.src = 'https://maps.googleapis.com/maps/api/js?key=' + apiKey + '&libraries=places';
-			script.async = true;
-			script.defer = true;
+	// 	// Create a new loading promise and start loading the script
+	// 	loadingPromise = new Promise((resolve, reject) => {
+	// 		console.log('Google Maps API not loaded, adding...');
+	// 		const apiKey = process.env.REACT_APP_PLACES_API_KEY;
+	// 		const script = document.createElement('script');
+	// 		script.src = 'https://maps.googleapis.com/maps/api/js?key=' + apiKey + '&libraries=places';
+	// 		script.async = true;
+	// 		script.defer = true;
 
-			script.onload = () => {
-				if (window.google && window.google.maps) {
-					resolve(window.google.maps);
-				} else {
-					reject(new Error('Google Maps API not available'));
-				}
-			};
+	// 		script.onload = () => {
+	// 			if (window.google && window.google.maps) {
+	// 				resolve(window.google.maps);
+	// 			} else {
+	// 				reject(new Error('Google Maps API not available'));
+	// 			}
+	// 		};
 
-			script.onerror = () => {
-				reject(new Error('Error loading Google Maps API script'));
-			};
+	// 		script.onerror = () => {
+	// 			reject(new Error('Error loading Google Maps API script'));
+	// 		};
 
-			document.body.appendChild(script);
-		});
+	// 		document.body.appendChild(script);
+	// 	});
 
-		// Clear the loading promise once the script is loaded or an error occurs
-		loadingPromise.finally(() => {
-			loadingPromise = null;
-		});
+	// 	// Clear the loading promise once the script is loaded or an error occurs
+	// 	loadingPromise.finally(() => {
+	// 		loadingPromise = null;
+	// 	});
 
-		return loadingPromise;
-	},
+	// 	return loadingPromise;
+	// },
 	
 	validateEmail: (email) => {
     //setHasChecked(true)
@@ -64,12 +64,15 @@ const helpers = {
     return regex.test(email)
   },
 
+	truncateText: (text, length = 20) => {
+		return text?.length > length ? text.slice(0, length) + "..." : text || "No description available";
+	},
 
   hasValue: (param) => {
-		//console.log(param)
+		// console.log("param:", param, "typeof:", typeof param);
     // Check for null, undefined, or empty string
-    if (param === null || param === '' || param === undefined) return false;
-
+		if (param === null || param === '' || typeof param === 'undefined') return false;
+		
     // Check if param is NaN
     if (typeof param === 'number' && isNaN(param)) return false;
 

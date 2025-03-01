@@ -1,9 +1,10 @@
-import { Avatar } from "@mui/material"
+import { Avatar, Box } from "@mui/material"
 import { helpers } from "helpers"
 import { SlUser } from "react-icons/sl"
 
 import React, { createContext, useContext, useState } from 'react'
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 
 // Create a context to manage the state
 const ProfileImageContext = createContext();
@@ -35,7 +36,7 @@ const ProfileImageProvider = ({ children }) => {
 }
 
 // UserProfile component to use wherever you need it in your app
-const ProfileImage = ({ player, size, ...props }) => {
+const ProfileImage = ({ player, size, asLink=false, showName=false, ...props }) => {
   const { setProfileImage, getProfileImage } = useContext(ProfileImageContext);
 
   useEffect(() => {
@@ -70,10 +71,24 @@ const ProfileImage = ({ player, size, ...props }) => {
     }
     catch (e) { console.log(e) }
   }
-
-  return (
-    <Avatar {...stringAvatar()} className={props.className} onClick={props.onClick} />
+  const avatar = <Avatar {...stringAvatar()} className={props.className} onClick={props.onClick} />
+  
+  const boxAvatar = (
+    <Box sx={{display:'flex', flexDirection:'row', alignItems:'center', gap:1}}>
+      {avatar} {player.name}
+    </Box>
   )
+  
+  if (asLink === true) return (
+    <Link to={"/players/"+player.id} >
+      {showName === true ? boxAvatar : {avatar}}
+    </Link>
+  )
+  
+  if (showName === true) return boxAvatar
+
+  return avatar
+  
 };
 
 export { ProfileImageProvider, ProfileImageContext, ProfileImage };

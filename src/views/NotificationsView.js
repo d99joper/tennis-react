@@ -18,12 +18,14 @@ import { Link } from 'react-router-dom';
 import notificationAPI from 'api/services/notifications';
 import requestAPI from 'api/services/request';
 import { ProfileImage } from 'components/forms';
+import { useSnackbar } from 'contexts/snackbarContext';
 
 const NotificationsView = () => {
   const [loading, setLoading] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
   const { notifications, notificationCount, markAsRead, deleteNotification, updateNotification } = useNotificationsContext();
-  const [snackbar, setSnackbar] = useState({ open: false, message: '' });
+  //const [snackbar, setSnackbar] = useState({ open: false, message: '' });
+  const {showSnackbar} = useSnackbar();
 
   const handleSelectNotification = async (notification) => {
     if (selectedNotification?.id !== notification.id) {
@@ -55,10 +57,12 @@ const NotificationsView = () => {
       const newStatus = approve ? 'approved' : 'denied';
       updateNotification({ ...selectedNotification, status: newStatus });
       setSelectedNotification({ ...selectedNotification, status: newStatus });
-      setSnackbar({ open: true, message: response.data.message });
+      showSnackbar(response.data.message, "success")
+      //setSnackbar({ open: true, message: response.data.message });
     }
     catch (e) {
-      setSnackbar({ open: true, message: 'Failed to process the request' });
+      showSnackbar("Failed to process the request", "error")
+      //setSnackbar({ open: true, message: 'Failed to process the request' });
     }
   }
 
@@ -202,13 +206,13 @@ const NotificationsView = () => {
 
         </Box>
       </Grid>
-
+{/* 
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={() => setSnackbar({ open: false, message: '' })}
         message={snackbar.message}
-      />
+      /> */}
     </Grid>
 
   );

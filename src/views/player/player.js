@@ -13,9 +13,10 @@ import {
 	Select,
 	MenuItem,
 	TextField,
-	Divider
+	Divider,
+	IconButton
 } from '@mui/material';
-import { AiOutlineEdit } from 'react-icons/ai';
+import { AiOutlineEdit, AiOutlineMessage } from 'react-icons/ai';
 import { MdOutlineCancel, MdOutlineCheck, MdOutlineRefresh, MdSportsTennis } from 'react-icons/md';
 import { authAPI, playerAPI } from 'api/services/index.js';
 import { ProfileImage, ProfileImageContext } from 'components/forms/ProfileImage.js';
@@ -25,8 +26,11 @@ import { AutoCompletePlaces, Editable, InfoPopup, Matches, TopRivals, UnlinkedMa
 import { BsHouse } from 'react-icons/bs';
 import { useNotificationsContext } from 'contexts/NotificationContext';
 import { Helmet } from 'react-helmet-async';
+import { AuthContext } from 'contexts/AuthContext';
+import MyModal from 'components/layout/MyModal';
+import Conversation from 'components/forms/Notifications/conversations';
 
-function Profile({ isLoggedIn }) {
+function Profile({ }) {
 	const params = useParams();
 	const { setProfileImage } = useContext(ProfileImageContext);
 	const [tabIndex, setTabIndex] = useState(0);
@@ -50,7 +54,9 @@ function Profile({ isLoggedIn }) {
 	const [showUtrRefresh, setShowUtrRefresh] = useState(false)
 	const [showUtrRefreshing, setShowUtrRefreshing] = useState(false)
 	const [locationData, setLocationData] = useState()
-	const [birthyear, setBirthyear] = useState()
+	const [birthyear, setBirthyear] = useState();
+	const [showChatModal, setShowChatModal] = useState(false);
+	const { user, isLoggedIn, loading: userIsLoading } = useContext(AuthContext);
 
 	const currentYear = new Date().getFullYear();
 	const years = Array.from({ length: currentYear - 1940 + 1 }, (v, i) => currentYear - i - 5);
@@ -65,10 +71,10 @@ function Profile({ isLoggedIn }) {
 			setStatsFetched(false)
 			setStats({})
 			try {
-				const sessionPlayer = authAPI.getCurrentUser();
-				setCanEdit(false);
 
-				let id = params.userid || sessionPlayer?.id;
+				setCanEdit(false);
+				console.log(user)
+				let id = params.userid || user?.id;
 				if (!id) throw new Error('No user ID found.');
 
 				const fetchedPlayer = await playerAPI.getPlayer(id);
@@ -78,7 +84,8 @@ function Profile({ isLoggedIn }) {
 				setStatsFetched(true)
 				setIsLoaded(true);
 
-				if (sessionPlayer && sessionPlayer.email === fetchedPlayer.email) {
+				if (!userIsLoading && isLoggedIn && user.id === fetchedPlayer.id) {
+					//console.log('canEdit')
 					setCanEdit(true);
 					setShowUtrRefresh(true)
 				}
@@ -325,7 +332,9 @@ function Profile({ isLoggedIn }) {
 
 						{/** birth year */}
 						<Editable
-							text={birthyear ? <Typography>Born in {birthyear}</Typography> : ''}
+							// hide this, since I don't think ppl want to show their age
+							text=""
+							//text={birthyear ? <Typography>Born in {birthyear}</Typography> : ''}
 							isEditing={isEdit}>
 							<Box>
 								<Typography>Year I was born:</Typography>
@@ -349,11 +358,27 @@ function Profile({ isLoggedIn }) {
 						</Editable>
 
 						{/** Notifications */}
-						{canEdit &&
+						{canEdit ?
 							<Link to='/notifications/'>
-								{notificationCount > 0 && `You have ${notificationCount} unread messages`} 
+								{notificationCount > 0 && `You have ${notificationCount} unread messages`}
 							</Link>
+							: isLoggedIn && <>
+								<AiOutlineMessage
+									onClick={() => setShowChatModal(true)}
+									color='green'
+									size={25}
+									cursor={'pointer'}
+								/> Message
+							</>
 						}
+						<MyModal
+							showHide={showChatModal}
+							onClose={() => setShowChatModal(false)}
+							title={`Send ${player.name} a message`}
+						>
+							Send a message
+							<Conversation player1={user} player2={player} />
+						</MyModal>
 
 						{/** Location */}
 						<Editable

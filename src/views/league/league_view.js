@@ -6,7 +6,6 @@ import {
   Typography,
   useMediaQuery,
   Grid2,
-  Button,
   Snackbar,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -20,7 +19,7 @@ import ScheduleView from './schedule_view';
 import { GiPencil } from 'react-icons/gi';
 import { MdClose } from 'react-icons/md';
 import StandingsView from './standings_view';
-import JoinRequest from 'components/forms/joinRequests';
+import JoinRequest from 'components/forms/Notifications/joinRequests';
 import { Helmet } from 'react-helmet-async';
 import EventAdminTools from 'components/forms/League/adminTools';
 

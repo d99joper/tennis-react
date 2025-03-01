@@ -7,7 +7,7 @@ import { Alert, Box, List, ListItem, Snackbar, Typography } from '@mui/material'
 import { AuthContext } from 'contexts/AuthContext'
 import { eventAPI } from 'api/services'
 import { userHelper } from 'helpers'
-import InfoPopup from './infoPopup'
+import InfoPopup from '../infoPopup'
 import MyModal from 'components/layout/MyModal'
 
 const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration = false, callback, ...props }) => {

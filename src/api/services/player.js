@@ -20,7 +20,8 @@ const playerAPI = {
       return player
     }
     else
-      return { status: response.status, statusCode: response.statusCode, statusText: response.statusText, error: 'No Player Found' }
+      throw new Error('No player found')
+      //return { status: response.status, statusCode: response.statusCode, statusText: response.statusText, error: 'No Player Found' }
   },
 
   getPlayerUTR: async function (id) {

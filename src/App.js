@@ -13,6 +13,7 @@ import "react-toastify/dist/ReactToastify.css"; // Import default styles
 import { AuthProvider } from 'contexts/AuthContext';
 import { NotificationsProvider } from 'contexts/NotificationContext';
 import { HelmetProvider } from "react-helmet-async";
+import { SnackbarProvider } from 'contexts/snackbarContext';
 
 function App() {
   const originalTitle = useRef(document.title);
@@ -90,42 +91,6 @@ function App() {
     };
   }, []);
 
-  // useEffect(() => { // 
-  //   function handleLoginLogout(e) {
-  //     console.log(e)
-  //     getCurrentUser()
-  //   }
-  //   async function getCurrentUser() {
-  //     try {
-  //       // get the current user (it's okay if it's null)
-  //       const user = authAPI.getCurrentUser()
-  //       setCurrentUser(user)
-
-  //       // check if there is a user and set the isLoggedIn flag
-  //       const isSignedIn = typeof user === 'object' ? true : false
-  //       setIsLoggedIn(isSignedIn)
-
-  //       // loading complete
-  //       setLoading(false)
-  //     }
-  //     catch (e) {
-  //       console.log(e)
-  //     }
-  //   }
-  //   getCurrentUser()
-
-  //   // Register the event listeners for login and logout
-  //   window.addEventListener("login", handleLoginLogout)
-  //   window.addEventListener("logout", handleLoginLogout)
-
-  //   // Unregister the event listeners when the component is unmounted
-  //   return () => {
-  //     window.removeEventListener("login", handleLoginLogout)
-  //     window.removeEventListener("logout", handleLoginLogout)
-  //   }
-
-  // }, [])
-
   useEffect(() => {
     console.log("App.js: Mounted");
     return () => {
@@ -138,24 +103,25 @@ function App() {
   // }
 
   return (
-    <HelmetProvider>
-      <ProfileImageProvider>
-        <Box className="App" id="app" sx={{ display: 'flex', flexDirection: 'column' }}>
-          <ToastContainer />
-          <CssBaseline />
-          <ThemeProvider theme={theme}>
-            <BrowserRouter>
+    <BrowserRouter>
+      <HelmetProvider>
+        <ProfileImageProvider>
+          <Box className="App" id="app" sx={{ display: 'flex', flexDirection: 'column' }}>
+            <ToastContainer />
+            <CssBaseline />
+            <ThemeProvider theme={theme}>
               <AuthProvider>
                 <NotificationsProvider>
-                  {/* <MyRouter isLoggedIn={isLoggedIn} currentUser={currentUser} /> */}
-                  <MyRouter />
+                  <SnackbarProvider>
+                    <MyRouter />
+                  </SnackbarProvider>
                 </NotificationsProvider>
               </AuthProvider>
-            </BrowserRouter>
-          </ThemeProvider>
-        </Box>
-      </ProfileImageProvider>
-    </HelmetProvider>
+            </ThemeProvider>
+          </Box>
+        </ProfileImageProvider>
+      </HelmetProvider>
+    </BrowserRouter>
   )
 }
 

@@ -83,29 +83,7 @@ function UserInformation({ onUpdate, onError, formData, errors, ...props }) {
         error={Boolean(errors.email) && !helpers.validateEmail(data.email)}
         sx={{ mb: 3 }} // Add bottom margin to the TextField
       />
-      {/* <FormControl fullWidth sx={{ mb: 3 }} error={Boolean(errors.age)}>
-        <InputLabel htmlFor="birth-year-select">Birth Year</InputLabel>
-        <NativeSelect
-          id="birth-year-select"
-          name="age"
-          variant="filled"
-          value={data.age ?? ""}
-          onChange={handleChange}
-        >
-          <option value="" disabled>
-            Select a year
-          </option>
-          {years.map((year) => (
-            <option
-              key={year}
-              value={year}
-             >
-              {year}
-            </option>
-          ))}
-        </NativeSelect>
-        {errors.age && <FormHelperText>{errors.age}</FormHelperText>}
-      </FormControl> */}
+      
       <TextField
         select
         name="age"
