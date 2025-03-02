@@ -82,10 +82,10 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
   const handleSignUp = async () => {
     setLoading(true)
     try {
-      const participant = {type: 'player', id: user.id}
+      const participant = { type: 'player', id: user.id }
       const response = await eventAPI.addParticipant(id, participant)
       showSnackbar('You have been added to the event', 'success')
-      if(callback) {
+      if (callback) {
         callback();
       }
     }
@@ -94,7 +94,7 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
       showSnackbar('Error signing up.', 'error')
       setStatus('none')
     }
-    finally{
+    finally {
       console.log('finally')
       setLoading(false)
       setShowModal(false)
@@ -136,18 +136,21 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
 
   if (status === 'not_eligible') {
     return (
-      <InfoPopup>
-        {restrictionResult && (
-          <Box>
-            <Typography variant="h6">You do not meet the requirements to signup:</Typography>
-            <List>
-              {restrictionResult.map((reason, index) => (
-                <ListItem key={index}>- {reason}</ListItem>
-              ))}
-            </List>
-          </Box>
-        )}
-      </InfoPopup>
+      <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+        <Typography>You can't join this league</Typography>
+        <InfoPopup>
+          {restrictionResult && (
+            <Box>
+              <Typography variant="h6">You do not meet the requirements to signup:</Typography>
+              <List>
+                {restrictionResult.map((reason, index) => (
+                  <ListItem key={index}>- {reason}</ListItem>
+                ))}
+              </List>
+            </Box>
+          )}
+        </InfoPopup>
+      </Box>
     )
   }
 

@@ -480,6 +480,7 @@ const ClubViewPage = () => {
                 <Typography variant="h6">Manage Admins</Typography>
                 <Autocomplete
                   multiple
+                  disableClearable
                   options={members}
                   getOptionLabel={(option) => option.name}
                   value={admins}
