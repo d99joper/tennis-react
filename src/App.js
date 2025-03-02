@@ -54,6 +54,7 @@ function App() {
   useEffect(() => {
     requestNotificationPermission();
     // Initialize notification listener
+    console.log("📢 Calling setupNotificationListener()...");
     const unsubscribe = setupNotificationListener();
 
     // Handle notifications globally
@@ -62,6 +63,13 @@ function App() {
 
       const title = payload?.notification.title || "New Notification";
       const body = payload?.notification.body || "You have received a new message.";
+
+      // ✅ Display a browser notification
+      if (Notification.permission === "granted") {
+        new Notification(title, { body });
+      } else {
+        console.warn("Notifications are blocked in the browser.");
+      }
 
       // Display toast
       toast.info(`${title}`, {
@@ -86,6 +94,7 @@ function App() {
 
     return () => {
       // Cleanup listeners
+      console.log("🛑 Cleaning up notification listener...");
       unsubscribe();
       removeNotificationListener(handleNotification);
     };

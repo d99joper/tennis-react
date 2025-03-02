@@ -29,9 +29,7 @@ const notificationAPI = {
 
   // Get all notifications for the user
   getAllNotifications: async function () {
-    console.log('get all notifications')
     const requestOptions = authAPI.getRequestOptions('GET');
-    console.log(notificationsUrl)
     const response = await fetch(notificationsUrl+`?_=${new Date().getTime()}`, requestOptions);
     if (response.ok) {
       const data = await response.json();

@@ -48,8 +48,7 @@ const clubAPI = {
     const requestOptions = authAPI.getRequestOptions('POST', club)
     const response = await fetch(clubUrl+'create', requestOptions)
     if (response.ok) {
-      const data = await response.json()
-      return {success: response.ok, statusCode: response.statusCode, data: data}
+      return await response.json()
     }
     else
       throw new Error(response.status + ': Failed to create club') 

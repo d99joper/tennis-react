@@ -27,18 +27,21 @@ export const refreshFirebaseToken = async () => {
 
 // Set up the notification listener to emit events
 export const setupNotificationListener = () => {
-  const unsubscribe = onMessage(messaging, async (payload) => {
-    console.log("Message received:", payload);
+  console.log("🟡 Setting up Firebase notification listener...");
 
-    // Refresh token on notification in case it changed
+  const unsubscribe = onMessage(messaging, async (payload) => {
+    console.log("✅ Message received in onMessage():", payload); // Check if this runs
+
+    // Refresh token in case Firebase changed it
     await refreshFirebaseToken();
 
-    // Emit the notification payload to all listeners
+    // Emit the notification payload globally
     notificationEmitter.emit("notification", payload);
   });
 
-  return unsubscribe; // Return the unsubscribe function
+  return unsubscribe;
 };
+
 
 // Add a listener for notifications
 export const onNotificationReceived = (callback) => {
@@ -49,3 +52,4 @@ export const onNotificationReceived = (callback) => {
 export const removeNotificationListener = (callback) => {
   notificationEmitter.off("notification", callback);
 };
+window.notificationEmitter = notificationEmitter;

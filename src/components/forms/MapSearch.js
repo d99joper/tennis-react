@@ -5,6 +5,7 @@ import useGoogleMapsApi from "helpers/useGoogleMapsApi";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { AuthContext } from "contexts/AuthContext";
 import { Link } from "react-router-dom";
+import { helpers } from "helpers";
 
 const MapSearch = ({
   title,
@@ -217,7 +218,7 @@ const MapSearch = ({
               showGetUserLocation={true} 
               {...(requireLocation) && {required:true}}
               helperText={locationError}
-              error={locationError}
+              error={helpers.hasValue(locationError)}
             />
             <Typography>Radius: {radius} miles</Typography>
             <Slider min={5} max={100} step={5} value={radius} onChange={(e, val) => setRadius(val)} valueLabelDisplay="auto" />
