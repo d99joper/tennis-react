@@ -103,7 +103,7 @@ function Profile({ }) {
 		}
 
 		fetchProfile();
-	}, [params.userid]);
+	}, [params.userid, user]);
 
 	const handleMatchAdded = () => {
 		setRefreshMatchesCounter((prev) => prev + 1);
@@ -420,7 +420,7 @@ function Profile({ }) {
 						text={
 							<Typography>
 								<MdSportsTennis />
-								{` NTRP: ${player.NTRP || 'N/A'}`}
+								{` NTRP: ${player.NTRP ? parseFloat(player.NTRP).toFixed(1) : 'N/A'}`}
 								<InfoPopup paddingLeft={"0.5rem"}>
 									<a
 										href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'
