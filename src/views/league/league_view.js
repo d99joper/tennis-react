@@ -22,6 +22,7 @@ import StandingsView from './standings_view';
 import JoinRequest from 'components/forms/Notifications/joinRequests';
 import { Helmet } from 'react-helmet-async';
 import EventAdminTools from 'components/forms/League/adminTools';
+import { helpers } from 'helpers';
 
 const LeagueViewPage = (props) => {
   const theme = useTheme();
@@ -111,7 +112,7 @@ const LeagueViewPage = (props) => {
         </Typography>
       }
       <Typography variant="body1" color="text.secondary" gutterBottom>
-        {event.description}
+        {helpers.parseTextToHTML(event.description)}
       </Typography>
 
       <JoinRequest

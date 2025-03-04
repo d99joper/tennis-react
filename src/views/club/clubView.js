@@ -8,13 +8,15 @@ import requestAPI from 'api/services/request';
 import { AiFillEdit } from 'react-icons/ai';
 import MyModal from 'components/layout/MyModal';
 import CreateLeague from 'components/forms/League/create';
-import {  MdCheckCircleOutline, MdClose, MdDelete } from 'react-icons/md';
+import { MdCheckCircleOutline, MdClose, MdDelete } from 'react-icons/md';
 import { AuthContext } from 'contexts/AuthContext';
 import { GiExitDoor } from 'react-icons/gi';
 import notificationAPI from 'api/services/notifications';
 import JoinRequest from 'components/forms/Notifications/joinRequests';
 import { Helmet } from 'react-helmet-async';
 import { eventAPI } from 'api/services';
+import { helpers } from 'helpers';
+import DOMPurify from "dompurify";
 
 const ClubViewPage = () => {
   const { clubId } = useParams();
@@ -226,7 +228,7 @@ const ClubViewPage = () => {
           <Editable
             isEditing={editFields.name}
             text={
-              <Box display="flex" alignItems="center">
+              <Box display="flex" alignItems="center" width="100%">
                 <Typography variant="h4">{club.name}</Typography>
                 {isAdmin && (
                   <IconButton size="small" sx={{ ml: 1 }} onClick={() => handleEditToggle('name')}>
@@ -245,9 +247,12 @@ const ClubViewPage = () => {
           </Editable>
           <Editable
             isEditing={editFields.description}
+            width={'100%'}
             text={
               <Box display="flex" alignItems="center">
-                <Typography variant="body1">{club.description}</Typography>
+                <Typography variant="body1"
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(helpers.parseTextToHTML(club.description)) }}
+                />
                 {isAdmin && (
                   <IconButton size="small" sx={{ ml: 1 }} onClick={() => handleEditToggle('description')}>
                     <AiFillEdit size={16} />
@@ -256,17 +261,20 @@ const ClubViewPage = () => {
               </Box>
             }
           >
-            <Box display="flex" alignItems="center" gap={1} mt={2}>
+            <Box display="flex" flexDirection={'column'} width="100%" gap={1} mt={2}>
               <TextField
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
                 size="small"
                 fullWidth
+
                 multiline
               />
-              <Button variant="contained" onClick={() => handleSave('description')}>Save</Button>
-              <Button variant="outlined" onClick={() => handleEditToggle('description')}>Cancel</Button>
+              <Box display={'flex'} alignItems={'left'} gap={3}>
+                <Button variant="contained" onClick={() => handleSave('description')}>Save</Button>
+                <Button variant="outlined" onClick={() => handleEditToggle('description')}>Cancel</Button>
+              </Box>
             </Box>
           </Editable>
           <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
