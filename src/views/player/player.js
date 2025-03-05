@@ -28,6 +28,7 @@ import { Helmet } from 'react-helmet-async';
 import { AuthContext } from 'contexts/AuthContext';
 import MyModal from 'components/layout/MyModal';
 import Conversation from 'components/forms/Notifications/conversations';
+import NTRPLevels from 'views/NTRPLevels';
 
 function Profile({ }) {
 	const params = useParams();
@@ -442,13 +443,14 @@ function Profile({ }) {
 								size='small'
 								fullWidth
 								sx={{height:'40px'}}
-								defaultValue={player.NTRP ? player.NTRP : '2.0'}
+								defaultValue={player.NTRP ? parseFloat(player.NTRP).toFixed(1) : '2.0'}
 							>
 								{NTRPItems.map((x) =>
 									<MenuItem key={x} value={x}>{x}</MenuItem>
 								)}
 							</Select>
 							<InfoPopup paddingLeft={"0.5rem"}>
+								<NTRPLevels />
 								<a
 									href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'
 									target='_blank'
