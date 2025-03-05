@@ -1,11 +1,16 @@
 import React from 'react';
 import { Typography, Box, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 const AboutPage = (props) => {
-    
+
     return (
         <Box>
+            <Helmet>
+                <title>MyTennis Space</title>
+            </Helmet>
+
             <Typography variant="h4" gutterBottom>
                 Welcome to My Tennis Space!
             </Typography>
@@ -37,7 +42,7 @@ const AboutPage = (props) => {
                 My Tennis Space is here to help you make new friends, improve your skills,
                 and create unforgettable tennis memories. Let's hit the court together!
             </Typography>
-            
+
             <Typography variant="body1" paragraph>
                 See you on the courts, champ!
             </Typography>

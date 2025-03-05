@@ -19,13 +19,14 @@ import notificationAPI from 'api/services/notifications';
 import requestAPI from 'api/services/request';
 import { ProfileImage } from 'components/forms';
 import { useSnackbar } from 'contexts/snackbarContext';
+import { Helmet } from 'react-helmet-async';
 
 const NotificationsView = () => {
   const [loading, setLoading] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
   const { notifications, notificationCount, markAsRead, deleteNotification, updateNotification } = useNotificationsContext();
   //const [snackbar, setSnackbar] = useState({ open: false, message: '' });
-  const {showSnackbar} = useSnackbar();
+  const { showSnackbar } = useSnackbar();
 
   const handleSelectNotification = async (notification) => {
     if (selectedNotification?.id !== notification.id) {
@@ -71,6 +72,9 @@ const NotificationsView = () => {
 
   return (
     <Grid container spacing={2}>
+      <Helmet>
+        <title>Messages | MyTennis Space</title>
+      </Helmet>
       {/* Notification Lists */}
       <Grid size={{ xs: 4 }}>
         <Box p={2} borderRight="1px solid #ccc" sx={{ overflow: 'auto', maxHeight: '80vh', }}>
@@ -206,7 +210,7 @@ const NotificationsView = () => {
 
         </Box>
       </Grid>
-{/* 
+      {/* 
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}

@@ -73,13 +73,13 @@ const ScheduleView = ({ event, schedule: initialSchedule, onScoreReported }) => 
         groupingKey={(row) => row.round}
         renderGroupDivider={(group) => (
           <Box
-            sx={{
-              padding: "8px 16px",
-              fontWeight: "bold",
-              //backgroundColor: "#f1ffe8",
-              textAlign: "center",
-              borderBottom: "2px solid rgb(124, 146, 110)",
-            }}
+            // sx={{
+            //   padding: "8px 16px",
+            //   fontWeight: "bold",
+            //   //backgroundColor: "#f1ffe8",
+            //   textAlign: "center",
+            //   borderBottom: "2px solid rgb(124, 146, 110)",
+            // }}
           >
             {`Round: ${group}`}
           </Box>

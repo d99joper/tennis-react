@@ -61,24 +61,18 @@ const StandingsView = ({ standings }) => {
                 >
                   #{row.rank}
                 </Typography>
-                <Link to={'/players/' + row.players[0].id}>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <ProfileImage player={row.players[0]} size={30} />
-                    <Typography
-                      variant="h5"
-                      sx={{ fontWeight: "bold", color: "primary.main" }}
-                    >{row.name}</Typography>
-                  </Box>
-                </Link>
+                <ProfileImage player={row.players[0]} size={30} asLink={true} showName={true} />
               </Box>
             }
             {isSmall &&
-              <Typography
-                variant={"h6"}
-                sx={{ fontWeight: "bold", color: "primary.main" }}
-              >
-                #{row.rank} {row.name}
-              </Typography>
+              <Link to={'/players/' + row.players[0].id}>
+                <Typography
+                  variant={"h6"}
+                  sx={{ fontWeight: "bold", color: "primary.main" }}
+                >
+                  #{row.rank} {row.name}
+                </Typography>
+              </Link>
             }
           </>
         )}

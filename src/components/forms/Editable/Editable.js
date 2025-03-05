@@ -17,7 +17,7 @@ const Editable = ({
   return (
     <Box display="flex" width="100%" {...props}> 
       {isEditing ? (
-        <Box name="b" width="100%" display="flex">
+        <Box width="100%" display="flex">
           {children}
         </Box>
       ) : (

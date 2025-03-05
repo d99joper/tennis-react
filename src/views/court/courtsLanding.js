@@ -36,7 +36,7 @@ const CourtsLanding = () => {
 
   const renderActions = () =>
     <>
-      <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+      <Typography variant="body1" color="textSecondary" sx={{ mt: 1 }}>
         Can't find your court? Add it!
       </Typography>
       <Button
@@ -55,7 +55,8 @@ const CourtsLanding = () => {
         title={'Find courts'}
         renderActions={renderActions}
         fetchData={fetchData}
-        requireLocation={true}
+        //requireLocation={true}
+        applyLocation={true}
         renderInfoWindow={renderInfoWindow}
         onMapsApiLoaded={setMapsApi}
         type="courts"

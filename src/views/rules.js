@@ -1,15 +1,19 @@
 import React from 'react';
 import { Typography, List, ListItem, ListItemText } from '@mui/material'
+import { Helmet } from 'react-helmet-async';
 
 
 const RulesPage = () => {
   return (
     <div className="rules-container" style={{ maxWidth: '500px' }}>
+      <Helmet>
+        <title>Rules | MyTennis Space</title>
+      </Helmet>
       <Typography variant="h4" gutterBottom>
         Rules
       </Typography>
       <List>
-      <ListItem>
+        <ListItem>
           <ListItemText
             primary="Scheduling"
             secondary="Once challenged, the players should try to find a match time and location within two

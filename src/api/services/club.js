@@ -18,7 +18,8 @@ const clubAPI = {
   },
   getArchivedEvents: async function(clubId) {
     const requestOptions = authAPI.getRequestOptions('GET')
-    return await fetch(clubUrl + clubId + '/archived-events', requestOptions);
+    const response = await fetch(clubUrl + clubId + '/archived-events', requestOptions);
+    return await response.json();
   },
   getMembers: async function(clubId) {
     const requestOptions = authAPI.getRequestOptions('GET')

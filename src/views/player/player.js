@@ -433,19 +433,35 @@ function Profile({ }) {
 						}
 						isEditing={isEdit}
 					>
-						NTRP: <Select
-							name="NTPR"
-							size='small'
-							defaultValue={player.NTRP ? player.NTRP : '2.0'}
-						>
-							{NTRPItems.map((x) =>
-								<MenuItem key={x} value={x}>{x}</MenuItem>
-							)}
-						</Select>
+						<Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'top', gap: 1 }}>
+							<Typography sx={{display:'flex', flexDirection:'row', gap:1}}>
+								<MdSportsTennis /> NTRP:
+							</Typography>
+							<Select
+								name="NTPR"
+								size='small'
+								fullWidth
+								sx={{height:'40px'}}
+								defaultValue={player.NTRP ? player.NTRP : '2.0'}
+							>
+								{NTRPItems.map((x) =>
+									<MenuItem key={x} value={x}>{x}</MenuItem>
+								)}
+							</Select>
+							<InfoPopup paddingLeft={"0.5rem"}>
+								<a
+									href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'
+									target='_blank'
+								>
+									{`View the USTA NTPR guidelines here >>`}
+								</a>
+							</InfoPopup>
+
+						</Box>
 					</Editable>
 					<Divider orientation='vertical' flexItem />
 					{/************ UTR  *************/}
-					<Box sx={{ display: 'flex', flexDirection: 'column', gap: 0, }}>
+					<Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 0, }}>
 						<Typography>
 							<MdSportsTennis /> UTR:
 							{canEdit &&
@@ -457,7 +473,7 @@ function Profile({ }) {
 							}
 						</Typography>
 						<Editable isEditing={isEdit} text={
-							<Box sx={{ ml: '1rem' }}>
+							<Box sx={{ ml: '1rem', width: '100%' }}>
 								<Typography variant="body2">
 									Singles: {showUtrRefreshing ? <CircularProgress size={14} /> : (utrRankSingles > 0 ? utrRankSingles : 'UR')}
 									{showUtrRefresh &&
@@ -485,7 +501,7 @@ function Profile({ }) {
 						</Editable>
 					</Box>
 					<Divider orientation='vertical' flexItem />
-					<Box>
+					<Box sx={{ width: '100%' }}>
 						<Typography>
 							<BsHouse /> Clubs:
 						</Typography>

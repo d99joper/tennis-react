@@ -95,7 +95,7 @@ const ClubViewPage = () => {
   };
 
   const fetchMembers = async () => {
-    const response = await clubAPI.getMembers(clubId);
+    const response = await clubAPI.getMembers(clubId,);
     setMembers(response.data.members);
     const selectedAdmins = response.data.members.filter(member => club.admins.includes(member.id));
     //console.log(selectedAdmins);
@@ -104,8 +104,9 @@ const ClubViewPage = () => {
 
   const fetchArchivedEvents = async (page) => {
     const response = await clubAPI.getArchivedEvents(clubId, page);
-    setArchivedEvents(response.data.archived_events);
-    setArchivedEventsTotalPages(response.data.total_pages);
+    console.log(response)
+    setArchivedEvents(response.archived_events);
+    setArchivedEventsTotalPages(response.total_pages);
   };
 
   const fetchRequests = async () => {
@@ -331,7 +332,10 @@ const ClubViewPage = () => {
               <Box display={'flex'} alignItems="center" gap={1} mt={2}>
                 <Switch
                   checked={showArchivedEvents}
-                  onChange={() => setShowArchivedEvents(!showArchivedEvents)}
+                  onChange={() => {
+                    if(!showArchivedEvents && archivedEvents.length === 0) fetchArchivedEvents();
+                    setShowArchivedEvents(!showArchivedEvents);
+                  }}
                   sx={{ mt: 2 }}
                   inputProps={{ 'aria-label': 'Show Archived Events' }}
                 />
@@ -343,7 +347,7 @@ const ClubViewPage = () => {
                 headers={[
                   { label: 'Name', key: 'name' },
                   { label: 'Type', key: 'event_type' },
-                  { label: 'Matches Played', key: 'count_matches' },
+                  { label: 'Matches', key: 'count_matches' },
                   { label: 'Participants', key: 'count_players' },
                   { label: 'Start date', key: 'start_date' },
                   { label: '', key: '' },

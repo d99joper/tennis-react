@@ -7,6 +7,7 @@ import { AuthContext } from "contexts/AuthContext";
 import { Link } from "react-router-dom";
 import { helpers } from "helpers";
 import useComponentWidth from "helpers/useComponentWidth";
+import { Helmet } from "react-helmet-async";
 
 const MapSearch = ({
   title,
@@ -36,7 +37,8 @@ const MapSearch = ({
   const [infoWindow, setInfoWindow] = useState(null);
   const { user } = useContext(AuthContext)
   const [markerCluster, setMarkerCluster] = useState(null);
-  const [initialCity, setInitialCity] = useState({ location: "Sacramento, CA", lat: 38.5816, lng: -121.4944 });
+  const [initialCity, setInitialCity] = useState(null);
+  const zoom = 11;
 
   // Use custom width hook
   const [containerRef, containerWidth] = useComponentWidth();
@@ -61,20 +63,20 @@ const MapSearch = ({
       );
     } else if (user?.location) {
       setInitialCity(user.location);
-    }
+    } else setInitialCity({ location: "Sacramento, CA", lat: 38.5816, lng: -121.4944 });
   }, [user]);
 
   useEffect(() => {
-    if (mapsApi && onMapsApiLoaded) {
+    if (mapsApi && onMapsApiLoaded && initialCity) {
       onMapsApiLoaded(mapsApi); // 🔥 Send mapsApi up to CourtsLanding
     }
-  }, [mapsApi, onMapsApiLoaded]);
+  }, [mapsApi, onMapsApiLoaded, initialCity]);
 
   useEffect(() => {
-    if (mapsApi && !map) {
+    if (mapsApi && !map && initialCity) {
       const newMap = new mapsApi.Map(document.getElementById("map"), {
         center: { lat: initialCity.lat, lng: initialCity.lng },
-        zoom: 10,
+        zoom: zoom,
         mapId: process.env.REACT_APP_MAP_ID,
         options: {
           zoomControl: true,
@@ -100,14 +102,25 @@ const MapSearch = ({
     if (applyNtrp) filters.ntrp = `${ntrp[0]},${ntrp[1]}`;
     if (applyUtr) filters.utr = `${utr[0]},${utr[1]}`;
     if (location) filters.geo = `${location.lat},${location.lng},${radius}`;
+    else {
+      const bounds = map.getBounds();
+      if (!bounds) return;
 
+      const sw = bounds.getSouthWest();
+      const ne = bounds.getNorthEast();
+      const latMin = sw.lat();
+      const lngMin = sw.lng();
+      const latMax = ne.lat();
+      const lngMax = ne.lng();
+      filters.bounds = `${latMin},${latMax},${lngMin},${lngMax}`
+    }
     const results = await fetchData(filters);
     setData(results);
     setIsLoading(false);
 
     if (map) {
       map.setCenter({ lat: initialCity.lat, lng: initialCity.lng });
-      map.setZoom(5);
+      map.setZoom(zoom);
       updateMapMarkers(results);
     }
   };
@@ -170,7 +183,7 @@ const MapSearch = ({
     const renderer = {
       render: ({ markers, position }) => {
         const totalItems = markers.reduce((sum, marker) => sum + (marker.itemCount || 1), 0);
-        console.log(totalItems)
+        //console.log(totalItems)
         return new mapsApi.Marker({
           label: { text: String(totalItems), color: "white", backgroundColor: 'blue', fontSize: "10px" },
           position,
@@ -185,6 +198,9 @@ const MapSearch = ({
 
   return (
     <Box ref={containerRef} display="flex" flexDirection={"column"} height="100vh" sx={{ flexGrow: 1 }}>
+      <Helmet>
+        <title>Search | MyTennis Space</title>
+      </Helmet>
       <Typography variant="h6">{title}</Typography>
       <Grid2 container spacing={2}>
         <Grid2 size={8}>
@@ -240,7 +256,7 @@ const MapSearch = ({
           )}
         </Grid2>
         <Grid2 size={12}>
-        <Button variant="contained" fullWidth onClick={updateSearch} sx={{ mt: 2 }}>Search</Button>
+          <Button variant="contained" fullWidth onClick={updateSearch} sx={{ mt: 2 }}>Search</Button>
         </Grid2>
         <Grid2 size={12}>
           {renderActions && renderActions()}
@@ -248,7 +264,7 @@ const MapSearch = ({
       </Grid2>
 
       {/* Results and Map - Split Dynamically */}
-      <Box display="flex" flexDirection={isSmallScreen ? "column" : "row"} width={"100%"} height="100vh" sx={{pt:2}}>
+      <Box display="flex" flexDirection={isSmallScreen ? "column" : "row"} width={"100%"} height="100vh" sx={{ pt: 2 }}>
 
         {/* Results List */}
         <Box width={"100%"} p={2} overflow="auto">

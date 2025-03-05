@@ -23,6 +23,7 @@ import PlayerSearch from '../Player/playerSearch';
 import GetParticipants from '../Event/getParticipants';
 import MatchEditor from '../MatchEditor/MatchEditor';
 import useComponentWidth from 'helpers/useComponentWidth';
+import { ProfileImage } from '../ProfileImage';
 
 const Matches = ({
   originType,
@@ -58,7 +59,7 @@ const Matches = ({
 
   const theme = useTheme();
   const [ref, width] = useComponentWidth();
-  console.log("Component width:", width, "sm breakpoint:", theme.breakpoints.values.sm);
+  //console.log("Component width:", width, "sm breakpoint:", theme.breakpoints.values.sm);
 
   const isLargeScreen = width > 0 && width >= theme.breakpoints.values.sm;
 
@@ -242,12 +243,35 @@ const Matches = ({
     //console.log(row)
     return [
       row.played_on,
-      row.match_type?.toLowerCase() === enums.MATCH_TYPE.SINGLES.toLowerCase()
-        ? <PlayerNameView player={row.winners[0]} asLink={originId !== row.winners[0].id} />
-        : userHelper.getPlayerNames(row.winners) || 'N/A',
-      row.match_type?.toLowerCase() === enums.MATCH_TYPE.SINGLES.toLowerCase()
-        ? <PlayerNameView player={row.losers[0]} asLink={originId !== row.losers[0].id} />
-        : userHelper.getPlayerNames(row.losers) || 'N/A',
+      <Box sx={{
+        display: 'table', // Ensures Box behaves like a centered block
+        margin: 'auto', // Centers the Box inside the <td>
+        textAlign: 'left', // Aligns text inside the Box to the left
+      }}>
+        <Box sx={{ alignItems: 'flex-start', alignSelf: 'center', width: 'fit-content', display: 'flex', flexDirection: 'column' }}>
+          {row.match_type?.toLowerCase() === enums.MATCH_TYPE.SINGLES.toLowerCase()
+            ? <ProfileImage player={row.winners[0]} showName={true} asLink={originId !== row.winners[0].id} size={30} />
+            : row.winners.map(p => (
+              <ProfileImage player={p} showName={true} asLink={originId !== p.id} key={p.id} size={30} />
+            ))
+          }
+        </Box>
+      </Box>
+      ,
+
+      <Box sx={{
+        display: 'table', // Ensures Box behaves like a centered block
+        margin: 'auto', // Centers the Box inside the <td>
+        textAlign: 'left', // Aligns text inside the Box to the left
+      }}>
+        <Box sx={{ alignItems: 'flex-start', alignSelf: 'center', width: 'fit-content', display: 'flex', flexDirection: 'column' }}>
+          {row.match_type?.toLowerCase() === enums.MATCH_TYPE.SINGLES.toLowerCase()
+            ? <ProfileImage player={row.losers[0]} showName={true} asLink={originId !== row.losers[0].id} size={30} />
+            : row.losers.map(p => (
+              <ProfileImage player={p} showName={true} asLink={originId !== p.id} size={30} />
+            ))
+          }
+        </Box></Box>,
       row.score,
       renderIconData(row)
     ]
@@ -263,28 +287,29 @@ const Matches = ({
               color="primary"
               onClick={() => openModal(
                 <MatchEditor
-                participant={currentUser}
-                onSubmit={(matchData) => {
-                  console.log("Match reported:", matchData);
-                  let matches = isLargeScreen ? pagedMatches : allMatches;
-                  matches.push(matchData.match);
-                  matches.sort((a, b) => new Date(b.played_on) - new Date(a.played_on));
-                  if (isLargeScreen) {
-                    setPagedMatches(matches)
-                  } else {
-                    setAllMatches(matches)
-                  }
-                  if (callback) {
-                    callback(matchData)
-                  }
-                  //handleMatchEditorSubmit(matchData);
-                  setIsModalOpen(false);
+                  participant={currentUser}
+                  matchType={matchType}
+                  onSubmit={(matchData) => {
+                    console.log("Match reported:", matchData);
+                    let matches = isLargeScreen ? pagedMatches : allMatches;
+                    matches.push(matchData.match);
+                    matches.sort((a, b) => new Date(b.played_on) - new Date(a.played_on));
+                    if (isLargeScreen) {
+                      setPagedMatches(matches)
+                    } else {
+                      setAllMatches(matches)
+                    }
+                    if (callback) {
+                      callback(matchData)
+                    }
+                    //handleMatchEditorSubmit(matchData);
+                    setIsModalOpen(false);
                   }}
-                  />,
-                  "Add match"
-                )} // Show wizard editor
-                sx={{ mb: 2 }}
-                >
+                />,
+                "Add match"
+              )} // Show wizard editor
+              sx={{ mb: 2 }}
+            >
               Add Match
             </Button>
           </Box>

@@ -32,12 +32,13 @@ const CreateCourt = ({ mapsApi: parentMapsApi, newItem = "", callback, ...props 
   const { user } = useContext(AuthContext);
   const [infoText, setInfoText] = useState("");
   const mapRef = useRef(null);
-  const [initialCity, setInitialCity] = useState({ location: "Sacramento, CA", lat: 38.5816, lng: -121.4944 });
+  const [initialCity, setInitialCity] = useState(null);
   const internalMapsApi = useGoogleMapsApi();
   const mapsApi = parentMapsApi || internalMapsApi; // Use parent-provided or fallback
   const mapContainerRef = useRef(null);
   //const cachedCourtsRef = useRef(new Map()); 
   const prevBoundsRef = useRef(null);
+  const zoom = 11;
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -57,6 +58,7 @@ const CreateCourt = ({ mapsApi: parentMapsApi, newItem = "", callback, ...props 
     } else if (user?.location) {
       setInitialCity(user.location);
     }
+    else setInitialCity({ location: "Sacramento, CA", lat: 38.5816, lng: -121.4944 });
   }, [user]);
 
   //  Function to reverse geocode lat/lng
@@ -80,7 +82,7 @@ const CreateCourt = ({ mapsApi: parentMapsApi, newItem = "", callback, ...props 
   };
 
   useEffect(() => {
-    if (!mapsApi || !mapContainerRef.current) return;
+    if (!mapsApi || !mapContainerRef.current || !initialCity) return;
     if (mapRef.current) return; // Prevent multiple instances
 
     console.log("🗺️ Initializing Google Map...");
@@ -88,7 +90,7 @@ const CreateCourt = ({ mapsApi: parentMapsApi, newItem = "", callback, ...props 
     // Initialize map
     mapRef.current = new mapsApi.Map(mapContainerRef.current, {
       center: { lat: initialCity.lat, lng: initialCity.lng },
-      zoom: 10,
+      zoom: zoom,
       mapId: process.env.REACT_APP_MAP_ID,
       options: {
         zoomControl: true,
@@ -135,7 +137,7 @@ const CreateCourt = ({ mapsApi: parentMapsApi, newItem = "", callback, ...props 
         mapsApi.event.clearInstanceListeners(mapRef.current);
       }
     };
-  }, [mapsApi]);
+  }, [mapsApi, initialCity]);
 
   let fetchTimeout = null;
   const handleMapIdle = async () => {
@@ -170,7 +172,9 @@ const CreateCourt = ({ mapsApi: parentMapsApi, newItem = "", callback, ...props 
       prevBoundsRef.current = { latMin, latMax, lngMin, lngMax };
 
       try {
-        const results = await courtAPI.getCourts({ latMin, lngMin, latMax, lngMax });
+        let filters = {}
+        filters.bounds = `${latMin},${latMax},${lngMin},${lngMax}`
+        const results = await courtAPI.getCourts(filters);
         console.log("Fetched courts:", results.courts);
 
         addCourtMarkers(results.courts);
