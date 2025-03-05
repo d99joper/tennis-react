@@ -97,12 +97,14 @@ const MapSearch = ({
       return;
     }
     setIsLoading(true);
+    let isBoundsSearch = false;
     let filters = {};
     if (name) filters.name = name;
     if (applyNtrp) filters.ntrp = `${ntrp[0]},${ntrp[1]}`;
     if (applyUtr) filters.utr = `${utr[0]},${utr[1]}`;
     if (location) filters.geo = `${location.lat},${location.lng},${radius}`;
     else {
+      isBoundsSearch = true;
       const bounds = map.getBounds();
       if (!bounds) return;
 
@@ -119,18 +121,20 @@ const MapSearch = ({
     setIsLoading(false);
 
     if (map) {
-      map.setCenter({ lat: initialCity.lat, lng: initialCity.lng });
-      map.setZoom(zoom);
-      updateMapMarkers(results);
+      //map.setCenter({ lat: initialCity.lat, lng: initialCity.lng });
+      //map.setZoom(zoom);
+      updateMapMarkers(results, isBoundsSearch);
     }
   };
 
-  const updateMapMarkers = (items) => {
+  const updateMapMarkers = (items, isBoundsSearch) => {
     //console.log(items)
     if (!mapsApi || !map) return;
     if (markerCluster) {
       markerCluster.clearMarkers();
     }
+
+    if (!items.length) return; // No items, don't update map
 
     const roundCoord = (coord, precision = 4) => {
       return parseFloat(Number(coord).toFixed(precision));
@@ -155,11 +159,7 @@ const MapSearch = ({
           isPublic = item.is_public;
         }
       })
-      // const marker = new mapsApi.Marker({
-      //   position: { lat, lng },
-      //   //map,
-      //   label: { text: String(totalCount), color: "white", fontSize: "10px" },
-      // });
+
       const marker = new mapsApi.marker.AdvancedMarkerElement({
         position: { lat, lng },
         content: new mapsApi.marker.PinElement({
@@ -170,6 +170,7 @@ const MapSearch = ({
           glyph: String(totalCount),
         }).element,
       });
+
       marker.itemCount = totalCount;
 
       marker.addListener("click", () => {
@@ -179,6 +180,11 @@ const MapSearch = ({
 
       return marker;
     });
+
+    // Adjust map center and zoom
+    if (newMarkers.length) {
+      adjustMapView(newMarkers, isBoundsSearch);
+    }
 
     const renderer = {
       render: ({ markers, position }) => {
@@ -195,6 +201,46 @@ const MapSearch = ({
     const newMarkerCluster = new MarkerClusterer({ map, markers: newMarkers, renderer: renderer });
     setMarkerCluster(newMarkerCluster);
   };
+
+  const adjustMapView = (markers, isBoundsSearch) => {
+    if (!map || !markers.length) return;
+
+    const bounds = new mapsApi.LatLngBounds();
+    let sumLat = 0, sumLng = 0;
+
+    markers.forEach(marker => {
+      const { lat, lng } = marker.position;
+      bounds.extend(new mapsApi.LatLng(lat, lng));
+      sumLat += lat;
+      sumLng += lng;
+    });
+
+    // Calculate midpoint of all markers
+    const center = {
+      lat: sumLat / markers.length,
+      lng: sumLng / markers.length
+    };
+
+    map.setCenter(center);
+
+    const currentZoom = map.getZoom(); // Capture user's current zoom level
+
+    // Fit map bounds to include all markers
+    map.fitBounds(bounds);
+    // Check if the zoom is too high after fitting bounds
+    mapsApi.event.addListenerOnce(map, "bounds_changed", () => {
+      const newZoom = map.getZoom();
+      if (isBoundsSearch) {
+        map.setZoom(Math.min(Math.max(currentZoom, newZoom), 13))
+      }
+      else {
+        if (newZoom > 13) {
+          map.setZoom(13);
+        }
+      }
+    });
+  };
+
 
   return (
     <Box ref={containerRef} display="flex" flexDirection={"column"} height="100vh" sx={{ flexGrow: 1 }}>
