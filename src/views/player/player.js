@@ -369,7 +369,7 @@ function Profile({ }) {
 						</Editable>
 
 						{/** Notifications */}
-						{!canEdit ?
+						{canEdit ?
 							<Link to='/notifications/'>
 								{notificationCount > 0 && `You have ${notificationCount} unread messages`}
 							</Link>
