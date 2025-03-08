@@ -41,7 +41,7 @@ const MatchEditor = ({
 	// Fetch opponents only once for events
 	useEffect(() => {
 		if(selectedEvent)
-			setIsDoubles(selectedEvent?.match_type)
+			setIsDoubles(selectedEvent?.match_type === 'doubles')
 	}, [selectedEvent]);
 
 	const onSubmitMatch = async () => {
