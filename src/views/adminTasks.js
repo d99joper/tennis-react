@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button, Card, FormControl, InputLabel, MenuItem, Select, Tab, Tabs, Box, TextField } from "@mui/material";
-import { authAPI, ladderAPI, playerAPI } from "api/services";
+import { authAPI, ladderAPI, matchAPI, playerAPI } from "api/services";
 import { AddPlayerToClub, CreateClub, ErrorHandler, MatchEditor, SelectWithFetch } from "components/forms";
 import ClubSearchAutocomplete from "components/forms/Club/club_search";
 import { enums, helpers, matchHelper } from "helpers";
@@ -34,7 +34,7 @@ const AdminTasks = () => {
     const data = await file.arrayBuffer();
     const wb = XLSX.read(data);
     const matchArray = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { raw: false });
-    matchHelper.createMatchesFromArray(matchArray);
+    matchAPI.createMatchesFromArray(matchArray);
   }
 
   function addPlayer() {

@@ -35,6 +35,7 @@ const Matches = ({
   showH2H = false,
   showComments = false,
   showAddMatch = false,
+  refresh=0,
   callback,
 }) => {
   const [matchesCache, setMatchesCache] = useState({}); // Cache matches by page
@@ -116,7 +117,7 @@ const Matches = ({
         setLoading(false);
       }
     },
-    [originType, originId, pageSize, matchesCache]
+    [originType, originId, pageSize, matchesCache, refresh]
   );
 
   // Fetch matches on component mount and page change

@@ -1,7 +1,7 @@
 import { authAPI } from "."
 import apiUrl from "config"
 
-const matchesUrl = apiUrl+'matches/'
+const matchesUrl = apiUrl + 'matches/'
 
 const matchAPI = {
 
@@ -16,10 +16,10 @@ const matchAPI = {
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get match' }
   },
 
-  getMatches: async function(filter, page=1, pageSize=20, skip=0) {
-    
+  getMatches: async function (filter, page = 1, pageSize = 20, skip = 0) {
+
     const requestOptions = authAPI.getRequestOptions('GET')
-    const params = new URLSearchParams({page:page, 'page-size':pageSize, skip: skip, ...(filter ? filter : {})}) 
+    const params = new URLSearchParams({ page: page, 'page-size': pageSize, skip: skip, ...(filter ? filter : {}) })
     // const url = apiUrl + 'matches/'
     //   + '?origin-type=' + originType
     //   + (originId ? '&origin-id=' + originId : '')
@@ -34,6 +34,29 @@ const matchAPI = {
       return await response.json()
     else
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get matches' }
+  },
+
+  createMatchesFromArray: async function(matches) {
+    const requestOptions = authAPI.getRequestOptions('POST', matches)
+
+    let response = await fetch(matchesUrl + 'import/bulk', requestOptions)
+    
+    if (response.ok) {
+      return response
+    }
+    else throw new Error()
+  },
+
+  importFromUTR: async function (utr_id) {
+    const requestOptions = authAPI.getRequestOptions('GET')
+    let response = await fetch(matchesUrl + 'import/utr/' + utr_id, requestOptions)
+
+    if (response.ok) {
+      const response = await response.json()
+      return response //just a 203 status and a success text
+    }
+    else
+      return { status: response.status, statusCode: response.statusCode, statusText: response.statusText, error: 'Failed to get utr matches' }
   },
 
   getMatchesForPlayer: async function (playerId, type, page, numPerPage, sortDirection, sortOrder) {
@@ -60,7 +83,7 @@ const matchAPI = {
       + (numPerPage ? '&num-per-page=' + numPerPage : '')
       //+ (sortDirection ? '&sort=' + sortDirection : '')
       + (sortOrder ? '&sort=' + sortOrder : '')
-      
+
     let response = await fetch(url, requestOptions)
 
     if (response.ok)
@@ -87,7 +110,7 @@ const matchAPI = {
 
   createMatch: async function (match) {
     const requestOptions = authAPI.getRequestOptions('POST', match)
-    
+
     const response = await fetch(matchesUrl + 'create', requestOptions)
     if (response.ok)
       return await response.json()

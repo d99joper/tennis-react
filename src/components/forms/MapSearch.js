@@ -103,7 +103,7 @@ const MapSearch = ({
     if (applyNtrp) filters.ntrp = `${ntrp[0]},${ntrp[1]}`;
     if (applyUtr) filters.utr = `${utr[0]},${utr[1]}`;
     if (location) filters.geo = `${location.lat},${location.lng},${radius}`;
-    else {
+    if (!name && !applyNtrp && !applyUtr && !location) {
       isBoundsSearch = true;
       const bounds = map.getBounds();
       if (!bounds) return;
