@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Button, TextField, Typography, Autocomplete, Chip } from '@mui/material';
-import leagueAPI from 'api/services/league';
 import playerAPI from 'api/services/player';
 import debounce from 'lodash.debounce';
 import { helpers } from 'helpers';
+import { eventAPI } from 'api/services';
 
-const AddParticipants = ({ league }) => {
+const AddParticipants = ({ event }) => {
   const [players, setPlayers] = useState([]);
   const [selectedPlayers, setSelectedPlayers] = useState([]);
   const [search, setSearch] = useState('');
@@ -26,7 +26,7 @@ const AddParticipants = ({ league }) => {
     if (searchTerm.length < 3) return;
     try {
       setLoading(true);
-      const filters = { name: searchTerm, ...transformRestrictions(league.restrictions) };
+      const filters = { name: searchTerm, ...transformRestrictions(event.restrictions) };
       const response = await playerAPI.getPlayers(filters);
       setPlayers(response.data.players || []);
     } catch (error) {
@@ -52,7 +52,7 @@ const AddParticipants = ({ league }) => {
 
     try {
       for (const player of selectedPlayers) {
-        let result = await leagueAPI.addParticipant(league.id, {...player, type:league.type});
+        let result = await eventAPI.addParticipant(event.id, {id: player.id, type:'player'});
         if(result.error) {
           setError(result.error);
           setLoading(false);
@@ -75,7 +75,7 @@ const AddParticipants = ({ league }) => {
     <Box>
       <Typography variant="h5">Add Participants</Typography>
       <Autocomplete
-        multiple={league.type === 'doubles'}
+        multiple={event.type === 'doubles'}
         //multiple
         options={players}
         getOptionLabel={(option) => option.name}
@@ -113,7 +113,7 @@ const AddParticipants = ({ league }) => {
         onClick={handleAddParticipant}
         //disabled={loading || (league.type === 'doubles' && selectedPlayers.length !== 2)}
       >
-        {league.type === 'doubles' ? 'Add Pair' : 'Add Participant'}
+        {event.type === 'doubles' ? 'Add Pair' : 'Add Participant'}
       </Button>
     </Box>
   );

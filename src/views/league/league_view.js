@@ -234,7 +234,7 @@ const LeagueViewPage = (props) => {
       {currentTab === 3 && isAdmin && (
         <Grid2 container direction={'column'}>
           <EventAdminTools event={event} participants={event.participants || []} setEvent={setEvent} />
-          <AddParticipants league={event} />
+          <AddParticipants event={event} />
         </Grid2>
       )}
 
