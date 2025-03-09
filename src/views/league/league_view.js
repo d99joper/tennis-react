@@ -23,6 +23,7 @@ import JoinRequest from 'components/forms/Notifications/joinRequests';
 import { Helmet } from 'react-helmet-async';
 import EventAdminTools from 'components/forms/League/adminTools';
 import { helpers } from 'helpers';
+import DOMPurify from "dompurify";
 
 const LeagueViewPage = (props) => {
   const theme = useTheme();
@@ -111,8 +112,8 @@ const LeagueViewPage = (props) => {
           <i>League starts {event.start_date}</i>
         </Typography>
       }
-      <Typography variant="body1" color="text.secondary" gutterBottom>
-        {helpers.parseTextToHTML(event.description)}
+      <Typography variant="body1" color="text.secondary" gutterBottom
+        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(helpers.parseTextToHTML(event.description)) }}>
       </Typography>
 
       <JoinRequest
