@@ -72,6 +72,25 @@ const LeagueViewPage = (props) => {
     console.log(newMatch);
   }
 
+  const handleAddDeleteParticipant = async () => {
+    try {
+      const event = await eventAPI.getEvent(id);
+      console.log('event', event)
+      if (event && !event.statusCode) {
+        setEvent(event);
+        setStandings(event.league_standings || []);
+        setSchedule(event.league_schedule || []);
+        setMatches(event.matches || []);
+        setIsAdmin(event.is_admin);
+        setIsParticipant(event.is_participant);
+      } else {
+        console.error(event.statusMessage);
+      }
+    } catch (error) {
+      console.error('Failed to fetch league:', error);
+    }
+  }
+
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
   };
@@ -152,7 +171,7 @@ const LeagueViewPage = (props) => {
           <Typography variant="h5" gutterBottom>
             Standings
           </Typography>
-          <StandingsView standings={standings} />
+          <StandingsView standings={standings} event_id={event.id} isAdmin={isAdmin} callback={handleAddDeleteParticipant} />
         </Box>
       )}
       {/** SCHEDULE TAB */}
@@ -233,7 +252,7 @@ const LeagueViewPage = (props) => {
       {currentTab === 3 && isAdmin && (
         <Grid2 container direction={'column'}>
           <EventAdminTools event={event} participants={event.participants || []} setEvent={setEvent} />
-          <AddParticipants league={event} />
+          <AddParticipants event={event} callback={handleAddDeleteParticipant} />
         </Grid2>
       )}
 

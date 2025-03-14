@@ -29,6 +29,17 @@ const eventAPI = {
       return { statusCode: response.status, statusMessage: 'Error: Failed to get events' }
   },
 
+  archiveEvent: async function(id) {
+    const requestOptions = authAPI.getRequestOptions('PUT');
+
+    const response = await fetch(`${eventsUrl}${id}/archive`, requestOptions)
+    if (response.ok) {
+      return {status: response.status}
+    }
+    else
+      return { error: 'Error: Failed to archive event' }
+  },
+
   deleteEvent: async function(id) {
     const requestOptions = authAPI.getRequestOptions('DELETE');
 
@@ -100,6 +111,17 @@ const eventAPI = {
     else
       throw new Error(response.status + ': Failed to update event')
   }, 
+
+  removeParticipant: async function(event_id, participant_id) {
+    const requestOptions = authAPI.getRequestOptions('DELETE');
+    const response = await fetch(`${eventsUrl}${event_id}/participants/remove/${participant_id}`, requestOptions)
+    if (response.ok) {
+      return await response.json()
+    }
+    else
+      throw new Error(response.status + ': Failed to update event')
+    //alert(`remove ${participant_id} from event ${event_id}`)
+  },
 
   sendNotifications: async function(id, message) {
     const requestOptions = authAPI.getRequestOptions('POST', {message: message});

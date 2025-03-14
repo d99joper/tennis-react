@@ -8,7 +8,7 @@ import requestAPI from 'api/services/request';
 import { AiFillEdit } from 'react-icons/ai';
 import MyModal from 'components/layout/MyModal';
 import CreateLeague from 'components/forms/League/create';
-import {  MdCheckCircleOutline, MdClose, MdDelete } from 'react-icons/md';
+import { MdArchive, MdCheckCircleOutline, MdClose, MdDelete } from 'react-icons/md';
 import { AuthContext } from 'contexts/AuthContext';
 import { GiExitDoor } from 'react-icons/gi';
 import notificationAPI from 'api/services/notifications';
@@ -35,6 +35,7 @@ const ClubViewPage = () => {
   const [formData, setFormData] = useState({ name: '', description: '' });
   const [memberToRemove, setMemberToRemove] = useState(null); // Track member for removal
   const [eventToRemove, setEventToRemove] = useState(null); // Track event for removal
+  const [eventToArchive, setEventToArchive] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [requests, setRequests] = useState([]);
   const [eventType, setEventType] = useState("");
@@ -190,6 +191,30 @@ const ClubViewPage = () => {
     setShowModal(false);
   }
 
+  const handleArchiveEvent = async () => {
+    if (eventToArchive) {
+      try {
+        const response = await eventAPI.archiveEvent(eventToArchive.id);
+        console.log(response,response.status !== 204, response.status)
+        setEventToArchive(null)
+        if (response?.status !== 204) {
+          setSnackbar({ open: true, message: "Failed to archive event." });
+        }
+        else {
+          setActiveEvents((prev) => prev.filter((e) => e.id !== eventToArchive.id)); // Remove from UI
+          let newArchivedEvents = archivedEvents
+          newArchivedEvents.push(eventToArchive)
+          // checking here
+          setArchivedEvents(newArchivedEvents); // Add to UI
+          setSnackbar({ open: true, message: `${eventToArchive.name} has been archived.` });
+        }
+      } catch (error) {
+        setSnackbar({ open: true, message: "Failed to archive event." });
+      }
+    }
+    setShowModal(false);
+  }
+
   const renderEventForm = () => {
     switch (eventType) {
       case "league":
@@ -316,14 +341,17 @@ const ClubViewPage = () => {
                 </DialogContent>
               </MyModal>
               {isAdmin && (
-                <Button variant='contained' color='secondary' onClick={() => { setShowCreate(true) }} sx={{ m: 2 }}>
+                <Button variant='contained' color='primary' onClick={() => { setShowCreate(true) }} sx={{ m: 2 }}>
                   Create new event
                 </Button>
               )}
               <Box display={'flex'} alignItems="center" gap={1} mt={2}>
                 <Switch
                   checked={showArchivedEvents}
-                  onChange={() => setShowArchivedEvents(!showArchivedEvents)}
+                  onChange={() => {
+                    if (!showArchivedEvents && archivedEvents.length === 0) fetchArchivedEvents();
+                    setShowArchivedEvents(!showArchivedEvents);
+                  }}
                   sx={{ mt: 2 }}
                   inputProps={{ 'aria-label': 'Show Archived Events' }}
                 />
@@ -334,8 +362,8 @@ const ClubViewPage = () => {
               <ResponsiveDataLayout
                 headers={[
                   { label: 'Name', key: 'name' },
-                  { label: 'Type', key: 'event_type' },
-                  { label: 'Matches Played', key: 'count_matches' },
+                  { label: 'Type', key: 'match_type' },
+                  { label: 'Matches', key: 'count_matches' },
                   { label: 'Participants', key: 'count_players' },
                   { label: 'Start date', key: 'start_date' },
                   { label: '', key: '' },
@@ -347,21 +375,36 @@ const ClubViewPage = () => {
                   <Link to={'/events/' + row.id}>
                     <Typography>{row.name}</Typography>
                   </Link>,
-                  capitalize(row.event_type),
+                  capitalize(row.match_type),
                   row.count_matches || 0,
                   row.count_players || 0,
                   row.start_date,
-                  (row.count_players || 0) === 0 && (row.count_matches || 0) === 0 && isAdmin ?
-                    <MdDelete
-                      size={20}
-                      color="red"
-                      style={{ cursor: "pointer" }}
-                      onClick={() => {
-                        setEventToRemove(row);
-                        setShowModal(true);
-                      }}
-                    />
-                    : ''
+                  <Box display={'flex'} flexDirection={'row'}>
+                    {row.is_participant && <ProfileImage player={user} size={25} />}
+                    {(row.count_players || 0) === 0 && (row.count_matches || 0) === 0 && isAdmin
+                      ?
+                      <MdDelete
+                        size={20}
+                        color="red"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => {
+                          setEventToRemove(row);
+                          setShowModal(true);
+                        }}
+                      />
+                      : (!showArchivedEvents &&
+                        <MdArchive
+                          size={20}
+                          color="grey"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => {
+                            setEventToArchive(row);
+                            setShowModal(true);
+                          }}
+                        />
+                      )
+                    }
+                  </Box>
                 ]}
                 titleForScreen={(row) => (
                   <Link to={'/events/' + row.id}>
@@ -370,14 +413,28 @@ const ClubViewPage = () => {
                 )} // Always pass a function
                 basicContentForScreen={(row) => (
                   <Box display={'flex'} flexDirection={'column'} alignItems={'right'}>
-                    <Typography>{capitalize(row.event_type)}</Typography>
+                    <Box display={'flex'} flexDirection={'row'} alignItems={'right'}>
+                      {row.is_participant &&
+                        <Typography sx={{ pr: 1 }}>
+                          <ProfileImage player={user} size={20} />
+                        </Typography>
+                      }
+                      <Typography>
+                        {capitalize(row.match_type)}
+                      </Typography>
+                    </Box>
                     <Typography>{row.start_date + ' to ' + row.end_date}</Typography>
                   </Box>
                 )} // Always pass a function
                 expandableContentForScreen={(row) => (
-                  <Box display={'flex'} alignItems={'center'} gap={1}>
-                    <Typography>{row.count_players} participants</Typography>
-                    <Typography>{row.count_matches} matches played</Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'left' }}>
+                    <Typography>
+                      {row.description}
+                    </Typography>
+                    <Box display={'flex'} alignItems={'center'} gap={1}>
+                      <Typography>{row.count_players} participants</Typography>
+                      <Typography>{row.count_matches} matches played</Typography>
+                    </Box>
                   </Box>
                 )}
                 sortableColumns={['event_type', 'start_date', 'name', 'count_matches', 'count_players']}
@@ -459,6 +516,7 @@ const ClubViewPage = () => {
                 </>
               }
               {eventToRemove && `Are you sure you want to remove ${eventToRemove?.name}?`}
+              {eventToArchive && `Are you sure you want to archive ${eventToArchive?.name}?`}
             </Typography>
             <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
               <Button variant="outlined" onClick={() => setShowModal(false)}>Cancel</Button>
@@ -470,6 +528,11 @@ const ClubViewPage = () => {
               {eventToRemove &&
                 <Button variant="contained" color="error" onClick={handleDeleteEvent} sx={{ ml: 2 }}>
                   Remove Event
+                </Button>
+              }
+              {eventToArchive &&
+                <Button variant="contained" color="warning" onClick={handleArchiveEvent} sx={{ ml: 2 }}>
+                  Archive Event
                 </Button>
               }
             </Box>
