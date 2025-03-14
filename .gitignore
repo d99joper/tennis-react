@@ -49,3 +49,4 @@ src/todo.txt
 .env.*
 public/firebase-messaging-sw.dev.js
 public/firebase-messaging-sw.prod.js
+src/components/forms/MatchEditor/MatchEditor copy.js
