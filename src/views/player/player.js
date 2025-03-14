@@ -14,11 +14,11 @@ import {
 	MenuItem,
 	TextField,
 	Divider,
-	IconButton
+	IconButton,
 } from '@mui/material';
 import { AiOutlineEdit, AiOutlineMessage } from 'react-icons/ai';
 import { MdOutlineCancel, MdOutlineCheck, MdOutlineRefresh, MdSportsTennis } from 'react-icons/md';
-import { authAPI, playerAPI } from 'api/services/index.js';
+import { playerAPI } from 'api/services/index.js';
 import { ProfileImage, ProfileImageContext } from 'components/forms/ProfileImage.js';
 import './profile.css';
 import { enums, helpers } from 'helpers';
@@ -29,6 +29,9 @@ import { Helmet } from 'react-helmet-async';
 import { AuthContext } from 'contexts/AuthContext';
 import MyModal from 'components/layout/MyModal';
 import Conversation from 'components/forms/Notifications/conversations';
+import NTRPLevels from 'views/NTRPLevels';
+import { CiImport } from 'react-icons/ci';
+import UTRImportButton from 'components/forms/Player/UTRImport';
 
 function Profile({ }) {
 	const params = useParams();
@@ -48,6 +51,7 @@ function Profile({ }) {
 	const [rivals, setRivals] = useState({})
 	const [rivalsFetched, setRivalsFetched] = useState(false);
 	const [unLinkedMatches, setUnLinkedMatches] = useState([]);
+	const [refreshIndex, setRefreshIndex] = useState(0);
 	const [refreshMatchesCounter, setRefreshMatchesCounter] = useState(0);
 	const [highLightedMatch, setHighLightedMatch] = useState(null);
 	const [matchTabIndex, setMatchTabIndex] = useState(0);
@@ -104,7 +108,7 @@ function Profile({ }) {
 		}
 
 		fetchProfile();
-	}, [params.userid]);
+	}, [params.userid, user]);
 
 	const handleMatchAdded = () => {
 		setRefreshMatchesCounter((prev) => prev + 1);
@@ -128,6 +132,7 @@ function Profile({ }) {
 
 		const data = {
 			id: player.id,
+			name: form.get("name"),
 			about: form.get("about"),
 			NTRP: form.get("NTPR"),
 			UTR: form.get("UTR"),
@@ -194,6 +199,12 @@ function Profile({ }) {
 			console.error('Error updating image:', error);
 		}
 	};
+
+	const handleUTRImported = () => {
+		// update the refresh index to force a re-render of matches
+		const newRefresh = refreshIndex+1;
+		setRefreshIndex(newRefresh);
+	}
 
 	if (!isLoaded) return <LinearProgress />;
 	if (!player) return <Typography>Error: Player not found.</Typography>;
@@ -290,7 +301,7 @@ function Profile({ }) {
 			}}
 			>
 				<Helmet>
-					<title>{player.name} | MyTennis Space</title>
+					<title>{player?.name } | MyTennis Space</title>
 				</Helmet>
 
 				<Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
@@ -421,7 +432,7 @@ function Profile({ }) {
 						text={
 							<Typography>
 								<MdSportsTennis />
-								{` NTRP: ${player.NTRP || 'N/A'}`}
+								{` NTRP: ${player.NTRP ? parseFloat(player.NTRP).toFixed(1) : 'N/A'}`}
 								<InfoPopup paddingLeft={"0.5rem"}>
 									<a
 										href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'
@@ -434,19 +445,36 @@ function Profile({ }) {
 						}
 						isEditing={isEdit}
 					>
-						NTRP: <Select
-							name="NTPR"
-							size='small'
-							defaultValue={player.NTRP ? player.NTRP : '2.0'}
-						>
-							{NTRPItems.map((x) =>
-								<MenuItem key={x} value={x}>{x}</MenuItem>
-							)}
-						</Select>
+						<Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'top', gap: 1 }}>
+							<Typography sx={{ display: 'flex', flexDirection: 'row', gap: 1 }}>
+								<MdSportsTennis /> NTRP:
+							</Typography>
+							<Select
+								name="NTPR"
+								size='small'
+								fullWidth
+								sx={{ height: '40px' }}
+								defaultValue={player.NTRP ? parseFloat(player.NTRP).toFixed(1) : '2.0'}
+							>
+								{NTRPItems.map((x) =>
+									<MenuItem key={x} value={x}>{x}</MenuItem>
+								)}
+							</Select>
+							<InfoPopup paddingLeft={"0.5rem"}>
+								<NTRPLevels />
+								<a
+									href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'
+									target='_blank'
+								>
+									{`View the USTA NTPR guidelines here >>`}
+								</a>
+							</InfoPopup>
+
+						</Box>
 					</Editable>
 					<Divider orientation='vertical' flexItem />
 					{/************ UTR  *************/}
-					<Box sx={{ display: 'flex', flexDirection: 'column', gap: 0, }}>
+					<Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 0, }}>
 						<Typography>
 							<MdSportsTennis /> UTR:
 							{canEdit &&
@@ -458,7 +486,7 @@ function Profile({ }) {
 							}
 						</Typography>
 						<Editable isEditing={isEdit} text={
-							<Box sx={{ ml: '1rem' }}>
+							<Box sx={{ ml: '1rem', width: '100%' }}>
 								<Typography variant="body2">
 									Singles: {showUtrRefreshing ? <CircularProgress size={14} /> : (utrRankSingles > 0 ? utrRankSingles : 'UR')}
 									{showUtrRefresh &&
@@ -480,13 +508,16 @@ function Profile({ }) {
 										</a>
 									</Typography>
 								)}
+								{canEdit && player.UTR &&
+									<UTRImportButton utr_id={player.UTR} callback={handleUTRImported} />
+								}
 							</Box>
 						}>
 							<TextField name="UTR" size='small' defaultValue={player.UTR}></TextField>
 						</Editable>
 					</Box>
 					<Divider orientation='vertical' flexItem />
-					<Box>
+					<Box sx={{ width: '100%' }}>
 						<Typography>
 							<BsHouse /> Clubs:
 						</Typography>
@@ -545,6 +576,7 @@ function Profile({ }) {
 									originType={'player'}
 									matchType={'singles'}
 									pageSize={10}
+									refresh={refreshIndex}
 									showAddMatch={true}
 									showComments={true}
 									showH2H={true}

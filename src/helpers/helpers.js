@@ -2,7 +2,7 @@ import userHelper from "./userHelper";
 
 let loadingPromise = null
 const helpers = {
-	
+
 	camelToSnake: (obj) => {
 		const snakeCaseObj = {};
 		for (const key in obj) {
@@ -11,7 +11,7 @@ const helpers = {
 		}
 		return snakeCaseObj;
 	},
-	
+
 	// loadGoogleMapsAPI: async () => {
 	// 	// Check if Google Maps API is already loaded
 	// 	if (window.google && window.google.maps) {
@@ -56,35 +56,51 @@ const helpers = {
 
 	// 	return loadingPromise;
 	// },
-	
+
 	validateEmail: (email) => {
-    //setHasChecked(true)
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    //if (!email) return true
-    return regex.test(email)
-  },
+		//setHasChecked(true)
+		const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+		//if (!email) return true
+		return regex.test(email)
+	},
+
+
+	parseTextToHTML: (text) => {
+		if (!text) return "";
+
+		// Convert [[Text|URL]] to <a href="URL">Text</a>
+		let formattedText = text.replace(
+			/\[\[(.*?)\|(.*?)\]\]/g, // Regex to match [[Text|URL]]
+			`<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>`
+		);
+
+		// Replace newlines with <br />
+		formattedText = formattedText.replace(/\n/g, "<br />");
+
+		return formattedText;
+	},
 
 	truncateText: (text, length = 20) => {
 		return text?.length > length ? text.slice(0, length) + "..." : text || "No description available";
 	},
 
-  hasValue: (param) => {
+	hasValue: (param) => {
 		// console.log("param:", param, "typeof:", typeof param);
-    // Check for null, undefined, or empty string
+		// Check for null, undefined, or empty string
 		if (param === null || param === '' || typeof param === 'undefined') return false;
-		
-    // Check if param is NaN
-    if (typeof param === 'number' && isNaN(param)) return false;
 
-    // Check if param is an empty object
-    if (typeof param === 'object' && !Array.isArray(param) && Object.keys(param).length === 0) {
-      return false;
-    }
+		// Check if param is NaN
+		if (typeof param === 'number' && isNaN(param)) return false;
 
-    // If none of the above, param has a value
-    return true;
-  },
-	
+		// Check if param is an empty object
+		if (typeof param === 'object' && !Array.isArray(param) && Object.keys(param).length === 0) {
+			return false;
+		}
+
+		// If none of the above, param has a value
+		return true;
+	},
+
 	resizeImage: (inputImage, targetWidth) => {
 		return new Promise((resolve) => {
 			const reader = new FileReader();
@@ -132,13 +148,13 @@ const helpers = {
 	removeObjectById: (arr, idToRemove) => {
 		// Find the index of the object with the given id
 		const indexToRemove = arr.findIndex(obj => obj.id === idToRemove);
-	
+
 		if (indexToRemove !== -1) {
 			// Remove the object if found
 			arr.splice(indexToRemove, 1);
 			return true; // Indicate successful removal
 		}
-	
+
 		return false; // Indicate object with id not found
 	},
 

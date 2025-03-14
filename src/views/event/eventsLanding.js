@@ -35,7 +35,8 @@ const EventsLandingPage = () => {
         title={'Find Events'}
         renderActions={renderActions}
         fetchData={fetchData}
-        requireLocation={true}
+        //requireLocation={true}
+        applyLocation={true}
         renderInfoWindow={renderInfoWindow}
         type="events"
       />

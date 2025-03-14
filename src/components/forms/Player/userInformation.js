@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import AutoCompletePlaces from "../Autocomplete/AutocompletePlaces";
 import { enums, helpers } from "helpers";
 import InfoPopup from "../infoPopup";
+import NTRPLevels from "views/NTRPLevels";
 
 function UserInformation({ onUpdate, onError, formData, errors, ...props }) {
 
@@ -83,7 +84,7 @@ function UserInformation({ onUpdate, onError, formData, errors, ...props }) {
         error={Boolean(errors.email) && !helpers.validateEmail(data.email)}
         sx={{ mb: 3 }} // Add bottom margin to the TextField
       />
-      
+
       <TextField
         select
         name="age"
@@ -115,7 +116,15 @@ function UserInformation({ onUpdate, onError, formData, errors, ...props }) {
         showGetUserLocation={true}
       />
       <Box sx={{ mt: 2 }}>
-        NTRP Level: {helpers.hasValue(data.ntrp) ? parseFloat(data.ntrp).toFixed(1) : ''}
+        <InfoPopup paddingLeft={"0.1rem"} size={20}>
+          <NTRPLevels />
+          <a
+            href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'
+            target='_blank'
+          >
+            {`View the USTA NTPR guidelines here >>`}
+          </a>
+        </InfoPopup> NTRP Level: {helpers.hasValue(data.ntrp) ? parseFloat(data.ntrp).toFixed(1) : ''}
         <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
           <Slider
             sx={{ mr: 2 }}
@@ -130,14 +139,7 @@ function UserInformation({ onUpdate, onError, formData, errors, ...props }) {
             marks={helpers.hasValue(data.ntrp) ? enums.LevelMarks : null}
             valueLabelDisplay={helpers.hasValue(data.ntrp) ? "auto" : "off"}
           />
-          <InfoPopup paddingLeft={"0.1rem"}>
-            <a
-              href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'
-              target='_blank'
-            >
-              {`View the USTA NTPR guidelines here >>`}
-            </a>
-          </InfoPopup>
+
         </Box>
       </Box>
     </>

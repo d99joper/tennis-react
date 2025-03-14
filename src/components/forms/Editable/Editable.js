@@ -15,15 +15,15 @@ const Editable = ({
 
   
   return (
-    <Box display={'flex'}  {...props}>
+    <Box display="flex" width="100%" {...props}> 
       {isEditing ? (
-        <Box display={'flex'} {...props}>
+        <Box width="100%" display="flex">
           {children}
         </Box>
       ) : (
-          <span>
-            {text || placeholder}
-          </span>
+        <Box width="100%"> 
+          <span>{text || placeholder}</span>
+        </Box>
       )}
     </Box>
   );

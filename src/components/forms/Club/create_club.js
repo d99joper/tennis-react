@@ -79,6 +79,7 @@ const CreateClub = ({ onClubCreated }) => {
       <TextField
         label="Description"
         name="description"
+        multiline
         value={clubData.description}
         onChange={handleChange}
         fullWidth

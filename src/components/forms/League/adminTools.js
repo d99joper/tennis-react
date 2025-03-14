@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -18,7 +18,7 @@ import {
   Snackbar,
   Alert,
 } from '@mui/material';
-import { eventAPI } from 'api/services';
+import { clubAPI, eventAPI } from 'api/services';
 import EventRestrictions from './restrictions';
 import InfoPopup from '../infoPopup';
 import PlayerSearch from '../Player/playerSearch';
@@ -43,6 +43,7 @@ const EventAdminTools = ({ event, participants, setEvent }) => {
   const [isOpenRegistration, setIsOpenRegistration] = useState(event.is_open_registration);
   const [description, setDescription] = useState(event.description || '');
   const [admins, setAdmins] = useState(event.admins || []) 
+  const [adminOptions, setAdminOptions] = useState([])
 
 
   const [snackbarOpen, setSnackbarOpen] = useState(false)
@@ -55,11 +56,19 @@ const EventAdminTools = ({ event, participants, setEvent }) => {
     setSnackbarOpen(true)
   }
 
+  useEffect( () => {
+    // get admin options
+    clubAPI.getMembers(event.club.id).then((result) => {
+      setAdminOptions(result.data.members)
+      console.log(result.data.members)
+      console.log(admins)
+    });
+  },[])
+
   const handleSnackbarClose = (event, reason) => {
     if (reason === 'clickaway') return
     setSnackbarOpen(false)
   }
-
 
   const handleSendInvites = async () => {
     if (selectedPlayers.length === 0 || !message) return;
@@ -115,11 +124,12 @@ const EventAdminTools = ({ event, participants, setEvent }) => {
   };
 
   const handleAdminChange = async (e, newAdmins) => {
+    console.log(newAdmins, event.created_by)
     // Ensure the owner stays in the list
     const filteredAdmins = newAdmins.some(admin => admin.id === event.created_by)
       ? newAdmins
       : [...newAdmins, [admins].find(member => member.id === event.created_by)];
-
+    console.log(filteredAdmins)
     setAdmins(filteredAdmins);
 
     try {
@@ -191,9 +201,10 @@ const EventAdminTools = ({ event, participants, setEvent }) => {
             <Typography variant="h6">Manage Admins</Typography>
             <Autocomplete
               multiple
-              options={event.admins}
+              disableClearable
+              options={adminOptions}
               getOptionLabel={(option) => option.name}
-              value={event.admins}
+              value={admins}
               onChange={handleAdminChange}
               isOptionEqualToValue={(option, value) => option.id === value.id} // Ensure correct comparison
               renderInput={(params) => (

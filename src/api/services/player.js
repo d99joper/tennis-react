@@ -98,7 +98,7 @@ const playerAPI = {
     const requestOptions = authAPI.getRequestOptions('POST', player, true)
 
     const response = await fetch(playersUrl + 'create', requestOptions)
-    console.log(response)
+    //console.log(response)
     const jsonResp = await response.json()
     if (response.ok)
       return await jsonResp

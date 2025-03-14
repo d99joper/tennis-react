@@ -140,9 +140,12 @@ const Registration = () => {
   }
 
   const checkPasswords = () => {
+    if(password.length === 0) {
+      updateFormState('password', 'Password is required', true)
+      return false;
+    }
     if (password.length < 8) {
-      updateFormState('password', 'The password needs to be at least 8 characters', true)
-      //setErrors((prevErrors) => ({ ...prevErrors, ['password']: 'The password needs to be at least 8 characters' }));
+      updateFormState('password', 'Password must be longer than 8 characters.', true)
       return false;
     }
     if (password !== confirmPassword) {
@@ -344,8 +347,8 @@ const Registration = () => {
                 onChange={(e) => { setPassword(e.target.value) }}
                 onBlur={checkPasswords}
                 required
-                error={formState.errors.password && password === ''} // Show error if empty and there's an error
-                helperText={formState.errors.password && password === '' ? 'Password is required' : ''}
+                error={helpers.hasValue(formState.errors.password) || password === ''} // Show error if empty and there's an error
+                helperText={formState.errors.password}
                 sx={{ mb: 3 }}
               />
               <TextField

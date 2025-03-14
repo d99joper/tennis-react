@@ -1,10 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Box, TextField, Button, Slider, Typography, List, ListItem, ListItemText, CircularProgress, FormControlLabel, Checkbox } from "@mui/material";
+import { Box, TextField, Button, Slider, Typography, List, ListItem, ListItemText, CircularProgress, FormControlLabel, Checkbox, useMediaQuery, Grid2 } from "@mui/material";
 import { AutoCompletePlaces, ProfileImage } from "components/forms";
 import useGoogleMapsApi from "helpers/useGoogleMapsApi";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { AuthContext } from "contexts/AuthContext";
 import { Link } from "react-router-dom";
+import { helpers } from "helpers";
+import useComponentWidth from "helpers/useComponentWidth";
+import { Helmet } from "react-helmet-async";
 
 const MapSearch = ({
   title,
@@ -34,7 +37,14 @@ const MapSearch = ({
   const [infoWindow, setInfoWindow] = useState(null);
   const { user } = useContext(AuthContext)
   const [markerCluster, setMarkerCluster] = useState(null);
-  const [initialCity, setInitialCity] = useState({ location: "Sacramento, CA", lat: 38.5816, lng: -121.4944 });
+  const [initialCity, setInitialCity] = useState(null);
+  const zoom = 11;
+
+  // Use custom width hook
+  const [containerRef, containerWidth] = useComponentWidth();
+
+  // Media query for responsiveness
+  const isSmallScreen = useMediaQuery("(max-width: 600px)");
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -53,20 +63,20 @@ const MapSearch = ({
       );
     } else if (user?.location) {
       setInitialCity(user.location);
-    }
+    } else setInitialCity({ location: "Sacramento, CA", lat: 38.5816, lng: -121.4944 });
   }, [user]);
 
   useEffect(() => {
-    if (mapsApi && onMapsApiLoaded) {
+    if (mapsApi && onMapsApiLoaded && initialCity) {
       onMapsApiLoaded(mapsApi); // 🔥 Send mapsApi up to CourtsLanding
     }
-  }, [mapsApi, onMapsApiLoaded]);
+  }, [mapsApi, onMapsApiLoaded, initialCity]);
 
   useEffect(() => {
-    if (mapsApi && !map) {
+    if (mapsApi && !map && initialCity) {
       const newMap = new mapsApi.Map(document.getElementById("map"), {
         center: { lat: initialCity.lat, lng: initialCity.lng },
-        zoom: 10,
+        zoom: zoom,
         mapId: process.env.REACT_APP_MAP_ID,
         options: {
           zoomControl: true,
@@ -82,34 +92,49 @@ const MapSearch = ({
   }, [mapsApi, initialCity]);
 
   const updateSearch = async () => {
-    if(requireLocation && !location) {
+    if (requireLocation && !location) {
       setLocationError('Please provide a location');
       return;
     }
     setIsLoading(true);
+    let isBoundsSearch = false;
     let filters = {};
     if (name) filters.name = name;
     if (applyNtrp) filters.ntrp = `${ntrp[0]},${ntrp[1]}`;
     if (applyUtr) filters.utr = `${utr[0]},${utr[1]}`;
     if (location) filters.geo = `${location.lat},${location.lng},${radius}`;
+    if (!name && !applyNtrp && !applyUtr && !location) {
+      isBoundsSearch = true;
+      const bounds = map.getBounds();
+      if (!bounds) return;
 
+      const sw = bounds.getSouthWest();
+      const ne = bounds.getNorthEast();
+      const latMin = sw.lat();
+      const lngMin = sw.lng();
+      const latMax = ne.lat();
+      const lngMax = ne.lng();
+      filters.bounds = `${latMin},${latMax},${lngMin},${lngMax}`
+    }
     const results = await fetchData(filters);
     setData(results);
     setIsLoading(false);
 
     if (map) {
-      map.setCenter({ lat: initialCity.lat, lng: initialCity.lng });
-      map.setZoom(5);
-      updateMapMarkers(results);
+      //map.setCenter({ lat: initialCity.lat, lng: initialCity.lng });
+      //map.setZoom(zoom);
+      updateMapMarkers(results, isBoundsSearch);
     }
   };
 
-  const updateMapMarkers = (items) => {
+  const updateMapMarkers = (items, isBoundsSearch) => {
     //console.log(items)
     if (!mapsApi || !map) return;
     if (markerCluster) {
       markerCluster.clearMarkers();
     }
+
+    if (!items.length) return; // No items, don't update map
 
     const roundCoord = (coord, precision = 4) => {
       return parseFloat(Number(coord).toFixed(precision));
@@ -130,15 +155,11 @@ const MapSearch = ({
       let isPublic = true;
       itemsAtLocation.forEach(item => {
         totalCount += item.number_of_courts ?? 1;
-        if(type==='courts') {
+        if (type === 'courts') {
           isPublic = item.is_public;
         }
       })
-      // const marker = new mapsApi.Marker({
-      //   position: { lat, lng },
-      //   //map,
-      //   label: { text: String(totalCount), color: "white", fontSize: "10px" },
-      // });
+
       const marker = new mapsApi.marker.AdvancedMarkerElement({
         position: { lat, lng },
         content: new mapsApi.marker.PinElement({
@@ -149,6 +170,7 @@ const MapSearch = ({
           glyph: String(totalCount),
         }).element,
       });
+
       marker.itemCount = totalCount;
 
       marker.addListener("click", () => {
@@ -159,10 +181,15 @@ const MapSearch = ({
       return marker;
     });
 
+    // Adjust map center and zoom
+    if (newMarkers.length) {
+      adjustMapView(newMarkers, isBoundsSearch);
+    }
+
     const renderer = {
       render: ({ markers, position }) => {
         const totalItems = markers.reduce((sum, marker) => sum + (marker.itemCount || 1), 0);
-        console.log(totalItems)
+        //console.log(totalItems)
         return new mapsApi.Marker({
           label: { text: String(totalItems), color: "white", backgroundColor: 'blue', fontSize: "10px" },
           position,
@@ -175,71 +202,136 @@ const MapSearch = ({
     setMarkerCluster(newMarkerCluster);
   };
 
+  const adjustMapView = (markers, isBoundsSearch) => {
+    if (!map || !markers.length) return;
+
+    const bounds = new mapsApi.LatLngBounds();
+    let sumLat = 0, sumLng = 0;
+
+    markers.forEach(marker => {
+      const { lat, lng } = marker.position;
+      bounds.extend(new mapsApi.LatLng(lat, lng));
+      sumLat += lat;
+      sumLng += lng;
+    });
+
+    // Calculate midpoint of all markers
+    const center = {
+      lat: sumLat / markers.length,
+      lng: sumLng / markers.length
+    };
+
+    map.setCenter(center);
+
+    const currentZoom = map.getZoom(); // Capture user's current zoom level
+
+    // Fit map bounds to include all markers
+    map.fitBounds(bounds);
+    // Check if the zoom is too high after fitting bounds
+    mapsApi.event.addListenerOnce(map, "bounds_changed", () => {
+      const newZoom = map.getZoom();
+      if (isBoundsSearch) {
+        map.setZoom(Math.min(Math.max(currentZoom, newZoom), 13))
+      }
+      else {
+        if (newZoom > 13) {
+          map.setZoom(13);
+        }
+      }
+    });
+  };
+
+
   return (
-    <Box display="flex" height="100vh">
-      <Box width="30%" p={2}>
-        <Typography variant="h6">{title}</Typography>
-        <TextField label="Name" fullWidth value={name} onChange={(e) => setName(e.target.value)} sx={{ mb: 2 }} />
-        {showNTRP && (<>
-          <FormControlLabel
-            control={<Checkbox checked={applyNtrp} onChange={() => setApplyNtrp(!applyNtrp)} />}
-            label="Apply NTRP Filter"
-          />
-          {applyNtrp &&
-            <>
-              <Typography>NTRP Range</Typography>
-              <Slider value={ntrp} min={2.0} max={6.5} step={0.5} onChange={(e, val) => setNtrp(val)} valueLabelDisplay="auto" />
-            </>
+    <Box ref={containerRef} display="flex" flexDirection={"column"} height="100vh" sx={{ flexGrow: 1 }}>
+      <Helmet>
+        <title>Search | MyTennis Space</title>
+      </Helmet>
+      <Typography variant="h6">{title}</Typography>
+      <Grid2 container spacing={2}>
+        <Grid2 size={8}>
+          <TextField label="Name" fullWidth value={name} onChange={(e) => setName(e.target.value)} sx={{ mb: 2 }} />
+        </Grid2>
+        {showNTRP && (
+          <Grid2 size={8}>
+            <FormControlLabel
+              control={<Checkbox checked={applyNtrp} onChange={() => setApplyNtrp(!applyNtrp)} />}
+              label="Apply NTRP Filter"
+            />
+            {applyNtrp &&
+              <>
+                <Typography>NTRP Range</Typography>
+                <Slider value={ntrp} min={2.0} max={6.5} step={0.5} onChange={(e, val) => setNtrp(val)} valueLabelDisplay="auto" />
+              </>
+            }
+          </Grid2>
+        )}
+        {showUTR && (
+          <Grid2 size={8}>
+            <FormControlLabel
+              control={<Checkbox checked={applyUtr} onChange={() => setApplyUtr(!applyUtr)} />}
+              label="Apply UTR Filter"
+            />
+            {applyUtr && (
+              <>
+                <Typography>UTR Range</Typography>
+                <Slider value={utr} min={1.0} max={17.0} step={0.1} onChange={(e, val) => setUtr(val)} valueLabelDisplay="auto" />
+              </>
+            )}
+          </Grid2>
+        )}
+        <Grid2 size={8}>
+          {!requireLocation &&
+            <FormControlLabel
+              control={<Checkbox checked={applyLocation} onChange={() => setApplyLocation(!applyLocation)} />}
+              label="Apply Location Filter"
+            />
           }
-        </>)}
-        {showUTR && (<>
-          <FormControlLabel
-            control={<Checkbox checked={applyUtr} onChange={() => setApplyUtr(!applyUtr)} />}
-            label="Apply UTR Filter"
-          />
-          {applyUtr && (
+          {(requireLocation || applyLocation) && (
             <>
-              <Typography>UTR Range</Typography>
-              <Slider value={utr} min={1.0} max={17.0} step={0.1} onChange={(e, val) => setUtr(val)} valueLabelDisplay="auto" />
+              <AutoCompletePlaces
+                onPlaceChanged={(location, place) => { setLocation(location, place); setLocationError('') }}
+                showGetUserLocation={true}
+                {...(requireLocation) && { required: true }}
+                helperText={locationError}
+                error={helpers.hasValue(locationError)}
+              />
+              <Typography>Radius: {radius} miles</Typography>
+              <Slider min={5} max={100} step={5} value={radius} onChange={(e, val) => setRadius(val)} valueLabelDisplay="auto" />
             </>
           )}
-        </>)}
-        {!requireLocation &&
-          <FormControlLabel
-            control={<Checkbox checked={applyLocation} onChange={() => setApplyLocation(!applyLocation)} />}
-            label="Apply Location Filter"
-          />
-        }
-        {(requireLocation || applyLocation) && (
-          <>
-            <AutoCompletePlaces 
-              onPlaceChanged={(location, place) => {setLocation(location, place); setLocationError('')}} 
-              showGetUserLocation={true} 
-              {...(requireLocation) && {required:true}}
-              helperText={locationError}
-              error={locationError}
-            />
-            <Typography>Radius: {radius} miles</Typography>
-            <Slider min={5} max={100} step={5} value={radius} onChange={(e, val) => setRadius(val)} valueLabelDisplay="auto" />
-          </>
-        )}
-        <Button variant="contained" fullWidth onClick={updateSearch} sx={{ mt: 2 }}>Search</Button>
+        </Grid2>
+        <Grid2 size={12}>
+          <Button variant="contained" fullWidth onClick={updateSearch} sx={{ mt: 2 }}>Search</Button>
+        </Grid2>
+        <Grid2 size={12}>
+          {renderActions && renderActions()}
+        </Grid2>
+      </Grid2>
 
-        {renderActions && renderActions()}
+      {/* Results and Map - Split Dynamically */}
+      <Box display="flex" flexDirection={isSmallScreen ? "column" : "row"} width={"100%"} height="100vh" sx={{ pt: 2 }}>
 
-        <List>
-          {isLoading ? <CircularProgress /> : data.map(item => (
-            <ListItem key={item.id}>
-              {renderListItem ? renderListItem(item) :
-                <Link to={`/${type}/${item.id}`}>
-                  <ListItemText primary={item.name} secondary={item.location ?? item?.city} />
-                </Link>
-              }
-            </ListItem>
-          ))}
-        </List>
+        {/* Results List */}
+        <Box width={"100%"} p={2} overflow="auto">
+          {isLoading ? <CircularProgress /> : (
+            <List>
+              {data.map(item => (
+                <ListItem key={item.id}>
+                  {renderListItem ? renderListItem(item) :
+                    <Link to={`/${type}/${item.id}`}>
+                      <ListItemText primary={item.name} secondary={item.location ?? item?.city} />
+                    </Link>
+                  }
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </Box>
+
+        {/* Map */}
+        <Box width={"100%"} id="map" sx={{ height: "100%" }}></Box>
       </Box>
-      <Box width="70%" id="map" sx={{ height: "80vh" }}></Box>
     </Box >
   );
 };

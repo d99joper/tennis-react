@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { TextField, MenuItem, Box, Typography, IconButton, Switch, FormControlLabel, CircularProgress, Autocomplete, Divider } from '@mui/material';
+import { TextField, Box, Typography, IconButton, Switch, FormControlLabel, CircularProgress, Autocomplete, Divider } from '@mui/material';
 import Wizard from '../Wizard/Wizard';
-import { playerAPI, courtAPI, matchAPI, authAPI, eventAPI } from 'api/services';
+import { matchAPI } from 'api/services';
 import SetInput from './SetInput';
 import InfoPopup from '../infoPopup';
 import { debounce } from 'lodash';
 import { ProfileImage } from '../ProfileImage';
 import { AuthContext } from 'contexts/AuthContext';
-import { helpers } from 'helpers';
 import CourtSearchAutocomplete from '../Courts/searchCourt';
 import PlayerSearch from '../Player/playerSearch';
 import GetParticipants from '../Event/getParticipants';
@@ -19,6 +18,7 @@ const MatchEditor = ({
 	scheduleMatchId,
 	limitedParticipants = [],
 	date = '',
+	matchType = 'singles',
 	onSubmit
 }) => {
 	const [selectedEvent, setSelectedEvent] = useState(event || null);
@@ -29,7 +29,7 @@ const MatchEditor = ({
 	const [opponentParticipant, setOpponentParticipant] = useState(null);
 	const [selectedCourt, setSelectedCourt] = useState('');
 	const [sets, setSets] = useState([{ set: 1, value: '' }, { set: 2, value: '' }]);
-	const [isDoubles, setIsDoubles] = useState(false);
+	const [isDoubles, setIsDoubles] = useState(matchType === 'doubles');
 	const [error, setError] = useState({ playedOn: false, opponents: false });
 	const [winner, setWinner] = useState(true);
 	const [setErrorText, setSetErrorText] = useState('');
@@ -40,7 +40,8 @@ const MatchEditor = ({
 
 	// Fetch opponents only once for events
 	useEffect(() => {
-		setIsDoubles(selectedEvent?.match_type)
+		if(selectedEvent)
+			setIsDoubles(selectedEvent?.match_type === 'doubles')
 	}, [selectedEvent]);
 
 	const onSubmitMatch = async () => {
@@ -62,7 +63,7 @@ const MatchEditor = ({
 		if (comment.length > 0) {
 			const matchComment = {
 				content: comment,
-				posted_by: authAPI.getCurrentUser.id,
+				posted_by: user.id,
 				private: isPrivate,
 				posted_on: Date.now
 			}
@@ -72,12 +73,6 @@ const MatchEditor = ({
 		const newMatch = await matchAPI.createMatch(match);
 		if(onSubmit)
 				onSubmit(newMatch)
-		// .then((result) => {
-		// 	console.log(result)
-		// 	// Call the onSubmit prop (callback) and pass the result object
-		// 	if (onSubmit)
-		// 		onSubmit(result)
-		// })
 	};
 
 	const handleSetChange = (index, value) => {
@@ -202,21 +197,9 @@ const MatchEditor = ({
 							</>
 						: // no event set (friendly match)
 						<>
-							{/* {isDoubles &&
-								<Divider sx={{ pt: 2 }} >Players </Divider>
-							} */}
 							<Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1 }}>
 								<ProfileImage player={selectedWinners[0]} /> {selectedWinners[0].name}
 							</Box>
-							{/* <PlayerSearch
-								selectedPlayer={selectedWinners[0]}
-								setSelectedPlayer={(p) => setSelectedWinners([p, selectedWinners[1]].filter(Boolean))}
-								excludePlayers={[...selectedWinners, ...selectedOpponents].filter(p => p !== selectedWinners[0])}
-								label="Player 1"
-								required
-								error={error.winners}
-								errorMessage={error.winners ? 'Winner is required' : ''}
-							/> */}
 							{isDoubles &&
 								<Box>
 									<PlayerSearch
@@ -225,6 +208,7 @@ const MatchEditor = ({
 										excludePlayers={[...selectedWinners, ...selectedOpponents].filter(p => p !== selectedWinners[1])}
 										label="Winner partner"
 										required
+										allowCreate={true}
 										error={error.winners}
 										errorMessage={error.winners ? 'Partner is required in doubles' : ''}
 									/>
@@ -238,6 +222,7 @@ const MatchEditor = ({
 								excludePlayers={[...selectedWinners, ...selectedOpponents].filter(p => p !== selectedOpponents[0])}
 								label="Opponent"
 								required
+								allowCreate={true}
 								error={error.opponents}
 								errorMessage={error.opponents ? 'Opponent is required' : ''}
 							/>
@@ -248,15 +233,13 @@ const MatchEditor = ({
 									excludePlayers={[...selectedWinners, ...selectedOpponents].filter(p => p !== selectedOpponents[1])}
 									label="Opponent partner"
 									required
+									allowCreate={true}
 									error={error.opponents}
 									errorMessage={error.winners ? 'Partner is required in doubles' : ''}
 								/>
 							}
 						</>
 					}
-
-					{/* {selectedWinners.map((p) => p.name)}
-					{selectedOpponents.map((p) => p.name)} */}
 
 					<TextField
 						type="date"

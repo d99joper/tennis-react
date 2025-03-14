@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import { playerAPI } from "api/services";
 import MapSearch from "components/forms/MapSearch";
+import { ProfileImage } from "components/forms";
 
 const PlayersLandingPage = () => {
 
@@ -28,6 +29,9 @@ const PlayersLandingPage = () => {
   }).join("<hr>")}
         </div>`;
 
+  const renderListItem = (player) => (
+    <ProfileImage player={player} asLink={true} showName={true} showNTRP={true} />
+  )
 
   return (
     <MapSearch
@@ -36,6 +40,8 @@ const PlayersLandingPage = () => {
       showNTRP={true}
       showUTR={true}
       renderInfoWindow={renderInfoWindow}
+      renderListItem={renderListItem}
+      type="players"
     />
   );
 };

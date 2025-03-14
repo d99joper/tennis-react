@@ -56,7 +56,8 @@ const ClubsLandingPage = () => {
         title={'Find Clubs'}
         renderActions={renderActions}
         fetchData={fetchData}
-        requireLocation={true}
+        //requireLocation={true}
+        applyLocation={true}
         renderInfoWindow={renderInfoWindow}
         type='clubs'
       />

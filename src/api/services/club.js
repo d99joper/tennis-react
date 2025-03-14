@@ -18,7 +18,8 @@ const clubAPI = {
   },
   getArchivedEvents: async function(clubId) {
     const requestOptions = authAPI.getRequestOptions('GET')
-    return await fetch(clubUrl + clubId + '/archived-events', requestOptions);
+    const response = await fetch(clubUrl + clubId + '/archived-events', requestOptions);
+    return await response.json();
   },
   getMembers: async function(clubId) {
     const requestOptions = authAPI.getRequestOptions('GET')
@@ -48,8 +49,7 @@ const clubAPI = {
     const requestOptions = authAPI.getRequestOptions('POST', club)
     const response = await fetch(clubUrl+'create', requestOptions)
     if (response.ok) {
-      const data = await response.json()
-      return {success: response.ok, statusCode: response.statusCode, data: data}
+      return await response.json()
     }
     else
       throw new Error(response.status + ': Failed to create club') 
