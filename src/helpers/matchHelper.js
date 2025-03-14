@@ -6,7 +6,7 @@ const matchHelper = {
   },
   canReportScheduledMatch: function (event, match, currentUser) {
     if (event.is_admin) return true;
-    return match.player1.id === currentUser.id || match.player2.id === currentUser.id;
+    return match.player1.id === currentUser?.id || match.player2.id === currentUser?.id;
   },
   createMatchesFromArray: function (matches) {
     const isDateValid = (...val) => !isNaN(new Date(...val).valueOf());
