@@ -15,6 +15,7 @@ import {
 	TextField,
 	Divider,
 	IconButton,
+	Button,
 } from '@mui/material';
 import { AiOutlineEdit, AiOutlineMessage } from 'react-icons/ai';
 import { MdOutlineCancel, MdOutlineCheck, MdOutlineRefresh, MdSportsTennis } from 'react-icons/md';
@@ -202,7 +203,7 @@ function Profile({ }) {
 
 	const handleUTRImported = () => {
 		// update the refresh index to force a re-render of matches
-		const newRefresh = refreshIndex+1;
+		const newRefresh = refreshIndex + 1;
 		setRefreshIndex(newRefresh);
 	}
 
@@ -301,7 +302,7 @@ function Profile({ }) {
 			}}
 			>
 				<Helmet>
-					<title>{player?.name } | MyTennis Space</title>
+					<title>{player?.name} | MyTennis Space</title>
 				</Helmet>
 
 				<Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
@@ -315,18 +316,18 @@ function Profile({ }) {
 						/>
 					}
 					{ //*********** EDIT ICONS  ***********/
-						canEdit && (
-							<Box sx={{ position: 'absolute', top: 8, right: 8 }}>
-								{isEdit ? (
-									<>
-										<MdOutlineCheck size={25} className='cursorHand' onClick={updateProfileData} />
-										<MdOutlineCancel size={25} className='cursorHand' onClick={handleEditToggle} />
-									</>
-								) : (
-									<AiOutlineEdit size={25} className='cursorHand' onClick={handleEditToggle} />
-								)}
-							</Box>
-						)
+						// 	canEdit && (
+						// 		<Box sx={{ position: 'absolute', top: 8, right: 8 }}>
+						// 			{isEdit ? (
+						// 				<>
+						// 					<MdOutlineCheck size={25} className='cursorHand' onClick={updateProfileData} />
+						// 					<MdOutlineCancel size={25} className='cursorHand' onClick={handleEditToggle} />
+						// 				</>
+						// 			) : (
+						// 				<AiOutlineEdit size={25} className='cursorHand' onClick={handleEditToggle} />
+						// 			)}
+						// 		</Box>
+						// 	)
 					}
 					{/************ NAME AND LOCATION   *************/}
 					<Box display="flex" flexDirection={'column'} gap={1}>
@@ -373,14 +374,15 @@ function Profile({ }) {
 							<Link to='/notifications/'>
 								{notificationCount > 0 && `You have ${notificationCount} unread messages`}
 							</Link>
-							: isLoggedIn && <>
+							: isLoggedIn && <Box display={'flex'} gap={1} alignItems={'center'}>
 								<AiOutlineMessage
 									onClick={() => setShowChatModal(true)}
 									color='green'
 									size={25}
 									cursor={'pointer'}
-								/> Message
-							</>
+								/>
+								<Typography>Message</Typography>
+							</Box>
 						}
 						<MyModal
 							showHide={showChatModal}
@@ -434,6 +436,7 @@ function Profile({ }) {
 								<MdSportsTennis />
 								{` NTRP: ${player.NTRP ? parseFloat(player.NTRP).toFixed(1) : 'N/A'}`}
 								<InfoPopup paddingLeft={"0.5rem"}>
+									<NTRPLevels />
 									<a
 										href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'
 										target='_blank'
@@ -536,6 +539,19 @@ function Profile({ }) {
 						*/}
 				</Box>
 				{/* </Box> */}
+				{ //*********** EDIT BUTTONS  ***********/ 
+					canEdit && (
+						<Box sx={{}}>
+							{isEdit ? (
+								<>
+									<Button onClick={updateProfileData} color='primary'>Save</Button>
+									<Button onClick={handleEditToggle} color='error'>Cancel</Button>
+								</>
+							) : (
+								<Button onClick={handleEditToggle} color='info'>Update profile</Button>
+							)}
+						</Box>
+					)}
 			</Card >
 
 			{/*********** Tabs Section ***********/}
