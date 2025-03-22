@@ -15,6 +15,7 @@ current:
         [ ] Tiebreak scores
         [ ] Confirm score easier to read
     [ ] Archive events using flag
+    [ ] Cache events to quicken up load times (if advicible)
 
 
 ------------------------

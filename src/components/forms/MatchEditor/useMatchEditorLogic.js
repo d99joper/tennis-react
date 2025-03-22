@@ -2,7 +2,16 @@ import { useState, useContext } from 'react';
 import { AuthContext } from 'contexts/AuthContext';
 import { matchAPI } from 'api/services';
 
-const useMatchEditorLogic = ({ initialDate, matchType, event, scheduleMatchId, onSubmit, limitedParticipants, participant }) => {
+const useMatchEditorLogic = ({
+  date = '',
+  matchType,
+  event,
+  availableEvents = [],
+  scheduleMatchId,
+  onSubmit,
+  limitedParticipants = [],
+  participant
+}) => {
   const { user } = useContext(AuthContext);
   const [selectedEvent, setSelectedEvent] = useState(event || null);
   const [selectedOpponents, setSelectedOpponents] = useState([limitedParticipants[1]] || []);
@@ -11,19 +20,23 @@ const useMatchEditorLogic = ({ initialDate, matchType, event, scheduleMatchId, o
   const [opponentParticipant, setOpponentParticipant] = useState(null);
   const [isDoubles, setIsDoubles] = useState(matchType === 'doubles');
   const [winner, setWinner] = useState(true);
-  const [playedOn, setPlayedOn] = useState(initialDate);
+  const [playedOn, setPlayedOn] = useState(date);
   const [selectedCourt, setSelectedCourt] = useState(null);
+  // const [sets, setSets] = useState([{ set: 1, player1: '', player2: '' }, { set: 2, player1: '', player2: '' }]);
   const [sets, setSets] = useState([{ set: 1, value: '' }, { set: 2, value: '' }]);
   const [retired, setRetired] = useState(false);
   const [error, setError] = useState({ playedOn: false, opponents: false });
   const [setErrorText, setSetErrorText] = useState('');
   const [comment, setComment] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
-console.log(selectedEvent)
+  const [retiredPlayer, setRetiredPlayer] = useState(null);
+
   // Handle set input changes
   const handleSetChange = (index, value) => {
+  //const handleSetChange = (index, player, value) => { // for vertical sets
     const updatedSets = [...sets];
-    updatedSets[index].value = value;
+    //updatedSets[index][player] = value;
+    updatedSets[index]['value'] = value;
     setSets(updatedSets);
   };
 
@@ -31,29 +44,91 @@ console.log(selectedEvent)
   const addSet = () => {
     if (sets.length < 5) {
       setSets([...sets, { set: sets.length + 1, value: '' }]);
+      //setSets([...sets, { set: sets.length + 1, player1: '', player2: '' }]);
+    }
+  };
+
+  const removeSet = () => {
+    if (sets.length > 1) {
+      setSets(prevSets => prevSets.slice(0, -1)); // Remove the last set
     }
   };
 
   // Validate match sets
   const validateSets = () => {
     if (retired) return true;
-    
-    let winCount = 0, loseCount = 0;
-    let isValid = sets.every(set => {
-      if (!set.value) return true;
-
-      const [first, second] = set.value.match(/^\d+-\d+\(\d+\)$/)
-        ? set.value.split(/[\-\(\)]/).slice(0, 2).map(Number)
-        : set.value.split('-').map(Number);
-
-      if (isNaN(first) || isNaN(second) || first === second) return false;
-
-      first > second ? winCount++ : loseCount++;
-      return true;
+  
+    let winCount = 0;
+    let loseCount = 0;
+    let isValid = true;
+  
+    sets.forEach(set => {
+      const value = set.value?.trim();
+  
+      if (value) {
+        const match = value.match(/^(\d{1,2})-(\d{1,2})(?:\((\d{1,2})\))?$/);
+  
+        if (!match) {
+          isValid = false;
+          return;
+        }
+  
+        const p1 = Number(match[1]);
+        const p2 = Number(match[2]);
+        const tb = match[3] !== undefined ? Number(match[3]) : null;
+  
+        const mainValid = p1 <= 99 && p2 <= 99;
+        const tbValid = tb === null || tb <= 99;
+  
+        if (!mainValid || !tbValid || p1 === p2) {
+          isValid = false;
+          return;
+        }
+  
+        if (p1 > p2) winCount++;
+        else loseCount++;
+      }
     });
-
-    return isValid && winCount > loseCount;
+  
+    if (!isValid || winCount <= loseCount) {
+      setSetErrorText('This is not a valid score. Ensure the winner has more sets won.');
+      return false;
+    }
+  
+    setSetErrorText('');
+    return true;
   };
+  
+
+  // for vertical sets
+  // const validateSets = () => {
+  //   if (retired) return true; // Skip validation if a player retired
+
+  //   let player1Sets = 0, player2Sets = 0;
+  //   let isValid = sets.every(set => {
+  //     if (!set.player1 || !set.player2) return false; // Ensure both scores exist
+
+  //     const first = parseInt(set.player1, 10);
+  //     const second = parseInt(set.player2, 10);
+
+  //     if (isNaN(first) || isNaN(second) || first === second) return false;
+
+  //     first > second ? player1Sets++ : player2Sets++;
+  //     return true;
+  //   });
+
+  //   if (!isValid || player1Sets === player2Sets) {
+  //     setSetErrorText('Invalid score: There must be a clear winner.');
+  //     return false;
+  //   }
+
+  //   // Determine the match winner
+  //   setWinner(player1Sets > player2Sets);
+
+  //   setSetErrorText('');
+  //   return true;
+  // };
+
 
   // Submit match
   const onSubmitMatch = async () => {
@@ -65,7 +140,9 @@ console.log(selectedEvent)
       schedule_match_id: scheduleMatchId,
       retired,
       type: matchType,
-      ...(event ? { event_id: event.id } : {})
+      ...(event ? { event_id: event.id } : {}),
+      comments: [], 
+      score: sets.map(set => `${set.value}`).filter(Boolean).join(', ')
     };
 
     if (comment.trim()) {
@@ -76,7 +153,7 @@ console.log(selectedEvent)
         posted_on: new Date().toISOString()
       });
     }
-
+    console.log(match)
     try {
       const newMatch = await matchAPI.createMatch(match);
       onSubmit?.(newMatch);
@@ -86,29 +163,33 @@ console.log(selectedEvent)
   };
 
   const getPlayers = (playerList) => {
-		const names = playerList.map((p) => p?.name)
-			.filter(Boolean) // Remove any null values if an ID doesn't match
-			.join(", ");
-		return names;
-	}
+    const names = playerList.map((p) => p?.name)
+      .filter(Boolean) // Remove any null values if an ID doesn't match
+      .join(", ");
+    return names;
+  }
 
   const getCourt = () => selectedCourt ? selectedCourt.name : 'No court selected';
 
   const getScore = () => {
-    let score = retired ? 'Default' : sets.filter(set => set.value).map(set => set.value).join(', ')
-    return score
-  }
+    const currentScore = sets.map(set => `${set.value}`).filter(Boolean).join(', ');
+    if (retired) {
+      return `${currentScore} retired.`
+    }
+    
+    return sets.map(set => `${set.value}`).filter(Boolean).join(', ');
+  };
 
   return {
     playedOn, setPlayedOn,
     selectedWinners, setSelectedWinners,
     selectedOpponents, setSelectedOpponents,
     selectedCourt, setSelectedCourt,
-    sets, handleSetChange, addSet,
+    sets, addSet, removeSet,
+    validateSets, handleSetChange, 
     retired, setRetired,
-    validateSets,
-    onSubmitMatch, getPlayers,
-    getCourt, getScore,
+    onSubmitMatch, onSubmit,
+    getCourt, getScore, getPlayers,
     comment, setComment,
     selectedEvent, setSelectedEvent,
     winnerParticipant, setWinnerParticipant,
@@ -117,7 +198,8 @@ console.log(selectedEvent)
     winner, setWinner,
     error, setError,
     setErrorText, setSetErrorText,
-    isPrivate, setIsPrivate
+    isPrivate, setIsPrivate,
+    availableEvents
   };
 };
 

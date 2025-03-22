@@ -273,7 +273,7 @@ const Matches = ({
             ))
           }
         </Box></Box>,
-      row.score,
+      row.score + (row.retired ? ' ret.' : ''),
       renderIconData(row)
     ]
   };
