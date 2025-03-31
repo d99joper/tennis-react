@@ -34,21 +34,27 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
 
   useEffect(() => {
     async function setJoinRequest() {
-      const isEligible = await checkEligibility();
-      if (isEligible) {
-        requestAPI.getRequestStatusForUser(id)
-          .then((status) => {
-            console.log(status)
-            setStatus(status.status)
-          })
-          .catch((err) => {
-            setError('Error fetching join request status.')
-            setStatus('none')
-            showSnackbar('Error fetching join request status.', 'error')
-          })
-      }
-      else {
-        setStatus('not_eligible')
+      try {
+        const isEligible = await checkEligibility();
+        if (isEligible) {
+          requestAPI.getRequestStatusForUser(id)
+            .then((status) => {
+              console.log(status)
+              setStatus(status.status)
+            })
+            .catch((err) => {
+              setError('Error fetching join request status.')
+              setStatus('none')
+              showSnackbar('Error fetching join request status.', 'error')
+            })
+        }
+        else {
+          setStatus('not_eligible')
+        }
+      } catch (error) {
+        console.error("Error checking restrictions:", error);
+        setRestrictionResult(["Something went wrong."]);
+        setStatus("error");
       }
     }
     if (isLoggedIn && user?.id) {
