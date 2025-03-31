@@ -34,24 +34,30 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
 
   useEffect(() => {
     async function setJoinRequest() {
-      const isEligible = await checkEligibility();
-      if (isEligible) {
-        requestAPI.getRequestStatusForUser(id)
-          .then((status) => {
-            console.log(status)
-            setStatus(status.status)
-          })
-          .catch((err) => {
-            setError('Error fetching join request status.')
-            setStatus('none')
-            showSnackbar('Error fetching join request status.', 'error')
-          })
-      }
-      else {
-        setStatus('not_eligible')
+      try {
+        const isEligible = await checkEligibility();
+        if (isEligible) {
+          requestAPI.getRequestStatusForUser(id)
+            .then((status) => {
+              console.log(status)
+              setStatus(status.status)
+            })
+            .catch((err) => {
+              setError('Error fetching join request status.')
+              setStatus('none')
+              showSnackbar('Error fetching join request status.', 'error')
+            })
+        }
+        else {
+          setStatus('not_eligible')
+        }
+      } catch (error) {
+        console.error("Error checking restrictions:", error);
+        setRestrictionResult(["Something went wrong."]);
+        setStatus("error");
       }
     }
-    if (isLoggedIn) {
+    if (isLoggedIn && user?.id) {
       setJoinRequest();
     }
   }, [id])
@@ -64,13 +70,13 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
         const response = await eventAPI.checkRequirements(id, user.id)
         passed = response.allowed
         if (!response.allowed) {
-          setRestrictionResult(response.reasons)
+          setRestrictionResult(response.reasons || [])
         }
       }
     }
     catch (error) {
       console.error("Error checking restrictions:", error);
-      setRestrictionResult({ allowed: false, reasons: ["Failed to fetch restriction data."] });
+      setRestrictionResult(["Failed to fetch restriction data."]);
       passed = false
     }
     finally {
