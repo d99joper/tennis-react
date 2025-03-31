@@ -60,7 +60,7 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
     if (isLoggedIn && user?.id) {
       setJoinRequest();
     }
-  }, [id])
+  }, [id, isLoggedIn, user])
 
   const checkEligibility = async () => {
     setLoading(true)
