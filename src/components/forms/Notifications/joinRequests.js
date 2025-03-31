@@ -51,7 +51,7 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
         setStatus('not_eligible')
       }
     }
-    if (isLoggedIn) {
+    if (isLoggedIn && user?.id) {
       setJoinRequest();
     }
   }, [id])
@@ -64,13 +64,13 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
         const response = await eventAPI.checkRequirements(id, user.id)
         passed = response.allowed
         if (!response.allowed) {
-          setRestrictionResult(response.reasons)
+          setRestrictionResult(response.reasons || [])
         }
       }
     }
     catch (error) {
       console.error("Error checking restrictions:", error);
-      setRestrictionResult({ allowed: false, reasons: ["Failed to fetch restriction data."] });
+      setRestrictionResult(["Failed to fetch restriction data."]);
       passed = false
     }
     finally {
