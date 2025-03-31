@@ -13,7 +13,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import MyModal from 'components/layout/MyModal';
 import { MatchEditor, Matches, ProfileImage } from 'components/forms';
 import LeagueScheduler from '../../components/forms/League/leagueScheduler';
-import { authAPI, eventAPI } from 'api/services';
+import { authAPI, eventAPI, leagueAPI } from 'api/services';
 import AddParticipants from 'components/forms/League/addParticipants';
 import ScheduleView from './schedule_view';
 import { GiPencil } from 'react-icons/gi';
@@ -74,6 +74,25 @@ const LeagueViewPage = (props) => {
     console.log(newMatch);
   }
 
+  const handleAddDeleteParticipant = async () => {
+    try {
+      const event = await eventAPI.getEvent(id);
+      console.log('event', event)
+      if (event && !event.statusCode) {
+        setEvent(event);
+        setStandings(event.league_standings || []);
+        setSchedule(event.league_schedule || []);
+        setMatches(event.matches || []);
+        setIsAdmin(event.is_admin);
+        setIsParticipant(event.is_participant);
+      } else {
+        console.error(event.statusMessage);
+      }
+    } catch (error) {
+      console.error('Failed to fetch league:', error);
+    }
+  }
+
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
   };
@@ -85,6 +104,16 @@ const LeagueViewPage = (props) => {
     setModalOpen(false);
     setSelectedParticipant(null);
   };
+
+  const handleScoreReported = async () => {
+    // not implemented
+    const data = await leagueAPI.getStandings(event.league_id)
+    console.log(data)
+    if(data?.standings) {
+      console.log('update standings')
+      setStandings(data.standings)
+    }
+  }
 
   const hasStarted = () => {
     const today = new Date().getTime(); // Get current time in milliseconds
@@ -154,7 +183,7 @@ const LeagueViewPage = (props) => {
           <Typography variant="h5" gutterBottom>
             Standings
           </Typography>
-          <StandingsView standings={standings} />
+          <StandingsView standings={standings} event_id={event.id} isAdmin={isAdmin} callback={handleAddDeleteParticipant} />
         </Box>
       )}
       {/** SCHEDULE TAB */}
@@ -179,7 +208,7 @@ const LeagueViewPage = (props) => {
                 setEvent((prev) => ({ ...prev, league_schedule: newSchedule }));
               }}
             />
-            : <ScheduleView event={event} schedule={schedule} onScoreReported={() => { console.log('someone reported a score') }} />
+            : <ScheduleView event={event} schedule={schedule} onScoreReported={handleScoreReported} />
           }
 
         </Box>
@@ -221,6 +250,7 @@ const LeagueViewPage = (props) => {
             <MatchEditor
               participant={currentUser}
               event={event}
+              matchType={event.match_type}
               onSubmit={(matchData) => {
                 console.log("Match reported:", matchData);
                 handleMatchEditorSubmit(matchData);
@@ -235,7 +265,7 @@ const LeagueViewPage = (props) => {
       {currentTab === 3 && isAdmin && (
         <Grid2 container direction={'column'}>
           <EventAdminTools event={event} participants={event.participants || []} setEvent={setEvent} />
-          <AddParticipants event={event} />
+          <AddParticipants event={event} callback={handleAddDeleteParticipant} />
         </Grid2>
       )}
 

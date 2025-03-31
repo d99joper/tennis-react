@@ -143,7 +143,7 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
             <Box>
               <Typography variant="h6">You do not meet the requirements to signup:</Typography>
               <List>
-                {restrictionResult.map((reason, index) => (
+                {restrictionResult?.map((reason, index) => (
                   <ListItem key={index}>- {reason}</ListItem>
                 ))}
               </List>

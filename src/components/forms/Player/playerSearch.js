@@ -69,9 +69,9 @@ const PlayerSearch = ({
     .filter(p => !excludePlayers.some(excluded => excluded?.id === p.id));
 
   const optionsList = allowCreate && searchTerm.length >= 3 && filteredPlayers.length === 0
-  ? [...filteredPlayers, { id: 'new', name: `Create "${searchTerm}"` }]
-  : filteredPlayers;
-  
+    ? [...filteredPlayers, { id: 'new', name: `Create "${searchTerm}"` }]
+    : filteredPlayers;
+
   return (
     <>
       <Autocomplete
@@ -81,22 +81,42 @@ const PlayerSearch = ({
         value={selectedPlayer || null}
         //key={(option) => option.id}
         renderOption={(props, option) => (
-          <li {...props} key={option.id} onClick={() => {
-            if (option.id === 'new') {
-              setNewPlayerName(searchTerm);
-              setShowModal(true);
-            } else {
-              setSelectedPlayer(option);
-            }
-          }}>
-            {option.id === 'new' ? `"${searchTerm}" doesn't exist. Create?` : <ProfileImage size={30} showName={true} player={option} />}
-          </li>
-          // <li {...props} key={option.id}>
-          //   {option.type === 'player' && <ProfileImage size={30} player={option} />}
-          //   &nbsp;{option.name}
+          // <li {...props} key={option.id} onClick={() => {
+          //   if (option.id === 'new') {
+          //     setNewPlayerName(searchTerm);
+          //     setShowModal(true);
+          //   } else {
+          //     setSelectedPlayer(option);
+          //     setSearchTerm('')
+          //   }
+          // }}>
+          //   {option.id === 'new'
+          //     ? `"${searchTerm}" doesn't exist. Create?`
+          //     : <ProfileImage size={30} showName={true} player={option} />
+          //   }
           // </li>
+          <li {...props} key={option.id}>
+            {option.id === 'new'
+              ? `"${searchTerm}" doesn't exist. Create?`
+              : <ProfileImage size={30} showName={true} player={option} />
+            }
+          </li>
         )}
-        onChange={(event, newValue) => setSelectedPlayer(newValue)}
+        disableCloseOnSelect={false}
+        onChange={(event, newValue) => {
+          if (newValue?.id === 'new') {
+            setNewPlayerName(searchTerm);
+            setShowModal(true);
+          } else {
+            setSelectedPlayer(newValue);
+          }
+        }}
+        // onChange={(event, newValue) => {
+        //   setSelectedPlayer(newValue);
+        //   setSearchTerm('');
+        //   event?.target?.blur();
+        // }}
+        onClose={() => setSearchTerm('')}
         onInputChange={(event, newInputValue, reason) => {
           if (reason === 'clear') setSelectedPlayer(null)
           setSearchTerm(newInputValue);

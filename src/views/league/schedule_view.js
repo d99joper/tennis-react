@@ -41,7 +41,7 @@ const ScheduleView = ({ event, schedule: initialSchedule, onScoreReported }) => 
 
   const isPlayer1Winner = (scheduleMatch) => {
     if (scheduleMatch.winners)
-      return scheduleMatch.winners.some((winner) => winner.id === scheduleMatch.player1.id);
+      return scheduleMatch.winners.some((winner) => winner.id === scheduleMatch.player1.object_id);
     else
       return true;
   }
@@ -168,6 +168,7 @@ const ScheduleView = ({ event, schedule: initialSchedule, onScoreReported }) => 
           <MatchEditor
             participant={currentUser}
             event={event}
+            matchType={event.match_type}
             scheduleMatchId={editingMatch.id}
             limitedParticipants={[editingMatch.player1, editingMatch.player2]}
             date={editingMatch.scheduled_date}

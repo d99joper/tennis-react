@@ -32,6 +32,7 @@ function InfoPopup({ children, iconType = 'info', customIcon = null, ...props })
       sx={{pl: paddingLeft, pr: paddingRight}}
       onClick={(e) => e.stopPropagation()}
       as='span'
+      maxWidth={'200px'}
     >
       {/******** POPOVER FOR INFO   *********/}
       <Popover

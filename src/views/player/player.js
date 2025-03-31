@@ -14,7 +14,6 @@ import {
 	MenuItem,
 	TextField,
 	Divider,
-	IconButton,
 	Button,
 } from '@mui/material';
 import { AiOutlineEdit, AiOutlineMessage } from 'react-icons/ai';
@@ -31,7 +30,6 @@ import { AuthContext } from 'contexts/AuthContext';
 import MyModal from 'components/layout/MyModal';
 import Conversation from 'components/forms/Notifications/conversations';
 import NTRPLevels from 'views/NTRPLevels';
-import { CiImport } from 'react-icons/ci';
 import UTRImportButton from 'components/forms/Player/UTRImport';
 
 function Profile({ }) {
@@ -435,7 +433,7 @@ function Profile({ }) {
 							<Typography>
 								<MdSportsTennis />
 								{` NTRP: ${player.NTRP ? parseFloat(player.NTRP).toFixed(1) : 'N/A'}`}
-								<InfoPopup paddingLeft={"0.5rem"}>
+								<InfoPopup paddingLeft={"0.2rem"} width="450px">
 									<NTRPLevels />
 									<a
 										href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'

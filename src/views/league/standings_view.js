@@ -1,13 +1,26 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
+  Button,
+  CircularProgress,
   Typography,
 } from "@mui/material";
 import ResponsiveDataLayout from "components/layout/Data/responsiveDataLayout";
 import { ProfileImage } from "components/forms";
 import { Link } from "react-router-dom";
+import { eventAPI } from "api/services";
+import { MdDelete } from "react-icons/md";
+import MyModal from "components/layout/MyModal";
 
-const StandingsView = ({ standings }) => {
+const StandingsView = ({ standings, event_id, isAdmin = false, callback }) => {
+  const [participantToRemove, setParticipantToRemove] = useState()
+  const [showModal, setShowModal] = useState(false)
+  const [loading, setLoading] = useState([])
+  const [loadingIndex, setLoadingIndex] = useState([])
+
+  useEffect(() => {
+    setLoading(new Array(standings.length).fill(false))
+  }, [standings])
 
   const displayDiff = (won, lost) => {
     const diff = won - lost;
@@ -15,6 +28,23 @@ const StandingsView = ({ standings }) => {
     if (diff === 0) sign = '+-'
     if (diff > 0) sign = '+'
     return `${won}-${lost} (${sign + diff.toString()})`
+  }
+
+  const handleRemoveParticipant = async () => {
+    eventAPI.removeParticipant(event_id, participantToRemove.id)
+    setShowModal(false)
+    setLoading(prev => {
+      const newLoading = [...prev]
+      newLoading[loadingIndex] = true
+      return newLoading
+    })
+    if (callback) 
+      await callback()
+    setLoading(prev => {
+      const newLoading = [...prev]
+      newLoading[loadingIndex] = false
+      return newLoading
+    })
   }
 
   const rankedStandings = standings.map((row, index) => ({ ...row, rank: index + 1 }));
@@ -29,6 +59,7 @@ const StandingsView = ({ standings }) => {
           { key: "losses", label: "Losses" },
           { key: "set_diff", label: "Sets" },
           { key: "game_diff", label: "Games" },
+          { key: "actions", label: "" },
         ]}
         rows={rankedStandings}
         rowKey={(row) => row.id}
@@ -49,6 +80,21 @@ const StandingsView = ({ standings }) => {
           row.losses,
           displayDiff(row.sets_won, row.sets_lost),
           displayDiff(row.games_won, row.games_lost),
+          // if no matches have been played, you can delete the player
+          row.game_diff === 0 && isAdmin && (
+            loading[index]
+              ? <CircularProgress size={20} />
+              : <MdDelete
+                size={20}
+                color="red"
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  setParticipantToRemove(row);
+                  setLoadingIndex(index)
+                  setShowModal(true);
+                }}
+              />
+          )
         ]}
         // for smaller and medium screens
         titleForScreen={(row, isSmall, isMedium) => (
@@ -93,6 +139,27 @@ const StandingsView = ({ standings }) => {
           </Box>
         )}
       />
+      <MyModal showHide={showModal}
+        onClose={() => {
+          setShowModal(false)
+          setParticipantToRemove(null)
+        }}
+        title="Confirm Removal"
+      >
+        {participantToRemove &&
+          <Typography>
+            Are you sure you want to remove {participantToRemove?.name} ?
+          </Typography>
+        }
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+          <Button variant="outlined" onClick={() => setShowModal(false)}>Cancel</Button>
+          {participantToRemove &&
+            <Button variant="contained" color="error" onClick={handleRemoveParticipant} sx={{ ml: 2 }}>
+              Remove
+            </Button>
+          }
+        </Box>
+      </MyModal>
     </Box>
   );
 };

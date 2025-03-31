@@ -1,26 +1,45 @@
 current:
+    [x] Delete player from league (before start date, or played 0 matches)
+    [ ] Leagues for doubles 
+    [ ] Display # of matches on profile (and perhaps win/loss)
+    [x] Sort leagues based on name
+    [ ] Hover to see more details about an event (like description, restrictions), for smaller screens expand card
+    [ ] Set event to archive
+    [ ] Message and email when score is submitted with you in the match
+    [ ] Opt-in to get emails when score is submitted in an event you are part of
+    [ ] Weekly email on matches in your leagues (opt-in)
+    [ ] Create court if not existing when submitting match
+    [ ] Improve match editor 
+        [ ] Who won should be the first questions
+        [ ] Example score
+        [ ] Tiebreak scores
+        [ ] Confirm score easier to read
+    [ ] Archive events using flag
+    [ ] Cache events to quicken up load times (if advicible)
+
+
+------------------------
     [x] Create events
         [x] League 
-    [*] Check event requirement when adding/joining/approving new participants
-    [ ] League admin tools
-        [ ] Invite players
-        [ ] Approve / Deny join requests
-        [ ] Set administrators 
-            [ ] auto-set the club admins
-            [ ] add and remove from list
-        [ ] Send Notifications
-        [ ] Add player to league without Invite
+    [x] Check event requirement when adding/joining/approving new participants
+    [*] League admin tools
+        [x] Invite players
+        [x] Approve / Deny join requests
+        [x] Set administrators 
+            [x] auto-set the club admins
+            [x] add and remove from list
+        [x] Send Notifications
+        [x] Add player to league without Invite
         [ ] Generate schedule with or without dates, or, admin can hide the dates
     [x] Create a match from
         [x] League page
         [x] Profile page 
     [x] Display hosting club to event (league) page
     [x] League open registration (no join request, participants can join on their own)
-    [ ] Delete player from league (before start date, or played 0 matches)
-    [ ] Create a club page (should probably be a locked feature)
+    [x] Create a club page (should probably be a locked feature)
     [x] reset matches/stats/rivals for profile when the id changes
-    [ ] Creating Event/League doesn't set the location from the club
-    [ ] Challenge or message other Players
+    [x] Creating Event/League doesn't set the location from the club
+    [x] Challenge or message other Players
 
 
 ------------------

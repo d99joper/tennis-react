@@ -5,7 +5,7 @@ import debounce from 'lodash.debounce';
 import { helpers } from 'helpers';
 import { eventAPI } from 'api/services';
 
-const AddParticipants = ({ event }) => {
+const AddParticipants = ({ event, callback }) => {
   const [players, setPlayers] = useState([]);
   const [selectedPlayers, setSelectedPlayers] = useState([]);
   const [search, setSearch] = useState('');
@@ -16,7 +16,13 @@ const AddParticipants = ({ event }) => {
   const transformRestrictions = (restrictions) => {
     const filters = {};
     Object.entries(restrictions).forEach(([key, value]) => {
-      filters[key] = value.value;
+      console.log(key, value)
+      let val;
+      if(key === 'age' || key === 'club')
+        val = JSON.stringify(value)
+      else 
+        val = value.value
+      filters[key] = val;
     });
     return filters;
   };
@@ -63,6 +69,7 @@ const AddParticipants = ({ event }) => {
       setSelectedPlayers([]);
       setSearch('')
       setError('')
+      if(callback) callback()
     } catch (error) {
       console.error('Failed to add participants:', error);
       setError('Error adding participants.');

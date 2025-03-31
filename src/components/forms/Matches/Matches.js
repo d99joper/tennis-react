@@ -269,11 +269,11 @@ const Matches = ({
           {row.match_type?.toLowerCase() === enums.MATCH_TYPE.SINGLES.toLowerCase()
             ? <ProfileImage player={row.losers[0]} showName={true} asLink={originId !== row.losers[0].id} size={30} />
             : row.losers.map(p => (
-              <ProfileImage player={p} showName={true} asLink={originId !== p.id} size={30} />
+              <ProfileImage key={p.id} player={p} showName={true} asLink={originId !== p.id} size={30} />
             ))
           }
         </Box></Box>,
-      row.score,
+      row.score + (row.retired ? ' ret.' : ''),
       renderIconData(row)
     ]
   };
