@@ -132,9 +132,21 @@ const useMatchEditorLogic = ({
 
   // Submit match
   const onSubmitMatch = async () => {
+    const winners = selectedWinners.map(p => {
+      if(selectedEvent !== null) {
+        return p.object_id // participant's object id
+      }
+      else return p.id
+    })
+    const losers = selectedOpponents.map(p => {
+      if(selectedEvent !== null) {
+        return p.object_id // participant's object id
+      }
+      else return p.id
+    })
     const match = {
-      winners: selectedWinners.map(p => p.id),
-      losers: selectedOpponents.map(p => p.id),
+      winners: winner? winners : losers,
+      losers: winner ? losers : winners,
       played_on: new Date(playedOn).toISOString().split('T')[0],
       court_id: selectedCourt?.id || null,
       schedule_match_id: scheduleMatchId,

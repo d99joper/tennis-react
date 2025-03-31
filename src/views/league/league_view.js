@@ -13,7 +13,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import MyModal from 'components/layout/MyModal';
 import { MatchEditor, Matches, ProfileImage } from 'components/forms';
 import LeagueScheduler from '../../components/forms/League/leagueScheduler';
-import { authAPI, eventAPI } from 'api/services';
+import { authAPI, eventAPI, leagueAPI } from 'api/services';
 import AddParticipants from 'components/forms/League/addParticipants';
 import ScheduleView from './schedule_view';
 import { GiPencil } from 'react-icons/gi';
@@ -104,6 +104,16 @@ const LeagueViewPage = (props) => {
     setModalOpen(false);
     setSelectedParticipant(null);
   };
+
+  const handleScoreReported = async () => {
+    // not implemented
+    const data = await leagueAPI.getStandings(event.league_id)
+    console.log(data)
+    if(data?.standings) {
+      console.log('update standings')
+      setStandings(data.standings)
+    }
+  }
 
   const hasStarted = () => {
     const today = new Date().getTime(); // Get current time in milliseconds
@@ -198,7 +208,7 @@ const LeagueViewPage = (props) => {
                 setEvent((prev) => ({ ...prev, league_schedule: newSchedule }));
               }}
             />
-            : <ScheduleView event={event} schedule={schedule} onScoreReported={() => { console.log('someone reported a score') }} />
+            : <ScheduleView event={event} schedule={schedule} onScoreReported={handleScoreReported} />
           }
 
         </Box>
@@ -240,6 +250,7 @@ const LeagueViewPage = (props) => {
             <MatchEditor
               participant={currentUser}
               event={event}
+              matchType={event.match_type}
               onSubmit={(matchData) => {
                 console.log("Match reported:", matchData);
                 handleMatchEditorSubmit(matchData);

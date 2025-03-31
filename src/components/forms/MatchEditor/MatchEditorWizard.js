@@ -8,6 +8,7 @@ import CourtSearchAutocomplete from '../Courts/searchCourt';
 import { helpers } from 'helpers';
 
 const MatchEditorWizard = ({ matchLogic, onSubmit }) => {
+  console.log(matchLogic.selectedOpponents)
   const steps = [
     !matchLogic.selectedEvent &&
     {
@@ -27,9 +28,9 @@ const MatchEditorWizard = ({ matchLogic, onSubmit }) => {
       label: 'Match Details',
       content: (
         <Box display={'flex'} flexDirection={'column'} gap={2}>
-          <Typography variant="h6">Match Details</Typography>
+          {/* <Typography variant="h6">Match Details</Typography> */}
           {matchLogic.selectedEvent
-            ? 'event match editor'
+            ? ''
             : <FriendlyMatchPlayers matchLogic={matchLogic} />
           }
           <TextField
@@ -157,8 +158,8 @@ const MatchEditorWizard = ({ matchLogic, onSubmit }) => {
         const matchData = {
           event: matchLogic.selectedEvent?.id || null,
           played_on: matchLogic.playedOn,
-          losers: matchLogic.selectedOpponents,
-          winners: matchLogic.selectedWinners,
+          losers: matchLogic.winner ? matchLogic.selectedOpponents : matchLogic.selectedWinners,
+          winners: matchLogic.winner ? matchLogic.selectedWinners : matchLogic.selectedOpponents,
           court: matchLogic.getCourt(),
           score: matchLogic.getScore(),
           comment: matchLogic.comment,

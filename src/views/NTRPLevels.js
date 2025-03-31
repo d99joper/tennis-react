@@ -33,7 +33,7 @@ const NTRPLevelsTable = () => {
               whiteSpace: "nowrap",
               fontSize: isMobile ? "12px" : "16px" 
             }}>
-              NTRP Level
+              NTRP Lvl
             </TableCell>
             <TableCell align="center" sx={{ 
               color: "white", 
