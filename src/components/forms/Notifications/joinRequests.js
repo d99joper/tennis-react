@@ -34,6 +34,7 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
 
   useEffect(() => {
     async function setJoinRequest() {
+      setError(null)
       try {
         const isEligible = await checkEligibility();
         if (isEligible) {
@@ -162,7 +163,7 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
 
   return (
     <Box>
-      {error && <p>{error}</p>}
+      {error && ''}
       {isMember ?
         <Button variant="contained" disabled>
           {memberText || 'Member'}
