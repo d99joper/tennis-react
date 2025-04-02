@@ -128,7 +128,7 @@ const Home = ({ player }) => {
 
       <Grid container spacing={2} sx={{ mt: 2 }}>
         {/* Matches */}
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           {renderSection(
             'Latest Matches',
             matches,
@@ -139,7 +139,7 @@ const Home = ({ player }) => {
         </Grid>
 
         {/* Clubs */}
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           {renderSection(
             'Clubs Near You',
             clubs,
@@ -155,7 +155,7 @@ const Home = ({ player }) => {
         </Grid>
 
         {/* Events */}
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           {renderSection(
             'Local Events',
             events,

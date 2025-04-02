@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import { Box, Card, Divider, Typography, CardActions, Button } from "@mui/material";
 import { AiOutlineComment } from "react-icons/ai";
 import { Link } from "react-router-dom";
@@ -17,16 +17,27 @@ const Match = ({ match, showH2H = false, color, variant }) => {
 
   if (variant === 'simple') {
     return (
-      <Box sx={{ p: 1, mb: 2, borderRadius: 1 }}>
+      <Box sx={{ p: 1, mb: 2 }}>
         {/* Date */}
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5 }}>
           {match.played_on}
         </Typography>
-
-        {/* Winner row */}
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="body2" fontWeight="bold">
-            <Link to={`/players/${match.winners[0]?.id}`} >
+  
+        {/* Shared grid layout for both rows */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: 'max-content 1fr',
+            rowGap: 0.5,
+            columnGap: '1rem',
+          }}
+        >
+          {/* Winner row */}
+          <Typography variant="body2" fontWeight="bold" noWrap>
+            <Link
+              to={`/players/${match.winners[0]?.id}`}
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
               {match.winners[0]?.name}
             </Link>
           </Typography>
@@ -37,14 +48,16 @@ const Match = ({ match, showH2H = false, color, variant }) => {
               </Typography>
             ))}
           </Box>
-        </Box>
-
-        <Divider sx={{ my: 0.5 }} />
-
-        {/* Loser row */}
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="body2">
-            <Link to={`/players/${match.losers[0]?.id}`} >
+  
+          {/* Divider (spanning both columns) */}
+          <Divider sx={{ gridColumn: '1 / -1', my: 0.5 }} />
+  
+          {/* Loser row */}
+          <Typography variant="body2" noWrap>
+            <Link
+              to={`/players/${match.losers[0]?.id}`}
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
               {match.losers[0]?.name}
             </Link>
           </Typography>
@@ -57,8 +70,11 @@ const Match = ({ match, showH2H = false, color, variant }) => {
           </Box>
         </Box>
       </Box>
-    )
+    );
   }
+  
+  
+  
   return (
     <Card sx={{ p: 2, mb: 2, ...(color && { backgroundColor: color }) }} >
       {/* Played Date */}
