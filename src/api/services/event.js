@@ -96,8 +96,11 @@ const eventAPI = {
       return await response.json()
       //return {success: response.ok, statusCode: response.status, event: data}
     }
-    else
-      throw new Error(response.status + ': Failed to update event')
+    else {
+      const message = await response.json()
+      console.log(message)
+      throw new Error(message.error)
+    }
   },
   
   // 0=get all participants

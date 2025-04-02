@@ -32,7 +32,7 @@ const clubAPI = {
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get club members' }
   },
   
-  getClubs: async function (filter) {
+  getClubs: async function (filter, page, pageSize) {
     const requestOptions = authAPI.getRequestOptions('GET')
     const params = new URLSearchParams(filter)
     console.log(params)

@@ -16,7 +16,7 @@ const leagueAPI = {
       return { statusCode: response.status, statusMessage: 'Error: Failed to get league' }
   },
 
-  getLeagues: async function (filter) {
+  getLeagues: async function (filter, page, pageSize) {
     const url = new URL(leaguesUrl)
     if(filter)
       url.search = helpers.parseFilter(filter)

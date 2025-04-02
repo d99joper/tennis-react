@@ -12,6 +12,7 @@ const AddParticipants = ({ event, callback }) => {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resetKey, setResetKey] = useState(0);
 
   const transformRestrictions = (restrictions) => {
     const filters = {};
@@ -42,6 +43,13 @@ const AddParticipants = ({ event, callback }) => {
     }
   };
 
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => setMessage(''), 15000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
+
   // Debounce the API call
   const debouncedFetchPlayers = useCallback(debounce(fetchPlayers, 250), []);
 
@@ -69,10 +77,11 @@ const AddParticipants = ({ event, callback }) => {
       setSelectedPlayers([]);
       setSearch('')
       setError('')
+      setResetKey(prev => prev + 1);
       if(callback) callback()
     } catch (error) {
       console.error('Failed to add participants:', error);
-      setError('Error adding participants.');
+      setError('' + error);
       setMessage('');
       setLoading(false);
     }
@@ -82,8 +91,9 @@ const AddParticipants = ({ event, callback }) => {
     <Box>
       <Typography variant="h5">Add Participants</Typography>
       <Autocomplete
-        multiple={event.type === 'doubles'}
-        //multiple
+        key={resetKey}
+        //multiple={event.type === 'doubles'}
+        multiple
         options={players}
         getOptionLabel={(option) => option.name}
         onChange={(event, value) => {
@@ -101,7 +111,7 @@ const AddParticipants = ({ event, callback }) => {
           </li>
         )}
       />
-      <Box mt={2}  >
+      {/* <Box mt={2}  >
         {Array.isArray(selectedPlayers) && selectedPlayers.map((player) => (
           <Chip
             key={player.id}
@@ -109,7 +119,7 @@ const AddParticipants = ({ event, callback }) => {
             onDelete={() => setSelectedPlayers(selectedPlayers.filter((p) => p.id !== player.id))}
           />
         ))}
-      </Box>
+      </Box> */}
       <Box>
         <span className="error">{error}</span>
         {message}

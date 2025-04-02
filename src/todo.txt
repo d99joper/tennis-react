@@ -1,22 +1,44 @@
 current:
     [x] Delete player from league (before start date, or played 0 matches)
+    [*] Home page
+        [ ] Latest matches in your area 
+        [x] Clubs in your area
+        [x] Leagues in your area
+    [ ] About page (like former home page)
+    [ ] FAQ 
+        [ ] Explain Subscriptions
+        [ ] Ladders
+        [ ] Leagues
+        [ ] how to contact other players
+    [ ] Automatic ladders
+        [ ] club
+        [ ] court
+        [ ] city
     [ ] Leagues for doubles 
+    [ ] Leagues for teams
+    [ ] Subscriptions
+        [ ] structure
+        [ ] payment system
+            [ ] recurring 
+            [ ] one-time
+    [ ] Tournaments
+    [ ] Improve styling and handling of messages
     [ ] Display # of matches on profile (and perhaps win/loss)
     [x] Sort leagues based on name
     [ ] Hover to see more details about an event (like description, restrictions), for smaller screens expand card
-    [ ] Set event to archive
     [ ] Message and email when score is submitted with you in the match
     [ ] Opt-in to get emails when score is submitted in an event you are part of
     [ ] Weekly email on matches in your leagues (opt-in)
     [ ] Create court if not existing when submitting match
-    [ ] Improve match editor 
-        [ ] Who won should be the first questions
-        [ ] Example score
-        [ ] Tiebreak scores
-        [ ] Confirm score easier to read
-    [ ] Archive events using flag
-    [ ] Cache events to quicken up load times (if advicible)
-
+    [x] Improve match editor 
+        [x] Who won should be the first questions
+        [x] Example score
+        [x] Tiebreak scores
+        [x] Confirm score easier to read
+    [x] Archive events using flag
+    [ ] Set event to archive as a job
+    [x] Cache events to quicken up load times (if advisible)
+        [x] Cached standings and only recalculate when match or participant is added
 
 ------------------------
     [x] Create events

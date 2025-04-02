@@ -6,7 +6,7 @@ import MyModal from "components/layout/MyModal";
 import { Comments } from "../Comments/Comments";
 import { H2H } from "..";
 
-const Match = ({ match, showH2H = false, color }) => {
+const Match = ({ match, showH2H = false, color, variant }) => {
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
   const [isH2HModalOpen, setIsH2HModalOpen] = useState(false);
 
@@ -15,8 +15,52 @@ const Match = ({ match, showH2H = false, color }) => {
     return { p1, p2 };
   });
 
+  if (variant === 'simple') {
+    return (
+      <Box sx={{ p: 1, mb: 2, borderRadius: 1 }}>
+        {/* Date */}
+        <Typography variant="caption" color="text.secondary">
+          {match.played_on}
+        </Typography>
+
+        {/* Winner row */}
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="body2" fontWeight="bold">
+            <Link to={`/players/${match.winners[0]?.id}`} >
+              {match.winners[0]?.name}
+            </Link>
+          </Typography>
+          <Box display="flex" gap={1}>
+            {scores.map((set, i) => (
+              <Typography key={i} variant="body2">
+                {set.p1}
+              </Typography>
+            ))}
+          </Box>
+        </Box>
+
+        <Divider sx={{ my: 0.5 }} />
+
+        {/* Loser row */}
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="body2">
+            <Link to={`/players/${match.losers[0]?.id}`} >
+              {match.losers[0]?.name}
+            </Link>
+          </Typography>
+          <Box display="flex" gap={1}>
+            {scores.map((set, i) => (
+              <Typography key={i} variant="body2">
+                {set.p2}
+              </Typography>
+            ))}
+          </Box>
+        </Box>
+      </Box>
+    )
+  }
   return (
-    <Card sx={{ p: 2, mb: 2, ...(color && {backgroundColor: color}) }} >
+    <Card sx={{ p: 2, mb: 2, ...(color && { backgroundColor: color }) }} >
       {/* Played Date */}
       <Typography variant="subtitle2" fontStyle="italic" align="center" gutterBottom>
         {match.played_on}
@@ -59,7 +103,7 @@ const Match = ({ match, showH2H = false, color }) => {
 
       {/* Action Icons */}
       <Box display="flex" justifyContent="center" alignItems="center" gap={2} sx={{ mt: 2 }}>
-       
+
         <CardActions>
           {/* Comments Icon */}
           <Button size="small" color="primary" onClick={() => setIsCommentsModalOpen(true)}>

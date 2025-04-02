@@ -10,6 +10,7 @@ import PlayersLandingPage from "./player/players"
 import RulesPage from "./rules"
 import SearchPage from "./searchPage"
 import EventView from "./event/event_view"
+import Home from "./home"
 
 export {
   AboutPage, 
@@ -17,6 +18,7 @@ export {
   ClubViewPage,
   EventView,
   FAQPage, 
+  Home, 
   LeagueViewPage, 
   Login,
   NoPage, 

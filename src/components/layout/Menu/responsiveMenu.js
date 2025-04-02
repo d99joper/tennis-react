@@ -22,6 +22,7 @@ import {
   AiOutlineQuestionCircle,
   AiOutlineSetting,
   AiOutlineUsergroupAdd,
+  AiOutlineInfoCircle,
 } from "react-icons/ai";
 import { BiLogInCircle, BiLogOutCircle } from "react-icons/bi";
 import { BsSearch } from "react-icons/bs";
@@ -160,6 +161,12 @@ const ResponsiveMenu = ({ ...props }) => {
         </ListItemIcon>
         <ListItemText primary={open ? "Rules" : ""} />
       </ListItemButton>
+      <ListItemButton title="About" component={Link} to="/about">
+        <ListItemIcon>
+          <AiOutlineInfoCircle size="1.5rem" />
+        </ListItemIcon>
+        <ListItemText primary={open ? "About" : ""} />
+      </ListItemButton>
       {!isLoggedIn ? (
         <ListItemButton title="Login" component={Link} to="/login" onClick={handleLogin}>
           <ListItemIcon>
@@ -198,7 +205,9 @@ const ResponsiveMenu = ({ ...props }) => {
             onClick={() => setOpen((prev) => !prev)}
             className="drawer-puller"
           >
-            <AiOutlineMenuUnfold color="white" size="1.5rem" />
+            <NotificationBadge >
+              <AiOutlineMenuUnfold color="white" size="1.5rem" />
+            </NotificationBadge>
           </IconButton>
         ) : (
           <Drawer
@@ -257,26 +266,26 @@ const ResponsiveMenu = ({ ...props }) => {
                     </Link>
                   </span>
                 }
-                <Link className='bannerLink' onClick={handleLogout}>
+                {/* <Link className='bannerLink' onClick={handleLogout}>
                   <BiLogOutCircle
                     title="Logout"
                     size={'1.5rem'}
                     className="cursorHand"
                   />
                   <small> logout</small>
-                </Link>
+                </Link> */}
               </Box>
-              :
-              <Link to="/login" className='bannerLink' onClick={handleLogin}>
-                <BiLogInCircle
-                  title="Login"
-                  size={'1.5rem'}
-                  className="cursorHand"
-                  component="Link"
-                  to="/login"
-                />
-                <small> login</small>
-              </Link>
+              : <></>
+              // <Link to="/login" className='bannerLink' onClick={handleLogin}>
+              //   <BiLogInCircle
+              //     title="Login"
+              //     size={'1.5rem'}
+              //     className="cursorHand"
+              //     component="Link"
+              //     to="/login"
+              //   />
+              //   <small> login</small>
+              // </Link>
             }
           </Box>
         </div>
