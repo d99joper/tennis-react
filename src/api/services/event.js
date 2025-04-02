@@ -17,12 +17,12 @@ const eventAPI = {
       throw new Error(response.error)//return { statusCode: response.status, statusMessage: 'Error: Failed to get league' }
   },
 
-  getEvents: async function (filter) {
+  getEvents: async function (filter, page, pageSize) {
     const url = new URL(eventsUrl)
     if(filter)
       url.search = helpers.parseFilter(filter)
     const requestOptions = authAPI.getRequestOptions('GET')
-    const response = await fetch(url, requestOptions)
+    const response = await fetch(url+`&page=${page}&num-per-page=${pageSize}`, requestOptions)
     if (response.ok)
       return await response.json()
     else

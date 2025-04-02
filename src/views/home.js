@@ -11,69 +11,73 @@ import {
   Button,
   Stack
 } from '@mui/material'
-import { MdHome, MdOutlineHome, MdOutlineSportsTennis } from 'react-icons/md'
+import { MdOutlineSportsTennis } from 'react-icons/md'
 import { clubAPI, eventAPI, matchAPI } from 'api/services'
 import { Match } from 'components/forms'
 import { Link } from 'react-router-dom'
-import { AuthContext } from 'contexts/AuthContext'
 import { Helmet } from 'react-helmet-async'
+import { AuthContext } from 'contexts/AuthContext'
+const DEFAULT_LOCATION = { lat: 38.5449, lng: -121.7405 };
+const CACHE_DURATION_MS = 1000 * 60 * 60; // 1 hour
 
-const DEFAULT_LOCATION = { lat: 38.5449, lng: -121.7405 } // Davis, CA
-
-const Home = ({ player }) => {
-  const [clubs, setClubs] = useState([])
-  const [matches, setMatches] = useState([])
-  const [events, setEvents] = useState([])
-  const [loading, setLoading] = useState({
-    clubs: true,
-    matches: true,
-    events: true,
-  })
+const Home = ({ homeDataRef }) => {
+  const [data, setData] = useState({ clubs: [], matches: [], events: [] });
+  //const [loading, setLoading] = useState(!homeDataRef.current);
   const { isLoggedIn } = useContext(AuthContext)
+
+  const [loading, setLoading] = useState({
+    clubs: !homeDataRef.current,
+    matches: !homeDataRef.current,
+    events: !homeDataRef.current,
+  })
 
   const setAllLoading = (state) => {
     setLoading({ clubs: state, matches: state, events: state })
   }
 
   useEffect(() => {
+    const isFresh =
+      homeDataRef.current &&
+      Date.now() - homeDataRef.current.fetchedAt < CACHE_DURATION_MS;
+
+    if (isFresh) {
+      setData(homeDataRef.current.data);
+      setLoading(false);
+      return;
+    }
+
     const loadData = async (lat, lng) => {
       setAllLoading(true)
-      let filter = { lat, lng }
-
       try {
+        let filters = {};
+        filters.geo = `${lat},${lng},25`;
         const [clubsRes, matchesRes, eventsRes] = await Promise.all([
-          clubAPI.getClubs(filter, 1, 5),
-          matchAPI.getMatches(filter, 1, 5),
-          eventAPI.getEvents(filter, 1, 5),
-        ])
-        setClubs(clubsRes?.data?.clubs || [])
-        setMatches(matchesRes?.matches || [])
-        setEvents(eventsRes?.events || [])
+          clubAPI.getClubs(filters, 1, 5),
+          matchAPI.getMatches(filters, 1, 5),
+          eventAPI.getEvents(filters, 1, 5),
+        ]);
+        const freshData  = {
+          clubs: clubsRes?.data?.clubs || [],
+          matches: matchesRes?.matches || [],
+          events: eventsRes?.events || [],
+        };
+        homeDataRef.current = {
+          data: freshData,
+          fetchedAt: Date.now()
+        }
+        setData(freshData );
       } catch (err) {
-        console.error('Error loading homepage data:', err)
-        setClubs([])
-        setMatches([])
-        setEvents([])
+        console.error('Error loading home page data:', err);
       } finally {
         setAllLoading(false)
       }
-    }
+    };
 
-    if (player?.lat && player?.lng) {
-      loadData(player.lat, player.lng)
-    } else {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const { latitude, longitude } = pos.coords
-          loadData(latitude, longitude)
-        },
-        (err) => {
-          console.warn('Geolocation denied or failed, using default location:', err)
-          loadData(DEFAULT_LOCATION.lat, DEFAULT_LOCATION.lng)
-        }
-      )
-    }
-  }, [player])
+    navigator.geolocation.getCurrentPosition(
+      pos => loadData(pos.coords.latitude, pos.coords.longitude),
+      () => loadData(DEFAULT_LOCATION.lat, DEFAULT_LOCATION.lng)
+    );
+  }, [homeDataRef]);
 
   const renderSection = (title, data, isLoading, renderItem, emptyText) => (
     <Card>
@@ -93,9 +97,10 @@ const Home = ({ player }) => {
     </Card>
   )
 
+  const { clubs, matches, events } = data;
   return (
     <Box sx={{ p: 2 }}>
-      
+
       <Helmet>
         <title>MyTennis Space</title>
       </Helmet>
@@ -107,7 +112,8 @@ const Home = ({ player }) => {
         Store your match stats, meet new tennis players, join local events, and have fun competing!
       </Typography>
 
-      <Stack direction="row" spacing={2}>
+      {!isLoggedIn &&
+        <Stack direction="row" spacing={2}>
           <Button
             component={Link}
             to="/registration"
@@ -125,10 +131,11 @@ const Home = ({ player }) => {
             Log In
           </Button>
         </Stack>
+      }
 
       <Grid container spacing={2} sx={{ mt: 2 }}>
         {/* Matches */}
-        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+        <Grid size={{ xs: 12, md: 4 }}>
           {renderSection(
             'Latest Matches',
             matches,
@@ -139,7 +146,7 @@ const Home = ({ player }) => {
         </Grid>
 
         {/* Clubs */}
-        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+        <Grid size={{ xs: 12, md: 4 }}>
           {renderSection(
             'Clubs Near You',
             clubs,
@@ -155,7 +162,7 @@ const Home = ({ player }) => {
         </Grid>
 
         {/* Events */}
-        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+        <Grid size={{ xs: 12, md: 4 }}>
           {renderSection(
             'Local Events',
             events,
@@ -174,4 +181,4 @@ const Home = ({ player }) => {
   )
 }
 
-export default Home
+export default Home;

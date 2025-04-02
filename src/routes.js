@@ -3,7 +3,7 @@ import {
   Route,
   useLocation
 } from 'react-router-dom';
-import React, { lazy, useEffect, Suspense, useContext } from 'react';
+import React, { lazy, Suspense, useContext, useRef } from 'react';
 import Registration from 'views/Auth/registration';
 import Header from 'components/layout/header';
 import { Box, LinearProgress } from '@mui/material';
@@ -31,6 +31,8 @@ const TermsOfServicePage = lazy(() => import('./views/termsOfServicePage'))
 const LeagueCreate = lazy(() => import('./components/forms/League/create'))
 const preloadPage = (page) => page().then((module) => module.default);
 
+
+
 // preloadPage(() => import('./views/about'));
 // preloadPage(() => import('./views/profile'));
 // preloadPage(() => import('./views/faq'));
@@ -40,6 +42,7 @@ const preloadPage = (page) => page().then((module) => module.default);
 const MyRouter = (props) => {
   const location = useLocation()
   const { isLoggedIn, user } = useContext(AuthContext)
+  const homeDataRef = useRef(null);
 
   // useEffect(() => {
   //   navigate(props.navigateTo)
@@ -80,7 +83,7 @@ const MyRouter = (props) => {
         }}
       >
         <Routes key="MyMainRoutes">
-          <Route exact path="/" element={<Home />} />
+          <Route exact path="/" element={<Home homeDataRef={homeDataRef} />} />
           <Route exact path="/about" element={<AboutPage  />} />
           <Route exact path="/faq" element={<FAQPage />} />
           <Route exact path="/rules" element={<RulesPage />} />

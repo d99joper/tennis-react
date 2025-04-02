@@ -46,7 +46,7 @@ const RulesPage = () => {
             The winner keeps the unopened can, while the loser gets the used balls."
           />
         </ListItem>
-        <ListItem>
+        {/* <ListItem>
           <ListItemText
             primary="Ranking Points"
             secondary="The winner always gets 20p for a win, while the opponent gets 1p per game won. 
@@ -56,7 +56,7 @@ const RulesPage = () => {
             will get the same amount of points as B's inital points, plus 20p, equaling 60p, while Player B will retain their 40p and add another 7 points for the games won,
             equaling 47p."
           />
-        </ListItem>
+        </ListItem> */}
         <ListItem>
           <ListItemText
             primary="Sportsmanship"
