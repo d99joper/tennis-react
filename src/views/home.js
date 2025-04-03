@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import {
   Box,
   Typography,
@@ -24,6 +24,7 @@ const Home = ({ homeDataRef }) => {
   const [data, setData] = useState({ clubs: [], matches: [], events: [] });
   //const [loading, setLoading] = useState(!homeDataRef.current);
   const { isLoggedIn } = useContext(AuthContext)
+  const completedKeysRef = useRef(new Set());
 
   const [loading, setLoading] = useState({
     clubs: !homeDataRef.current,
@@ -39,43 +40,50 @@ const Home = ({ homeDataRef }) => {
     const isFresh =
       homeDataRef.current &&
       Date.now() - homeDataRef.current.fetchedAt < CACHE_DURATION_MS;
-
     if (isFresh) {
       setData(homeDataRef.current.data);
-      setLoading(false);
+      setLoading({ clubs: false, matches: false, events: false });
       return;
     }
 
-    const loadData = async (lat, lng) => {
-      setAllLoading(true)
-      try {
-        let filters = {};
-        filters.geo = `${lat},${lng},25`;
-        const [clubsRes, matchesRes, eventsRes] = await Promise.all([
-          clubAPI.getClubs(filters, 1, 5),
-          matchAPI.getMatches(filters, 1, 5),
-          eventAPI.getEvents(filters, 1, 5),
-        ]);
-        const freshData  = {
-          clubs: clubsRes?.data?.clubs || [],
-          matches: matchesRes?.matches || [],
-          events: eventsRes?.events || [],
-        };
+    const newData = { clubs: [], matches: [], events: [] };
+
+    const saveAndMaybeCache = (key, value) => {
+      newData[key] = value;
+      setData(prev => ({ ...prev, [key]: value }));
+      setLoading(prev => ({ ...prev, [key]: false }));
+
+      // If all 3 done, cache it
+      completedKeysRef.current.add(key);
+
+      if (completedKeysRef.current.size === 3) {
         homeDataRef.current = {
-          data: freshData,
-          fetchedAt: Date.now()
-        }
-        setData(freshData );
-      } catch (err) {
-        console.error('Error loading home page data:', err);
-      } finally {
-        setAllLoading(false)
+          data: newData,
+          fetchedAt: Date.now(),
+        };
       }
     };
 
+    const loadAll = (lat, lng) => {
+      let filters = {};
+      filters.geo = `${lat},${lng},25`;
+
+      clubAPI.getClubs(filters, 1, 5)
+        .then(res => saveAndMaybeCache('clubs', res?.data?.clubs || []))
+        .catch(() => setLoading(prev => ({ ...prev, clubs: false })));
+
+      matchAPI.getMatches(filters, 1, 5)
+        .then(res => saveAndMaybeCache('matches', res?.matches || []))
+        .catch(() => setLoading(prev => ({ ...prev, matches: false })));
+
+      eventAPI.getEvents(filters, 1, 5)
+        .then(res => saveAndMaybeCache('events', res?.events || []))
+        .catch(() => setLoading(prev => ({ ...prev, events: false })));
+    };
+
     navigator.geolocation.getCurrentPosition(
-      pos => loadData(pos.coords.latitude, pos.coords.longitude),
-      () => loadData(DEFAULT_LOCATION.lat, DEFAULT_LOCATION.lng)
+      (pos) => loadAll(pos.coords.latitude, pos.coords.longitude),
+      () => loadAll(38.5449, -121.7405) // fallback to Davis, CA
     );
   }, [homeDataRef]);
 
@@ -148,7 +156,7 @@ const Home = ({ homeDataRef }) => {
         {/* Clubs */}
         <Grid size={{ xs: 12, md: 4 }}>
           {renderSection(
-            'Clubs Near You',
+            'Some Clubs Near You',
             clubs,
             loading.clubs,
             club => (
@@ -164,7 +172,7 @@ const Home = ({ homeDataRef }) => {
         {/* Events */}
         <Grid size={{ xs: 12, md: 4 }}>
           {renderSection(
-            'Local Events',
+            'Sample Local Events',
             events,
             loading.events,
             event => (

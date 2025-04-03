@@ -134,6 +134,8 @@ const Registration = () => {
 
     //login and redirect
     await authAPI.googleLogin(formState.data.credentialResponse.credential).then((player) => {
+      console.log(player)
+      login(player);
       navigate("/players/" + player.id, { replace: false })
     })
     toggleLoader('step0')
@@ -185,11 +187,15 @@ const Registration = () => {
   }
 
   const handleGoogleAuth = (data, credentialResponse) => {
+    toggleLoader('step0');
     setRegType('google')
     console.log(data)
     if (data.user_exists) {
       // user already exists, so login and redirect to profile page
       authAPI.googleLogin(credentialResponse.credential).then((user) => {
+        console.log(data?.player)
+        login(data?.player)
+        toggleLoader('step0');
         navigate("/players/"+data?.player?.id, { replace: false })
       })
     }
@@ -479,7 +485,11 @@ const Registration = () => {
           <>
             {!showWizard && !showGoogleAdditionalInformation && (
               <>
-                <MyGoogleCheck callback={handleGoogleAuth} mode={enums.LOGIN_MODES.SIGN_UP} />
+                <MyGoogleCheck 
+                  callback={handleGoogleAuth} 
+                  mode={enums.LOGIN_MODES.SIGN_UP} 
+                  toggleLoading={() => toggleLoader('step0')} 
+                />
 
                 <Divider sx={{ my: 2 }}>Or sign up with email</Divider>
 

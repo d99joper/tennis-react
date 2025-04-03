@@ -63,6 +63,7 @@ function Login({ mode, ...props }) {
         // else
         //  redirect()
         login(player);
+        
         redirect(player.id)
       })
       .catch((error) => {
@@ -76,12 +77,13 @@ function Login({ mode, ...props }) {
   }
 
   function redirect(id) {
-      const redirectTo = searchParams.get("redirectTo")
-      if (redirectTo?.startsWith('players') || redirectTo === 'search' || redirectTo === 'ladders')
-        navigate(redirectTo, { replace: false })
-      else
-        navigate("/players/"+id, { replace: false })
-   
+    const redirectTo = searchParams.get("redirectTo");
+  
+    if (redirectTo && !redirectTo.includes("login") && !redirectTo.includes("registration")) {
+      navigate(redirectTo, { replace: false });
+    } else {
+      navigate(`/players/${id}`, { replace: false });
+    }
   }
 
   const handleGoogleAuth = (data, credentialResponse) => {
@@ -92,7 +94,8 @@ function Login({ mode, ...props }) {
       // user already exists, so login and redirect to profile page
       authAPI.googleLogin(credentialResponse.credential).then((user) => {
         login(user)
-        navigate("/players/"+user.id, { replace: false })
+        redirect(user.id)
+        //navigate("/players/"+user.id, { replace: false })
       })
     }
     // it's a new user
@@ -183,7 +186,7 @@ function Login({ mode, ...props }) {
 
           {/* Footer */}
           <Typography sx={{ textAlign: 'center', mt: 2 }}>
-            <Link href="/forgot-password" underline="hover">
+            <Link to="/forgot-password" underline="hover">
               Forgot your password?
             </Link>
           </Typography>

@@ -24,6 +24,30 @@ const playerAPI = {
       //return { status: response.status, statusCode: response.statusCode, statusText: response.statusText, error: 'No Player Found' }
   },
 
+  requestPasswordReset: async function (email) {
+    const requestOptions = authAPI.getRequestOptions('POST', {email})
+    let response = await fetch(playersUrl+'password-reset/', requestOptions)
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to send password reset email');
+    }
+  
+    return await response.json(); 
+  },
+
+  resetPassword: async function (token, password) {
+    const requestOptions = authAPI.getRequestOptions('POST',{token, password});
+  
+    const response = await fetch(playersUrl + 'password-reset/confirm/', requestOptions);
+  
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Password reset failed');
+    }
+  
+    return await response.json(); // Typically: { message: "Password updated successfully" }
+  },
+
   getPlayerUTR: async function (id) {
     const requestOptions = authAPI.getRequestOptions('GET')
     let response = await fetch(playersUrl + id + '/utr', requestOptions)

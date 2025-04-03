@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 const { GoogleOAuthProvider, GoogleLogin } = require("@react-oauth/google");
 const { jwtDecode } = require("jwt-decode");
 
-const GoogleCheckUser = ({mode, callback, ... props}) => {
+const GoogleCheckUser = ({mode, callback, toggleLoading, ... props}) => {
 
   const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID
   console.log(mode)
@@ -19,7 +19,7 @@ const GoogleCheckUser = ({mode, callback, ... props}) => {
         onSuccess={credentialResponse => {
 
           const decoded = jwtDecode(credentialResponse.credential);
-          console.log(decoded)
+          //console.log(decoded)
           const userData = {
             google_id: decoded.sub,      // Unique Google ID
             email: decoded.email,        // User's email
@@ -27,11 +27,12 @@ const GoogleCheckUser = ({mode, callback, ... props}) => {
             last_name: decoded.family_name,
             picture: decoded.picture     // Profile picture if needed
           };
-
+          toggleLoading()
           // check if user exists
           playerAPI.checkGoogleUser(userData).then((data) => {
             // if it's a new user redirect for more information gathering
-            console.log(data)
+            //console.log(data)
+            toggleLoading()
             callback(data, credentialResponse)
           })
         }}

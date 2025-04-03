@@ -1,10 +1,16 @@
 current:
     [x] Delete player from league (before start date, or played 0 matches)
-    [*] Home page
-        [ ] Latest matches in your area 
+    [x] Home page
+        [x] Latest matches in your area 
         [x] Clubs in your area
         [x] Leagues in your area
-    [ ] About page (like former home page)
+    [x] About page (like former home page)
+    [x] Forgot password
+    [x] redirect 
+        [x] after login
+        [x] after registration 
+            [x] Always go to players/id
+            [x] Set menu (for both login and register)
     [ ] FAQ 
         [ ] Explain Subscriptions
         [ ] Ladders

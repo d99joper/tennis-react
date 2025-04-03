@@ -11,6 +11,8 @@ import Footer from 'components/layout/footer';
 import { Home, AboutPage, ClubViewPage, EventView, FAQPage, LeagueViewPage, PlayersLandingPage, Profile, RulesPage, SearchPage, Login } from './views/index'
 import NotificationsView from 'views/NotificationsView';
 import { AuthContext } from 'contexts/AuthContext';
+import ForgotPassword from 'views/Auth/forgotpassword';
+import ResetPassword from 'views/Auth/resetpassword';
 
 // const Profile = lazy(() => import('./views/profile'))
 const ProfileInfo = lazy(() => import('./views/player/profile-information'))
@@ -99,6 +101,8 @@ const MyRouter = (props) => {
           <Route path="/terms-of-service" element={<TermsOfServicePage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/adminTasks" element={<AdminTasks />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path='/clubs'>
             <Route index={true} element={<ClubsLandingPage />} />
             <Route path=":clubId" element={<ClubViewPage />} />

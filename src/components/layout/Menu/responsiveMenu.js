@@ -31,7 +31,7 @@ import { GiTennisCourt, GiWhistle } from "react-icons/gi";
 import { CiMail } from "react-icons/ci";
 import NotificationBadge from "./NotificationBadge";
 import { AuthContext } from "contexts/AuthContext";
-import { MdGroups, MdOutlineEmojiEvents, MdOutlineSportsTennis } from "react-icons/md";
+import { MdOutlineEmojiEvents } from "react-icons/md";
 
 const drawerWidthLarge = 240;
 const drawerWidthSmall = 60;
