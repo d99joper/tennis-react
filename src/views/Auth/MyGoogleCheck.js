@@ -27,12 +27,14 @@ const GoogleCheckUser = ({mode, callback, toggleLoading, ... props}) => {
             last_name: decoded.family_name,
             picture: decoded.picture     // Profile picture if needed
           };
-          toggleLoading()
+          if(toggleLoading)
+            toggleLoading()
           // check if user exists
           playerAPI.checkGoogleUser(userData).then((data) => {
             // if it's a new user redirect for more information gathering
             //console.log(data)
-            toggleLoading()
+            if(toggleLoading)
+              toggleLoading()
             callback(data, credentialResponse)
           })
         }}
