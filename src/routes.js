@@ -13,6 +13,7 @@ import NotificationsView from 'views/NotificationsView';
 import { AuthContext } from 'contexts/AuthContext';
 import ForgotPassword from 'views/Auth/forgotpassword';
 import ResetPassword from 'views/Auth/resetpassword';
+import DTCLeagueInfoPage from 'views/Temp/DTCLeagueInfo';
 
 // const Profile = lazy(() => import('./views/profile'))
 const ProfileInfo = lazy(() => import('./views/player/profile-information'))
@@ -103,6 +104,7 @@ const MyRouter = (props) => {
           <Route path="/adminTasks" element={<AdminTasks />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/temp/DTC-league-info" element={<DTCLeagueInfoPage />} />
           <Route path='/clubs'>
             <Route index={true} element={<ClubsLandingPage />} />
             <Route path=":clubId" element={<ClubViewPage />} />
