@@ -41,7 +41,8 @@ const ScheduleView = ({ event, schedule: initialSchedule, onScoreReported }) => 
 
   const isPlayer1Winner = (scheduleMatch) => {
     if (scheduleMatch.winners)
-      return scheduleMatch.winners.some((winner) => winner.id === scheduleMatch.player1.object_id);
+      return scheduleMatch.winners.some((winner) => winner.id === scheduleMatch.player1.id);
+    // return scheduleMatch.winners.some((winner) => winner.id === scheduleMatch.player1.object_id);
     else
       return true;
   }

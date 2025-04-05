@@ -30,7 +30,7 @@ const useMatchEditorLogic = ({
   const [comment, setComment] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
   const [retiredPlayer, setRetiredPlayer] = useState(null);
-
+  
   // Handle set input changes
   const handleSetChange = (index, value) => {
   //const handleSetChange = (index, player, value) => { // for vertical sets
@@ -133,17 +133,20 @@ const useMatchEditorLogic = ({
   // Submit match
   const onSubmitMatch = async () => {
     const winners = selectedWinners.map(p => {
-      if(selectedEvent !== null) {
-        return p.object_id // participant's object id
-      }
-      else return p.id
+      // if(selectedEvent !== null) {
+      //   return p.object_id // participant's object id
+      // }
+      // else 
+      return p.id
     })
     const losers = selectedOpponents.map(p => {
-      if(selectedEvent !== null) {
-        return p.object_id // participant's object id
-      }
-      else return p.id
+      // if(selectedEvent !== null) {
+      //   return p.object_id // participant's object id
+      // }
+      // else 
+      return p.id
     })
+    console.log(winners, selectedWinners)
     const match = {
       winners: winner? winners : losers,
       losers: winner ? losers : winners,
