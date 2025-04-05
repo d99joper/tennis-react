@@ -64,10 +64,11 @@ export default function DTCLeagueInfoPage() {
       <Typography variant="body1" sx={{ mt: 3 }}>
         Got questions? I'm happy to help.
         <br />
-        Message me, <AiOutlineMessage
+        Message me, through the <AiOutlineMessage
           color='green'
           size={25}
-        />, through my profile here: &nbsp;
+        /> symbol on my profile page: 
+        <br />
         <Link href="https://mytennis.space/players/319ae6e1-e7c7-4f54-b770-99176f774a89" target="_blank" rel="noopener">
           Jonas Persson
         </Link>
