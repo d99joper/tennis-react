@@ -14,6 +14,7 @@ import { courtAPI } from "api/services";
 import useGoogleMapsApi from "helpers/useGoogleMapsApi";
 import { AuthContext } from "contexts/AuthContext";
 import { helpers } from "helpers";
+import { setCurrentScreen } from "firebase/analytics";
 
 const CreateCourt = ({ mapsApi: parentMapsApi, newItem = "", callback, ...props }) => {
   const markerRef = useRef(null);
@@ -315,8 +316,9 @@ const CreateCourt = ({ mapsApi: parentMapsApi, newItem = "", callback, ...props 
       number_of_courts: parseInt(noCourts, 10) || 1,
       lat: lngLat?.lat ?? 0,
       lng: lngLat?.lng ?? 0,
-      city,
+      city: city,
       zipcode: zip,
+      address: address
     };
     console.log(data)
     courtAPI.createCourt(data).then((response) => {
@@ -395,16 +397,19 @@ const CreateCourt = ({ mapsApi: parentMapsApi, newItem = "", callback, ...props 
           initialCity={address}
           //onChange={(e) => setAddress(e.target.value)}
           onPlaceChanged={(simpleLocation, place) => {
-            console.log(place.geometry.location.lat(), place.formatted_address)
-            if (place?.geometry?.location) {
-              setLngLat({
-                lat: place.geometry.location.lat(),
-                lng: place.geometry.location.lng(),
-              });
-              setAddress(place.formatted_address);
-              updateCityAndZip(place);
-              createMarker(place.geometry.location.lat(), place.geometry.location.lng());
-            }
+            // console.log('place changed')
+            // console.log(place.geometry.location.lat(), place.formatted_address)
+            //if (place?.geometry?.location) {
+            setLngLat({
+              lat: simpleLocation.lat,
+              lng: simpleLocation.lng,
+            });
+            setAddress(simpleLocation.location);
+            setZip(simpleLocation.zip)
+            setCity(simpleLocation.city_name)
+            //updateCityAndZip(place);
+            createMarker(place.geometry.location.lat(), place.geometry.location.lng());
+            //}
           }}
         />
 

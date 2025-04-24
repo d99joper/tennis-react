@@ -9,7 +9,8 @@ const CreateClub = ({ onClubCreated }) => {
     description: '',
     location: '',
     lat: '',
-    lng: ''
+    lng: '',
+    city: ''
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -35,7 +36,7 @@ const CreateClub = ({ onClubCreated }) => {
   };
 
   const handlePlaceChanged = (e) => {
-    setClubData((prev) => ({ ...prev, location: e.location, lat: e.lat, lng: e.lng }));
+    setClubData((prev) => ({ ...prev, city: e.city_name, location: e.location, lat: e.lat, lng: e.lng }));
 
     // Clear error if location is selected
     if (errors.location) {
@@ -50,7 +51,7 @@ const CreateClub = ({ onClubCreated }) => {
       setLoading(true);
       const newClub = await clubAPI.createClub(clubData);
       onClubCreated(newClub);
-      setClubData({ name: '', description: '', location: '', lat: '', lng: '' }); // Reset form on success
+      setClubData({ name: '', description: '', city: '', location: '', lat: '', lng: '' }); // Reset form on success
       setErrors({}); // Clear errors
     } catch (error) {
       console.error('Failed to create club:', error);

@@ -58,6 +58,7 @@ const AutoCompletePlaces = ({
           city_name: helpers.extractCityFromPlace(place),
           lat: location.lat(),
           lng: location.lng(),
+          zip: zip
         }, place);
       }
     }
