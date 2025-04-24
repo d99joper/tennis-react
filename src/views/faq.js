@@ -1,7 +1,8 @@
 import React from 'react';
-import { Typography, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import { Typography, Accordion, AccordionSummary, AccordionDetails, Box } from '@mui/material';
 import { MdOutlineExpandMore } from 'react-icons/md';
 import { Helmet } from 'react-helmet-async';
+import { AiOutlineMessage } from 'react-icons/ai';
 
 const FAQPage = () => {
   return (
@@ -18,9 +19,19 @@ const FAQPage = () => {
         </AccordionSummary>
         <AccordionDetails>
           <Typography variant="body1">
-            Once you have your account and have joined a ladder, you can challenge any player on the ladder.
+            Go to the player you want to challenge's page. If you are logged in to your account, you will see a 
+            &nbsp;<i>
+                <AiOutlineMessage
+                color='green'
+                size={25}
+                cursor={'pointer'}
+              />
+              &nbsp;Message
+              </i>&nbsp;
+            button under the player's name. Clicking that button brings up a chat box where you can send messages. The message will be sent as an in-app message, but also as an email to the player.
+            {/* Once you have your account and have joined a ladder, you can challenge any player on the ladder.
             Simply click the challenge icon next to a players name and you will get the option to email, text,
-            or call your opponent. Be clear in communicate with your opponent to finalize the details of when and where.
+            or call your opponent. Be clear in communicate with your opponent to finalize the details of when and where. */}
           </Typography>
         </AccordionDetails>
       </Accordion>

@@ -59,7 +59,7 @@ const helpers = {
 
 	validateEmail: (email) => {
 		//setHasChecked(true)
-		const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+		const regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 		//if (!email) return true
 		return regex.test(email)
 	},
@@ -144,6 +144,25 @@ const helpers = {
 		return d
 	},
 
+	extractCityFromPlace: (place) => {
+		let city = '';
+		let state = '';
+	
+		place.address_components.forEach((component) => {
+			if (component.types.includes('locality')) {
+				city = component.long_name;
+			}
+			if (component.types.includes('administrative_area_level_1')) {
+				state = component.short_name; // e.g. "CA"
+			}
+		});
+	
+		if (city && state) {
+			return `${city}, ${state}`;
+		}
+	
+		return ''; // fallback
+	},
 
 	removeObjectById: (arr, idToRemove) => {
 		// Find the index of the object with the given id

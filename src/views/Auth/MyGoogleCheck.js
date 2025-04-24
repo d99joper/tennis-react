@@ -1,53 +1,91 @@
-import { authAPI, playerAPI } from "api/services";
-import { enums } from "helpers";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useRef } from 'react';
+import { authAPI, playerAPI } from 'api/services';
+import { enums } from 'helpers';
 
-const { GoogleOAuthProvider, GoogleLogin } = require("@react-oauth/google");
-const { jwtDecode } = require("jwt-decode");
+const MyGoogleCheck = ({ mode, callback, toggleLoading }) => {
+  const codeClientRef = useRef(null);
 
-const GoogleCheckUser = ({mode, callback, toggleLoading, ... props}) => {
+  useEffect(() => {
+    const loadGoogleScript = () => {
+      const script = document.createElement('script');
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      script.onload = initGoogleCodeClient;
+      document.body.appendChild(script);
+    };
 
-  const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID
-  console.log(mode)
+    const initGoogleCodeClient = () => {
+      if (!window.google?.accounts?.oauth2) return;
+
+      codeClientRef.current = window.google.accounts.oauth2.initCodeClient({
+        client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+        scope: 'profile email openid',
+        redirect_uri: 'postmessage',
+        callback: async (response) => {
+          if (response.code) {
+            if (toggleLoading) toggleLoading();
+            try {
+              callback(response.code);
+            } catch (err) {
+              console.error('Login failed:', err);
+            } finally {
+              if (toggleLoading) toggleLoading();
+            }
+          }
+        }
+      });
+    };
+
+    if (!window.google?.accounts?.oauth2) {
+      loadGoogleScript();
+    } else {
+      initGoogleCodeClient();
+    }
+  }, [callback, toggleLoading]);
+
+  const handleClick = () => {
+    codeClientRef.current?.requestCode();  // ✅ Only triggers when button is clicked
+  };
+
   return (
-
-    <GoogleOAuthProvider clientId={clientId}>
-      <GoogleLogin
-        text={mode === enums.LOGIN_MODES.SIGN_UP ? 'signup_with' : 'signin'}
-        context={mode === enums.LOGIN_MODES.SIGN_UP ? 'signup' : 'signin'}
-        cancel_on_tap_outside={true}
-        onSuccess={credentialResponse => {
-
-          const decoded = jwtDecode(credentialResponse.credential);
-          //console.log(decoded)
-          const userData = {
-            google_id: decoded.sub,      // Unique Google ID
-            email: decoded.email,        // User's email
-            first_name: decoded.given_name,
-            last_name: decoded.family_name,
-            picture: decoded.picture     // Profile picture if needed
-          };
-          if(toggleLoading)
-            toggleLoading()
-          // check if user exists
-          playerAPI.checkGoogleUser(userData).then((data) => {
-            // if it's a new user redirect for more information gathering
-            //console.log(data)
-            if(toggleLoading)
-              toggleLoading()
-            callback(data, credentialResponse)
-          })
-        }}
-        onError={() => {
-          console.log('Login Failed');
-        }}
-        // text="continue_with"
-        theme="outline"
-        useOneTap
+    <button onClick={handleClick} style={styles.button}>
+      <img
+        src="https://developers.google.com/identity/images/g-logo.png"
+        alt="Google"
+        style={styles.icon}
       />
-    </GoogleOAuthProvider>
+      <span style={styles.text}>
+        {mode === enums.LOGIN_MODES.SIGN_UP ? 'Sign up with Google' : 'Sign in with Google'}
+      </span>
+    </button>
+  );
+};
 
-  )
-}
+const styles = {
+  button: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    padding: '10px 16px',
+    borderRadius: '8px',
+    border: '1px solid #ddd',
+    backgroundColor: '#fff',
+    fontSize: '16px',
+    fontWeight: 500,
+    color: '#444',
+    cursor: 'pointer',
+    width: '100%',
+    justifyContent: 'center',
+  },
+  icon: {
+    width: '20px',
+    height: '20px',
+  },
+  text: {
+    flex: 1,
+    textAlign: 'center',
+  },
+};
 
-export default GoogleCheckUser
+export default MyGoogleCheck;

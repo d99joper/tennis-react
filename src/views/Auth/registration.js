@@ -10,6 +10,7 @@ import MyGoogleCheck from './MyGoogleCheck';
 import MyModal from 'components/layout/MyModal';
 import PlayerCard from 'components/forms/Player/playerCard';
 import { AuthContext } from 'contexts/AuthContext';
+import { updateFormWithPlayer, updateFormState, validateFormFields } from './googleLoginFlow';
 
 const Registration = () => {
 
@@ -37,31 +38,15 @@ const Registration = () => {
 
   useEffect(() => {
     if (password) {
-      updateFormState('password', password);
+      updateFormState(setFormState, 'password', password);
     }
   }, [password]); // Runs whenever password changes
-  
+
   const [formState, setFormState] = useState({
-    data: {
-      email: '',
-      firstName: '',
-      lastName: '',
-      name: '',
-      age: '',
-      location: '',
-    },
-    errors: {
-    },
+    data: { email: '', firstName: '', lastName: '', name: '', age: '', location: '' },
+    errors: {},
   });
-  const updateFormState = (key, value, isError = false) => {
-    setFormState((prev) => ({
-      ...prev,
-      [isError ? 'errors' : 'data']: {
-        ...prev[isError ? 'errors' : 'data'],
-        [key]: value,
-      },
-    }));
-  };
+
   useEffect(() => {
     setFormState((prev) => ({
       ...prev,
@@ -72,46 +57,19 @@ const Registration = () => {
     }));
   }, [formState.data.firstName, formState.data.lastName]);
 
-  const validateField = (key, value) => {
-    if (key === 'email' && !helpers.validateEmail(value)) return 'Please provide a valid email.';
-    if (key === 'firstName' && value.length < 1) return 'Please provide a longer name.';
-    if (key === 'lastName' && value.length < 1) return 'Please provide a longer name.';
-    if (key === 'age' && !helpers.hasValue(value)) return 'Please provide a birth year.';
-    if (key === 'location' && !helpers.hasValue(value)) return 'Please provide a location.';
-    return ''; // No error
-  };
-
   const handleSubmit = () => {
     navigate('/login')
   }
-
-  const errorCheck = () => {
-    let newErrors = {};
-
-    Object.keys(formState.data).forEach((key) => {
-      const error = validateField(key, formState.data[key]);
-      if (error) {
-        newErrors[key] = error;
-      }
-    });
-    setFormState((prev) => ({
-      ...prev,
-      errors: newErrors,
-    }));
-
-    const hasErrors = Object.values(newErrors).some((error) => helpers.hasValue(error));
-    console.log(newErrors, hasErrors);
-    return hasErrors;
-  };
 
   const handleGoogleRegistration = async () => {
     toggleLoader('step0')
     setRegType('google')
 
-    const hasErrors = errorCheck();
+    const { newErrors, hasErrors } = validateFormFields(formState);
+    setFormState((prev) => ({ ...prev, errors: newErrors }));
     if (hasErrors) {
-      toggleLoader('step0')
-      return
+      toggleLoader('step0');
+      return;
     }
     // check if there's a claim
     try {
@@ -125,33 +83,29 @@ const Registration = () => {
         console.log('there is no claim, create new player')
         await playerAPI.createPlayer(formState.data)
       }
+      login(formState.data.player);
+      navigate("/players/" + formState.data.player.id, { replace: false })
     }
     catch (err) {
       console.log('Error: ' + err)
       toggleLoader('step0')
       return
+    } finally {
+      toggleLoader('step0');
     }
-
-    //login and redirect
-    await authAPI.googleLogin(formState.data.credentialResponse.credential).then((player) => {
-      console.log(player)
-      login(player);
-      navigate("/players/" + player.id, { replace: false })
-    })
-    toggleLoader('step0')
   }
 
   const checkPasswords = () => {
-    if(password.length === 0) {
-      updateFormState('password', 'Password is required', true)
+    if (password.length === 0) {
+      updateFormState(setFormState, 'password', 'Password is required', true)
       return false;
     }
     if (password.length < 8) {
-      updateFormState('password', 'Password must be longer than 8 characters.', true)
+      updateFormState(setFormState, 'password', 'Password must be longer than 8 characters.', true)
       return false;
     }
     if (password !== confirmPassword) {
-      updateFormState('confirmPassword', 'Your passwords don\'t match.', true)
+      updateFormState(setFormState, 'confirmPassword', 'Your passwords don\'t match.', true)
       //setErrors((prevErrors) => ({ ...prevErrors, ['confirmPassword']: 'Your passwords don\'t match.' }));
       return false;
     }
@@ -167,56 +121,53 @@ const Registration = () => {
 
   const handleClaim = (p) => {
     setShowClaimDisplay(false)
-    console.log('handleClaim',p)
+    console.log('handleClaim', p)
     setClaimedPlayer(p)
     if (regType === 'google')
       setShowGoogleAdditionalInformation(true)
     if (helpers.hasValue(p)) {
       console.log('claimedPlayer', p)
-      updateFormState('claimedPlayer', p)
+      updateFormState(setFormState, 'claimedPlayer', p)
       if (p.UTR)
-        updateFormState('utr', p.UTR)
+        updateFormState(setFormState, 'utr', p.UTR)
       if (p.NTRP)
-        updateFormState('ntrp', p.NTRP)
+        updateFormState(setFormState, 'ntrp', p.NTRP)
       if (p.location) {
-        updateFormState('location', p.location)
-        updateFormState('lat', p.lat)
-        updateFormState('lng', p.lng)
+        updateFormState(setFormState, 'location', p.location)
+        updateFormState(setFormState, 'lat', p.lat)
+        updateFormState(setFormState, 'lng', p.lng)
       }
     }
   }
 
-  const handleGoogleAuth = (data, credentialResponse) => {
+  const handleGoogleAuth = (code) => {
     toggleLoader('step0');
     setRegType('google')
-    console.log(data)
-    if (data.user_exists) {
-      // user already exists, so login and redirect to profile page
-      authAPI.googleLogin(credentialResponse.credential).then((user) => {
-        console.log(data?.player)
-        login(data?.player)
+    authAPI.googleLogin(code).then((user) => {
+      console.log(user)
+      if (!user.created) {
+        // user already exists, so login and redirect to profile page
+        login(user)
         toggleLoader('step0');
-        navigate("/players/"+data?.player?.id, { replace: false })
-      })
-    }
-    // it's a new user
-    else {
-      updateFormState('email', data.player.email)
-      updateFormState('firstName', data.player.first_name)
-      updateFormState('lastName', data.player.last_name)
-      updateFormState('google_id', data.player.google_id)
-      updateFormState('picture', data.player.picture)
-      updateFormState('credentialResponse', credentialResponse)
-
-      // check if there are other users
-      if (data.other_players?.length > 0) {
-        setPlayersList(data.other_players)
-        setShowClaimDisplay(true)
+        navigate("/players/" + user?.id, { replace: false })
       }
+      // it's a new user
       else {
-        setShowGoogleAdditionalInformation(true)
+        updateFormWithPlayer(setFormState, user);
+
+        // check if there are other users
+        if (user.other_players?.length > 0) {
+          setPlayersList(user.other_players)
+          setShowClaimDisplay(true)
+        }
+        else {
+          setShowGoogleAdditionalInformation(true)
+        }
       }
-    }
+    }).catch((error) => {
+      console.error('Google login failed:', error);
+    }).finally(() => toggleLoader('step0'));
+
   }
 
   const handleRegisterWithEmail = async (e) => {
@@ -228,7 +179,7 @@ const Registration = () => {
     const username = form.get("username")
     console.log(formState, username)
     if (!helpers.validateEmail(username)) {
-      updateFormState('email', 'Please provide a valid email.', true)
+      updateFormState(setFormState, 'email', 'Please provide a valid email.', true)
       return;
     }
 
@@ -237,7 +188,7 @@ const Registration = () => {
     toggleLoader('step0');
     if (playerExists === false) {
       setShowWizard(true)
-      updateFormState('email', username)
+      updateFormState(setFormState, 'email', username)
     }
   }
 
@@ -251,7 +202,7 @@ const Registration = () => {
       // There should only be verified finds, 
       // but check if the email is verified
       //if (player.verified) {
-      updateFormState('verified', (
+      updateFormState(setFormState, 'verified', (
         <>
           The email {player.email} is already in use and verified. <br />
           Try to either <a href="/login">login</a>, or to recover your password.
@@ -268,7 +219,7 @@ const Registration = () => {
       label: 'User Details',
       content: (
         <Container maxWidth="sm">
-          {!showLoader['step1'] &&
+          {showLoader['step1'] ? '':
             // <CircularProgress />
             // :
             // <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
@@ -276,8 +227,8 @@ const Registration = () => {
               <UserInformation
                 formData={formState.data}
                 errors={formState.errors}
-                onUpdate={(key, value) => updateFormState(key, value)}
-                onError={(key, error) => updateFormState(key, error, true)}
+                onUpdate={(key, value) => updateFormState(setFormState, key, value)}
+                onError={(key, error) => updateFormState(setFormState, key, error, true)}
               />
               {claimedPlayer &&
                 <Box sx={{ mb: 2, p: 1, bgcolor: "#FAFAFA" }}>
@@ -299,7 +250,8 @@ const Registration = () => {
       ),
       handleNext: async () => {
         toggleLoader('step1')
-        let hasErrors = errorCheck();
+        let { newErrors, hasErrors } = validateFormFields(formState);
+        setFormState((prev) => ({ ...prev, errors: newErrors }));
         // if there are any basic errors, return now before checking further
         if (hasErrors) {
           toggleLoader('step1')
@@ -323,7 +275,7 @@ const Registration = () => {
             if (result.data.total_count > 0) {
               console.log('show claim display with ', result.data.players)
               hasErrors = true
-              updateFormState('existingPlayers', 'There are existing players', true)
+              updateFormState(setFormState, 'existingPlayers', 'There are existing players', true)
               setPlayersList(result.data.players)
               setShowClaimDisplay(true)
             }
@@ -383,7 +335,7 @@ const Registration = () => {
       handleNext: async () => {
         if (checkPasswords()) {
           // passwords cleared check
-          updateFormState('password', password)
+          updateFormState(setFormState, 'password', password)
           //setFormData((prevData) => ({...prevData, 'password': password }))
           // start spinner/loader
           toggleLoader('step2')
@@ -395,14 +347,14 @@ const Registration = () => {
               playerId = claimedPlayer.id
               const response = await playerAPI.claimPlayer(claimedPlayer.id, formState.data, password)
               if (response.status === 'error') {
-                updateFormState('claim', response.message, true)
+                updateFormState(setFormState, 'claim', response.message, true)
                 return false
               }
             }
             else {
               const player = await playerAPI.createPlayer(formState.data);
               if (player?.error) {
-                updateFormState('create', 'Failed to create user', true)
+                updateFormState(setFormState, 'create', 'Failed to create user', true)
               }
               else
                 playerId = player.id
@@ -413,7 +365,7 @@ const Registration = () => {
                 navigate("/players/" + playerId, { replace: false })
               })
               .catch((error) => {
-                updateFormState('login', 'failed to login new user', true)
+                updateFormState(setFormState, 'login', 'failed to login new user', true)
                 authAPI.signOut()
               });
             return true;
@@ -485,10 +437,10 @@ const Registration = () => {
           <>
             {!showWizard && !showGoogleAdditionalInformation && (
               <>
-                <MyGoogleCheck 
-                  callback={handleGoogleAuth} 
-                  mode={enums.LOGIN_MODES.SIGN_UP} 
-                  toggleLoading={() => toggleLoader('step0')} 
+                <MyGoogleCheck
+                  callback={handleGoogleAuth}
+                  mode={enums.LOGIN_MODES.SIGN_UP}
+                  toggleLoading={() => toggleLoader('step0')}
                 />
 
                 <Divider sx={{ my: 2 }}>Or sign up with email</Divider>
@@ -544,8 +496,8 @@ const Registration = () => {
                 }
                 <UserInformation
                   //onUpdate={handleChange}
-                  onUpdate={(key, value) => updateFormState(key, value)}
-                  onError={(key, error) => updateFormState(key, error, true)}
+                  onUpdate={(key, value) => updateFormState(setFormState, key, value)}
+                  onError={(key, error) => updateFormState(setFormState, key, error, true)}
                   formData={formState.data}
                   errors={formState.errors}
                 />

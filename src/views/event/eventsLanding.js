@@ -8,8 +8,10 @@ import { helpers } from "helpers";
 const EventsLandingPage = () => {
 
   const fetchData = async (filters) => {
+    console.log(filters)
     const results = await eventAPI.getEvents(filters);
-    return results.events;
+    return {data: results.events, count: results.total_count || 0};
+    //return results.events;
   };
 
   const renderInfoWindow = (events) => `
@@ -31,7 +33,7 @@ const EventsLandingPage = () => {
 
   return (
     <Box>
-      <MapSearch
+      <MapSearch 
         title={'Find Events'}
         renderActions={renderActions}
         fetchData={fetchData}

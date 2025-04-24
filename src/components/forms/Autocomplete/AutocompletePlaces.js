@@ -4,6 +4,7 @@ import { MdOutlineMyLocation } from "react-icons/md";
 import Grid from "@mui/material/Grid2";
 import { TextField } from "@mui/material";
 import useGoogleMapsApi from "helpers/useGoogleMapsApi";
+import { helpers } from "helpers";
 
 const AutoCompletePlaces = ({
   onPlaceChanged,
@@ -54,6 +55,7 @@ const AutoCompletePlaces = ({
       if (onPlaceChanged && typeof onPlaceChanged === "function") {
         onPlaceChanged({
           location: formattedAddress,
+          city_name: helpers.extractCityFromPlace(place),
           lat: location.lat(),
           lng: location.lng(),
         }, place);
@@ -92,6 +94,7 @@ const AutoCompletePlaces = ({
           if (onPlaceChanged) {
             onPlaceChanged({
               location: formattedAddress,
+              city_name: helpers.extractCityFromPlace(results[0]),
               lat: initialCity.lat,
               lng: initialCity.lng,
             });
@@ -145,6 +148,7 @@ const AutoCompletePlaces = ({
             if (onPlaceChanged && typeof onPlaceChanged === "function") {
               onPlaceChanged({
                 location: formattedAddress,
+                city_name: helpers.extractCityFromPlace(results[0]),
                 lat: position.coords.latitude,
                 lng: position.coords.longitude,
               });

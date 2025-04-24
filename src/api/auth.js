@@ -33,9 +33,9 @@ const authAPI = {
 				password: password,
 				first_name: firstName,
 				last_name: lastName,
-				... location ? {
-					location: location.location, 
-					lat: location.lat, 
+				...location ? {
+					location: location.location,
+					lat: location.lat,
 					lng: location.lng
 				} : null,
 			}
@@ -80,13 +80,13 @@ const authAPI = {
 		}
 		catch (e) {
 			console.log('Failed to verify email')
-			return {'errors': e.message}
+			return { 'errors': e.message }
 		}
 	},
 
 	login: async function (username, password) {
 		try {
-			return handleLogin(authUrl + "login/", { email: username, username:username, password: password })
+			return handleLogin(authUrl + "login/", { email: username, username: username, password: password })
 		}
 		catch (e) {
 			return e
@@ -96,7 +96,10 @@ const authAPI = {
 	// todo: merge accounts, send token to google/connect/ 
 
 	googleLogin: async function (accesstoken) {
-		return handleLogin(authUrl + "google/", { access_token: accesstoken })
+		// console.log(accesstoken)
+		// return
+		//return handleLogin(authUrl + "google/", { code: accesstoken, redirect_uri: 'postmessage' })
+		return handleLogin(authUrl + "google-manual/", { code: accesstoken })
 	},
 
 	signOut: function () {
@@ -128,14 +131,14 @@ const authAPI = {
 	},
 
 	// gets the request options for API calls
-	getRequestOptions: function (method, body, admin=false) {
+	getRequestOptions: function (method, body, admin = false) {
 		const bearer = admin ? process.env.REACT_APP_ADMIN_TOKEN : this.getToken() || ''
 		const jsonBody = body ? JSON.stringify(body) : null
 		//console.log(bearer, process.env.REACT_APP_ADMIN_TOKEN)
 		const headers = {
 			'Content-Type': 'application/json',
 		};
-		
+
 		if (bearer) {
 			headers['Authorization'] = 'Token ' + bearer;
 		}
@@ -200,19 +203,28 @@ async function handleLogin(url, body) {
 
 		// if the login was successful
 		if (response.ok) {
-			const objKey = await response.json()
+			const retval = await response.json()
 			// Get the user 
-			setAttribute('tempkey', objKey.key);
+			setAttribute('tempkey', retval.key || retval.token);
 			const user = await authAPI.getUser()//objKey.key)
 			//set the user info in localStorage
-			setUser(user, objKey.key)
+			setUser(user, retval.key || retval.token)
 			localStorage.removeItem('tempkey');
 			// create and trigger a custom event for logging in
 			const myEvent = new CustomEvent('login', { detail: user })
 			window.dispatchEvent(myEvent)
 
 			// now get the full player details
-			const player = await playerAPI.getPlayer(user.pk, true)
+			let player;
+			if (retval.player) {
+				player = retval.player
+				const nameParts = (player.name || '').trim().split(' ');
+				player.firstName = nameParts[0] || '';
+				player.lastName = nameParts.slice(1).join(' ') || '';
+				player.created = retval.created
+			}
+			else
+				player = await playerAPI.getPlayer(user.pk, true)
 			//if the player has been merged, overwrite the info in localStorage
 			// if(player.id !== user.pk) {
 			// 	setAttribute('user_email', player.email)
@@ -220,7 +232,7 @@ async function handleLogin(url, body) {
 			// 	setAttribute('username', player.username)
 			// 	setAttribute('user_name', player.name)
 			//}
-			setAttribute('user_image', player.image)
+			setAttribute('user_image', player.image_urls?.thumbnail)
 
 			// initialize the notifications
 			requestNotificationPermission();

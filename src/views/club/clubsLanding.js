@@ -17,7 +17,8 @@ const ClubsLandingPage = () => {
     showSnackbar(`fetching data`, "success");
     console.log('fetching data')
     const results = await clubAPI.getClubs(filters);
-    return results.data.clubs;
+    return {data: results.data.clubs, count: results.data.total_count || 0};
+    //return results.data.clubs;
   };
 
   const renderInfoWindow = (clubs) => `

@@ -32,6 +32,7 @@ function UserInformation({ onUpdate, onError, formData, errors, ...props }) {
     // console.log('place changed', e.lat, e.lng)
     const updatedFormData = {
       //...formData,
+      city_name: e.city_name,
       location: e.location,
       lat: e.lat,
       lng: e.lng
@@ -41,6 +42,7 @@ function UserInformation({ onUpdate, onError, formData, errors, ...props }) {
     console.log('handlePlaceChanged', updatedFormData, updatedErrors)
 
     onUpdate('location', e.location);
+    onUpdate('city_name', e.city_name);
     onUpdate('lat', e.lat);
     onUpdate('lng', e.lng);
     onError('location', null)

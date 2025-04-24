@@ -32,6 +32,7 @@ const MapSearch = ({
   const [locationError, setLocationError] = useState('');
   const [radius, setRadius] = useState(15);
   const [data, setData] = useState([]);
+  const [count, setCount] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [map, setMap] = useState(null);
   const [infoWindow, setInfoWindow] = useState(null);
@@ -56,13 +57,13 @@ const MapSearch = ({
           });
         },
         () => {
-          if (user?.location) {
-            setInitialCity(user.location);
+          if (user?.city?.lat && user?.city?.lng) {
+            setInitialCity(user.city)
           }
         }
       );
-    } else if (user?.location) {
-      setInitialCity(user.location);
+    } else if (user?.city) {
+      setInitialCity({ 'location': user.city.name, lat: user.city.lat, lng: user.city.lng });
     } else setInitialCity({ location: "Sacramento, CA", lat: 38.5816, lng: -121.4944 });
   }, [user]);
 
@@ -117,17 +118,20 @@ const MapSearch = ({
       filters.bounds = `${latMin},${latMax},${lngMin},${lngMax}`
     }
     const results = await fetchData(filters);
-    setData(results);
+    setData(results.data);
+    setCount(results.count || 0)
     setIsLoading(false);
-
+    console.log("Initial city center:", initialCity);  // before map init 
     if (map) {
       //map.setCenter({ lat: initialCity.lat, lng: initialCity.lng });
       //map.setZoom(zoom);
-      updateMapMarkers(results, isBoundsSearch);
+      updateMapMarkers(results.data, isBoundsSearch);
     }
   };
 
   const updateMapMarkers = (items, isBoundsSearch) => {
+    
+    console.log("Items for markers:", items);
     //console.log(items)
     if (!mapsApi || !map) return;
     if (markerCluster) {
@@ -141,8 +145,10 @@ const MapSearch = ({
     };
     const groupedLocations = {};
     items.forEach(item => {
-      const lat = roundCoord(item.lat, 4);  // Adjust precision as needed
-      const lng = roundCoord(item.lng, 4);
+      const lat = roundCoord(parseFloat(item.lat || item?.city?.lat), 4);
+      const lng = roundCoord(parseFloat(item.lng || item?.city?.lng), 4);
+      console.log(lat, lng)
+      if (!lat || !lng) return;
       const key = `${lat},${lng}`;
       if (!groupedLocations[key]) groupedLocations[key] = [];
       groupedLocations[key].push(item);
@@ -314,13 +320,14 @@ const MapSearch = ({
 
         {/* Results List */}
         <Box width={"100%"} p={2} overflow="auto">
+          {count && <span>Found: {count} {count > 25 && ' (displaying 25, refine search to see all)'}</span>}
           {isLoading ? <CircularProgress /> : (
             <List>
               {data.map(item => (
                 <ListItem key={item.id}>
                   {renderListItem ? renderListItem(item) :
                     <Link to={`/${type}/${item.id}`}>
-                      <ListItemText primary={item.name} secondary={item.location ?? item?.city} />
+                      <ListItemText primary={item.name} secondary={item.location ?? item?.city?.name} />
                     </Link>
                   }
                 </ListItem>

@@ -7,7 +7,8 @@ const PlayersLandingPage = () => {
 
   const fetchData = async (filters) => {
     const results = await playerAPI.getPlayers(filters);
-    return results.data.players;
+    return {data: results.data.players, count: results.data?.total_count || 0};
+    //return results.data.players;
   };
 
   const renderInfoWindow = (players) => `<div style='width: 200px;'>

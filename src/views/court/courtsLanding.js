@@ -15,7 +15,8 @@ const CourtsLanding = () => {
 
   const fetchData = async (filters) => {
     const results = await courtAPI.getCourts(filters);
-    return results.courts;
+    console.log(results.courts)
+    return {data: results.courts, count: results.total_count || 0};
   };
 
   const renderInfoWindow = (courts) => `

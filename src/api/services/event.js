@@ -22,7 +22,7 @@ const eventAPI = {
     if(filter)
       url.search = helpers.parseFilter(filter)
     const requestOptions = authAPI.getRequestOptions('GET')
-    const response = await fetch(url+`&page=${page}&num-per-page=${pageSize}`, requestOptions)
+    const response = await fetch(url+`&page=${page || 1}&num-per-page=${pageSize || 10}`, requestOptions)
     if (response.ok)
       return await response.json()
     else

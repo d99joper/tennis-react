@@ -139,6 +139,7 @@ function Profile({ }) {
 			lat: locationData?.lat,
 			lng: locationData?.lng,
 			location: locationData?.location,
+			city_name: locationData?.city_name,
 			birth_year: form.get("birthyear")
 		};
 
@@ -393,16 +394,16 @@ function Profile({ }) {
 
 						{/** Location */}
 						<Editable
-							text={<Typography>{player.location || 'Location Unknown'}</Typography>}
+							text={<Typography>{player.city?.name || 'Location Unknown'}</Typography>}
 							isEditing={isEdit}
 						>
 							<AutoCompletePlaces
 								onPlaceChanged={(e) => {
 									console.log(e.lat, e.lng)
-									setLocationData((prev) => ({ ...prev, location: e.location, lat: e.lat, lng: e.lng }));
+									setLocationData((prev) => ({ ...prev, location: e.location, lat: e.lat, lng: e.lng, city_name: e.city_name }));
 								}}
 								showGetUserLocation={true}
-								initialCity={player.location}
+								initialCity={player.city?.name}
 							/>
 						</Editable>
 
