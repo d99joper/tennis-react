@@ -121,7 +121,7 @@ const MapSearch = ({
     setData(results.data);
     setCount(results.count || 0)
     setIsLoading(false);
-    console.log("Initial city center:", initialCity);  // before map init 
+    //console.log("Initial city center:", initialCity);  // before map init 
     if (map) {
       //map.setCenter({ lat: initialCity.lat, lng: initialCity.lng });
       //map.setZoom(zoom);
@@ -131,7 +131,7 @@ const MapSearch = ({
 
   const updateMapMarkers = (items, isBoundsSearch) => {
     
-    console.log("Items for markers:", items);
+    //console.log("Items for markers:", items);
     //console.log(items)
     if (!mapsApi || !map) return;
     if (markerCluster) {
@@ -147,7 +147,7 @@ const MapSearch = ({
     items.forEach(item => {
       const lat = roundCoord(parseFloat(item.lat || item?.city?.lat), 4);
       const lng = roundCoord(parseFloat(item.lng || item?.city?.lng), 4);
-      console.log(lat, lng)
+      //console.log(lat, lng)
       if (!lat || !lng) return;
       const key = `${lat},${lng}`;
       if (!groupedLocations[key]) groupedLocations[key] = [];
