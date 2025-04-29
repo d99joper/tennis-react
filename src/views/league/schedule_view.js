@@ -172,7 +172,7 @@ const ScheduleView = ({ event, schedule: initialSchedule, onScoreReported }) => 
             matchType={event.match_type}
             scheduleMatchId={editingMatch.id}
             limitedParticipants={[editingMatch.player1, editingMatch.player2]}
-            date={editingMatch.scheduled_date}
+            //date={editingMatch.scheduled_date}
             onSubmit={(matchData) => {
               console.log("Match reported:", matchData);
               handleMatchEditorSubmit(matchData);
