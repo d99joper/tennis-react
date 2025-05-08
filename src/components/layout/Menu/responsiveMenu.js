@@ -91,7 +91,7 @@ const ResponsiveMenu = ({ ...props }) => {
       </ListItemButton>
       {isLoggedIn && (
         <React.Fragment>
-          <ListItemButton title="My Profile" component={Link} to={"/players/" + props.currentUser?.id}>
+          <ListItemButton title="My Profile" component={Link} to={"/players/" + props.currentUser?.slug}>
             <ListItemIcon>
 
               <SlUser size="1.5rem" />
@@ -258,7 +258,7 @@ const ResponsiveMenu = ({ ...props }) => {
               <Box>
                 {!isSmallScreen &&
                   <span>
-                    <Link to={`/players/${props.currentUser?.id}`} className='bannerLink'>
+                    <Link to={`/players/${props.currentUser?.slug}`} className='bannerLink'>
                       <NotificationBadge>
                         <SlUser size={'1.5rem'} />
                       </NotificationBadge>

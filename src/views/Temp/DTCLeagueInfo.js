@@ -35,7 +35,7 @@ export default function DTCLeagueInfoPage() {
             primary={
               <Typography>
                 2. Apply to join the&nbsp;
-                <Link href="https://mytennis.space/clubs/481b72af-ed72-419a-826f-ab986dd24f0c" target="_blank" rel="noopener">
+                <Link href="https://mytennis.space/clubs/davis-tennis-club" target="_blank" rel="noopener">
                   Davis Tennis Club
                 </Link>
               </Typography>}

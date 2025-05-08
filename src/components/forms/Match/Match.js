@@ -35,7 +35,7 @@ const Match = ({ match, showH2H = false, color, variant }) => {
           {/* Winner row */}
           <Typography variant="body2" fontWeight="bold" noWrap>
             <Link
-              to={`/players/${match.winners[0]?.id}`}
+              to={`/players/${match.winners[0]?.slug}`}
               style={{ textDecoration: 'none', color: 'inherit' }}
             >
               {match.winners[0]?.name}
@@ -55,7 +55,7 @@ const Match = ({ match, showH2H = false, color, variant }) => {
           {/* Loser row */}
           <Typography variant="body2" noWrap>
             <Link
-              to={`/players/${match.losers[0]?.id}`}
+              to={`/players/${match.losers[0]?.slug}`}
               style={{ textDecoration: 'none', color: 'inherit' }}
             >
               {match.losers[0]?.name}
@@ -85,7 +85,7 @@ const Match = ({ match, showH2H = false, color, variant }) => {
       {/* Player1 and Scores */}
       <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
         <Typography variant="h6">
-          <Link to={`/players/${match.winners[0]?.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+          <Link to={`/players/${match.winners[0]?.slug}`} style={{ textDecoration: "none", color: "inherit" }}>
             {match.winners[0]?.name}
           </Link>
         </Typography>
@@ -104,7 +104,7 @@ const Match = ({ match, showH2H = false, color, variant }) => {
       {/* Player2 and Scores */}
       <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mt: 1 }}>
         <Typography variant="h6">
-          <Link to={`/players/${match.losers[0]?.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+          <Link to={`/players/${match.losers[0]?.slug}`} style={{ textDecoration: "none", color: "inherit" }}>
             {match.losers[0]?.name}
           </Link>
         </Typography>

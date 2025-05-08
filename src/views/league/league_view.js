@@ -134,7 +134,7 @@ const LeagueViewPage = (props) => {
         {event.name}
       </Typography>
       <Typography variant="bod1" gutterBottom>
-        Hosted by <Link to={'/clubs/' + event.club?.id} >{event.club?.name}</Link>
+        Hosted by <Link to={'/clubs/' + event.club?.slug} >{event.club?.name}</Link>
       </Typography>
       {!hasStarted() &&
         <Typography variant="body1" color="text.secondary" gutterBottom>
@@ -286,7 +286,7 @@ const LeagueViewPage = (props) => {
                     variant="body1"
                     color="primary"
                     sx={{ cursor: 'pointer' }}
-                    onClick={() => navigate(`/players/${selectedParticipant.players[0].id}`)}
+                    onClick={() => navigate(`/players/${selectedParticipant.players[0].slug}`)}
                   >
                     View Full Profile
                   </Typography>
@@ -304,7 +304,7 @@ const LeagueViewPage = (props) => {
                           variant="body1"
                           color="primary"
                           sx={{ cursor: 'pointer' }}
-                          onClick={() => navigate(`/players/${player.id}`)}
+                          onClick={() => navigate(`/players/${player.slug}`)}
                         >
                           View Full Profile
                         </Typography>

@@ -19,7 +19,7 @@ import { GoTriangleDown, GoTriangleUp } from "react-icons/go";
 
 const UserStats = ({ stats: data, statsFetched }) => {
   const [sortField, setSortField] = useState("year");
-  const [direction, setDirection] = useState("asc");
+  const [direction, setDirection] = useState("desc");
   const theme = useTheme();
   const isLargeScreen = useMediaQuery(theme.breakpoints.up("md"));
 
@@ -100,8 +100,8 @@ const UserStats = ({ stats: data, statsFetched }) => {
                   sx={{
                     "& > *": {
                       color: s.matches.percentage >= 50
-                        ? "rgb(16, 116, 16)"
-                        : "rgb(177, 38, 14)",
+                        ? "rgb(16, 116, 16) !important"
+                        : "rgb(177, 38, 14) !important",
                     }
                   }}
                 >

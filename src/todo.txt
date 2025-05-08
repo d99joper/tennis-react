@@ -11,6 +11,8 @@ current:
         [x] after registration 
             [x] Always go to players/id
             [x] Set menu (for both login and register)
+    [ ] League schedule, only add minimal data for players (id and name to save space)
+        [ ] Same with admins
     [ ] FAQ 
         [ ] Explain Subscriptions
         [ ] Ladders

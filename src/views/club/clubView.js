@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Typography, Button, Tabs, Tab, Switch, Snackbar, Pagination, TextField, IconButton, capitalize, Autocomplete, Chip, DialogContent, Select, MenuItem } from '@mui/material';
+import { Box, Typography, Button, Tabs, Tab, Switch, Snackbar, Pagination, TextField, IconButton, capitalize, Autocomplete, Chip, DialogContent, Select, MenuItem, LinearProgress } from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
 import clubAPI from 'api/services/club';
 import ResponsiveDataLayout from 'components/layout/Data/responsiveDataLayout';
@@ -28,6 +28,8 @@ const ClubViewPage = () => {
   const [showCreate, setShowCreate] = useState(false);
   const [archivedEventsPage, setArchivedEventsPage] = useState(1);
   const [archivedEventsTotalPages, setArchivedEventsTotalPages] = useState(1);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   const [isMember, setIsMember] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeTab, setActiveTab] = useState(0); // 0 for Events, 1 for Members
@@ -44,6 +46,7 @@ const ClubViewPage = () => {
   const { user } = useContext(AuthContext)
 
   useEffect(() => {
+
     async function fetchClubDetails() {
       const response = await clubAPI.getClub(clubId);
       const { club, active_events, members_count, total_events_count, active_events_count } =
@@ -54,6 +57,8 @@ const ClubViewPage = () => {
         total_events_count,
         active_events_count,
       });
+
+      setIsLoaded(true);
       setIsMember(club.is_member);
       setIsAdmin(club.is_admin);
       setActiveEvents(active_events);
@@ -66,7 +71,7 @@ const ClubViewPage = () => {
   const handleRemoveMember = async () => {
     if (memberToRemove) {
       try {
-        await clubAPI.removePlayer(clubId, memberToRemove.id); // API call to remove member
+        await clubAPI.removePlayer(club.id, memberToRemove.id); // API call to remove member
         setMembers((prev) => prev.filter((m) => m.id !== memberToRemove.id)); // Remove from UI
         setSnackbar({ open: true, message: `${memberToRemove.name} has been removed.` });
         setMemberToRemove(null)
@@ -86,7 +91,7 @@ const ClubViewPage = () => {
   const handleSave = async (field) => {
     try {
       const updatedData = { [field]: formData[field] };
-      await clubAPI.updateClub(clubId, updatedData);
+      await clubAPI.updateClub(club.id, updatedData);
       setClub((prev) => ({ ...prev, ...updatedData }));
       handleEditToggle(field);
       setSnackbar({ open: true, message: `${field} updated successfully` });
@@ -96,15 +101,24 @@ const ClubViewPage = () => {
   };
 
   const fetchMembers = async () => {
-    const response = await clubAPI.getMembers(clubId,);
+    setIsFetching(true);
+    try {
+    const response = await clubAPI.getMembers(club.id,);
     setMembers(response.data.members);
     const selectedAdmins = response.data.members.filter(member => club.admins.includes(member.id));
     //console.log(selectedAdmins);
     setAdmins(selectedAdmins);
+    }
+    catch(e) {
+      console.log(e)
+    }
+    finally {
+      setIsFetching(false)
+    }
   };
 
   const fetchArchivedEvents = async (page) => {
-    const response = await clubAPI.getArchivedEvents(clubId, page);
+    const response = await clubAPI.getArchivedEvents(club.id, page);
     console.log(response)
     setArchivedEvents(response.archived_events);
     setArchivedEventsTotalPages(response.total_pages);
@@ -166,7 +180,7 @@ const ClubViewPage = () => {
 
     try {
       // Send only IDs to the backend
-      await clubAPI.updateClub(clubId, { admins: filteredAdmins.map(admin => admin.id) });
+      await clubAPI.updateClub(club.id, { admins: filteredAdmins.map(admin => admin.id) });
       setSnackbar({ open: true, message: "Admins updated successfully" });
     } catch (error) {
       setSnackbar({ open: true, message: "Failed to update admins" });
@@ -198,7 +212,7 @@ const ClubViewPage = () => {
     if (eventToArchive) {
       try {
         const response = await eventAPI.archiveEvent(eventToArchive.id);
-        console.log(response,response.status !== 204, response.status)
+        console.log(response, response.status !== 204, response.status)
         setEventToArchive(null)
         if (response?.status !== 204) {
           setSnackbar({ open: true, message: "Failed to archive event." });
@@ -243,6 +257,7 @@ const ClubViewPage = () => {
     }
   };
 
+  if (!isLoaded) return <LinearProgress />;
 
   return (
     <Box p={2}>
@@ -310,7 +325,7 @@ const ClubViewPage = () => {
             Active Events: {club.active_events_count} | Total Events: {club.total_events_count} | Members: {club.members_count}
           </Typography>
 
-          <JoinRequest objectType={'club'} id={clubId} isMember={isMember} />
+          <JoinRequest objectType={'club'} id={club.id} isMember={isMember} />
 
           <Tabs value={activeTab} onChange={handleTabChange} sx={{ mt: 3 }}>
             <Tab label="Events" />
@@ -358,7 +373,7 @@ const ClubViewPage = () => {
                 <Switch
                   checked={showArchivedEvents}
                   onChange={() => {
-                    if(!showArchivedEvents && archivedEvents.length === 0) fetchArchivedEvents();
+                    if (!showArchivedEvents && archivedEvents.length === 0) fetchArchivedEvents();
                     setShowArchivedEvents(!showArchivedEvents);
                   }}
                   sx={{ mt: 2 }}
@@ -381,7 +396,7 @@ const ClubViewPage = () => {
                 rows={showArchivedEvents ? archivedEvents : activeEvents}
                 rowKey={(row) => row.id}
                 getRowData={(row) => [
-                  <Link to={'/events/' + row.id}>
+                  <Link to={'/events/' + row.slug}>
                     <Typography>{row.name}</Typography>
                   </Link>,
                   capitalize(row.match_type),
@@ -416,7 +431,7 @@ const ClubViewPage = () => {
                   </Box>
                 ]}
                 titleForScreen={(row) => (
-                  <Link to={'/events/' + row.id}>
+                  <Link to={'/events/' + row.slug}>
                     <Typography>{row.name}</Typography>
                   </Link>
                 )} // Always pass a function
@@ -462,50 +477,52 @@ const ClubViewPage = () => {
 
           )}
           {activeTab === 1 && (
-            members.map((p) => (
-              <Box sx={{ display: "flex", mt: 1, alignItems: "center", gap: 1 }} key={'member_' + p.id}>
-                <Link to={'/players/' + p.id} >
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <ProfileImage player={p} size={30} />
-                    <Typography>{p.name}</Typography>
-                  </Box>
-                </Link>
-                {club.admins.includes(p.id) && (
-                  <Typography component="span" sx={{ ml: 0, fontSize: 12, color: "primary.main", fontWeight: "bold" }}>
-                    (Admin)
-                  </Typography>
-                )}
-                {user?.id === p.id && (
-                  <Typography
-                    component="span"
-                    sx={{ ml: 0, fontSize: 12, color: "secondary.main" }}
-                    onClick={() => {
-                      console.log('clicked to leave')
-                      if (isAdmin && admins.length < 2) {
-                        setSnackbar({ open: true, message: `You can't leave without assigning at least one admin to the club` });
-                        return;
-                      }
-                      setMemberToRemove(p);
-                      setShowModal(true);
-                    }}
-                    style={{ cursor: "pointer" }}>
-                    <GiExitDoor size={20} />Leave club
-                  </Typography>
-                )}
-                {isAdmin && !club.admins.includes(p.id) && ( // Show delete icon only for non-admins
-                  <MdDelete
-                    size={20}
-                    color="red"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => {
-                      setMemberToRemove(p);
-                      setShowModal(true);
-                    }}
-                  />
-                )}
-              </Box>
-            ))
-
+            <>
+              {isFetching && <LinearProgress />}
+              {members.map((p) => (
+                <Box sx={{ display: "flex", mt: 1, alignItems: "center", gap: 1 }} key={'member_' + p.id}>
+                  <Link to={'/players/' + p.slug} >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <ProfileImage player={p} size={30} />
+                      <Typography>{p.name}</Typography>
+                    </Box>
+                  </Link>
+                  {club.admins.includes(p.id) && (
+                    <Typography component="span" sx={{ ml: 0, fontSize: 12, color: "primary.main", fontWeight: "bold" }}>
+                      (Admin)
+                    </Typography>
+                  )}
+                  {user?.id === p.id && (
+                    <Typography
+                      component="span"
+                      sx={{ ml: 0, fontSize: 12, color: "secondary.main" }}
+                      onClick={() => {
+                        console.log('clicked to leave')
+                        if (isAdmin && admins.length < 2) {
+                          setSnackbar({ open: true, message: `You can't leave without assigning at least one admin to the club` });
+                          return;
+                        }
+                        setMemberToRemove(p);
+                        setShowModal(true);
+                      }}
+                      style={{ cursor: "pointer" }}>
+                      <GiExitDoor size={20} />Leave club
+                    </Typography>
+                  )}
+                  {isAdmin && !club.admins.includes(p.id) && ( // Show delete icon only for non-admins
+                    <MdDelete
+                      size={20}
+                      color="red"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => {
+                        setMemberToRemove(p);
+                        setShowModal(true);
+                      }}
+                    />
+                  )}
+                </Box>
+              ))}
+            </>
           )}
           <MyModal showHide={showModal}
             onClose={() => {
@@ -582,7 +599,7 @@ const ClubViewPage = () => {
                     {requests?.filter((x) => x.status === 'pending').map((r) => (
                       <Box display={'flex'} alignItems={'center'} gap={2} key={'request_' + r.id} >
                         <Typography>
-                          {r.title} from <Link to={'players/' + r.sender.id}>{r.sender?.name}</Link>
+                          {r.title} from <Link to={'players/' + r.sender.slug}>{r.sender?.name}</Link>
                         </Typography>
                         <Box
                           display={'flex'}

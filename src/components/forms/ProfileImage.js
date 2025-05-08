@@ -80,7 +80,7 @@ const ProfileImage = ({ player, size, asLink=false, showName=false, ...props }) 
   )
   
   if (asLink === true) return (
-    <Link to={"/players/"+player.id} >
+    <Link to={"/players/"+player.slug} >
       {showName === true ? boxAvatar : {avatar}}
     </Link>
   )

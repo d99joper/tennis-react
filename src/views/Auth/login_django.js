@@ -99,7 +99,7 @@ function Login({ mode, ...props }) {
         //  redirect()
         login(player);
 
-        redirect(player.id)
+        redirect(player.slug)
       })
       .catch((error) => {
         console.log(error);
@@ -136,7 +136,7 @@ function Login({ mode, ...props }) {
       }
       else {
         login(user)
-        redirect(user.id)
+        redirect(user.slug)
       }
     }).catch((error) => {
       console.error('Google login failed:', error);
@@ -231,7 +231,7 @@ function Login({ mode, ...props }) {
                   setShowLoader(true)
                   await playerAPI.createPlayer(formState.data)
                   login(formState.data.player)
-                  navigate("/players/" + formState.data.player.id, { replace: false })
+                  navigate("/players/" + formState.data.player.slug, { replace: false })
                 } catch (err) {
                   console.error("Error saving additional info", err)
                   setErrors([<span key="update_error">Failed to save profile</span>])

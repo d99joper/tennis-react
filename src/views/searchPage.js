@@ -175,21 +175,21 @@ const SearchPage = () => {
       ) : (
         <List>
           {selectedSearch === "players" && players.map(player => (
-            <Link to={"/players/" + player.id} key={player.id}>
+            <Link to={"/players/" + player.slug} key={player.id}>
               <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1, pb: 2 }}>
                 <ProfileImage player={player} /> {player.name}
               </Box>
             </Link>
           ))}
           {selectedSearch === "clubs" && clubs.map(club => (
-            <Link to={'/clubs/' + club.id} key={club.id}>
+            <Link to={'/clubs/' + club.slug} key={club.id}>
               <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1, pb: 2 }}>
                 {club.name}
               </Box>
             </Link>
           ))}
           {selectedSearch === "events" && events.map(event => (
-            <Link to={'/events/' + event.id} key={event.id}>
+            <Link to={'/events/' + event.slug} key={event.id}>
               <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1, pb: 2 }}>
                 {event.name}
               </Box>

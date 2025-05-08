@@ -69,7 +69,7 @@ const StandingsView = ({ standings, event_id, isAdmin = false, callback }) => {
         getRowData={(row, index) => [
           `#${row.rank}`,
           (
-            <Link to={'/players/' + row.players[0].id}>
+            <Link to={'/players/' + row.players[0].slug}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <ProfileImage player={row.players[0]} size={30} />
                 <Typography>{row.name}</Typography>
@@ -111,7 +111,7 @@ const StandingsView = ({ standings, event_id, isAdmin = false, callback }) => {
               </Box>
             }
             {isSmall &&
-              <Link to={'/players/' + row.players[0].id}>
+              <Link to={'/players/' + row.players[0].slug}>
                 <Typography
                   variant={"h6"}
                   sx={{ fontWeight: "bold", color: "primary.main" }}

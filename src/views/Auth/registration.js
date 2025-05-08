@@ -84,7 +84,7 @@ const Registration = () => {
         await playerAPI.createPlayer(formState.data)
       }
       login(formState.data.player);
-      navigate("/players/" + formState.data.player.id, { replace: false })
+      navigate("/players/" + formState.data.player.slug, { replace: false })
     }
     catch (err) {
       console.log('Error: ' + err)
@@ -149,7 +149,7 @@ const Registration = () => {
         // user already exists, so login and redirect to profile page
         login(user)
         toggleLoader('step0');
-        navigate("/players/" + user?.id, { replace: false })
+        navigate("/players/" + user?.slug, { replace: false })
       }
       // it's a new user
       else {
@@ -362,7 +362,7 @@ const Registration = () => {
             authAPI.login(formState.data.email, password)
               .then((p) => {
                 login(p);
-                navigate("/players/" + playerId, { replace: false })
+                navigate("/players/" + p.slug, { replace: false })
               })
               .catch((error) => {
                 updateFormState(setFormState, 'login', 'failed to login new user', true)

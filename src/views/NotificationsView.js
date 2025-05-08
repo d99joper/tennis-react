@@ -167,7 +167,7 @@ const NotificationsView = () => {
                       Go to {selectedNotification.related_object.name}
                     </Link>
                     {selectedNotification.type === 'join_request' &&
-                      <Link to={'/players/' + selectedNotification.sender.id} style={{ marginRight: 10 }} target='_blank'>
+                      <Link to={'/players/' + selectedNotification.sender.slug} style={{ marginRight: 10 }} target='_blank'>
                         <Box sx={{ display: "flex", mt: 1, alignItems: "center", gap: 1 }}>
                           <ProfileImage player={selectedNotification.sender} size={30} />
                           <Typography>{selectedNotification.sender.name}</Typography>

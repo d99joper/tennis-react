@@ -215,7 +215,7 @@ function Profile({ }) {
 		const renderLink = (event) => {
 			return (
 				<Box key={'event_' + event.id}>
-					<Link to={'/events/' + event.id}>
+					<Link to={'/events/' + event.slug}>
 						{event.name}
 					</Link>
 				</Box>
@@ -373,15 +373,16 @@ function Profile({ }) {
 							<Link to='/notifications/'>
 								{notificationCount > 0 && `You have ${notificationCount} unread messages`}
 							</Link>
-							: isLoggedIn && <Box display={'flex'} gap={1} alignItems={'center'}>
-								<AiOutlineMessage
-									onClick={() => setShowChatModal(true)}
-									color='green'
-									size={25}
-									cursor={'pointer'}
-								/>
-								<Typography>Message</Typography>
-							</Box>
+							: isLoggedIn && !player.username.endsWith('@mytennis.space') &&
+								<Box display={'flex'} gap={1} alignItems={'center'}>
+									<AiOutlineMessage
+										onClick={() => setShowChatModal(true)}
+										color='green'
+										size={25}
+										cursor={'pointer'}
+									/>
+									<Typography>Message</Typography>
+								</Box>
 						}
 						<MyModal
 							showHide={showChatModal}
@@ -525,7 +526,7 @@ function Profile({ }) {
 						</Typography>
 						{player.clubs?.map((club) => (
 							<Typography key={club.id}>
-								<Link to={'/clubs/' + club.id}>{club.name}</Link>
+								<Link to={'/clubs/' + club.slug}>{club.name}</Link>
 							</Typography>
 						))}
 					</Box>

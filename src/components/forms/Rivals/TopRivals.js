@@ -27,7 +27,7 @@ const TopRivals = ({ data, rivalsFetched, player }) => {
 												<Typography as="span" variant="body1">
 													<Box display="flex" alignItems="center" gap={1}>
 														vs.&nbsp;
-														<Link to={`/players/${rival.player.id}`} >
+														<Link to={`/players/${rival.player.slug}`} >
 															<Box display="flex" alignItems="center" gap={0.5}>
 																<ProfileImage player={rival.player} size={40} />
 																<Typography variant="body1" component="span">

@@ -161,7 +161,7 @@ const Home = ({ homeDataRef }) => {
             loading.clubs,
             club => (
               <Box key={club.id} sx={{ pb: 2, pt: 2 }}>
-                <Link to={`clubs/${club.id}`} variant="subtitle1">{club.name}</Link>
+                <Link to={`clubs/${club.slug}`} variant="subtitle1">{club.name}</Link>
                 <Divider />
               </Box>
             ),
@@ -177,7 +177,7 @@ const Home = ({ homeDataRef }) => {
             loading.events,
             event => (
               <Box key={event.id} sx={{ pb: 2, pt: 2 }}>
-                <Link to={`events/${event.id}`} variant="subtitle1">{event.name}</Link>
+                <Link to={`events/${event.slug}`} variant="subtitle1">{event.name}</Link>
                 <Divider />
               </Box>
             ),

@@ -240,7 +240,7 @@ const toggleProfileLink = (id) => {
                               />
                               {showProfileClickOptions && selectedPlayer === s.player.id && (
                                 <div className="options">
-                                  <Link to={`../../players/${s.player.id}`}>Go to profile</Link>
+                                  <Link to={`../../players/${s.player.slug}`}>Go to profile</Link>
                                   <Link onClick={(e) => { e.stopPropagation(); handleChallenge(s.player.id) }}>Challenge</Link>
                                 </div>
                               )}

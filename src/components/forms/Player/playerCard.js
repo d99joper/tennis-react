@@ -48,12 +48,12 @@ const PlayerCard = ({
       <Box display={'flex'} flexDirection={'column'}>
         <Box display={'flex'} flexDirection={'row'}>
           {headerAsLink
-            ? <Link to={"/players/" + player.id} {...openToBlank && { target: "_blank" }}>{profilePic}</Link>
+            ? <Link to={"/players/" + player.slug} {...openToBlank && { target: "_blank" }}>{profilePic}</Link>
             : profilePic
           }
           <Box display={'flex'} flexDirection={'column'} gap="0.1rem">
             {headerAsLink
-              ? <Link to={"/players/" + player.id} {...openToBlank && { target: "_blank" }}>{profileName}</Link>
+              ? <Link to={"/players/" + player.slug} {...openToBlank && { target: "_blank" }}>{profileName}</Link>
               : profileName
             }
             {player.location &&
@@ -77,7 +77,7 @@ const PlayerCard = ({
   return (
 
     asLink ? (
-      <Link to={"/players/" + player.id} {...openToBlank && { target: "_blank" }}>
+      <Link to={"/players/" + player.slug} {...openToBlank && { target: "_blank" }}>
         {cardContent}
       </Link>
     ) :
