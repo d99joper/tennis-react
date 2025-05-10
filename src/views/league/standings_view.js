@@ -81,7 +81,7 @@ const StandingsView = ({ standings, event_id, isAdmin = false, callback }) => {
           displayDiff(row.sets_won, row.sets_lost),
           displayDiff(row.games_won, row.games_lost),
           // if no matches have been played, you can delete the player
-          row.game_diff === 0 && isAdmin && (
+          (row.wins + row.losses) === 0 && isAdmin && (
             loading[index]
               ? <CircularProgress size={20} />
               : <MdDelete
