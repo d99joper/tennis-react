@@ -4,13 +4,22 @@ import { Box } from '@mui/material';
 
 const userHelper = {
 
-	getPlayerNames: function(players) {
-		return players.map((p, index) => (
-			<span key={p.id}>
-				{p.name}
-				{index < players.length - 1 && <br />}
-			</span>
-		));
+	getPlayerNames: function (players) {
+		console.log(players)
+		return (
+			<>
+				{players.map((p, index) => (
+					<span key={p.id}>
+						{p.name}
+						{index < players.length - 1 && <br />}
+					</span>
+				))}
+			</>
+		)
+	},
+
+	getPlayerNamesString: function (players) {
+		return players.map(p => p.name).join(', \n');
 	},
 
 	SetPlayerName_old: function (player, lastnameOnly, boldText) {
@@ -77,12 +86,12 @@ const userHelper = {
 					</React.Fragment>
 				)
 			}
-			else 
+			else
 				return (
 					<React.Fragment key={`Fragment_${i}`}>
-					<Box>{i > 0 ? ' / ' : ''}</Box>
-					{name}
-				</React.Fragment>
+						<Box>{i > 0 ? ' / ' : ''}</Box>
+						{name}
+					</React.Fragment>
 				)
 		})
 	},

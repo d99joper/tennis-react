@@ -319,7 +319,7 @@ const ClubViewPage = () => {
             </Box>
           </Editable>
           <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-            Location: {club.location}
+            Location: {club.address || club.city?.name}
           </Typography>
           <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
             Active Events: {club.active_events_count} | Total Events: {club.total_events_count} | Members: {club.members_count}

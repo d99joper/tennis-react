@@ -9,6 +9,7 @@ import { eventAPI } from 'api/services'
 import { userHelper } from 'helpers'
 import InfoPopup from '../infoPopup'
 import MyModal from 'components/layout/MyModal'
+import { Link } from 'react-router-dom'
 
 const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration = false, callback, ...props }) => {
   const [status, setStatus] = useState('loading')
@@ -134,7 +135,22 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
   }
 
   if (!isLoggedIn) {
-    return
+    return (
+      <Box sx={{p:1.5}}>
+        <Typography variant='body2'>
+          Do you want to join? <br />
+          Sign up for account today!
+        </Typography>
+        <Button 
+          variant="contained" 
+          color="info" 
+          component={Link}
+          to="/Registration"
+        >
+          Register an account
+        </Button>
+      </Box>
+    )
   }
 
   if (status === 'loading' || loading) {

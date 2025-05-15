@@ -101,7 +101,7 @@ const Comments = ({ data = null, entityId = null, entityType = 'match', showComm
               <Typography variant="body2">
                 {formatText(comment.content)}
               </Typography>
-              {currentUser.id === comment.posted_by.id &&
+              {currentUser?.id === comment.posted_by.id &&
                 <div
                   style={deleteButtonStyle}
                   title="delete"

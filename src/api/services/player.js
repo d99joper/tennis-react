@@ -24,6 +24,33 @@ const playerAPI = {
       //return { status: response.status, statusCode: response.statusCode, statusText: response.statusText, error: 'No Player Found' }
   },
 
+  getPlayerAwards: async function (id) {
+    const requestOptions = authAPI.getRequestOptions('GET');
+    
+    let response = await fetch(playersUrl + id + '/awards', requestOptions)
+
+    if (response.ok) {
+      const player = await response.json()
+      //await this.setPlayerImage(player)
+      return player
+    }
+    else
+      throw new Error('No player found')
+      //return { status: response.status, statusCode: response.statusCode, statusText: response.statusText, error: 'No Player Found' }
+  },
+
+  createAward: async function(playerId, award_type, title, description, icon) {
+    const requestOptions = authAPI.getRequestOptions('POST', {award_type, title, description, icon})
+
+    let response = await fetch(playersUrl + playerId + '/award')
+
+    if (response.ok) {
+      return true
+    }
+    else
+      throw new Error('No player found') 
+  },
+
   requestPasswordReset: async function (email) {
     const requestOptions = authAPI.getRequestOptions('POST', {email})
     let response = await fetch(playersUrl+'password-reset/', requestOptions)

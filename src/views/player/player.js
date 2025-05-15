@@ -31,6 +31,7 @@ import MyModal from 'components/layout/MyModal';
 import Conversation from 'components/forms/Notifications/conversations';
 import NTRPLevels from 'views/NTRPLevels';
 import UTRImportButton from 'components/forms/Player/UTRImport';
+import TrophyCase from 'components/forms/TrophyCase';
 
 function Profile({ }) {
 	const params = useParams();
@@ -86,6 +87,7 @@ function Profile({ }) {
 				setStats(fetchedPlayer.stats)
 				setStatsFetched(true)
 				setIsLoaded(true);
+				fetchAwards(fetchedPlayer.id);
 
 				if (!userIsLoading && isLoggedIn && user.id === fetchedPlayer.id) {
 					//console.log('canEdit')
@@ -106,7 +108,13 @@ function Profile({ }) {
 			}
 		}
 
+		async function fetchAwards(id) {
+			const data = await playerAPI.getPlayerAwards(id)
+			console.log(data)
+		}
+
 		fetchProfile();
+		
 	}, [params.userid, user]);
 
 	const handleMatchAdded = () => {
@@ -424,6 +432,12 @@ function Profile({ }) {
 								/>
 							</Box>
 						</Editable>
+
+						{/** Trophies and Badges */}
+						<TrophyCase
+							trophies={player.trophies || []}
+							badges={player.badges || []}
+						/>
 					</Box>
 				</Box>
 

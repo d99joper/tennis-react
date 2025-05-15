@@ -53,6 +53,7 @@ const Matches = ({
   const currentUser = authAPI.getCurrentUser();
 
   const openModal = (content, title) => {
+    console.log(title)
     setModalContent(content);
     setModalTitle(title);
     setIsModalOpen(true);
@@ -223,7 +224,7 @@ const Matches = ({
               title="Comments"
               onClick={() => openModal(
                 <Comments entityId={match.id} entityType='match' />,
-                `${uh.getPlayerNames(match.winners)} vs ${uh.getPlayerNames(match.losers)}`
+                `${uh.getPlayerNamesString(match.winners)} vs ${uh.getPlayerNamesString(match.losers)}`
               )}
             />
           </Badge>

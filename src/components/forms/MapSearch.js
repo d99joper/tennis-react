@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Box, TextField, Button, Slider, Typography, List, ListItem, ListItemText, CircularProgress, FormControlLabel, Checkbox, useMediaQuery, Grid2 } from "@mui/material";
+import { Box, TextField, Button, Slider, Typography, List, ListItem, ListItemText, CircularProgress, FormControlLabel, Checkbox, useMediaQuery, Grid2 as Grid } from "@mui/material";
 import { AutoCompletePlaces, ProfileImage } from "components/forms";
 import useGoogleMapsApi from "helpers/useGoogleMapsApi";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
@@ -254,12 +254,12 @@ const MapSearch = ({
         <title>Search | MyTennis Space</title>
       </Helmet>
       <Typography variant="h6">{title}</Typography>
-      <Grid2 container spacing={2}>
-        <Grid2 size={8}>
+      <Grid container spacing={2}>
+        <Grid size={8}>
           <TextField label="Name" fullWidth value={name} onChange={(e) => setName(e.target.value)} sx={{ mb: 2 }} />
-        </Grid2>
+        </Grid>
         {showNTRP && (
-          <Grid2 size={8}>
+          <Grid size={8}>
             <FormControlLabel
               control={<Checkbox checked={applyNtrp} onChange={() => setApplyNtrp(!applyNtrp)} />}
               label="Apply NTRP Filter"
@@ -270,10 +270,10 @@ const MapSearch = ({
                 <Slider value={ntrp} min={2.0} max={6.5} step={0.5} onChange={(e, val) => setNtrp(val)} valueLabelDisplay="auto" />
               </>
             }
-          </Grid2>
+          </Grid>
         )}
         {showUTR && (
-          <Grid2 size={8}>
+          <Grid size={8}>
             <FormControlLabel
               control={<Checkbox checked={applyUtr} onChange={() => setApplyUtr(!applyUtr)} />}
               label="Apply UTR Filter"
@@ -284,9 +284,9 @@ const MapSearch = ({
                 <Slider value={utr} min={1.0} max={17.0} step={0.1} onChange={(e, val) => setUtr(val)} valueLabelDisplay="auto" />
               </>
             )}
-          </Grid2>
+          </Grid>
         )}
-        <Grid2 size={8}>
+        <Grid size={8}>
           {!requireLocation &&
             <FormControlLabel
               control={<Checkbox checked={applyLocation} onChange={() => setApplyLocation(!applyLocation)} />}
@@ -306,14 +306,14 @@ const MapSearch = ({
               <Slider min={5} max={100} step={5} value={radius} onChange={(e, val) => setRadius(val)} valueLabelDisplay="auto" />
             </>
           )}
-        </Grid2>
-        <Grid2 size={12}>
+        </Grid>
+        <Grid size={12}>
           <Button variant="contained" fullWidth onClick={updateSearch} sx={{ mt: 2 }}>Search</Button>
-        </Grid2>
-        <Grid2 size={12}>
+        </Grid>
+        <Grid size={12}>
           {renderActions && renderActions()}
-        </Grid2>
-      </Grid2>
+        </Grid>
+      </Grid>
 
       {/* Results and Map - Split Dynamically */}
       <Box display="flex" flexDirection={isSmallScreen ? "column" : "row"} width={"100%"} height="100vh" sx={{ pt: 2 }}>
