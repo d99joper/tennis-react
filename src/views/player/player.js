@@ -16,8 +16,8 @@ import {
 	Divider,
 	Button,
 } from '@mui/material';
-import { AiOutlineEdit, AiOutlineMessage } from 'react-icons/ai';
-import { MdOutlineCancel, MdOutlineCheck, MdOutlineRefresh, MdSportsTennis } from 'react-icons/md';
+import { AiOutlineMessage } from 'react-icons/ai';
+import { MdOutlineRefresh, MdSportsTennis } from 'react-icons/md';
 import { playerAPI } from 'api/services/index.js';
 import { ProfileImage, ProfileImageContext } from 'components/forms/ProfileImage.js';
 import './profile.css';
@@ -28,10 +28,11 @@ import { useNotificationsContext } from 'contexts/NotificationContext';
 import { Helmet } from 'react-helmet-async';
 import { AuthContext } from 'contexts/AuthContext';
 import MyModal from 'components/layout/MyModal';
-import Conversation from 'components/forms/Notifications/conversations';
+import Conversation from 'components/forms/Conversations/conversations';
 import NTRPLevels from 'views/NTRPLevels';
 import UTRImportButton from 'components/forms/Player/UTRImport';
 import TrophyCase from 'components/forms/TrophyCase';
+import PlayerLadders from './playerLadders';
 
 function Profile({ }) {
 	const params = useParams();
@@ -47,6 +48,7 @@ function Profile({ }) {
 	const [utrRankSingles, setUtrRankSingles] = useState();
 	const [utrRankDoubles, setUtrRankDoubles] = useState();
 	const [stats, setStats] = useState({})
+	const [awards, setAwards] = useState({})
 	const [statsFetched, setStatsFetched] = useState(false);
 	const [rivals, setRivals] = useState({})
 	const [rivalsFetched, setRivalsFetched] = useState(false);
@@ -109,12 +111,14 @@ function Profile({ }) {
 		}
 
 		async function fetchAwards(id) {
-			const data = await playerAPI.getPlayerAwards(id)
-			console.log(data)
+			playerAPI.getPlayerAwards(id).then((data) => {
+				setAwards(data);
+				console.log(data);
+			})
 		}
 
 		fetchProfile();
-		
+
 	}, [params.userid, user]);
 
 	const handleMatchAdded = () => {
@@ -382,15 +386,15 @@ function Profile({ }) {
 								{notificationCount > 0 && `You have ${notificationCount} unread messages`}
 							</Link>
 							: isLoggedIn && !player.username.endsWith('@mytennis.space') &&
-								<Box display={'flex'} gap={1} alignItems={'center'}>
-									<AiOutlineMessage
-										onClick={() => setShowChatModal(true)}
-										color='green'
-										size={25}
-										cursor={'pointer'}
-									/>
-									<Typography>Message</Typography>
-								</Box>
+							<Box display={'flex'} gap={1} alignItems={'center'}>
+								<AiOutlineMessage
+									onClick={() => setShowChatModal(true)}
+									color='green'
+									size={25}
+									cursor={'pointer'}
+								/>
+								<Typography>Message</Typography>
+							</Box>
 						}
 						<MyModal
 							showHide={showChatModal}
@@ -435,8 +439,9 @@ function Profile({ }) {
 
 						{/** Trophies and Badges */}
 						<TrophyCase
-							trophies={player.trophies || []}
-							badges={player.badges || []}
+							trophies={awards.trophies || player.trophies || []}
+							badges={awards.badges || player.badges || []}
+							player_id={player.id}
 						/>
 					</Box>
 				</Box>
@@ -544,6 +549,8 @@ function Profile({ }) {
 							</Typography>
 						))}
 					</Box>
+					<Divider orientation='vertical' flexItem />
+					<PlayerLadders playerId={player.id} showWinLoss={true} showRating={true} />
 					{/* {player.email && (
 								<Typography><AiOutlineMail /> <a href={`mailto:${player.email}`}>{player.email}</a></Typography>
 							)}

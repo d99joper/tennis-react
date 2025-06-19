@@ -14,9 +14,11 @@ import { AuthProvider } from 'contexts/AuthContext';
 import { NotificationsProvider } from 'contexts/NotificationContext';
 import { HelmetProvider } from "react-helmet-async";
 import { SnackbarProvider } from 'contexts/snackbarContext';
+import useAwardToast from 'helpers/useAwardsToast';
 
 function App() {
   const originalTitle = useRef(document.title);
+  const { showAward, AwardToast } = useAwardToast()
 
   console.log('app is starting...')
   // request notification permission
@@ -63,6 +65,14 @@ function App() {
 
       const title = payload?.notification.title || "New Notification";
       const body = payload?.notification.body || "You have received a new message.";
+
+      const type = payload?.data?.type; 
+      console.log(type)
+
+      if ((type === "badge" || type === "trophy")) {
+        console.log('show award')
+        showAward(type, title);
+      }
 
       // ✅ Display a browser notification
       if (Notification.permission === "granted") {
@@ -127,6 +137,7 @@ function App() {
                 </NotificationsProvider>
               </AuthProvider>
             </ThemeProvider>
+            <AwardToast />
           </Box>
         </ProfileImageProvider>
       </HelmetProvider>

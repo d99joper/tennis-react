@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   Box,
   Typography,
@@ -9,10 +9,9 @@ import {
   IconButton,
   Grid2 as Grid,
   Button,
-  Snackbar,
   LinearProgress,
 } from '@mui/material';
-import { AiOutlineMail, AiOutlineCheck, AiOutlineDelete } from 'react-icons/ai';
+import { AiOutlineMail, AiOutlineCheck, AiOutlineDelete, AiOutlineMessage } from 'react-icons/ai';
 import { useNotificationsContext } from 'contexts/NotificationContext';
 import { Link } from 'react-router-dom';
 import notificationAPI from 'api/services/notifications';
@@ -20,13 +19,18 @@ import requestAPI from 'api/services/request';
 import { ProfileImage } from 'components/forms';
 import { useSnackbar } from 'contexts/snackbarContext';
 import { Helmet } from 'react-helmet-async';
+import MyModal from 'components/layout/MyModal';
+import Conversation from 'components/forms/Conversations/conversations';
+import { AuthContext } from 'contexts/AuthContext';
 
 const NotificationsView = () => {
   const [loading, setLoading] = useState(false);
+  const [showChatModal, setShowChatModal] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
   const { notifications, notificationCount, markAsRead, deleteNotification, updateNotification } = useNotificationsContext();
   //const [snackbar, setSnackbar] = useState({ open: false, message: '' });
   const { showSnackbar } = useSnackbar();
+  const { user, isLoggedIn } = useContext(AuthContext);
 
   const handleSelectNotification = async (notification) => {
     if (selectedNotification?.id !== notification.id) {
@@ -156,26 +160,52 @@ const NotificationsView = () => {
           )}
           {selectedNotification && (
             <Box>
-              <Typography variant="h6">{selectedNotification.title}</Typography>
-              <Typography variant="body2">{selectedNotification.message}</Typography>
-
-              {/* Dynamic Links */}
-              {loading ? <LinearProgress /> :
-                selectedNotification.related_object && (
-                  <Box>
-                    <Link to={selectedNotification.related_object.url} style={{ marginRight: 10 }} target='_blank'>
-                      Go to {selectedNotification.related_object.name}
+              <Typography variant="h6">
+                {selectedNotification.type === 'message' && selectedNotification.sender
+                  ? <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1 }}>
+                    <Typography>Message From </Typography>
+                    <Link to={"/players/" + selectedNotification.sender.slug} target='_blank' >
+                      {selectedNotification.sender.name}
                     </Link>
-                    {selectedNotification.type === 'join_request' &&
-                      <Link to={'/players/' + selectedNotification.sender.slug} style={{ marginRight: 10 }} target='_blank'>
-                        <Box sx={{ display: "flex", mt: 1, alignItems: "center", gap: 1 }}>
-                          <ProfileImage player={selectedNotification.sender} size={30} />
-                          <Typography>{selectedNotification.sender.name}</Typography>
-                        </Box>
-                      </Link>
-                    }
                   </Box>
-                )}
+                  : selectedNotification.title
+                }
+              </Typography>
+              <Typography variant="body2">
+                {selectedNotification.message}
+              </Typography>
+              {loading ? <LinearProgress /> :
+                <>
+                  {selectedNotification.related_object && (
+                    <Box>
+                      <Link to={selectedNotification.related_object.url} style={{ marginRight: 10 }} target='_blank'>
+                        Go to {selectedNotification.related_object.name}
+                      </Link>
+                      {selectedNotification.type === 'join_request' &&
+                        <Link to={'/players/' + selectedNotification.sender.slug} style={{ marginRight: 10 }} target='_blank'>
+                          <Box sx={{ display: "flex", mt: 1, alignItems: "center", gap: 1 }}>
+                            <ProfileImage player={selectedNotification.sender} size={30} />
+                            <Typography>{selectedNotification.sender.name}</Typography>
+                          </Box>
+                        </Link>
+                      }
+                    </Box>
+
+                  )
+                  }
+                  {selectedNotification.type === 'message' && isLoggedIn && (
+                    <Box display={'flex'} gap={1} alignItems={'center'}>
+                      <AiOutlineMessage
+                        onClick={() => setShowChatModal(true)}
+                        color='green'
+                        size={25}
+                        cursor={'pointer'}
+                      />
+                      <Typography sx={{cursor:'pointer', color: 'green'}} onClick={() => setShowChatModal(true)}>See chat</Typography>
+                    </Box>
+                  )}
+                </>
+              }
 
               {/* Actions */}
               {selectedNotification.type === 'join_request' && (
@@ -207,7 +237,14 @@ const NotificationsView = () => {
               )}
             </Box>
           )}
-
+          <MyModal
+            showHide={showChatModal}
+            onClose={() => setShowChatModal(false)}
+            title={`Send ${selectedNotification?.name} a message`}
+          >
+            Send a message
+            <Conversation player1={user} player2={selectedNotification?.sender} />
+          </MyModal>
         </Box>
       </Grid>
       {/* 

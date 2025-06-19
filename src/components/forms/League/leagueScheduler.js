@@ -78,6 +78,8 @@ const LeagueScheduler = ({ event, schedule, onSave }) => {
   const handlePlayerChange = (index, key, player) => {
     const updatedSchedule = [...localSchedule];
     updatedSchedule[index][key] = player;
+    // console.log(player)
+    // console.log(updatedSchedule[index][key])
     setLocalSchedule(updatedSchedule);
   };
 
@@ -203,7 +205,7 @@ const LeagueScheduler = ({ event, schedule, onSave }) => {
                     )}
                     getOptionLabel={(option) => option.name || ''}
                     value={match.player1 || null}
-                    onChange={(event, value) => handlePlayerChange(index, 'player1', value)}
+                    onChange={(event, value) => handlePlayerChange(index, 'player1', value?.players[0])}
                     renderInput={(params) => (
                       <TextField {...params} label="Player 1" placeholder="Search Player" />
                     )}
@@ -217,7 +219,7 @@ const LeagueScheduler = ({ event, schedule, onSave }) => {
                     )}
                     getOptionLabel={(option) => option.name || ''}
                     value={match.player2 || null}
-                    onChange={(event, value) => handlePlayerChange(index, 'player2', value)}
+                    onChange={(event, value) => handlePlayerChange(index, 'player2', value?.players[0])}
                     renderInput={(params) => (
                       <TextField {...params} label="Player 2" placeholder="Search Player" />
                     )}
@@ -302,7 +304,7 @@ const LeagueScheduler = ({ event, schedule, onSave }) => {
             )}
             getOptionLabel={(option) => option.name || ''}
             value={newMatch.player1}
-            onChange={(event, value) => setNewMatch({ ...newMatch, player1: value })}
+            onChange={(event, value) => setNewMatch({ ...newMatch, player1: value.players[0] })}
             renderInput={(params) => (
               <TextField {...params} label="Player 1" placeholder="Search Player" />
             )}
@@ -314,7 +316,7 @@ const LeagueScheduler = ({ event, schedule, onSave }) => {
             )}
             getOptionLabel={(option) => option.name || ''}
             value={newMatch.player2}
-            onChange={(event, value) => setNewMatch({ ...newMatch, player2: value })}
+            onChange={(event, value) => setNewMatch({ ...newMatch, player2: value.players[0] })}
             renderInput={(params) => (
               <TextField {...params} label="Player 2" placeholder="Search Player" />
             )}

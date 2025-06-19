@@ -73,6 +73,7 @@ const Conversation = ({ player1, player2 }) => {
         {loading ? (
           <CircularProgress />
         ) : (
+          messages.length > 0 ?
           messages.map((msg) => (
             <Box key={msg.id} mb={2} textAlign={msg.sender === player1.id ? "right" : "left"}>
               <Typography variant="body2" bgcolor={msg.sender === player1.id ? "#d0e9cf" : "#f0f0f0"} p={1} borderRadius={1} display="inline-block">
@@ -83,6 +84,7 @@ const Conversation = ({ player1, player2 }) => {
               </Typography>
             </Box>
           ))
+          : <i>There are no messages yet.</i>
         )}
         {/* Invisible element to scroll to */}
         <div ref={messagesEndRef} />

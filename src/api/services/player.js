@@ -24,6 +24,15 @@ const playerAPI = {
       //return { status: response.status, statusCode: response.statusCode, statusText: response.statusText, error: 'No Player Found' }
   },
 
+  markAwardSeen: async function(awards) {
+    const requestOptions = authAPI.getRequestOptions('PUT', awards);
+
+    let response = await fetch(playersUrl + 'awards/mark-celebrated', requestOptions)
+
+    if (response.ok) return true
+    else throw new Error('Failed to update award')
+  },
+
   getPlayerAwards: async function (id) {
     const requestOptions = authAPI.getRequestOptions('GET');
     
@@ -49,6 +58,19 @@ const playerAPI = {
     }
     else
       throw new Error('No player found') 
+  },
+
+  getLaddersForPlayer: async function(playerId) {
+    const requestOptions = authAPI.getRequestOptions('GET')
+
+    let response = await fetch(playersUrl + playerId + '/ladders', requestOptions)
+
+    if (response.ok) {
+      const ladders = await response.json()
+      return ladders
+    }
+    else
+      throw new Error('Something went wrong fetching player ladders')
   },
 
   requestPasswordReset: async function (email) {

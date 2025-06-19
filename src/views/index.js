@@ -6,6 +6,7 @@ import LeagueViewPage from "./league/league_view"
 import Login from "./Auth/login_django"
 import NoPage from "./NoPage"
 import Profile from "./player/player"
+import ProfileNew from "./player/profile"
 import PlayersLandingPage from "./player/players"
 import RulesPage from "./rules"
 import SearchPage from "./searchPage"
@@ -24,6 +25,7 @@ export {
   NoPage, 
   PlayersLandingPage,  
   Profile,
+  ProfileNew, 
   RulesPage,
   SearchPage,
 }

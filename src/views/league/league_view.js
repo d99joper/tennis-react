@@ -109,7 +109,7 @@ const LeagueViewPage = (props) => {
     // not implemented
     const data = await leagueAPI.getStandings(event.league_id)
     console.log(data)
-    if(data?.standings) {
+    if (data?.standings) {
       console.log('update standings')
       setStandings(data.standings)
     }
@@ -183,7 +183,14 @@ const LeagueViewPage = (props) => {
           <Typography variant="h5" gutterBottom>
             Standings
           </Typography>
-          <StandingsView standings={standings} event_id={event.id} isAdmin={isAdmin} callback={handleAddDeleteParticipant} />
+          <StandingsView
+            standings={standings}
+            winner={event.winner}
+            event_id={event.id}
+            isAdmin={isAdmin}
+            isParticipant={isParticipant}
+            callback={handleAddDeleteParticipant}
+          />
         </Box>
       )}
       {/** SCHEDULE TAB */}

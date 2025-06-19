@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -11,12 +11,17 @@ import { Link } from "react-router-dom";
 import { eventAPI } from "api/services";
 import { MdDelete } from "react-icons/md";
 import MyModal from "components/layout/MyModal";
+import TennisTrophyIcon from "components/icons/trophy";
+import { AuthContext } from "contexts/AuthContext";
+import Conversation from "components/forms/Conversations/conversations";
+import ConverstationButton from "components/forms/Conversations/ConversationButton";
 
-const StandingsView = ({ standings, event_id, isAdmin = false, callback }) => {
+const StandingsView = ({ standings, winner, event_id, isAdmin = false, isParticipant = false, callback }) => {
   const [participantToRemove, setParticipantToRemove] = useState()
   const [showModal, setShowModal] = useState(false)
   const [loading, setLoading] = useState([])
   const [loadingIndex, setLoadingIndex] = useState([])
+  const { user } = useContext(AuthContext)
 
   useEffect(() => {
     setLoading(new Array(standings.length).fill(false))
@@ -38,7 +43,7 @@ const StandingsView = ({ standings, event_id, isAdmin = false, callback }) => {
       newLoading[loadingIndex] = true
       return newLoading
     })
-    if (callback) 
+    if (callback)
       await callback()
     setLoading(prev => {
       const newLoading = [...prev]
@@ -67,7 +72,16 @@ const StandingsView = ({ standings, event_id, isAdmin = false, callback }) => {
         sortableColumns={["rank", "wins", "losses", "set_diff", "game_diff"]}
         columnWidths={["1fr", "4fr", "1fr", "1fr", "1fr", "1fr"]} // Custom column widths
         getRowData={(row, index) => [
-          `#${row.rank}`,
+          (
+            row.id === winner?.id
+              ?
+              <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1 }}>
+                <TennisTrophyIcon size={35} /> #{row.rank}
+              </Box>
+              : `#${row.rank}`
+
+          ),
+          //`${(row.rank===1 && row.id === winner?.id) ? <TennisTrophyIcon /> : ''} #${row.rank}`,
           (
             <Link to={'/players/' + row.players[0].slug}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -80,21 +94,31 @@ const StandingsView = ({ standings, event_id, isAdmin = false, callback }) => {
           row.losses,
           displayDiff(row.sets_won, row.sets_lost),
           displayDiff(row.games_won, row.games_lost),
-          // if no matches have been played, you can delete the player
-          (row.wins + row.losses) === 0 && isAdmin && (
-            loading[index]
-              ? <CircularProgress size={20} />
-              : <MdDelete
-                size={20}
-                color="red"
-                style={{ cursor: "pointer" }}
-                onClick={() => {
-                  setParticipantToRemove(row);
-                  setLoadingIndex(index)
-                  setShowModal(true);
-                }}
-              />
-          )
+          <>
+            {// if no matches have been played, you can delete the player
+              (row.wins + row.losses) === 0 && isAdmin && (
+                loading[index]
+                  ? <CircularProgress size={20} />
+                  : <MdDelete
+                    size={20}
+                    color="red"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      setParticipantToRemove(row);
+                      setLoadingIndex(index)
+                      setShowModal(true);
+                    }}
+                  />
+              )
+            }
+            { // if participant, allow chat (update for doubles)
+              isParticipant && row.players[0].id !== user.id && (
+                loading[index]
+                  ? <CircularProgress size={20} />
+                  : <ConverstationButton player1={user} player2={row.players[0]} title={`Message ${row.players[0].name}`} />
+              )
+            }
+          </>
         ]}
         // for smaller and medium screens
         titleForScreen={(row, isSmall, isMedium) => (
@@ -105,7 +129,13 @@ const StandingsView = ({ standings, event_id, isAdmin = false, callback }) => {
                   variant="h5"
                   sx={{ fontWeight: "bold", color: "primary.main", pr: 2 }}
                 >
-                  #{row.rank}
+                  {row.id === winner?.id
+                    ?
+                    <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1 }}>
+                      <TennisTrophyIcon size={35} /> #{row.rank}
+                    </Box>
+                    : <>#{row.rank}</>
+                  }
                 </Typography>
                 <ProfileImage player={row.players[0]} size={30} asLink={true} showName={true} />
               </Box>
@@ -116,12 +146,15 @@ const StandingsView = ({ standings, event_id, isAdmin = false, callback }) => {
                   variant={"h6"}
                   sx={{ fontWeight: "bold", color: "primary.main" }}
                 >
-                  #{row.rank} {row.name}
+                  {row.id === winner?.id &&
+                    <TennisTrophyIcon size={35} />
+                  } #{row.rank} {row.name}
                 </Typography>
               </Link>
             }
           </>
-        )}
+        )
+        }
         basicContentForScreen={(row, isSmall, isMedium) => (
           <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
             <Typography variant={isSmall ? "body2" : "body1"}>Wins: {row.wins}</Typography>
@@ -139,7 +172,8 @@ const StandingsView = ({ standings, event_id, isAdmin = false, callback }) => {
           </Box>
         )}
       />
-      <MyModal showHide={showModal}
+     
+      < MyModal showHide={showModal}
         onClose={() => {
           setShowModal(false)
           setParticipantToRemove(null)
@@ -159,8 +193,8 @@ const StandingsView = ({ standings, event_id, isAdmin = false, callback }) => {
             </Button>
           }
         </Box>
-      </MyModal>
-    </Box>
+      </MyModal >
+    </Box >
   );
 };
 

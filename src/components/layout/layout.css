@@ -138,3 +138,20 @@
   .MuiDrawer-paper {
     transition: width 0.5s ease-in-out;
   }
+
+  @keyframes bounce {
+    0% { transform: scale(1); }
+    20% { transform: scale(1.15); }
+    30% { transform: scale(1); }
+    40% { transform: scale(1.15); }
+    50% { transform: scale(0.95); }
+    80% { transform: scale(1.05); }
+    90% { transform: scale(0.95); }
+    95% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  
+  .trophy-animate {
+    animation: bounce 2.5s ease;
+  }
+  
