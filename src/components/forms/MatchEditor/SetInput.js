@@ -101,8 +101,6 @@ const SetInput = ({ isRemovable, value, onChange, sx, matchLogic }) => {
   
     setError(true);
   };
-  
-
 
   return (
     <Box display="flex" alignItems="center">
@@ -197,7 +195,7 @@ const SetInput = ({ isRemovable, value, onChange, sx, matchLogic }) => {
               variant="outlined"
               value={tiebreakScore.p1}
               onChange={(e) => setTiebreakScore((prev) => ({ ...prev, p1: e.target.value.replace(/[^\d]/g, '') }))} // Only numbers allowed
-              slotProps={{ input: { inputMode: "numeric", pattern: "[0-9]*" } }}
+              slotProps={{ htmlInput: {inputMode: "numeric"}, input: { inputMode: "numeric", pattern: "[0-9]*" } }}
             />
             <Typography>-</Typography>
             <TextField
@@ -209,7 +207,7 @@ const SetInput = ({ isRemovable, value, onChange, sx, matchLogic }) => {
               variant="outlined"
               value={tiebreakScore.p2}
               onChange={(e) => setTiebreakScore((prev) => ({ ...prev, p2: e.target.value.replace(/[^\d]/g, '') }))} // Only numbers allowed
-              slotProps={{ input: { inputMode: "numeric", pattern: "[0-9]*" } }}
+              slotProps={{ htmlInput: {inputMode: "numeric"}, input: { inputMode: "numeric", pattern: "[0-9]*" } }}
             />
           </Box>
         </DialogContent>
