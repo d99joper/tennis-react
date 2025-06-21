@@ -34,7 +34,7 @@ import UTRImportButton from 'components/forms/Player/UTRImport';
 import TrophyCase from 'components/forms/TrophyCase';
 import PlayerLadders from './playerLadders';
 
-function Profile({ }) {
+function ProfileOld({ }) {
 	const params = useParams();
 	const { setProfileImage } = useContext(ProfileImageContext);
 	const [tabIndex, setTabIndex] = useState(0);
@@ -667,4 +667,4 @@ function Profile({ }) {
 	);
 }
 
-export default Profile;
+export default ProfileOld;

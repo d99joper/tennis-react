@@ -3,6 +3,7 @@ import { Box, Typography, CircularProgress } from '@mui/material'
 import { Link } from 'react-router-dom'
 import { MdLeaderboard } from 'react-icons/md'
 import { playerAPI } from 'api/services'
+import { GiLadder } from 'react-icons/gi'
 
 const PlayerLadders = ({ playerId, showRank = true, showWinLoss = false, showRating = false }) => {
   const [ladders, setLadders] = useState([])
@@ -23,7 +24,7 @@ const PlayerLadders = ({ playerId, showRank = true, showWinLoss = false, showRat
   return (
     <Box sx={{ width: '100%' }}>
       <Typography variant="subtitle1" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <MdLeaderboard /> Ladders
+        <GiLadder /> Ladders
       </Typography>
       {ladders.map((ladder) => (
         <Box key={ladder.ladder_id} sx={{ pl: 1, mb: 1 }}>

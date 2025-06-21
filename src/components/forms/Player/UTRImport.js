@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { IconButton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from "@mui/material";
+import { IconButton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Tooltip, Typography } from "@mui/material";
 import { CiImport } from "react-icons/ci";
 import { matchAPI, playerAPI } from "api/services"; // Ensure the correct import
 
-const UTRImportButton = ({utr_id, callback}) => {
+const UTRImportButton = ({ utr_id, callback, color = "green" }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -14,7 +14,7 @@ const UTRImportButton = ({utr_id, callback}) => {
     setLoading(true);
     try {
       await matchAPI.importFromUTR(utr_id);
-      if(callback) callback()
+      if (callback) callback()
     } catch (error) {
       console.error("Error importing from UTR:", error);
     }
@@ -24,11 +24,14 @@ const UTRImportButton = ({utr_id, callback}) => {
 
   return (
     <>
-      {/* Import Button */}
-      <IconButton onClick={handleOpen}>
-        <CiImport /> 
-      </IconButton>Import UTR matches
-
+      <Tooltip title="Import your UTR matches">
+        {/* Import Button */}
+        <Typography>
+          <IconButton onClick={handleOpen}>
+            <CiImport color={color} />
+          </IconButton>Import
+        </Typography>
+      </Tooltip>
       {/* Confirmation Dialog */}
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Confirm Import</DialogTitle>

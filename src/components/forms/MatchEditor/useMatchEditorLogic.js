@@ -5,6 +5,8 @@ import { matchAPI } from 'api/services';
 const useMatchEditorLogic = ({
   date = '',
   matchType,
+  originType, 
+  originId,
   event,
   availableEvents = [],
   scheduleMatchId,

@@ -290,6 +290,8 @@ const Matches = ({
               onClick={() => openModal(
                 <MatchEditor
                   participant={currentUser}
+                  originType={originType}
+                  originId={originId}
                   matchType={matchType}
                   onSubmit={(matchData) => {
                     console.log("Match reported:", matchData);

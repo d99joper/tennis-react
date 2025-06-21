@@ -1,6 +1,6 @@
 // ProfileHeader.js
 import React, { useContext, useEffect, useState } from 'react'
-import { Box, Typography, CircularProgress, Card, CardContent, Divider, TextField, MenuItem, Button, Select } from '@mui/material'
+import { Box, Typography, CircularProgress, Card, CardContent, Divider, TextField, MenuItem, Button, Select, IconButton, Tooltip } from '@mui/material'
 import { Grid2 as Grid } from '@mui/material'
 import { BsHouse } from 'react-icons/bs'
 import { MdSportsTennis, MdOutlineRefresh } from 'react-icons/md'
@@ -17,6 +17,7 @@ import { useNotificationsContext } from 'contexts/NotificationContext'
 import { AuthContext } from 'contexts/AuthContext'
 import Conversation from 'components/forms/Conversations/conversations'
 import utrInstructions from '../../images/utr_instructions.png'
+import { GoLinkExternal } from 'react-icons/go'
 
 const ProfileHeader = ({
   player,
@@ -82,168 +83,138 @@ const ProfileHeader = ({
   }
 
   return (
-    <Card variant="outlined" sx={{ maxWidth: 900, mb: 2, mx: 'auto' }}>
+    <Card variant="outlined" sx={{ width: '100%', mb: 2 }}>
       <CardContent>
-        <Box sx={{ mx: 'auto' }}>
+        <Box sx={{ mx: 'auto' }} >
           <Grid container spacing={2} alignItems="flex-start" >
             {/** Row 1: Profile image | details | utr */}
             <Grid size={12}>
-              <Grid container spacing={2} sx={{ justifyContent: 'flex-start', alignItems: 'top' }}>
-                {/** Profile Image */}
-                <Grid size="auto" >
-                  <ProfileImage
-                    player={player}
-                    size={140}
-                    className={canEdit ? 'cursorHand' : ''}
-                    onClick={onImageClick}
-                  />
-                </Grid>
-                {/** Details */}
-                <Grid size={{ xs: 6, md: 4 }} >
-                  {/** Name */}
-                  <Box sx={{ flexGrow: 1 }}>
-                    <Typography variant="h5" fontWeight="bold">
-                      <Editable isEditing={isEdit} text={formData.name} placeholder="Name">
-                        <TextField
-                          fullWidth
-                          variant="standard"
-                          size="small"
-                          value={formData.name}
-                          onChange={(e) => handleChange('name', e.target.value)}
+              {/* <Grid container spacing={2} sx={{ justifyContent: 'flex-start', alignItems: 'top' }}> */}
+              <Grid container alignItems="flex-start" justifyContent="space-between">
+                <Grid size={{ xs: 12, md: 8 }}>
+                  {/** Profile Image */}
+                  <Box sx={{ display: 'flex' }} gap={4} >
+                    <ProfileImage
+                      player={player}
+                      size={140}
+                      className={canEdit ? 'cursorHand' : ''}
+                      onClick={onImageClick}
+                    />
+                    {/** Details */}
+                    {/** Name */}
+                    <Box sx={{ flexGrow: 1 }}>
+                      <Typography variant="h5" fontWeight="bold">
+                        <Editable isEditing={isEdit} text={formData.name} placeholder="Name">
+                          <TextField
+                            fullWidth
+                            variant="standard"
+                            size="small"
+                            value={formData.name}
+                            onChange={(e) => handleChange('name', e.target.value)}
+                          />
+                        </Editable>
+                      </Typography>
+
+                      {/** Birth Year */}
+                      <Editable
+                        // hide this, since I don't think ppl want to show their age
+                        text=""
+                        //text={birthyear ? <Typography>Born in {birthyear}</Typography> : ''}
+                        isEditing={isEdit}>
+                        <Box>
+                          <Typography>Year I was born:</Typography>
+                          <TextField
+                            select
+                            fullWidth
+                            name="birthyear"
+                            label="Birth Year"
+                            value={formData.birth_year}
+                            onChange={(e) => handleChange('birth_year', e.target.value)}
+                            sx={{ mb: 3 }} // Add bottom margin to the TextField
+                          >
+                            {/* Map over the years array to create MenuItem components */}
+                            {years.map((year) => (
+                              <MenuItem key={year} value={year}>
+                                {year}
+                              </MenuItem>
+                            ))}
+                          </TextField>
+                        </Box>
+                      </Editable>
+
+                      {/** Location */}
+                      <Editable
+                        text={<Typography>{formData.city_name || 'Location Unknown'}</Typography>}
+                        isEditing={isEdit}
+                      >
+                        <AutoCompletePlaces
+                          onPlaceChanged={(e) => { handleChange('location', e) }}
+                          showGetUserLocation={true}
+                          initialCity={player.city?.name}
                         />
                       </Editable>
-                    </Typography>
 
-                    {/** Birth Year */}
-                    <Editable
-                      // hide this, since I don't think ppl want to show their age
-                      text=""
-                      //text={birthyear ? <Typography>Born in {birthyear}</Typography> : ''}
-                      isEditing={isEdit}>
-                      <Box>
-                        <Typography>Year I was born:</Typography>
-                        <TextField
-                          select
-                          fullWidth
-                          name="birthyear"
-                          label="Birth Year"
-                          value={formData.birth_year}
-                          onChange={(e) => handleChange('birth_year', e.target.value)}
-                          sx={{ mb: 3 }} // Add bottom margin to the TextField
-                        >
-                          {/* Map over the years array to create MenuItem components */}
-                          {years.map((year) => (
-                            <MenuItem key={year} value={year}>
-                              {year}
-                            </MenuItem>
-                          ))}
-                        </TextField>
-                      </Box>
-                    </Editable>
+                      {/** Notifications */}
+                      {!isEdit &&
+                        <>
+                          {canEdit ?
+                            <Link to='/notifications/'>
+                              {notificationCount > 0 && `You have ${notificationCount} unread messages`}
+                            </Link>
+                            : isLoggedIn && !player.username.endsWith('@mytennis.space') &&
+                            <Box display={'flex'} gap={1} alignItems={'center'}>
+                              <AiOutlineMessage
+                                onClick={() => setShowChatModal(true)}
+                                color='green'
+                                size={25}
+                                cursor={'pointer'}
+                              />
+                              <Typography>Message</Typography>
+                            </Box>
+                          }
+                          <MyModal
+                            showHide={showChatModal}
+                            onClose={() => setShowChatModal(false)}
+                            title={`Send ${player.name} a message`}
+                          >
+                            Send a message
+                            <Conversation player1={user} player2={player} />
+                          </MyModal>
+                        </>
+                      }
 
-                    {/** Location */}
-                    <Editable
-                      text={<Typography>{formData.city_name || 'Location Unknown'}</Typography>}
-                      isEditing={isEdit}
-                    >
-                      <AutoCompletePlaces
-                        onPlaceChanged={(e) => { handleChange('location', e) }}
-                        showGetUserLocation={true}
-                        initialCity={player.city?.name}
-                      />
-                    </Editable>
+                      {/** About */}
+                      <Editable
+                        text={formData.about}
+                        isEditing={isEdit}>
+                        <Box sx={{ width: '100%' }}>
+                          <Typography>About Me:</Typography>
+                          <TextField
+                            multiline
+                            fullWidth
+                            rows={4}
+                            name="about"
+                            placeholder={'Something about me...'}
+                            value={formData.about}
+                            onChange={(e) => handleChange('about', e.target.value)}
+                          />
+                        </Box>
+                      </Editable>
 
-                    {/** Notifications */}
-                    {!isEdit &&
-                      <>
-                        {canEdit ?
-                          <Link to='/notifications/'>
-                            {notificationCount > 0 && `You have ${notificationCount} unread messages`}
-                          </Link>
-                          : isLoggedIn && !player.username.endsWith('@mytennis.space') &&
-                          <Box display={'flex'} gap={1} alignItems={'center'}>
-                            <AiOutlineMessage
-                              onClick={() => setShowChatModal(true)}
-                              color='green'
-                              size={25}
-                              cursor={'pointer'}
-                            />
-                            <Typography>Message</Typography>
-                          </Box>
-                        }
-                        <MyModal
-                          showHide={showChatModal}
-                          onClose={() => setShowChatModal(false)}
-                          title={`Send ${player.name} a message`}
-                        >
-                          Send a message
-                          <Conversation player1={user} player2={player} />
-                        </MyModal>
-                      </>
-                    }
 
-                    {/** About */}
-                    <Editable
-                      text={formData.about}
-                      isEditing={isEdit}>
-                      <Box>
-                        <Typography>About Me:</Typography>
-                        <TextField
-                          multiline
-                          fullWidth
-                          rows={4}
-                          name="about"
-                          placeholder={'Something about me...'}
-                          value={formData.about}
-                          onChange={(e) => handleChange('about', e.target.value)}
-                        />
-                      </Box>
-                    </Editable>
+                    </Box>
                   </Box>
                 </Grid>
 
                 {/** Ratings */}
-                <Grid size={{ xs: 12, sm: 6, md: 'grow' }} >
-                  <Box display="grid" justifyContent="flex-end" gap={1} justifyItems={'center'}>
-                  <Typography variant='h6'><MdSportsTennis /> Ratings</Typography>
-                    {/** NTRP */}
-                    <Card sx={{ backgroundColor: '#F8F8F8', p: 0, borderRadius: 5 }}>
-                      <CardContent>
-                        <Editable
-                          text={
-                            <Box display={'flex'}>
-                              <Typography>NTRP:&nbsp;</Typography>
-                              {formData.NTRP ? parseFloat(formData.NTRP).toFixed(1) : 'N/A'}
-                              <InfoPopup paddingLeft={"0.2rem"} width="450px">
-                                <NTRPLevels />
-                                <a
-                                  href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'
-                                  target='_blank'
-                                >
-                                  {`View the USTA NTPR guidelines here >>`}
-                                </a>
-                              </InfoPopup>
-                            </Box>
-                          }
-                          isEditing={isEdit}
-                        >
-                          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'top', gap: 1 }}>
-                            <Typography sx={{ display: 'flex', flexDirection: 'row',  }}>
-                              NTRP:
-                            </Typography>
-                            <Select
-                              name="NTPR"
-                              size='small'
-                              fullWidth
-                              sx={{ height: '40px' }}
-                              value={formData.NTRP ? parseFloat(formData.NTRP).toFixed(1) : '2.0'}
-                              onChange={(e) => handleChange('NTRP', e.target.value)}
-                            >
-                              {NTRPItems.map((x) =>
-                                <MenuItem key={x} value={x}>{x}</MenuItem>
-                              )}
-                            </Select>
-                            <InfoPopup paddingLeft={"0.5rem"}>
+                <Grid size={{ xs: 12, md: 4 }} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  {/** NTRP */}
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Grid>
+                      <Editable
+                        text={
+                          <Box display={'flex'}>
+                            <InfoPopup paddingLeft={"0.2rem"} width="450px">
                               <NTRPLevels />
                               <a
                                 href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'
@@ -252,66 +223,100 @@ const ProfileHeader = ({
                                 {`View the USTA NTPR guidelines here >>`}
                               </a>
                             </InfoPopup>
-
+                            <Typography>&nbsp;NTRP:&nbsp;</Typography>
+                            {formData.NTRP ? parseFloat(formData.NTRP).toFixed(1) : 'N/A'}
                           </Box>
-                        </Editable>
-                      </CardContent>
-                    </Card>
+                        }
+                        isEditing={isEdit}
+                      >
+                        <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'top', gap: 1 }}>
+                          <Typography sx={{ display: 'flex', flexDirection: 'row', }}>
 
-                    {/* <Divider orientation='horizontal' flexItem sx={{ m: 2 }} /> */}
+                            <InfoPopup paddingLeft={"0.2rem"}>
+                              <NTRPLevels />
+                              <a
+                                href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'
+                                target='_blank'
+                              >
+                                {`View the USTA NTPR guidelines here >>`}
+                              </a>
+                            </InfoPopup>&nbsp;NTRP:
+                          </Typography>
+                          <Select
+                            name="NTPR"
+                            size='small'
+                            fullWidth
+                            sx={{ height: '40px' }}
+                            value={formData.NTRP ? parseFloat(formData.NTRP).toFixed(1) : '2.0'}
+                            onChange={(e) => handleChange('NTRP', e.target.value)}
+                          >
+                            {NTRPItems.map((x) =>
+                              <MenuItem key={x} value={x}>{x}</MenuItem>
+                            )}
+                          </Select>
+
+                        </Box>
+                      </Editable>
+                    </Grid>
+
+                    <Divider orientation='horizontal' flexItem sx={{ m: 1 }} />
 
                     {/** UTR */}
-                    <Card sx={{ backgroundColor: '#F8F8F8', mt: 2, p: 0,borderRadius: 5 }}>
-                      <CardContent>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 0, p:0 }}>
-                          <Typography>
-                            UTR:
-                            {canEdit &&
-                              <InfoPopup paddingLeft={"0.5rem"} >
-                                Add your UTR ID to link up with your UTR account.<br />
-                                You can find your ID if you go to your UTR profile page.
-                                <img src={utrInstructions} alt='UTR Instructions' />
-                              </InfoPopup>
-                            }
-                          </Typography>
-                          <Editable isEditing={isEdit} text={
-                            <Box sx={{ ml: '1rem', width: '100%' }}>
-                              <Typography variant="body2">
-                                Singles: {showUtrRefreshing ? <CircularProgress size={14} /> : (utrRankSingles > 0 ? utrRankSingles : 'UR')}
-                                {showUtrRefresh &&
-                                  <MdOutlineRefresh
-                                    style={{ marginLeft: '5px' }}
-                                    title='Refresh your UTR score'
-                                    color="green"
-                                    className='cursorHand'
-                                    onClick={() => onUtrRefresh()} />
-                                }
-                              </Typography>
-                              <Typography variant="body2">
-                                Doubles: {showUtrRefreshing ? <CircularProgress size={14} /> : (utrRankDoubles > 0 ? utrRankDoubles : 'UR')}
-                              </Typography>
-                              {utrLink && (
-                                <Typography variant="body2">
-                                  <a href={utrLink} target="_blank" rel="noopener noreferrer">
-                                    View UTR Profile &gt;&gt;
-                                  </a>
-                                </Typography>
-                              )}
-                              {canEdit && player.UTR &&
-                                <UTRImportButton utr_id={formData.UTR} callback={onUtrRefresh} />
+                    <Grid>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 0, p: 0 }}>
+                        <Typography>
+                          {canEdit &&
+                            <InfoPopup paddingLeft={"0.2rem"} >
+                              Add your UTR ID to link up with your UTR account.<br />
+                              You can find your ID if you go to your UTR profile page.
+                              <img src={utrInstructions} alt='UTR Instructions' />
+                            </InfoPopup>
+                          } UTR:
+                          {utrLink &&
+                            <Tooltip title="View UTR Profile">
+                              <IconButton size="small" href={utrLink} color="success" target="_blank" rel="noopener noreferrer">
+                                <GoLinkExternal size={16} />
+                              </IconButton>
+                            </Tooltip>
+                          }
+                        </Typography>
+                        <Editable isEditing={isEdit} text={
+                          <Box sx={{ ml: '1rem', width: '100%' }}>
+                            <Typography variant="body2">
+                              Singles: {showUtrRefreshing ? <CircularProgress size={14} /> : (utrRankSingles > 0 ? utrRankSingles : 'UR')}
+                              {showUtrRefresh &&
+                                <Tooltip title="View UTR Profile">
+                                  <IconButton size="small" color="success" onClick={() => onUtrRefresh()} >
+                                    <MdOutlineRefresh size={16} />
+                                  </IconButton>
+                                </Tooltip>
                               }
-                            </Box>
-                          }>
-                            <TextField name="UTR" size='small' value={formData.UTR} onChange={(e) => handleChange('UTR', e.target.value)}></TextField>
-                          </Editable>
-                        </Box>
-                      </CardContent>
-                    </Card>
+                            </Typography>
+                            <Typography variant="body2">
+                              Doubles: {showUtrRefreshing ? <CircularProgress size={14} /> : (utrRankDoubles > 0 ? utrRankDoubles : 'UR')}
+                            </Typography>
+
+                            {canEdit && player.UTR &&
+                              <UTRImportButton color="green" utr_id={formData.UTR} callback={onUtrRefresh} />
+                            }
+                          </Box>
+                        }>
+                          <TextField
+                            name="UTR"
+                            size='small'
+                            value={formData.UTR}
+                            onChange={(e) => handleChange('UTR', e.target.value)}
+                          />
+                        </Editable>
+                      </Box>
+                    </Grid>
                   </Box>
                 </Grid>
+
               </Grid>
             </Grid>
-            {/* <Grid size={12}>
+          </Grid>
+          {/* <Grid size={12}>
             <Box sx={{
               display: 'inline-block',
               mt: 2,
@@ -329,7 +334,7 @@ const ProfileHeader = ({
               }
             </Box>
           </Grid> */}
-            {/* <Grid size={12} sx={{ backgroundColor: 'white' }}>
+          {/* <Grid size={12} sx={{ backgroundColor: 'white' }}>
             <Grid container>
               <Grid size={{ sm: 6, md: 4 }}>
                 {player.clubs?.length > 0 && (
@@ -349,23 +354,42 @@ const ProfileHeader = ({
             </Grid>
             </Grid>
           </Grid> */}
-
+          {!isEdit &&
             <Grid size={12}>
-              { //*********** EDIT BUTTONS  ***********/ 
-                canEdit && (
-                  <Box sx={{}}>
-                    {isEdit ? (
-                      <>
-                        <Button onClick={handleSave} color='primary'>Save</Button>
-                        <Button onClick={handleEditToggle} color='error'>Cancel</Button>
-                      </>
-                    ) : (
-                      <Button onClick={handleEditToggle} color='info'>Update profile</Button>
-                    )}
-                  </Box>
-                )
-              }
+              {/* Trophies */}
+              <Box sx={{
+                display: 'inline-block',
+                mt: 2,
+                p: 1, pr: 2, pl: 1.5,
+                border: 1,
+                borderColor: '#AAA',
+                borderRadius: 8,
+              }}>
+                {awards &&
+                  <TrophyCase
+                    trophies={trophies || []}
+                    badges={badges || []}
+                    player_id={player.id}
+                  />
+                }
+              </Box>
             </Grid>
+          }
+          <Grid size={12}>
+            { //*********** EDIT BUTTONS  ***********/ 
+              canEdit && (
+                <Box sx={{}}>
+                  {isEdit ? (
+                    <>
+                      <Button onClick={handleSave} color='primary'>Save</Button>
+                      <Button onClick={handleEditToggle} color='error'>Cancel</Button>
+                    </>
+                  ) : (
+                    <Button onClick={handleEditToggle} color='info'>Update profile</Button>
+                  )}
+                </Box>
+              )
+            }
           </Grid>
         </Box>
       </CardContent>
