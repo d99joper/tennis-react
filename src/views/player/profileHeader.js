@@ -207,9 +207,9 @@ const ProfileHeader = ({
                 </Grid>
 
                 {/** Ratings */}
-                <Grid size={{ xs: 12, md: 4 }} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Grid size={{ xs: 12, md: 4 }} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
                   {/** NTRP */}
-                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                  <Box sx={{ display: 'flex', flexDirection: {xs: 'row', md: 'column'} }}>
                     <Grid>
                       <Editable
                         text={
