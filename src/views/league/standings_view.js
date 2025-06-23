@@ -112,7 +112,7 @@ const StandingsView = ({ standings, winner, event_id, isAdmin = false, isPartici
               )
             }
             { // if participant, allow chat (update for doubles)
-              isParticipant && row.players[0].id !== user.id && (
+              isParticipant && row.players[0].id !== user?.id && (
                 loading[index]
                   ? <CircularProgress size={20} />
                   : <ConverstationButton player1={user} player2={row.players[0]} title={`Message ${row.players[0].name}`} />
