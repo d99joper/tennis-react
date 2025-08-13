@@ -14,6 +14,8 @@ import { AuthContext } from 'contexts/AuthContext';
 import ForgotPassword from 'views/Auth/forgotpassword';
 import ResetPassword from 'views/Auth/resetpassword';
 import DTCLeagueInfoPage from 'views/Temp/DTCLeagueInfo';
+import TournamentViewPage from 'views/Tournament/tournamentView';
+import TournamentCreate from 'components/forms/Tournament/createTournament';
 
 // const Profile = lazy(() => import('./views/profile'))
 const ProfileInfo = lazy(() => import('./views/player/profile-information'))
@@ -125,6 +127,10 @@ const MyRouter = (props) => {
           <Route path='league'>
             <Route path=":id" element={<LeagueViewPage isLoggedIn={isLoggedIn} />} />
             <Route path="create" element={<LeagueCreate isLoggedIn={isLoggedIn} />} />
+          </Route>
+          <Route path='tournament'>
+            <Route path=":id" element={<TournamentViewPage isLoggedIn={isLoggedIn} />} />
+            <Route path="create" element={<TournamentCreate isLoggedIn={isLoggedIn} />} />
           </Route>
           <Route path='events'>
             <Route index={true} element={<EventsLandingPage {...props} />} />

@@ -64,21 +64,46 @@ const Home = ({ homeDataRef }) => {
       }
     };
 
-    const loadAll = (lat, lng) => {
-      let filters = {};
-      filters.geo = `${lat},${lng},25`;
+    // const loadAll = (lat, lng) => {
+    //   let filters = {};
+    //   filters.geo = `${lat},${lng},25`;
 
-      clubAPI.getClubs(filters, 1, 5)
-        .then(res => saveAndMaybeCache('clubs', res?.data?.clubs || []))
-        .catch(() => setLoading(prev => ({ ...prev, clubs: false })));
+    //   clubAPI.getClubs(filters, 1, 5)
+    //     .then(res => saveAndMaybeCache('clubs', res?.data?.clubs || []))
+    //     .catch(() => setLoading(prev => ({ ...prev, clubs: false })));
 
-      matchAPI.getMatches(filters, 1, 5)
-        .then(res => saveAndMaybeCache('matches', res?.matches || []))
-        .catch(() => setLoading(prev => ({ ...prev, matches: false })));
+    //   matchAPI.getMatches(filters, 1, 5)
+    //     .then(res => saveAndMaybeCache('matches', res?.matches || []))
+    //     .catch(() => setLoading(prev => ({ ...prev, matches: false })));
 
-      eventAPI.getEvents(filters, 1, 5)
-        .then(res => saveAndMaybeCache('events', res?.events || []))
-        .catch(() => setLoading(prev => ({ ...prev, events: false })));
+    //   eventAPI.getEvents(filters, 1, 5)
+    //     .then(res => saveAndMaybeCache('events', res?.events || []))
+    //     .catch(() => setLoading(prev => ({ ...prev, events: false })));
+    // };
+    const loadAll = async (lat, lng) => {
+      let filters = { geo: `${lat},${lng}, 25` };
+
+      try {
+        const matchRes = await matchAPI.getMatches(filters, 1, 5);
+        saveAndMaybeCache('matches', matchRes?.matches || []);
+      } catch {
+        setLoading(prev => ({ ...prev, matches: false }));
+      }
+      
+      try {
+        const clubRes = await clubAPI.getClubs(filters, 1, 5);
+        saveAndMaybeCache('clubs', clubRes?.data?.clubs || []);
+      } catch {
+        setLoading(prev => ({ ...prev, clubs: false }));
+      }
+
+
+      try {
+        const eventRes = await eventAPI.getEvents(filters, 1, 5);
+        saveAndMaybeCache('events', eventRes?.events || []);
+      } catch {
+        setLoading(prev => ({ ...prev, events: false }));
+      }
     };
 
     navigator.geolocation.getCurrentPosition(
