@@ -13,7 +13,7 @@ const CreateLeague = ({ club, admins, onSuccess }) => {
     name: '',
     startDate: '',
     endDate: '',
-    location: club?.location||'',
+    location: club?.address||'',
     lat: club?.lat||'',
     lng: club?.lng||'',
     description: '',
@@ -185,7 +185,7 @@ const CreateLeague = ({ club, admins, onSuccess }) => {
             helperText={errors.endDate}
           />
           {club
-            ? <Typography>Location: {club.location}</Typography>
+            ? <Typography>Location: {club.address}</Typography>
             :
             <AutoCompletePlaces
               onPlaceChanged={handlePlaceChanged}

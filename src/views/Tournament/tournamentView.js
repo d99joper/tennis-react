@@ -4,16 +4,17 @@ import { Box, Typography, CircularProgress } from '@mui/material'
 import { eventAPI } from 'api/services'
 
 const TournamentViewPage = () => {
-  const { slug } = useParams()
+  const { id } = useParams()
   const [event, setEvent] = useState(null)
 
   useEffect(() => {
+    console.log(id)
     async function fetchEvent() {
-      const e = await eventAPI.getEventBySlug(slug)
+      const e = await eventAPI.getEvent(id)
       setEvent(e)
     }
     fetchEvent()
-  }, [slug])
+  }, [id])
 
   if (!event) return <CircularProgress />
 
