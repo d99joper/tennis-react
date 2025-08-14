@@ -13,9 +13,9 @@ const CreateLeague = ({ club, admins, onSuccess }) => {
     name: '',
     startDate: '',
     endDate: '',
-    location: club?.address||'',
-    lat: club?.lat||'',
-    lng: club?.lng||'',
+    location: club?.city?.name ||'',
+    lat: club?.city?.lat ||'',
+    lng: club?.city?.lng ||'',
     description: '',
     maxParticipants: '',
     match_type: 'singles',
@@ -184,8 +184,8 @@ const CreateLeague = ({ club, admins, onSuccess }) => {
             error={!!errors.endDate}
             helperText={errors.endDate}
           />
-          {club
-            ? <Typography>Location: {club.address}</Typography>
+          {club?.city
+            ? <Typography>Location: {club.city.name}</Typography>
             :
             <AutoCompletePlaces
               onPlaceChanged={handlePlaceChanged}
