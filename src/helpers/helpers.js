@@ -177,11 +177,13 @@ const helpers = {
 		return false; // Indicate object with id not found
 	},
 
-	truncate: (text, len) => {
-		if (text.length > len)
-			return text.substring(0, len) + '...'
-		return text
-	},
+        truncate: (text, len) => {
+                if (typeof text !== 'string')
+                        return text || ''
+                if (text.length > len)
+                        return text.substring(0, len) + '...'
+                return text
+        },
 
 	intToFloat: (number) => {
 		return number.toFixed(1)
