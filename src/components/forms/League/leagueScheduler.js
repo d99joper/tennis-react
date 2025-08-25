@@ -127,7 +127,7 @@ const LeagueScheduler = ({ event, schedule, onSave }) => {
     handleUpdateSchedule(updatedSchedule);
   };
 
-  const handleUpdateSchedule = async (updatedSchedule) => {
+  const handleUpdateSchedule = async (updatedSchedule = localSchedule) => {
     try {
       setLoading(true);
       const data = await leagueAPI.updateSchedule(event.league_id, updatedSchedule);
@@ -279,7 +279,7 @@ const LeagueScheduler = ({ event, schedule, onSave }) => {
       <Button
         variant="contained"
         color="secondary"
-        onClick={handleUpdateSchedule}
+        onClick={() => handleUpdateSchedule(localSchedule)}
         disabled={loading}
         sx={{ mt: 2 }}
       >
