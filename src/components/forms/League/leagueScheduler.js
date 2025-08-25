@@ -276,7 +276,7 @@ const LeagueScheduler = ({ event, schedule, onSave }) => {
         </Box>
       </Popover>
 
-      {/* <Button
+      <Button
         variant="contained"
         color="secondary"
         onClick={handleUpdateSchedule}
@@ -284,7 +284,7 @@ const LeagueScheduler = ({ event, schedule, onSave }) => {
         sx={{ mt: 2 }}
       >
         Save Changes
-      </Button> */}
+      </Button>
 
       {/* Add Match Dialog */}
       <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>

@@ -147,7 +147,7 @@ const helpers = {
 	extractCityFromPlace: (place) => {
 		let city = '';
 		let state = '';
-	
+
 		place.address_components.forEach((component) => {
 			if (component.types.includes('locality')) {
 				city = component.long_name;
@@ -156,11 +156,11 @@ const helpers = {
 				state = component.short_name; // e.g. "CA"
 			}
 		});
-	
+
 		if (city && state) {
 			return `${city}, ${state}`;
 		}
-	
+
 		return ''; // fallback
 	},
 
@@ -177,13 +177,13 @@ const helpers = {
 		return false; // Indicate object with id not found
 	},
 
-        truncate: (text, len) => {
-                if (typeof text !== 'string')
-                        return text || ''
-                if (text.length > len)
-                        return text.substring(0, len) + '...'
-                return text
-        },
+	truncate: (text, len) => {
+		if (typeof text !== 'string')
+			return text || ''
+		if (text.length > len)
+			return text.substring(0, len) + '...'
+		return text
+	},
 
 	intToFloat: (number) => {
 		return number.toFixed(1)
