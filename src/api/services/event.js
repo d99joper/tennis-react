@@ -119,7 +119,7 @@ const eventAPI = {
     const requestOptions = authAPI.getRequestOptions('DELETE');
     const response = await fetch(`${eventsUrl}${event_id}/participants/remove/${participant_id}`, requestOptions)
     if (response.ok) {
-      return await response.json()
+      return response.ok
     }
     else
       throw new Error(response.status + ': Failed to update event')

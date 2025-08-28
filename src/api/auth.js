@@ -146,7 +146,8 @@ const authAPI = {
 			method: method,
 			credentials: 'include', // Ensure cookies are included
 			headers,
-			body: jsonBody
+			body: jsonBody,
+			cache: 'no-store'
 		}
 	},
 
