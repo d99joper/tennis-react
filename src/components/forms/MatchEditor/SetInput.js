@@ -114,7 +114,7 @@ const SetInput = ({ isRemovable, value, onChange, sx, matchLogic }) => {
         error={error}
         //helperText={error ? "*" : ""}
         placeholder="X-X"
-        slotProps={{ htmlInput: {inputMode: "tel"}, input: { inputMode: "tel", pattern: "[0-9,()\\- ]*", maxLength: 5, style: {  textAlign: "center" } } }}
+        slotProps={{ htmlInput: {inputMode: "text"}, input: { inputMode: "text", pattern: "[0-9,()\\- ]*", maxLength: 5, style: {  textAlign: "center" } } }}
       />
       {/* Invisible span for measuring text width */}
       <span
