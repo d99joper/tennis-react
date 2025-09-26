@@ -1,6 +1,6 @@
 import { Link, useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Box, MenuItem, TextField, Typography, useMediaQuery } from "@mui/material";
+import { Box, MenuItem, TextField, Typography, useMediaQuery, Popover } from "@mui/material";
 import { eventAPI } from "api/services";
 import LeagueViewPage from "views/league/league_view";
 import TournamentView from "views/Tournament/tournamentView";
@@ -9,6 +9,74 @@ import { Helmet } from "react-helmet-async";
 import { helpers } from "helpers";
 import DOMPurify from "dompurify";
 import { useTheme } from "@emotion/react";
+
+// Component for truncated description with popup
+const TruncatedDescription = ({ description }) => {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (e) => {
+    e.stopPropagation();
+    setAnchorEl(e.currentTarget);
+  };
+  
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  if (!description) return null;
+
+  return (
+    <Box>
+      <Typography 
+        variant="body1" 
+        color="text.secondary" 
+        gutterBottom
+        sx={{
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          mb: 1
+        }}
+        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(helpers.parseTextToHTML(description)) }}
+      />
+      
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'primary.main',
+          cursor: 'pointer',
+          fontWeight: 500,
+          fontSize: '0.875rem',
+          display: 'inline-block',
+          '&:hover': {
+            textDecoration: 'underline'
+          }
+        }}
+        onClick={handleClick}
+      >
+        ...more
+      </Typography>
+
+      <Popover
+        onClose={handleClose}
+        anchorEl={anchorEl}
+        anchorOrigin={{
+          horizontal: 'left',
+          vertical: 'bottom'
+        }}
+        open={open}
+        sx={{ maxWidth: '800px' }}
+      >
+        <Box sx={{ p: 3, backgroundColor: '#e8e8ff', maxWidth: '700px', minWidth: '400px' }}>
+          <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(helpers.parseTextToHTML(description)) }} />
+        </Box>
+      </Popover>
+    </Box>
+  );
+};
 
 const EventView = () => {
   const { id } = useParams();
@@ -116,9 +184,8 @@ const EventView = () => {
           <i>Event starts {event.start_date}</i>
         </Typography>
       }
-      <Typography variant="body1" color="text.secondary" gutterBottom
-        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(helpers.parseTextToHTML(event.description)) }}>
-      </Typography>
+      
+      <TruncatedDescription description={event.description} />
 
       {/* Division selector integrated into title section */}
       {selectedDivision && event.divisions && event.divisions.length > 1 && (
