@@ -18,7 +18,6 @@ import { useTheme } from '@emotion/react';
 import MyModal from 'components/layout/MyModal';
 import H2H from '../H2H/H2H';
 import { Comments } from '../Comments/Comments';
-import PlayerNameView from 'views/player/playerNameView';
 import PlayerSearch from '../Player/playerSearch';
 import GetParticipants from '../Event/getParticipants';
 import MatchEditor from '../MatchEditor/MatchEditor';

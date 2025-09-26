@@ -12,6 +12,12 @@ const helpers = {
 		return snakeCaseObj;
 	},
 
+	hasStarted: (start_date) => {
+    const today = new Date().getTime(); // Get current time in milliseconds
+    const startDate = new Date(`${start_date}T00:00:00Z`).getTime(); // for UTC time
+    return startDate < today;
+  },
+
 	// loadGoogleMapsAPI: async () => {
 	// 	// Check if Google Maps API is already loaded
 	// 	if (window.google && window.google.maps) {

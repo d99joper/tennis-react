@@ -1,16 +1,20 @@
 current:
-    [x] Delete player from league (before start date, or played 0 matches)
-    [x] Home page
-        [x] Latest matches in your area 
-        [x] Clubs in your area
-        [x] Leagues in your area
-    [x] About page (like former home page)
-    [x] Forgot password
-    [x] redirect 
-        [x] after login
-        [x] after registration 
-            [x] Always go to players/id
-            [x] Set menu (for both login and register)
+    [ ] End a league 
+        [ ] Set an last match date
+        [ ] Calculate winner and lock matches
+            [ ] Nightly process that checks last match date
+            [ ] Manual button press 
+    [ ] Tournaments
+        [ ] View
+        [ ] Create
+            [ ] Add players
+            [ ] Create bracket
+            [ ] Set dates
+    [ ] Add tournament style playoff to a league   
+        [ ] Tab to display on league page
+        [ ] Admin settings for 
+            [ ] picking players
+            [ ] Generating / editing bracket
     [ ] League schedule, only add minimal data for players (id and name to save space)
         [ ] Same with admins
     [ ] FAQ 
@@ -18,10 +22,10 @@ current:
         [ ] Ladders
         [ ] Leagues
         [ ] how to contact other players
-    [ ] Automatic ladders
-        [ ] club
-        [ ] court
-        [ ] city
+    [x] Automatic ladders
+        [x] club
+        [x] court
+        [x] city
     [ ] Leagues for doubles 
     [ ] Leagues for teams
     [ ] Subscriptions
@@ -29,7 +33,6 @@ current:
         [ ] payment system
             [ ] recurring 
             [ ] one-time
-    [ ] Tournaments
     [ ] Improve styling and handling of messages
     [ ] Display # of matches on profile (and perhaps win/loss)
     [x] Sort leagues based on name
@@ -49,6 +52,18 @@ current:
         [x] Cached standings and only recalculate when match or participant is added
 
 ------------------------
+    [x] Delete player from league (before start date, or played 0 matches)
+    [x] Home page
+        [x] Latest matches in your area 
+        [x] Clubs in your area
+        [x] Leagues in your area
+    [x] About page (like former home page)
+    [x] Forgot password
+    [x] redirect 
+        [x] after login
+        [x] after registration 
+            [x] Always go to players/id
+            [x] Set menu (for both login and register)
     [x] Create events
         [x] League 
     [x] Check event requirement when adding/joining/approving new participants

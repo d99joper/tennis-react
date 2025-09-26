@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Box, Typography, Button } from "@mui/material";
-import { MatchEditor, ProfileImage } from "components/forms";
+import { InfoPopup, MatchEditor, ProfileImage } from "components/forms";
 import MyModal from "components/layout/MyModal";
 import authAPI from "api/auth";
 import { matchHelper } from "helpers";
@@ -74,13 +74,13 @@ const ScheduleView = ({ event, schedule: initialSchedule, onScoreReported }) => 
         groupingKey={(row) => row.round}
         renderGroupDivider={(group) => (
           <Box
-            // sx={{
-            //   padding: "8px 16px",
-            //   fontWeight: "bold",
-            //   //backgroundColor: "#f1ffe8",
-            //   textAlign: "center",
-            //   borderBottom: "2px solid rgb(124, 146, 110)",
-            // }}
+          // sx={{
+          //   padding: "8px 16px",
+          //   fontWeight: "bold",
+          //   //backgroundColor: "#f1ffe8",
+          //   textAlign: "center",
+          //   borderBottom: "2px solid rgb(124, 146, 110)",
+          // }}
           >
             {`Round: ${group}`}
           </Box>
@@ -109,15 +109,20 @@ const ScheduleView = ({ event, schedule: initialSchedule, onScoreReported }) => 
           </Box>,
           row.reported
             ? (isPlayer1Winner(row) ? row.score : reverseScore(row.score))
-            : matchHelper.canReportScheduledMatch(event, row, currentUser) && (
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => handleReportScore(row)}
-              >
-                Report score
-              </Button>
-            ),
+            : matchHelper.canReportScheduledMatch(event, row, currentUser) 
+              ? <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => handleReportScore(row)}
+                >
+                  Report score
+                </Button>
+              :
+                (matchHelper.hasEventEnded(event) &&
+                <InfoPopup>
+                  <Typography>Event has ended. No more scores can be reported.</Typography>
+                </InfoPopup>
+              ),
         ]}
         // for smaller and medium screens
         titleForScreen={(row, isSmall, isMedium) => (

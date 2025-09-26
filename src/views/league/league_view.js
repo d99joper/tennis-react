@@ -21,8 +21,8 @@ import { MdClose } from 'react-icons/md';
 import StandingsView from './standings_view';
 import JoinRequest from 'components/forms/Notifications/joinRequests';
 import { Helmet } from 'react-helmet-async';
-import EventAdminTools from 'components/forms/League/adminTools';
-import { helpers } from 'helpers';
+import EventAdminTools from 'components/forms/Event/adminTools';
+import { eventHelper, helpers } from 'helpers';
 import DOMPurify from "dompurify";
 
 const LeagueViewPage = (props) => {
@@ -75,22 +75,10 @@ const LeagueViewPage = (props) => {
   }
 
   const handleAddDeleteParticipant = async () => {
-    try {
-      const event = await eventAPI.getEvent(id);
-      console.log('event', event)
-      if (event && !event.statusCode) {
-        setEvent(event);
-        setStandings(event.league_standings || []);
-        setSchedule(event.league_schedule || []);
-        setMatches(event.matches || []);
-        setIsAdmin(event.is_admin);
-        setIsParticipant(event.is_participant);
-      } else {
-        console.error(event.statusMessage);
-      }
-    } catch (error) {
-      console.error('Failed to fetch league:', error);
-    }
+    const e = await eventHelper.refreshEvent(id);
+    setEvent(e);
+    setStandings(e.league_standings || []);
+    setSchedule(e.league_schedule || []);
   }
 
   const handleTabChange = (event, newValue) => {
@@ -126,8 +114,8 @@ const LeagueViewPage = (props) => {
   }
 
   return (
-    <Box sx={{ mt: 4, px: isMobile ? 2 : 4 }}>
-      <Helmet>
+    <Box>
+      {/* <Helmet>
         <title>{event.name} | MyTennis Space</title>
       </Helmet>
       <Typography variant="h4" gutterBottom>
@@ -143,7 +131,7 @@ const LeagueViewPage = (props) => {
       }
       <Typography variant="body1" color="text.secondary" gutterBottom
         dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(helpers.parseTextToHTML(event.description)) }}>
-      </Typography>
+      </Typography> */}
 
       <JoinRequest
         objectType={'event'}
@@ -253,7 +241,7 @@ const LeagueViewPage = (props) => {
 
           {/* Add Match Wizard */}
           {/* Match Editor Modal */}
-          <MyModal showHide={matchModalOpen} onClose={handleMatchModalClose} title="Report Match">
+          {/* <MyModal showHide={matchModalOpen} onClose={handleMatchModalClose} title="Report Match">
             <MatchEditor
               participant={currentUser}
               event={event}
@@ -264,7 +252,7 @@ const LeagueViewPage = (props) => {
                 handleMatchModalClose();
               }}
             />
-          </MyModal>
+          </MyModal> */}
         </Box>
       )}
 

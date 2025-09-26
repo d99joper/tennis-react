@@ -8,7 +8,7 @@ import CourtSearchAutocomplete from '../Courts/searchCourt';
 import { helpers } from 'helpers';
 
 const MatchEditorWizard = ({ matchLogic, onSubmit }) => {
-  console.log(matchLogic.selectedOpponents)
+  //console.log(matchLogic.selectedOpponents)
   const steps = [
     !matchLogic.selectedEvent &&
     {
@@ -157,6 +157,7 @@ const MatchEditorWizard = ({ matchLogic, onSubmit }) => {
       handleNext: async () => {
         const matchData = {
           event: matchLogic.selectedEvent?.id || null,
+          division_id: matchLogic.division_id || null,
           played_on: matchLogic.playedOn,
           losers: matchLogic.winner ? matchLogic.selectedOpponents : matchLogic.selectedWinners,
           winners: matchLogic.winner ? matchLogic.selectedWinners : matchLogic.selectedOpponents,

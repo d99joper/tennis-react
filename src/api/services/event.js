@@ -3,7 +3,7 @@ import { authAPI } from "."
 import apiUrl from "config"
 import { responsiveFontSizes } from "@mui/material"
 
-const eventsUrl = apiUrl+'events/'
+const eventsUrl = apiUrl + 'events/'
 
 const eventAPI = {
 
@@ -19,37 +19,59 @@ const eventAPI = {
 
   getEvents: async function (filter, page, pageSize) {
     const url = new URL(eventsUrl)
-    if(filter)
+    if (filter)
       url.search = helpers.parseFilter(filter)
     const requestOptions = authAPI.getRequestOptions('GET')
-    const response = await fetch(url+`&page=${page || 1}&num-per-page=${pageSize || 10}`, requestOptions)
+    const response = await fetch(url + `&page=${page || 1}&num-per-page=${pageSize || 10}`, requestOptions)
     if (response.ok)
       return await response.json()
     else
       return { statusCode: response.status, statusMessage: 'Error: Failed to get events' }
   },
 
-  archiveEvent: async function(id) {
+  archiveEvent: async function (id) {
     const requestOptions = authAPI.getRequestOptions('PUT');
 
     const response = await fetch(`${eventsUrl}${id}/archive`, requestOptions)
     if (response.ok) {
-      return {status: response.status}
+      return { status: response.status }
     }
     else
       return { error: 'Error: Failed to archive event' }
   },
 
-  deleteEvent: async function(id) {
+  deleteEvent: async function (id) {
     const requestOptions = authAPI.getRequestOptions('DELETE');
 
     const response = await fetch(`${eventsUrl}${id}/delete`, requestOptions)
     if (response.ok) {
-      return {status: response.status}
+      return { status: response.status }
     }
     else
       return { error: 'Error: Failed to delete event' }
 
+  },
+
+  setWinner: async function (event_id, winner_id) {
+    const requestOptions = authAPI.getRequestOptions('POST')
+
+    const response = await fetch(`${eventsUrl}${event_id}/set-winner/${winner_id}`, requestOptions)
+    if (response.ok) {
+      return true
+    }
+    else
+      return { error: 'Failed to set winner ' }
+  },
+
+  resetWinner: async function (event_id) {
+    const requestOptions = authAPI.getRequestOptions('DELETE')
+
+    const response = await fetch(`${eventsUrl}${event_id}/reset-winner`, requestOptions)
+    if (response.ok) {
+      return true
+    }
+    else
+      return { error: 'Failed to reset winner' }
   },
 
   checkRequirements: async function (event_id, player_id) {
@@ -70,7 +92,7 @@ const eventAPI = {
     const response = await fetch(eventsUrl + 'create', requestOptions)
     if (response.ok) {
       const data = await response.json()
-      return {success: response.ok, statusCode: response.status, event: data}
+      return { success: response.ok, statusCode: response.status, event: data }
     }
     else
       throw new Error(response.status + ': Failed to create event')
@@ -89,7 +111,7 @@ const eventAPI = {
   },
 
   addParticipant: async function (event_id, participant) {
-    const requestOptions = authAPI.getRequestOptions('POST', {participant: participant});
+    const requestOptions = authAPI.getRequestOptions('POST', { participant: participant });
 
     const response = await fetch(eventsUrl + event_id + '/participants/add', requestOptions)
     if (response.ok) {
@@ -102,20 +124,20 @@ const eventAPI = {
       throw new Error(message.error)
     }
   },
-  
+
   // 0=get all participants
-  getParticipants: async function (id, filter, page=1, pageSize=20) {
+  getParticipants: async function (id, filter, page = 1, pageSize = 20) {
     const requestOptions = authAPI.getRequestOptions('GET');
-    const params = new URLSearchParams({page:page, page_size:pageSize, ...(filter ? filter : {})}) 
+    const params = new URLSearchParams({ page: page, page_size: pageSize, ...(filter ? filter : {}) })
     const response = await fetch(`${eventsUrl}${id}/participants?${params}`, requestOptions)
     if (response.ok) {
       return await response.json()
     }
     else
       throw new Error(response.status + ': Failed to update event')
-  }, 
+  },
 
-  removeParticipant: async function(event_id, participant_id) {
+  removeParticipant: async function (event_id, participant_id) {
     const requestOptions = authAPI.getRequestOptions('DELETE');
     const response = await fetch(`${eventsUrl}${event_id}/participants/remove/${participant_id}`, requestOptions)
     if (response.ok) {
@@ -126,8 +148,8 @@ const eventAPI = {
     //alert(`remove ${participant_id} from event ${event_id}`)
   },
 
-  sendNotifications: async function(id, message) {
-    const requestOptions = authAPI.getRequestOptions('POST', {message: message});
+  sendNotifications: async function (id, message) {
+    const requestOptions = authAPI.getRequestOptions('POST', { message: message });
     const response = await fetch(`${eventsUrl}send-notifications/${id}`, requestOptions)
     if (response.ok) {
       return true
@@ -135,6 +157,8 @@ const eventAPI = {
     else
       throw new Error(response.status + ': Failed to send messages')
   },
+
+  
 
 }
 

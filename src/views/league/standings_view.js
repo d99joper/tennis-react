@@ -36,7 +36,7 @@ const StandingsView = ({ standings, winner, event_id, isAdmin = false, isPartici
   }
 
   const handleRemoveParticipant = async () => {
-    eventAPI.removeParticipant(event_id, participantToRemove.id)
+    await eventAPI.removeParticipant(event_id, participantToRemove.id)
     setShowModal(false)
     setLoading(prev => {
       const newLoading = [...prev]
@@ -73,7 +73,7 @@ const StandingsView = ({ standings, winner, event_id, isAdmin = false, isPartici
         columnWidths={["1fr", "4fr", "1fr", "1fr", "1fr", "1fr"]} // Custom column widths
         getRowData={(row, index) => [
           (
-            row.id === winner?.id
+            row.id === winner
               ?
               <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1 }}>
                 <TennisTrophyIcon size={35} /> #{row.rank}

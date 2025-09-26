@@ -17,12 +17,16 @@ import {
   InputAdornment,
   Snackbar,
   Alert,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { clubAPI, eventAPI } from 'api/services';
-import EventRestrictions from './restrictions';
+import EventRestrictions from '../League/restrictions';
 import InfoPopup from '../infoPopup';
 import PlayerSearch from '../Player/playerSearch';
 import requestAPI from 'api/services/request';
+import { eventHelper } from 'helpers';
+import divisionAPI from 'api/services/divisions';
 
 const EventAdminTools = ({ event, participants, setEvent }) => {
   const [selectedSection, setSelectedSection] = useState('settings');
@@ -41,9 +45,15 @@ const EventAdminTools = ({ event, participants, setEvent }) => {
   const [endDate, setEndDate] = useState(event.end_date || '');
   const [registrationDate, setRegistrationDate] = useState(event.registration_open_date || '');
   const [isOpenRegistration, setIsOpenRegistration] = useState(event.is_open_registration);
+  const [allowSelfReportScores, setAllowSelfReportScores] = useState(event.allow_self_report_scores || false);
   const [description, setDescription] = useState(event.description || '');
-  const [admins, setAdmins] = useState(event.admins || []) 
+  const [admins, setAdmins] = useState(event.admins || [])
   const [adminOptions, setAdminOptions] = useState([])
+
+  // State for adding division
+  const [divisionName, setDivisionName] = useState('')
+  const [divisionType, setDivisionType] = useState('')
+  const [divisionMatchType, setDivisionMatchType] = useState('')
 
 
   const [snackbarOpen, setSnackbarOpen] = useState(false)
@@ -56,18 +66,74 @@ const EventAdminTools = ({ event, participants, setEvent }) => {
     setSnackbarOpen(true)
   }
 
-  useEffect( () => {
+  const handleAddDivision = async () => {
+    if (!divisionName) return;
+    
+    try {
+      const result = await divisionAPI.addDivision(event.id, divisionName, divisionType, divisionMatchType);
+      if (result) {
+        showSnackbar('Division added successfully');
+        setDivisionName('');
+        setDivisionType('');
+        setDivisionMatchType('');
+        
+        // Instead of manually updating the event, fetch the complete updated event
+        try {
+          const updatedEvent = await eventAPI.getEvent(event.id);
+          setEvent(updatedEvent);
+        } catch (fetchError) {
+          console.error('Error fetching updated event:', fetchError);
+          // Fallback: manually update with the returned result
+          const updatedEvent = {
+            ...event,
+            divisions: [...(event.divisions || []), result]
+          };
+          setEvent(updatedEvent);
+        }
+      } else {
+        showSnackbar('Failed to add division', 'error');
+      }
+    } catch (error) {
+      console.error('Error adding division:', error);
+      showSnackbar('Failed to add division', 'error');
+    }
+  }
+
+  useEffect(() => {
     // get admin options
-    clubAPI.getMembers(event.club.id).then((result) => {
-      setAdminOptions(result.data.members)
-      console.log(result.data.members)
-      console.log(admins)
-    });
-  },[])
+    if (event.club && event.club.id)
+      clubAPI.getMembers(event.club.id).then((result) => {
+        setAdminOptions(result.data.members)
+      });
+  }, [])
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === 'clickaway') return
     setSnackbarOpen(false)
+  }
+
+  const handleResetWinner = async () => {
+    const ok = await eventAPI.resetWinner(event.id)
+    if (ok) {
+      event.winner = null;
+      event.winner_data = null;
+      setEvent(event)
+      showSnackbar('Winner is reset')
+    }
+  }
+
+  const handleSetWinner = async (winner_id, winner_name) => {
+    let ok = false
+    if (winner_id)
+      ok = await eventAPI.setWinner(event.id, winner_id)
+    if (ok) {
+      showSnackbar(`Winner is set to ${winner_name}.`)
+      event.winner_id = winner_id
+      event.winner = { id: winner_id, name: winner_name }
+      event.winner_data = { id: winner_id, name: winner_name }
+      setEvent(event)
+    } else
+      showSnackbar(`Failed to set ${winner_name} as winner.`, 'error')
   }
 
   const handleSendInvites = async () => {
@@ -97,6 +163,7 @@ const EventAdminTools = ({ event, participants, setEvent }) => {
         start_date: startDate,
         end_date: endDate,
         is_open_registration: isOpenRegistration,
+        allow_self_report_scores: allowSelfReportScores,
         registration_open_date: registrationDate,
         description,
       };
@@ -148,7 +215,7 @@ const EventAdminTools = ({ event, participants, setEvent }) => {
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}
@@ -185,6 +252,12 @@ const EventAdminTools = ({ event, participants, setEvent }) => {
           <ListItem disablePadding>
             <ListItemButton selected={selectedSection === 'invite'} onClick={() => setSelectedSection('invite')}>
               <ListItemText primary="Invite Players" />
+            </ListItemButton>
+          </ListItem>
+          <Divider />
+          <ListItem disablePadding>
+            <ListItemButton selected={selectedSection === 'addDivision'} onClick={() => setSelectedSection('addDivision')}>
+              <ListItemText primary="Divisions" />
             </ListItemButton>
           </ListItem>
         </List>
@@ -276,7 +349,6 @@ const EventAdminTools = ({ event, participants, setEvent }) => {
         {/* Event Settings Section */}
         {selectedSection === 'settings' && (
           <Box>
-            <Typography variant="h6">Update Settings</Typography>
             <TextField
               label="Max Participants"
               type="number"
@@ -295,7 +367,14 @@ const EventAdminTools = ({ event, participants, setEvent }) => {
               sx={{ mb: 2 }}
             />
             <TextField
-              label="End Date"
+              label={
+                <Typography>
+                  End date &nbsp;
+                  <InfoPopup>
+                    No matches can be reported after the end date. If you need to report a match late, temporarily change this date.
+                  </InfoPopup>
+                </Typography>
+              }
               type="date"
               slotProps={{ inputLabel: { shrink: true } }}
               value={endDate}
@@ -303,6 +382,26 @@ const EventAdminTools = ({ event, participants, setEvent }) => {
               fullWidth
               sx={{ mb: 2 }}
             />
+            <Typography>
+              {(eventHelper.hasEventEnded(event) && !event.winner) ?
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => handleSetWinner(event.league_standings[0].id, event.league_standings[0].name)}
+                >
+                  Set {event.league_standings[0].name} as winner
+                </Button>
+                : (event.winner &&
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleResetWinner()}
+                  >
+                    Reset winner
+                  </Button>
+                )
+              }
+            </Typography>
             <FormControlLabel
               control={
                 <Checkbox
@@ -326,6 +425,19 @@ const EventAdminTools = ({ event, participants, setEvent }) => {
                 sx={{ mb: 2 }}
               />
             }
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={allowSelfReportScores}
+                  onChange={(e) => setAllowSelfReportScores(e.target.checked)}
+                />
+              }
+              label="Allow Self-Report Scores"
+              sx={{ mb: 2 }}
+            />
+            <InfoPopup size={20}>
+              By enabling <b>Allow Self-Report Scores</b>, participants can report their own match scores without admin approval.
+            </InfoPopup>
             <TextField
               label="Description"
               multiline
@@ -378,6 +490,61 @@ const EventAdminTools = ({ event, participants, setEvent }) => {
               sx={{ mt: 2 }}
             >
               Send Notifications
+            </Button>
+          </Box>
+        )}
+        {/* Add Division Section */}
+        {selectedSection === 'addDivision' && (
+          <Box>
+            {event.divisions?.length > 0 &&
+              <Box mb={2}>
+                <Typography variant="h6" gutterBottom>
+                  Existing divisions
+                </Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {event.divisions.map((div) => (
+                    <Chip key={div.id} label={div.name} />
+                  ))}
+                </Box>
+              </Box>
+            }
+            <Typography variant="h6">Add Division</Typography>
+            <TextField
+              label="Division Name"
+              value={divisionName}
+              onChange={(e) => setDivisionName(e.target.value)}
+              fullWidth
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              select
+              label="Division Type"
+              value={divisionType}
+              onChange={(e) => setDivisionType(e.target.value)}
+              fullWidth
+              sx={{ mb: 2 }}
+            >
+              <MenuItem value="league">League</MenuItem>
+              <MenuItem value="tournament">Tournament</MenuItem>
+            </TextField>
+            <TextField
+              select
+              label="Match Type"
+              value={divisionMatchType}
+              onChange={(e) => setDivisionMatchType(e.target.value)}
+              fullWidth
+              sx={{ mb: 2 }}
+            >
+              <MenuItem value="singles">Singles</MenuItem>
+              <MenuItem disabled value="doubles">Doubles</MenuItem>
+            </TextField>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleAddDivision}
+              disabled={loading || !divisionName}
+            >
+              Add Division
             </Button>
           </Box>
         )}

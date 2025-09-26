@@ -12,7 +12,8 @@ const useMatchEditorLogic = ({
   scheduleMatchId,
   onSubmit,
   limitedParticipants = [],
-  participant
+  participant,
+  division_id = null
 }) => {
   const { user } = useContext(AuthContext);
   const [selectedEvent, setSelectedEvent] = useState(event || null);
@@ -159,7 +160,8 @@ const useMatchEditorLogic = ({
       type: matchType,
       ...(event ? { event_id: event.id } : {}),
       comments: [], 
-      score: sets.map(set => `${set.value}`).filter(Boolean).join(', ')
+      score: sets.map(set => `${set.value}`).filter(Boolean).join(', '),
+      division_id: division_id || null,
     };
 
     if (comment.trim()) {
@@ -216,7 +218,7 @@ const useMatchEditorLogic = ({
     error, setError,
     setErrorText, setSetErrorText,
     isPrivate, setIsPrivate,
-    availableEvents
+    availableEvents, division_id,
   };
 };
 

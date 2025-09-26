@@ -1,47 +1,159 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Typography } from "@mui/material";
+import { Box, MenuItem, TextField, Typography, useMediaQuery } from "@mui/material";
 import { eventAPI } from "api/services";
 import LeagueViewPage from "views/league/league_view";
 import TournamentView from "views/Tournament/tournamentView";
 import LadderView from "views/ladder/view";
+import { Helmet } from "react-helmet-async";
+import { helpers } from "helpers";
+import DOMPurify from "dompurify";
+import { useTheme } from "@emotion/react";
 
 const EventView = () => {
   const { id } = useParams();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedDivision, setSelectedDivision] = useState(null);
+
+  // Responsive design
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const fetchEvent = async () => {
+    try {
+      setLoading(true);
+      const event = await eventAPI.getEvent(id);
+      console.log("EventView rendering with event_type:", event.event_type);
+      setEvent(event);
+      setSelectedDivision(event.divisions && event.divisions.length > 0 ? event.divisions[0] : null);
+    } catch (err) {
+      setError("Failed to load event");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchEvent = async () => {
-      try {
-        setLoading(true);
-        const event = await eventAPI.getEvent(id); 
-        setEvent(event);
-      } catch (err) {
-        setError("Failed to load event");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchEvent();
   }, [id]);
+
+  
+  const refreshEvent = (updatedEvent) => {
+    console.log('EventView received updated event:', updatedEvent);
+    
+    if (updatedEvent) {
+      setEvent(updatedEvent);
+      
+      // Update selectedDivision if it exists in the updated event
+      if (selectedDivision && updatedEvent.divisions) {
+        const updatedSelectedDivision = updatedEvent.divisions.find(
+          div => div.id === selectedDivision.id
+        );
+        if (updatedSelectedDivision) {
+          setSelectedDivision(updatedSelectedDivision);
+        }
+      }
+      
+      // If we don't have a selected division but there are divisions, select the first one
+      if (!selectedDivision && updatedEvent.divisions && updatedEvent.divisions.length > 0) {
+        setSelectedDivision(updatedEvent.divisions[0]);
+      }
+    } else {
+      fetchEvent();
+    }
+  };
 
   if (loading) return <Typography>Loading...</Typography>;
   if (error) return <Typography color="error">{error}</Typography>;
   if (!event) return <Typography>No event found</Typography>;
 
+  const titleSection = (
+    <Box sx={{ mt: 4, px: isMobile ? 2 : 4 }}>
+      <Helmet>
+        <title>{event.name} | MyTennis Space</title>
+      </Helmet>
+      <Typography variant="h4" gutterBottom>
+        {event.name}
+      </Typography>
+      {event.club && (
+        <Typography variant="body1" gutterBottom>
+          Hosted by <Link to={'/clubs/' + event.club?.slug} >{event.club?.name}</Link>
+        </Typography>
+      )}
+      {!helpers.hasStarted(event.start_date) &&
+        <Typography variant="body1" color="text.secondary" gutterBottom>
+          <i>Event starts {event.start_date}</i>
+        </Typography>
+      }
+      <Typography variant="body1" color="text.secondary" gutterBottom
+        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(helpers.parseTextToHTML(event.description)) }}>
+      </Typography>
+    </Box>
+  );
+
+  // Division selection dropdown
+  const divisions = (
+    selectedDivision &&
+    <Box sx={{ mt: 2, px: isMobile ? 2 : 4 }}>
+      <TextField
+        key={`divisions-${event.divisions?.length || 0}`} // Force re-render when divisions change
+        select
+        label="Select Division"
+        value={selectedDivision?.id || ""}
+        onChange={(e) => {
+          const selected = event.divisions.find(d => d.id === e.target.value);
+          setSelectedDivision(selected);
+        }}
+      >
+        {event.divisions?.map((division) => (
+          <MenuItem key={division.id} value={division.id}>
+            {division.name} ({division.type})
+          </MenuItem>
+        ))}
+      </TextField>
+    </Box>
+  );
+
   // Switch to render the appropriate view
+  let content;
   switch (event.event_type) {
     case "league":
-      return <LeagueViewPage event={event} />;
+      content = <LeagueViewPage event={event} />;
+      break;
     case "tournament":
-      return <TournamentView event={event} />;
+      content = <TournamentView event={event} tournament_id={event.tournament_id} callback={refreshEvent} />;
+      break;
     case "ladder":
-      return <LadderView event={event} />;
+      content = <LadderView event={event} />;
+      break;
+    case "multievent":
+      const division_content_id = selectedDivision?.content_object?.id;
+      console.log("Selected Division:", selectedDivision);
+      if (selectedDivision?.type === 'league')
+        content = <LeagueViewPage event={event} />;
+      else if (selectedDivision?.type === 'tournament') {
+        content = <TournamentView 
+          key={division_content_id} 
+          event={event} 
+          tournament_id={division_content_id} 
+          division={selectedDivision}
+          callback={refreshEvent} 
+        />;
+      }
+      break;
     default:
       return <Typography>Unknown event type</Typography>;
   }
+
+  return (
+    <>
+      {titleSection}
+      {divisions}
+      {content}
+    </>
+  );
 };
 
 export default EventView;

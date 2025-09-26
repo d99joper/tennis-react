@@ -14,7 +14,7 @@ const TournamentCreate = () => {
 			bracket: {},
 			finalized: false
 		}
-		
+
 		const payload = {
 			name,
 			description,
@@ -34,10 +34,38 @@ const TournamentCreate = () => {
 	return (
 		<Box sx={{ maxWidth: 600, mx: 'auto', p: 2 }}>
 			<Typography variant="h4" gutterBottom>Create Tournament</Typography>
-			<TextField fullWidth label="Tournament Name" value={name} onChange={(e) => setName(e.target.value)} sx={{ mb: 2 }} />
-			<TextField fullWidth label="Description" multiline rows={4} value={description} onChange={(e) => setDescription(e.target.value)} sx={{ mb: 2 }} />
-			<TextField fullWidth label="Start Date" type="date" InputLabelProps={{ shrink: true }} value={startDate} onChange={(e) => setStartDate(e.target.value)} sx={{ mb: 2 }} />
-			<TextField select fullWidth label="Match Type" value={matchType} onChange={(e) => setMatchType(e.target.value)} sx={{ mb: 2 }}>
+			<TextField
+				fullWidth
+				label="Tournament Name"
+				value={name}
+				onChange={(e) => setName(e.target.value)} sx={{ mb: 2 }}
+			/>
+			<TextField
+				fullWidth
+				label="Description"
+				multiline
+				rows={4}
+				value={description}
+				onChange={(e) => setDescription(e.target.value)}
+				sx={{ mb: 2 }}
+			/>
+			<TextField
+				fullWidth
+				label="Start Date"
+				type="date"
+				slotProps={{ input: {shrink: true} }}
+				value={startDate}
+				onChange={(e) => setStartDate(e.target.value)}
+				sx={{ mb: 2 }}
+			/>
+			<TextField
+				select
+				fullWidth
+				label="Match Type"
+				value={matchType}
+				onChange={(e) => setMatchType(e.target.value)}
+				sx={{ mb: 2 }}
+			>
 				<MenuItem value="singles">Singles</MenuItem>
 				<MenuItem value="doubles">Doubles</MenuItem>
 			</TextField>
