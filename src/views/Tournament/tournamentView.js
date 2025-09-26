@@ -32,10 +32,10 @@ const TournamentViewPage = ({ event: initialEvent,
   useEffect(() => {
     if (event?.event_type === 'multievent') {
       setEvent(event);
-      console.log("Multi-event detected, using first division's bracket");
+      //console.log("Multi-event detected, using first division's bracket");
       const currentDivision = division || event.divisions[0];
       setBracket(currentDivision.content_object?.bracket || null);
-      console.log("Bracket data:", currentDivision.content_object?.bracket);
+      //console.log("Bracket data:", currentDivision.content_object?.bracket);
       return;
     }
     if (event) return; // already have event from props
@@ -56,7 +56,7 @@ const TournamentViewPage = ({ event: initialEvent,
   // Add this new useEffect to handle division changes
   useEffect(() => {
     if (event?.event_type === 'multievent' && division) {
-      console.log("Division changed, updating bracket for division:", division.id);
+      //console.log("Division changed, updating bracket for division:", division.id);
       setBracket(division.content_object?.bracket || null);
     }
   }, [division, event?.event_type]);

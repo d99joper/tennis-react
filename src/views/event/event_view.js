@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Box, MenuItem, TextField, Typography, useMediaQuery } from "@mui/material";
 import { eventAPI } from "api/services";
@@ -12,8 +12,9 @@ import { useTheme } from "@emotion/react";
 
 const EventView = () => {
   const { id } = useParams();
-  const searchParams = new URLSearchParams(window.location.search);
-  const division_num = searchParams.get('division');
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams(); // Use React Router's hook
+  const division_num = searchParams.get('division'); // This will properly track changes
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -30,17 +31,6 @@ const EventView = () => {
       console.log("EventView rendering with event_type:", event.event_type);
       setEvent(event);
       console.log("Event data:", event);
-      const division_index = division_num && event.divisions && division_num < event.divisions.length ? division_num : 0;
-      const division = event.divisions && division_index < event.divisions.length ? event.divisions[division_index] : null;
-      setSelectedDivision(division || null);
-      if (division) {
-        // if the division is a league, set the standings and schedule on the event
-        setEvent(prevEvent => ({
-          ...prevEvent,
-          league_standings: division.content_object?.standings || [],
-          league_schedule: division.content_object?.schedule || [],
-        }));
-      }
     } catch (err) {
       setError("Failed to load event");
     } finally {
@@ -48,17 +38,43 @@ const EventView = () => {
     }
   };
 
+  // Only fetch event when ID changes, not division_num
   useEffect(() => {
     fetchEvent();
-  }, [id]);
+  }, [id]); // Remove division_num from dependencies
 
-  
+  // Handle initial division selection after event loads
+  useEffect(() => {
+    if (event && event.divisions) {
+      console.log("division_num from URL:", division_num);
+      const division_index = division_num !== null && parseInt(division_num) < event.divisions.length
+        ? parseInt(division_num)
+        : 0;
+      const division = event.divisions[division_index] || null;
+      
+      console.log("Setting initial/updated division:", division_index, division);
+      
+      // Update selectedDivision
+      setSelectedDivision(division);
+      
+      // If it's a league division, update league data
+      if (division && division.type === 'league') {
+        console.log("Updating league data for division:", division);
+        setEvent(prevEvent => ({
+          ...prevEvent,
+          league_standings: division.content_object?.standings || [],
+          league_schedule: division.content_object?.schedule || [],
+        }));
+      }
+    }
+  }, [division_num, event?.divisions]); // This only updates division selection, not the entire event
+
   const refreshEvent = (updatedEvent) => {
     console.log('EventView received updated event:', updatedEvent);
-    
+
     if (updatedEvent) {
       setEvent(updatedEvent);
-      
+
       // Update selectedDivision if it exists in the updated event
       if (selectedDivision && updatedEvent.divisions) {
         const updatedSelectedDivision = updatedEvent.divisions.find(
@@ -68,7 +84,7 @@ const EventView = () => {
           setSelectedDivision(updatedSelectedDivision);
         }
       }
-      
+
       // If we don't have a selected division but there are divisions, select the first one
       if (!selectedDivision && updatedEvent.divisions && updatedEvent.divisions.length > 0) {
         setSelectedDivision(updatedEvent.divisions[0]);
@@ -103,18 +119,18 @@ const EventView = () => {
       <Typography variant="body1" color="text.secondary" gutterBottom
         dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(helpers.parseTextToHTML(event.description)) }}>
       </Typography>
-      
+
       {/* Division selector integrated into title section */}
       {selectedDivision && event.divisions && event.divisions.length > 1 && (
-        <Box sx={{ 
+        <Box sx={{
           mt: 2,
           display: 'flex',
           alignItems: 'center',
           gap: 2
         }}>
-          <Typography 
-            variant="body2" 
-            sx={{ 
+          <Typography
+            variant="body2"
+            sx={{
               color: 'text.secondary',
               fontWeight: 500,
               minWidth: 'fit-content'
@@ -130,6 +146,17 @@ const EventView = () => {
             onChange={(e) => {
               const selected = event.divisions.find(d => d.id === e.target.value);
               setSelectedDivision(selected);
+
+              // Update URL with division index - always include the parameter
+              const divisionIndex = event.divisions.findIndex(d => d.id === e.target.value);
+              const newSearchParams = new URLSearchParams(window.location.search);
+
+              // Always set the division parameter (including 0)
+              newSearchParams.set('division', divisionIndex.toString());
+
+              // Update URL without page reload
+              const newUrl = `${window.location.pathname}?${newSearchParams.toString()}`;
+              navigate(newUrl, { replace: true });
             }}
             sx={{
               minWidth: 180,
@@ -157,9 +184,9 @@ const EventView = () => {
                   <Typography variant="body2" sx={{ fontWeight: 500 }}>
                     {division.name}
                   </Typography>
-                  <Typography 
-                    variant="caption" 
-                    sx={{ 
+                  <Typography
+                    variant="caption"
+                    sx={{
                       color: 'text.secondary',
                       textTransform: 'capitalize',
                       backgroundColor: 'action.hover',
@@ -196,14 +223,14 @@ const EventView = () => {
       const division_content_id = selectedDivision?.content_object?.id;
       console.log("Selected Division:", selectedDivision);
       if (selectedDivision?.type === 'league')
-        content = <LeagueViewPage event={event} />;
+        content = <LeagueViewPage event={event} division={selectedDivision} />;
       else if (selectedDivision?.type === 'tournament') {
-        content = <TournamentView 
-          key={division_content_id} 
-          event={event} 
-          tournament_id={division_content_id} 
+        content = <TournamentView
+          key={division_content_id}
+          event={event}
+          tournament_id={division_content_id}
           division={selectedDivision}
-          callback={refreshEvent} 
+          callback={refreshEvent}
         />;
       }
       break;

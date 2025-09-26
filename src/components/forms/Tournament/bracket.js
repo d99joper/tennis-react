@@ -38,8 +38,8 @@ const TournamentBracket = ({ initialBracket, event, tournament_id, isSelfReporte
   const { user, isLoggedIn, loading: userIsLoading } = useContext(AuthContext);
 
   //bracket = bracket_data; // for testing
-  console.log('Rendering TournamentBracket with bracket:', bracket, initialBracket);
-  console.log('Event:', event);
+  // console.log('Rendering TournamentBracket with bracket:', bracket, initialBracket);
+  // console.log('Event:', event);
   const handleChange = (e) => {
     const next = e.target.value || [];
     setSelectedParticipants(next);

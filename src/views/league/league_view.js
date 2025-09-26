@@ -32,8 +32,14 @@ const LeagueViewPage = (props) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedParticipant, setSelectedParticipant] = useState(null);
   const [event, setEvent] = useState(props.event || null);
-  const [standings, setStandings] = useState(props.event?.league_standings || []);
-  const [schedule, setSchedule] = useState(props.event?.league_schedule || []);
+  
+  // Use division data if available, otherwise fall back to event data
+  const [standings, setStandings] = useState(
+    props.division?.content_object?.standings || props.event?.league_standings || []
+  );
+  const [schedule, setSchedule] = useState(
+    props.division?.content_object?.schedule || props.event?.league_schedule || []
+  );
   const [matches, setMatches] = useState(props.event?.matches || []);
   const [editSchedule, setEditSchedule] = useState(false);
   const currentUser = authAPI.getCurrentUser()
@@ -52,8 +58,13 @@ const LeagueViewPage = (props) => {
         console.log('event', event)
         if (event && !event.statusCode) {
           setEvent(event);
-          setStandings(event.league_standings || []);
-          setSchedule(event.league_schedule || []);
+          
+          // Only update standings/schedule if we don't have division-specific data
+          if (!props.division) {
+            setStandings(event.league_standings || []);
+            setSchedule(event.league_schedule || []);
+          }
+          
           setMatches(event.matches || []);
           setIsAdmin(event.is_admin);
           setIsParticipant(event.is_participant);
@@ -64,10 +75,25 @@ const LeagueViewPage = (props) => {
         console.error('Failed to fetch league:', error);
       }
     };
-    if (!event)
+    
+    // Only fetch if we don't have an event prop
+    if (!event) {
       fetchLeague();
+    }
+  }, [id, props.event, props.division]);
 
-  }, [id]);
+  // Add useEffect to handle division changes
+  useEffect(() => {
+    if (props.division && props.division.content_object) {
+      console.log("Division changed in LeagueView, updating standings/schedule:", props.division);
+      setStandings(props.division.content_object.standings || []);
+      setSchedule(props.division.content_object.schedule || []);
+    } else if (props.event) {
+      // Fall back to event-level data
+      setStandings(props.event.league_standings || []);
+      setSchedule(props.event.league_schedule || []);
+    }
+  }, [props.division, props.event?.league_standings, props.event?.league_schedule]);
 
 
   const handleMatchEditorSubmit = (newMatch) => {
