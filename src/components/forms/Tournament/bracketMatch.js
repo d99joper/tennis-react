@@ -194,16 +194,47 @@ const BracketMatch = ({
             fontWeight: isPlayer1Winner ? 700 : 400,
             color: isPlayer1Winner ? 'primary.main' : 'text.primary',
             fontSize: '0.875rem',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
             display: 'flex',
             alignItems: 'center',
+            minWidth: 0, // Allow flex item to shrink below content size
+            overflow: 'hidden',
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "left", gap: 1 }}>
-            {match.player1 && <ProfileImage player={match.player1} asLink={true} showName={true} size={30} />}
-            {match.seed1 ? `(${match.seed1})` : ''}
+          <Box sx={{ 
+            display: "flex", 
+            alignItems: "center", 
+            justifyContent: "left", 
+            gap: 1,
+            minWidth: 0, // Allow flex item to shrink
+            overflow: 'hidden',
+            width: '100%',
+          }}>
+            {match.player1 && (
+              <ProfileImage 
+                player={match.player1} 
+                asLink={true} 
+                showName={true} 
+                size={30}
+                sx={{
+                  '& .MuiTypography-root': {
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }
+                }}
+              />
+            )}
+            {match.seed1 && (
+              <Typography
+                variant="caption"
+                sx={{
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0, // Prevent seed from being cut off
+                }}
+              >
+                ({match.seed1})
+              </Typography>
+            )}
           </Box>
         </Box>
 
@@ -215,6 +246,7 @@ const BracketMatch = ({
               gridTemplateColumns: `repeat(${player1Scores.length}, 20px)`,
               gap: '4px',
               justifyItems: 'center',
+              flexShrink: 0, // Prevent score grid from shrinking
             }}
           >
             {player1Scores.map((score, index) => (
@@ -251,16 +283,47 @@ const BracketMatch = ({
             fontWeight: isPlayer2Winner ? 700 : 400,
             color: isPlayer2Winner ? 'primary.main' : 'text.primary',
             fontSize: '0.875rem',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
             display: 'flex',
             alignItems: 'center',
+            minWidth: 0, // Allow flex item to shrink below content size
+            overflow: 'hidden',
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "left", gap: 1 }}>
-            {match.player2 && <ProfileImage player={match.player2} asLink={true} showName={true} size={30} />}
-            {match.seed2 ? `(${match.seed2})` : ''}
+          <Box sx={{ 
+            display: "flex", 
+            alignItems: "center", 
+            justifyContent: "left", 
+            gap: 1,
+            minWidth: 0, // Allow flex item to shrink
+            overflow: 'hidden',
+            width: '100%',
+          }}>
+            {match.player2 && (
+              <ProfileImage 
+                player={match.player2} 
+                asLink={true} 
+                showName={true} 
+                size={30}
+                sx={{
+                  '& .MuiTypography-root': {
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }
+                }}
+              />
+            )}
+            {match.seed2 && (
+              <Typography
+                variant="caption"
+                sx={{
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0, // Prevent seed from being cut off
+                }}
+              >
+                ({match.seed2})
+              </Typography>
+            )}
           </Box>
         </Box>
 
@@ -272,6 +335,7 @@ const BracketMatch = ({
               gridTemplateColumns: `repeat(${player2Scores.length}, 20px)`,
               gap: '4px',
               justifyItems: 'center',
+              flexShrink: 0, // Prevent score grid from shrinking
             }}
           >
             {player2Scores.map((score, index) => (

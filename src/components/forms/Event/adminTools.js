@@ -55,6 +55,9 @@ const EventAdminTools = ({ event, participants, setEvent }) => {
   const [divisionType, setDivisionType] = useState('')
   const [divisionMatchType, setDivisionMatchType] = useState('')
 
+  // get the current division id from URL
+  const division_num = new URLSearchParams(window.location.search).get('division');
+
 
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState('')
@@ -113,7 +116,11 @@ const EventAdminTools = ({ event, participants, setEvent }) => {
   }
 
   const handleResetWinner = async () => {
-    const ok = await eventAPI.resetWinner(event.id)
+    // get potential division
+    let division_id = null
+    if (division_num && event.divisions && event.divisions.length > division_num)
+      division_id = event.divisions[division_num].id
+    const ok = await eventAPI.resetWinner(event.id, division_id)
     if (ok) {
       event.winner = null;
       event.winner_data = null;
@@ -124,8 +131,13 @@ const EventAdminTools = ({ event, participants, setEvent }) => {
 
   const handleSetWinner = async (winner_id, winner_name) => {
     let ok = false
-    if (winner_id)
-      ok = await eventAPI.setWinner(event.id, winner_id)
+    if (winner_id) {
+      // get potential division
+      let division_id = null
+      if (division_num && event.divisions && event.divisions.length > division_num)
+        division_id = event.divisions[division_num].id
+      ok = await eventAPI.setWinner(event.id, winner_id, division_id)
+    }
     if (ok) {
       showSnackbar(`Winner is set to ${winner_name}.`)
       event.winner_id = winner_id

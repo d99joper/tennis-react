@@ -99,6 +99,7 @@ const Home = ({ homeDataRef }) => {
 
 
       try {
+        filters['sort'] = '-start_date';
         const eventRes = await eventAPI.getEvents(filters, 1, 5);
         saveAndMaybeCache('events', eventRes?.events || []);
       } catch {

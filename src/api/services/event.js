@@ -52,8 +52,8 @@ const eventAPI = {
 
   },
 
-  setWinner: async function (event_id, winner_id) {
-    const requestOptions = authAPI.getRequestOptions('POST')
+  setWinner: async function (event_id, winner_id, division_id = null) {
+    const requestOptions = authAPI.getRequestOptions('POST', { division_id: division_id })
 
     const response = await fetch(`${eventsUrl}${event_id}/set-winner/${winner_id}`, requestOptions)
     if (response.ok) {
@@ -63,8 +63,8 @@ const eventAPI = {
       return { error: 'Failed to set winner ' }
   },
 
-  resetWinner: async function (event_id) {
-    const requestOptions = authAPI.getRequestOptions('DELETE')
+  resetWinner: async function (event_id, division_id = null) {
+    const requestOptions = authAPI.getRequestOptions('DELETE', { division_id: division_id })
 
     const response = await fetch(`${eventsUrl}${event_id}/reset-winner`, requestOptions)
     if (response.ok) {

@@ -31,7 +31,7 @@ const TrophyCase = ({ trophies = [], badges = [], player_id = null }) => {
   }, [trophies, badges])
   
   useLayoutEffect(() => {
-    if (showModal) {//} && user?.id === player_id) {
+    if (showModal && user?.id === player_id) {
       // Defer execution until next tick to ensure DOM is painted
       const timer = setTimeout(() => {
         if (!containerRef.current) return
@@ -57,10 +57,10 @@ const TrophyCase = ({ trophies = [], badges = [], player_id = null }) => {
 
       return () => clearTimeout(timer)
     }
-  }, [showModal, trophies, badges, user])
+  }, [showModal, trophies, badges, user, player_id])
 
   useEffect(() => {
-    if (!showModal || uncelebrated.length === 0 || currentIndex >= uncelebrated.length) return
+    if (!showModal || uncelebrated.length === 0 || currentIndex >= uncelebrated.length || user?.id !== player_id) return
 
     const item = uncelebrated[currentIndex]
 
@@ -79,7 +79,7 @@ const TrophyCase = ({ trophies = [], badges = [], player_id = null }) => {
 
       return () => clearTimeout(timeout)
     }
-  }, [currentIndex, uncelebrated, showModal])
+  }, [currentIndex, uncelebrated, showModal, user, player_id])
 
   const openModal = () => {
     setShowModal(true)
@@ -127,7 +127,7 @@ const TrophyCase = ({ trophies = [], badges = [], player_id = null }) => {
           <Box>
             <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>Trophies</Typography>
             {localTrophies.length > 0 ? localTrophies.map((t, i) => {
-              const animate = animatedItems.includes(t.id || t.title)
+              const animate = !t.celebrated && user?.id === player_id && animatedItems.includes(t.id || t.title)
               return (
                 <Box key={`trophy-${i}`}
                   className={animate ? 'trophy-animate' : ''}
@@ -159,8 +159,7 @@ const TrophyCase = ({ trophies = [], badges = [], player_id = null }) => {
           <Box>
             <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>Badges</Typography>
             {localBadges.length > 0 ? localBadges.map((b, i) => {
-
-              const animate = animatedItems.includes(b.id || b.title)
+              const animate = !b.celebrated && user?.id === player_id && animatedItems.includes(b.id || b.title)
               return (
                 <Box key={`badge-${i}`}
                   display="flex"
