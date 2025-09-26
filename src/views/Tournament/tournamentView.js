@@ -134,7 +134,7 @@ const TournamentViewPage = ({ event: initialEvent,
   if (!event) return <CircularProgress />;
 
   return (
-    <Box sx={{ mt: 4, px: isMobile ? 2 : 4 }}>
+    <Box sx={{ mt: 0, px: isMobile ? 2 : 4 }}>
       {/* <Helmet>
         <title>{event.name} | MyTennis Space</title>
       </Helmet>
@@ -173,7 +173,7 @@ const TournamentViewPage = ({ event: initialEvent,
 
       {/** BRACKET TAB  */}
       {currentTab === 0 && (
-        <Box sx={{ p: 2 }}>
+        <Box sx={{ p: 1 }}>
           <TournamentBracket 
             key={`${tournament_id || id}-${division?.id || 'main'}-${JSON.stringify(bracket)?.slice(0, 50)}`}
             initialBracket={bracket} 

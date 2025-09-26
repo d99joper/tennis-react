@@ -271,4 +271,4 @@ const helpers = {
 };
 
 
-export { helpers };
+export default helpers;

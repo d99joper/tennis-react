@@ -90,29 +90,80 @@ const EventView = () => {
       <Typography variant="body1" color="text.secondary" gutterBottom
         dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(helpers.parseTextToHTML(event.description)) }}>
       </Typography>
-    </Box>
-  );
-
-  // Division selection dropdown
-  const divisions = (
-    selectedDivision &&
-    <Box sx={{ mt: 2, px: isMobile ? 2 : 4 }}>
-      <TextField
-        key={`divisions-${event.divisions?.length || 0}`} // Force re-render when divisions change
-        select
-        label="Select Division"
-        value={selectedDivision?.id || ""}
-        onChange={(e) => {
-          const selected = event.divisions.find(d => d.id === e.target.value);
-          setSelectedDivision(selected);
-        }}
-      >
-        {event.divisions?.map((division) => (
-          <MenuItem key={division.id} value={division.id}>
-            {division.name} ({division.type})
-          </MenuItem>
-        ))}
-      </TextField>
+      
+      {/* Division selector integrated into title section */}
+      {selectedDivision && event.divisions && event.divisions.length > 1 && (
+        <Box sx={{ 
+          mt: 2,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2
+        }}>
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              color: 'text.secondary',
+              fontWeight: 500,
+              minWidth: 'fit-content'
+            }}
+          >
+            Division:
+          </Typography>
+          <TextField
+            select
+            variant="outlined"
+            size="small"
+            value={selectedDivision?.id || ""}
+            onChange={(e) => {
+              const selected = event.divisions.find(d => d.id === e.target.value);
+              setSelectedDivision(selected);
+            }}
+            sx={{
+              minWidth: 180,
+              '& .MuiOutlinedInput-root': {
+                height: 32,
+                '& fieldset': {
+                  borderColor: 'divider',
+                },
+                '&:hover fieldset': {
+                  borderColor: 'primary.main',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: 'primary.main',
+                },
+              },
+              '& .MuiSelect-select': {
+                py: 0.5,
+                fontSize: '0.875rem',
+              }
+            }}
+          >
+            {event.divisions?.map((division) => (
+              <MenuItem key={division.id} value={division.id}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                    {division.name}
+                  </Typography>
+                  <Typography 
+                    variant="caption" 
+                    sx={{ 
+                      color: 'text.secondary',
+                      textTransform: 'capitalize',
+                      backgroundColor: 'action.hover',
+                      px: 0.75,
+                      py: 0.25,
+                      borderRadius: 0.5,
+                      fontSize: '0.75rem'
+                    }}
+                  >
+                    {division.type}
+                  </Typography>
+                </Box>
+              </MenuItem>
+            ))}
+          </TextField>
+        </Box>
+      )}
     </Box>
   );
 
@@ -150,7 +201,6 @@ const EventView = () => {
   return (
     <>
       {titleSection}
-      {divisions}
       {content}
     </>
   );

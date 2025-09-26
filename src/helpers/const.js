@@ -1,4 +1,4 @@
-export const enums = {
+const enums = {
 
   PARTICIPANT_TYPES: {
     SINGLES: 'singles',
@@ -58,3 +58,5 @@ export const enums = {
     { value: 5, label: '5.0' }, { value: 5.5, label: '5.5' },
     { value: 6, label: '6.0' }, { value: 6.5, label: '6.5' }]
 }
+
+export default enums

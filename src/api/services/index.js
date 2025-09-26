@@ -13,15 +13,15 @@ import tournamentsAPI from './tournament'
 
 export {
   authAPI,
+  clubAPI,
   commentsAPI,
   courtAPI,
-  eventAPI,
   divisionAPI,
+  eventAPI,
   ladderAPI,
   leagueAPI,
   matchAPI,
   playerAPI,
-  clubAPI,
   subscriptionAPI,
   tournamentsAPI
 }
