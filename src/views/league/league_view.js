@@ -20,10 +20,8 @@ import { GiPencil } from 'react-icons/gi';
 import { MdClose } from 'react-icons/md';
 import StandingsView from './standings_view';
 import JoinRequest from 'components/forms/Notifications/joinRequests';
-import { Helmet } from 'react-helmet-async';
 import EventAdminTools from 'components/forms/Event/adminTools';
-import { eventHelper, helpers } from 'helpers';
-import DOMPurify from "dompurify";
+import { eventHelper } from 'helpers';
 
 const LeagueViewPage = (props) => {
   const theme = useTheme();
@@ -42,8 +40,6 @@ const LeagueViewPage = (props) => {
   );
   const [matches, setMatches] = useState(props.event?.matches || []);
   const [editSchedule, setEditSchedule] = useState(false);
-  const currentUser = authAPI.getCurrentUser()
-  const [matchModalOpen, setMatchModalOpen] = useState(false);
   const [isParticipant, setIsParticipant] = useState(props.event?.is_participant || false)
   const [isAdmin, setIsAdmin] = useState(props.event?.is_admin || false)
   const [snackbar, setSnackbar] = useState({ open: false, message: '' });
@@ -110,10 +106,7 @@ const LeagueViewPage = (props) => {
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
   };
-
-  const handleMatchModalClose = () => {
-    setMatchModalOpen(false);
-  };
+  
   const handleModalClose = () => {
     setModalOpen(false);
     setSelectedParticipant(null);
@@ -129,54 +122,12 @@ const LeagueViewPage = (props) => {
     }
   }
 
-  const hasStarted = () => {
-    const today = new Date().getTime(); // Get current time in milliseconds
-    const startDate = new Date(`${event.start_date}T00:00:00Z`).getTime(); // for UTC time
-    return startDate < today;
-  }
-
   if (!event) {
     return <Typography variant="h6">Loading...</Typography>;
   }
 
   return (
     <Box>
-      {/* <Helmet>
-        <title>{event.name} | MyTennis Space</title>
-      </Helmet>
-      <Typography variant="h4" gutterBottom>
-        {event.name}
-      </Typography>
-      <Typography variant="bod1" gutterBottom>
-        Hosted by <Link to={'/clubs/' + event.club?.slug} >{event.club?.name}</Link>
-      </Typography>
-      {!hasStarted() &&
-        <Typography variant="body1" color="text.secondary" gutterBottom>
-          <i>League starts {event.start_date}</i>
-        </Typography>
-      }
-      <Typography variant="body1" color="text.secondary" gutterBottom
-        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(helpers.parseTextToHTML(event.description)) }}>
-      </Typography> */}
-
-      <JoinRequest
-        objectType={'event'}
-        id={event.id}
-        isMember={isParticipant}
-        memberText={'You are participating'}
-        isOpenRegistration={event.is_open_registration}
-        startDate={event.start_date}
-        registrationDate={event.registration_open_date}
-        callback={async () => {
-          const response = await eventAPI.getEvent(id);
-          if (response && !response.statusCode) {
-            setStandings(response.league_standings || []);
-            setIsParticipant(response.is_participant);
-          } else {
-            console.error(event.statusMessage);
-          }
-        }}
-      />
 
       <Tabs
         value={currentTab}
@@ -285,7 +236,7 @@ const LeagueViewPage = (props) => {
       {/* Admin Tools Tab */}
       {currentTab === 3 && isAdmin && (
         <Grid2 container direction={'column'}>
-          <EventAdminTools event={event} participants={event.participants || []} setEvent={setEvent} />
+          <EventAdminTools event={event} setEvent={setEvent} />
           <AddParticipants event={event} callback={handleAddDeleteParticipant} />
         </Grid2>
       )}

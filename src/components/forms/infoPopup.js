@@ -6,7 +6,7 @@ import { useTheme } from "@mui/material";
 
 function InfoPopup({ children, iconType = 'info', customIcon = null, ...props }) {
   const [anchorEl, setAnchorEl] = useState(null)
-  const { paddingLeft, color, paddingRight, width, size } = props
+  const { paddingLeft, color, paddingRight, width, size, backgroundColor } = props
   const open = Boolean(anchorEl)
   const theme = useTheme();
 
@@ -44,7 +44,7 @@ function InfoPopup({ children, iconType = 'info', customIcon = null, ...props })
         }}
         open={open}
       >
-        <Typography sx={{ p: 2, backgroundColor: '#e8e8ff', width: width ?? '500px' }} as='div'>
+        <Typography sx={{ p: 2, backgroundColor: backgroundColor ??'#e8e8ff', width: width ?? '500px' }} as='div'>
           {children}
         </Typography>
       </Popover>

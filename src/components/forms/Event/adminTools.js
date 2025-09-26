@@ -14,10 +14,8 @@ import {
   Checkbox,
   FormControlLabel,
   Chip,
-  InputAdornment,
   Snackbar,
   Alert,
-  Select,
   MenuItem,
 } from '@mui/material';
 import { clubAPI, eventAPI } from 'api/services';
@@ -28,7 +26,7 @@ import requestAPI from 'api/services/request';
 import { eventHelper } from 'helpers';
 import divisionAPI from 'api/services/divisions';
 
-const EventAdminTools = ({ event, participants, setEvent }) => {
+const EventAdminTools = ({ event, setEvent }) => {
   const [selectedSection, setSelectedSection] = useState('settings');
   const [loading, setLoading] = useState(false);
 

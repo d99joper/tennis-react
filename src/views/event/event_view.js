@@ -1,79 +1,96 @@
 import { Link, useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Box, MenuItem, TextField, Typography, useMediaQuery, Popover } from "@mui/material";
+import { Box, MenuItem, TextField, Typography, useMediaQuery, CircularProgress } from "@mui/material";
 import { eventAPI } from "api/services";
 import LeagueViewPage from "views/league/league_view";
 import TournamentView from "views/Tournament/tournamentView";
 import LadderView from "views/ladder/view";
 import { Helmet } from "react-helmet-async";
 import { helpers } from "helpers";
-import DOMPurify from "dompurify";
 import { useTheme } from "@emotion/react";
+import TruncatedText from "components/forms/truncateText";
+import JoinRequest from "components/forms/Notifications/joinRequests";
+import InfoPopup from "components/forms/infoPopup";
+import { FaUsers } from "react-icons/fa";
+import { ProfileImage } from "components/forms/ProfileImage";
 
-// Component for truncated description with popup
-const TruncatedDescription = ({ description }) => {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
+// Participants Content Component
+const ParticipantsContent = ({ event }) => {
+  const [participants, setParticipants] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleClick = (e) => {
-    e.stopPropagation();
-    setAnchorEl(e.currentTarget);
-  };
-  
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  useEffect(() => {
+    const fetchParticipants = async () => {
+      try {
+        const response = await eventAPI.getParticipants(event.id, null, 1, 1000);
+        const participantsList = response.data || [];
+        setParticipants(participantsList);
+      } catch (error) {
+        console.error('Failed to fetch participants:', error);
+        setParticipants([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (!description) return null;
+    fetchParticipants();
+  }, [event.id]);
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+        <CircularProgress size={24} />
+      </Box>
+    );
+  }
 
   return (
     <Box>
-      <Typography 
-        variant="body1" 
-        color="text.secondary" 
-        gutterBottom
-        sx={{
-          display: '-webkit-box',
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          mb: 1
-        }}
-        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(helpers.parseTextToHTML(description)) }}
-      />
-      
-      <Typography
-        variant="body2"
-        sx={{
-          color: 'primary.main',
-          cursor: 'pointer',
-          fontWeight: 500,
-          fontSize: '0.875rem',
-          display: 'inline-block',
-          '&:hover': {
-            textDecoration: 'underline'
-          }
-        }}
-        onClick={handleClick}
-      >
-        ...more
+      <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+        Event Participants ({event.count_participants})
       </Typography>
-
-      <Popover
-        onClose={handleClose}
-        anchorEl={anchorEl}
-        anchorOrigin={{
-          horizontal: 'left',
-          vertical: 'bottom'
-        }}
-        open={open}
-        sx={{ maxWidth: '800px' }}
-      >
-        <Box sx={{ p: 3, backgroundColor: '#e8e8ff', maxWidth: '700px', minWidth: '400px' }}>
-          <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(helpers.parseTextToHTML(description)) }} />
-        </Box>
-      </Popover>
+      
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {participants.length > 0 ? (
+          participants.map((participant, index) => (
+            <Box key={participant.id || index} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <ProfileImage 
+                player={participant?.content_object} 
+                size={32}
+                showName={true}
+                asLink={true}
+              />
+              <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  <Link 
+                    to={`/players/${participant?.content_object?.slug}`}
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                  >
+                    {participant?.content_object?.first_name} {participant?.content_object?.last_name}
+                  </Link>
+                </Typography>
+                {participant?.content_object?.rating && (
+                  <Typography variant="caption" sx={{ 
+                    color: 'text.secondary',
+                    backgroundColor: 'rgba(0,0,0,0.1)',
+                    px: 1,
+                    py: 0.25,
+                    borderRadius: 1,
+                    alignSelf: 'flex-start',
+                    mt: 0.25
+                  }}>
+                    {participant.content_object.rating}
+                  </Typography>
+                )}
+              </Box>
+            </Box>
+          ))
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            No participants found
+          </Typography>
+        )}
+      </Box>
     </Box>
   );
 };
@@ -119,12 +136,12 @@ const EventView = () => {
         ? parseInt(division_num)
         : 0;
       const division = event.divisions[division_index] || null;
-      
+
       console.log("Setting initial/updated division:", division_index, division);
-      
+
       // Update selectedDivision
       setSelectedDivision(division);
-      
+
       // If it's a league division, update league data
       if (division && division.type === 'league') {
         console.log("Updating league data for division:", division);
@@ -184,8 +201,44 @@ const EventView = () => {
           <i>Event starts {event.start_date}</i>
         </Typography>
       }
-      
-      <TruncatedDescription description={event.description} />
+
+      <TruncatedText text={event.description} />
+
+      <JoinRequest
+        objectType={'event'}
+        id={event.id}
+        isMember={event?.is_participant}
+        memberText={'You are participating'}
+        isOpenRegistration={event.is_open_registration}
+        startDate={event.start_date}
+        registrationDate={event.registration_open_date}
+        callback={async () => {
+          const updatedEvent = await eventAPI.getEvent(id);
+          if (updatedEvent && !updatedEvent.statusCode) {
+            setEvent(updatedEvent);
+          } else {
+            console.error(event.statusMessage);
+          }
+        }}
+      />
+
+      {/* Participants Info Popup */}
+      {event.count_participants > 0 && (
+        <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography variant="body2" color="text.secondary">
+            {event.count_participants} participant{event.count_participants !== 1 ? 's' : ''}
+          </Typography>
+          <InfoPopup 
+            iconType="custom" 
+            customIcon={<FaUsers />}
+            backgroundColor="white"
+            width="400px"
+            size={16}
+          >
+            <ParticipantsContent event={event} />
+          </InfoPopup>
+        </Box>
+      )}
 
       {/* Division selector integrated into title section */}
       {selectedDivision && event.divisions && event.divisions.length > 1 && (
