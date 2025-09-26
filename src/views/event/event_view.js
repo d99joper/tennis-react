@@ -12,6 +12,8 @@ import { useTheme } from "@emotion/react";
 
 const EventView = () => {
   const { id } = useParams();
+  const searchParams = new URLSearchParams(window.location.search);
+  const division_num = searchParams.get('division');
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -27,7 +29,18 @@ const EventView = () => {
       const event = await eventAPI.getEvent(id);
       console.log("EventView rendering with event_type:", event.event_type);
       setEvent(event);
-      setSelectedDivision(event.divisions && event.divisions.length > 0 ? event.divisions[0] : null);
+      console.log("Event data:", event);
+      const division_index = division_num && event.divisions && division_num < event.divisions.length ? division_num : 0;
+      const division = event.divisions && division_index < event.divisions.length ? event.divisions[division_index] : null;
+      setSelectedDivision(division || null);
+      if (division) {
+        // if the division is a league, set the standings and schedule on the event
+        setEvent(prevEvent => ({
+          ...prevEvent,
+          league_standings: division.content_object?.standings || [],
+          league_schedule: division.content_object?.schedule || [],
+        }));
+      }
     } catch (err) {
       setError("Failed to load event");
     } finally {
