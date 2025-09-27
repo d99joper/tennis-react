@@ -1,6 +1,6 @@
 import { Link, useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Box, MenuItem, TextField, Typography, useMediaQuery, CircularProgress } from "@mui/material";
+import { Box, MenuItem, TextField, Typography, useMediaQuery, CircularProgress, Card } from "@mui/material";
 import { eventAPI } from "api/services";
 import LeagueViewPage from "views/league/league_view";
 import TournamentView from "views/Tournament/tournamentView";
@@ -18,13 +18,16 @@ import { ProfileImage } from "components/forms/ProfileImage";
 const ParticipantsContent = ({ event }) => {
   const [participants, setParticipants] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [lastEventUpdate, setLastEventUpdate] = useState(null);
 
   useEffect(() => {
     const fetchParticipants = async () => {
       try {
+        setLoading(true);
         const response = await eventAPI.getParticipants(event.id, null, 1, 1000);
         const participantsList = response.data || [];
         setParticipants(participantsList);
+        setLastEventUpdate(event.updated_at || event.id); // Track when we last fetched
       } catch (error) {
         console.error('Failed to fetch participants:', error);
         setParticipants([]);
@@ -33,8 +36,15 @@ const ParticipantsContent = ({ event }) => {
       }
     };
 
-    fetchParticipants();
-  }, [event.id]);
+    // Only fetch if we haven't loaded participants yet, or if the event has been updated
+    const shouldFetch = participants.length === 0 ||
+      lastEventUpdate !== (event.updated_at || event.id) ||
+      loading;
+
+    if (shouldFetch) {
+      fetchParticipants();
+    }
+  }, [event.id, event.updated_at, participants.length, lastEventUpdate, loading]);
 
   if (loading) {
     return (
@@ -46,51 +56,53 @@ const ParticipantsContent = ({ event }) => {
 
   return (
     <Box>
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-        Event Participants ({event.count_participants})
-      </Typography>
-      
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {participants.length > 0 ? (
-          participants.map((participant, index) => (
-            <Box key={participant.id || index} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <ProfileImage 
-                player={participant?.content_object} 
-                size={32}
-                showName={true}
-                asLink={true}
-              />
-              <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                  <Link 
-                    to={`/players/${participant?.content_object?.slug}`}
-                    style={{ textDecoration: 'none', color: 'inherit' }}
-                  >
-                    {participant?.content_object?.first_name} {participant?.content_object?.last_name}
-                  </Link>
-                </Typography>
-                {participant?.content_object?.rating && (
-                  <Typography variant="caption" sx={{ 
-                    color: 'text.secondary',
-                    backgroundColor: 'rgba(0,0,0,0.1)',
-                    px: 1,
-                    py: 0.25,
-                    borderRadius: 1,
-                    alignSelf: 'flex-start',
-                    mt: 0.25
-                  }}>
-                    {participant.content_object.rating}
+      <Card sx={{ p: 2, mb: 2, backgroundColor: 'background.paper', boxShadow: 1 }}>
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+          Signed up ({event.count_participants})
+        </Typography>
+
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {participants.length > 0 ? (
+            participants.map((participant, index) => (
+              <Box key={participant.id || index} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <ProfileImage
+                  player={participant?.content_object}
+                  size={32}
+                  showName={true}
+                  asLink={true}
+                />
+                <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                    <Link
+                      to={`/players/${participant?.content_object?.slug}`}
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      {participant?.content_object?.first_name} {participant?.content_object?.last_name}
+                    </Link>
                   </Typography>
-                )}
+                  {participant?.content_object?.rating && (
+                    <Typography variant="caption" sx={{
+                      color: 'text.secondary',
+                      backgroundColor: 'rgba(0,0,0,0.1)',
+                      px: 1,
+                      py: 0.25,
+                      borderRadius: 1,
+                      alignSelf: 'flex-start',
+                      mt: 0.25
+                    }}>
+                      {participant.content_object.rating}
+                    </Typography>
+                  )}
+                </Box>
               </Box>
-            </Box>
-          ))
-        ) : (
-          <Typography variant="body2" color="text.secondary">
-            No participants found
-          </Typography>
-        )}
-      </Box>
+            ))
+          ) : (
+            <Typography variant="body2" color="text.secondary">
+              No participants found
+            </Typography>
+          )}
+        </Box>
+      </Card>
     </Box>
   );
 };
@@ -132,12 +144,17 @@ const EventView = () => {
   useEffect(() => {
     if (event && event.divisions) {
       console.log("division_num from URL:", division_num);
-      const division_index = division_num !== null && parseInt(division_num) < event.divisions.length
-        ? parseInt(division_num)
-        : 0;
-      const division = event.divisions[division_index] || null;
 
-      console.log("Setting initial/updated division:", division_index, division);
+      let division = null;
+      if (division_num !== null) {
+        const division_index = parseInt(division_num);
+        if (division_index >= 0 && division_index < event.divisions.length) {
+          division = event.divisions[division_index];
+        }
+      }
+      // If division_num is null or invalid, leave division as null (blank selection)
+
+      console.log("Setting initial/updated division:", division);
 
       // Update selectedDivision
       setSelectedDivision(division);
@@ -228,10 +245,10 @@ const EventView = () => {
           <Typography variant="body2" color="text.secondary">
             {event.count_participants} participant{event.count_participants !== 1 ? 's' : ''}
           </Typography>
-          <InfoPopup 
-            iconType="custom" 
+          <InfoPopup
+            iconType="custom"
             customIcon={<FaUsers />}
-            backgroundColor="white"
+            //backgroundColor="white"
             width="400px"
             size={16}
           >
@@ -241,7 +258,7 @@ const EventView = () => {
       )}
 
       {/* Division selector integrated into title section */}
-      {selectedDivision && event.divisions && event.divisions.length > 1 && (
+      {event.divisions && event.divisions.length > 1 && (
         <Box sx={{
           mt: 2,
           display: 'flex',
@@ -264,19 +281,31 @@ const EventView = () => {
             size="small"
             value={selectedDivision?.id || ""}
             onChange={(e) => {
-              const selected = event.divisions.find(d => d.id === e.target.value);
-              setSelectedDivision(selected);
+              if (e.target.value === "") {
+                // Blank option selected
+                setSelectedDivision(null);
 
-              // Update URL with division index - always include the parameter
-              const divisionIndex = event.divisions.findIndex(d => d.id === e.target.value);
-              const newSearchParams = new URLSearchParams(window.location.search);
+                // Remove division parameter from URL
+                const newSearchParams = new URLSearchParams(window.location.search);
+                newSearchParams.delete('division');
 
-              // Always set the division parameter (including 0)
-              newSearchParams.set('division', divisionIndex.toString());
+                const newUrl = newSearchParams.toString()
+                  ? `${window.location.pathname}?${newSearchParams.toString()}`
+                  : window.location.pathname;
+                navigate(newUrl, { replace: true });
+              } else {
+                const selected = event.divisions.find(d => d.id === e.target.value);
+                setSelectedDivision(selected);
 
-              // Update URL without page reload
-              const newUrl = `${window.location.pathname}?${newSearchParams.toString()}`;
-              navigate(newUrl, { replace: true });
+                // Update URL with division index
+                const divisionIndex = event.divisions.findIndex(d => d.id === e.target.value);
+                const newSearchParams = new URLSearchParams(window.location.search);
+                newSearchParams.set('division', divisionIndex.toString());
+
+                // Update URL without page reload
+                const newUrl = `${window.location.pathname}?${newSearchParams.toString()}`;
+                navigate(newUrl, { replace: true });
+              }
             }}
             sx={{
               minWidth: 180,
@@ -298,6 +327,11 @@ const EventView = () => {
               }
             }}
           >
+            <MenuItem value="">
+              <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+                Select a division
+              </Typography>
+            </MenuItem>
             {event.divisions?.map((division) => (
               <MenuItem key={division.id} value={division.id}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -340,18 +374,27 @@ const EventView = () => {
       content = <LadderView event={event} />;
       break;
     case "multievent":
-      const division_content_id = selectedDivision?.content_object?.id;
-      console.log("Selected Division:", selectedDivision);
-      if (selectedDivision?.type === 'league')
-        content = <LeagueViewPage event={event} division={selectedDivision} />;
-      else if (selectedDivision?.type === 'tournament') {
-        content = <TournamentView
-          key={division_content_id}
-          event={event}
-          tournament_id={division_content_id}
-          division={selectedDivision}
-          callback={refreshEvent}
-        />;
+      if (!selectedDivision) {
+        // No division selected, show participants list
+        content = (
+          <Box sx={{ px: isMobile ? 2 : 4, mt: 4 }}>
+            <ParticipantsContent event={event} />
+          </Box>
+        );
+      } else {
+        const division_content_id = selectedDivision?.content_object?.id;
+        console.log("Selected Division:", selectedDivision);
+        if (selectedDivision?.type === 'league')
+          content = <LeagueViewPage event={event} division={selectedDivision} />;
+        else if (selectedDivision?.type === 'tournament') {
+          content = <TournamentView
+            key={division_content_id}
+            event={event}
+            tournament_id={division_content_id}
+            division={selectedDivision}
+            callback={refreshEvent}
+          />;
+        }
       }
       break;
     default:
