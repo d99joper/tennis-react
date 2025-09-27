@@ -397,9 +397,9 @@ const EventAdminTools = ({ event, setEvent }) => {
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={() => handleSetWinner(event.league_standings[0].id, event.league_standings[0].name)}
+                  onClick={() => handleSetWinner(event?.league_standings?.[0]?.id, event?.league_standings?.[0]?.name)}
                 >
-                  Set {event.league_standings[0].name} as winner
+                  Set {event?.league_standings?.[0]?.name} as winner
                 </Button>
                 : (event.winner &&
                   <Button

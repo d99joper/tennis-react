@@ -18,35 +18,51 @@ import { ProfileImage } from "components/forms/ProfileImage";
 const ParticipantsContent = ({ event }) => {
   const [participants, setParticipants] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false); // New state for updates
   const [lastEventUpdate, setLastEventUpdate] = useState(null);
+  const [lastParticipantCount, setLastParticipantCount] = useState(null);
+  const [hasLoaded, setHasLoaded] = useState(false); // Track if we've loaded at least once
 
   useEffect(() => {
     const fetchParticipants = async () => {
       try {
-        setLoading(true);
+        // Only show main loading on first load, use updating for subsequent fetches
+        if (!hasLoaded) {
+          setLoading(true);
+        } else {
+          setUpdating(true);
+        }
+        
         const response = await eventAPI.getParticipants(event.id, null, 1, 1000);
         const participantsList = response.data || [];
         setParticipants(participantsList);
-        setLastEventUpdate(event.updated_at || event.id); // Track when we last fetched
+        setLastEventUpdate(event.updated_on || event.id);
+        setLastParticipantCount(event.count_participants);
+        setHasLoaded(true); // Mark as loaded
       } catch (error) {
         console.error('Failed to fetch participants:', error);
-        setParticipants([]);
+        if (!hasLoaded) {
+          setParticipants([]);
+        }
+        setHasLoaded(true); // Still mark as loaded even on error
       } finally {
         setLoading(false);
+        setUpdating(false);
       }
     };
 
-    // Only fetch if we haven't loaded participants yet, or if the event has been updated
-    const shouldFetch = participants.length === 0 ||
-      lastEventUpdate !== (event.updated_at || event.id) ||
-      loading;
+    // Only fetch if we haven't loaded yet, or if the event has been updated, or if participant count changed
+    const shouldFetch = !hasLoaded || 
+                       lastEventUpdate !== (event.updated_on || event.id) ||
+                       lastParticipantCount !== event.count_participants;
 
     if (shouldFetch) {
       fetchParticipants();
     }
-  }, [event.id, event.updated_at, participants.length, lastEventUpdate, loading]);
+  }, [event.id, event.updated_on, event.count_participants, hasLoaded, lastEventUpdate, lastParticipantCount]);
 
-  if (loading) {
+  // Show main loading only on first load
+  if (loading && !hasLoaded) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
         <CircularProgress size={24} />
@@ -63,42 +79,60 @@ const ParticipantsContent = ({ event }) => {
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {participants.length > 0 ? (
-            participants.map((participant, index) => (
-              <Box key={participant.id || index} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <ProfileImage
-                  player={participant?.content_object}
-                  size={32}
-                  showName={true}
-                  asLink={true}
-                />
-                <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    <Link
-                      to={`/players/${participant?.content_object?.slug}`}
-                      style={{ textDecoration: 'none', color: 'inherit' }}
-                    >
-                      {participant?.content_object?.first_name} {participant?.content_object?.last_name}
-                    </Link>
-                  </Typography>
-                  {participant?.content_object?.rating && (
-                    <Typography variant="caption" sx={{
-                      color: 'text.secondary',
-                      backgroundColor: 'rgba(0,0,0,0.1)',
-                      px: 1,
-                      py: 0.25,
-                      borderRadius: 1,
-                      alignSelf: 'flex-start',
-                      mt: 0.25
-                    }}>
-                      {participant.content_object.rating}
+            <>
+              {participants.map((participant, index) => (
+                <Box key={participant.id || index} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <ProfileImage
+                    player={participant?.content_object}
+                    size={32}
+                    showName={true}
+                    asLink={true}
+                  />
+                  <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      <Link
+                        to={`/players/${participant?.content_object?.slug}`}
+                        style={{ textDecoration: 'none', color: 'inherit' }}
+                      >
+                        {participant?.content_object?.first_name} {participant?.content_object?.last_name}
+                      </Link>
                     </Typography>
-                  )}
+                    {participant?.content_object?.rating && (
+                      <Typography variant="caption" sx={{
+                        color: 'text.secondary',
+                        backgroundColor: 'rgba(0,0,0,0.1)',
+                        px: 1,
+                        py: 0.25,
+                        borderRadius: 1,
+                        alignSelf: 'flex-start',
+                        mt: 0.25
+                      }}>
+                        {participant.content_object.rating}
+                      </Typography>
+                    )}
+                  </Box>
                 </Box>
-              </Box>
-            ))
+              ))}
+              
+              {/* Show small loading indicator at the end when updating */}
+              {updating && (
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 2,
+                  opacity: 0.6,
+                  py: 1
+                }}>
+                  <CircularProgress size={16} />
+                  <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                    Updating...
+                  </Typography>
+                </Box>
+              )}
+            </>
           ) : (
             <Typography variant="body2" color="text.secondary">
-              No participants found
+              {updating ? "Loading participants..." : "No participants found"}
             </Typography>
           )}
         </Box>
