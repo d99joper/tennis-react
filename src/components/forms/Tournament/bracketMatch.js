@@ -37,7 +37,7 @@ const parseScore = (scoreString, playerNumber, winnerId, player1Id, player2Id) =
 };
 
 // Helper function to determine if a score should be highlighted (highest in the set)
-const shouldHighlightScore = (scoreString, playerNumber, setIndex) => {
+const shouldHighlightScore = (scoreString, setIndex, isWinner) => {
   if (!scoreString) return false;
   
   const sets = scoreString.split(',').map(set => set.trim());
@@ -46,12 +46,12 @@ const shouldHighlightScore = (scoreString, playerNumber, setIndex) => {
   const set = sets[setIndex];
   const scores = set.split('-').map(s => parseInt(s.trim()));
   
-  if (scores.length !== 2) return false;
-  
   const [score1, score2] = scores;
   
+  if(isWinner) console.log("Player is winner");
+  
   // Highlight if this player's score is higher than opponent's
-  if (playerNumber === 1) {
+  if (isWinner) {
     return score1 > score2;
   } else {
     return score2 > score1;
@@ -254,7 +254,7 @@ const BracketMatch = ({
                 key={index}
                 variant="caption"
                 sx={{
-                  fontWeight: shouldHighlightScore(match.score, 1, index) ? 700 : 400,
+                  fontWeight: shouldHighlightScore(match.score, index, isPlayer1Winner) ? 700 : 400,
                   fontSize: '0.75rem',
                   minWidth: '16px',
                   textAlign: 'center',
@@ -343,7 +343,7 @@ const BracketMatch = ({
                 key={index}
                 variant="caption"
                 sx={{
-                  fontWeight: shouldHighlightScore(match.score, 2, index) ? 700 : 400,
+                  fontWeight: shouldHighlightScore(match.score, index, isPlayer2Winner) ? 700 : 400,
                   fontSize: '0.75rem',
                   minWidth: '16px',
                   textAlign: 'center',

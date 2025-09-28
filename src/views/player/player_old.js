@@ -223,6 +223,7 @@ function ProfileOld({ }) {
 
 	const renderEvents = () => {
 		const activeEvents = player.events.active_events
+		console.log(activeEvents)
 		const archivedEvents = player.events.archived_events
 		const renderLink = (event) => {
 			return (
@@ -236,12 +237,13 @@ function ProfileOld({ }) {
 		return (
 			<Box sx={{ padding: { xs: 1, sm: 2, md: 3 } }}>
 				<Typography variant="h6">Active events</Typography>
-				{activeEvents.ladder || activeEvents.league || activeEvents.tournament
+				{activeEvents.ladder || activeEvents.league || activeEvents.tournament || activeEvents.multievent
 					?
 					<Box>
 						<Typography variant="subtitle1" sx={{ pl: 2 }}>Leagues</Typography>
 						<Box sx={{ pl: 4 }}>
 							{activeEvents.league?.map((e) => renderLink(e))}
+							{activeEvents.multievent?.map((e) => renderLink(e))}
 							{!activeEvents.league &&
 								<Typography variant='body2'>Not currently participating in any leagues</Typography>
 							}
@@ -326,20 +328,7 @@ function ProfileOld({ }) {
 							onClick={() => canEdit && setShowImagePicker(true)}
 						/>
 					}
-					{ //*********** EDIT ICONS  ***********/
-						// 	canEdit && (
-						// 		<Box sx={{ position: 'absolute', top: 8, right: 8 }}>
-						// 			{isEdit ? (
-						// 				<>
-						// 					<MdOutlineCheck size={25} className='cursorHand' onClick={updateProfileData} />
-						// 					<MdOutlineCancel size={25} className='cursorHand' onClick={handleEditToggle} />
-						// 				</>
-						// 			) : (
-						// 				<AiOutlineEdit size={25} className='cursorHand' onClick={handleEditToggle} />
-						// 			)}
-						// 		</Box>
-						// 	)
-					}
+					
 					{/************ NAME AND LOCATION   *************/}
 					<Box display="flex" flexDirection={'column'} gap={1}>
 						{/** Name */}

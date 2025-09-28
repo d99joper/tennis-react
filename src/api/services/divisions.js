@@ -13,8 +13,26 @@ addDivision: async function (event_id, division_name, division_type, match_type)
     else
       throw new Error(response.status + ': Failed to create division')
   },
-  
-}
 
+  addDivisionPlayers: async function (division_id, participant_ids) {
+    const requestOptions = authAPI.getRequestOptions('POST', { participant_ids: participant_ids });
+    const response = await fetch(`${divisionsUrl}${division_id}/assign-participants`, requestOptions) 
+    if (response.ok) {
+      return await response.json()
+    } else {
+      throw new Error(response.status + ': Failed to add participants to division')
+    }
+  },
+  removeDivisionPlayers: async function (division_id, participant_ids) {
+    const requestOptions = authAPI.getRequestOptions('DELETE', { participant_ids: participant_ids });
+    const response = await fetch(`${divisionsUrl}${division_id}/remove-participants`, requestOptions)    
+
+    if (response.ok) {
+      return await response.json()
+    } else {
+      throw new Error(response.status + ': Failed to remove participants from division')
+    }
+  }
+}
 
 export default divisionAPI

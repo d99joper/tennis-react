@@ -14,6 +14,7 @@ const PlayerLeagues = ({ player, showRank = true, showWinLoss = false, showRatin
     let newActiveLeagues = []
     let newArchivedLeagues = []
     player.events?.active_events?.league?.map(league => newActiveLeagues.push(league))
+    player.events?.active_events?.multievent?.map(event => newActiveLeagues.push(event))
     player.events?.archived_events?.league?.map(league => newArchivedLeagues.push(league))
     setActiveLeagues(newActiveLeagues)
     setArchivedLeagues(newArchivedLeagues)
