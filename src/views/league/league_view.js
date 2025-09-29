@@ -30,7 +30,8 @@ const LeagueViewPage = (props) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedParticipant, setSelectedParticipant] = useState(null);
   const [event, setEvent] = useState(props.event || null);
-  
+  const [division, setDivision] = useState(props.division || null);
+  console.log("LeagueView division prop:", props.division);
   // Use division data if available, otherwise fall back to event data
   const [standings, setStandings] = useState(
     props.division?.content_object?.standings || props.event?.league_standings || []
@@ -114,8 +115,9 @@ const LeagueViewPage = (props) => {
 
   const handleScoreReported = async () => {
     // not implemented
-    const data = await leagueAPI.getStandings(event.league_id)
-    console.log(data)
+    const leagueId = division ? division.content_object?.id : event.league_id;
+    const data = await leagueAPI.getStandings(leagueId);
+    console.log(data);
     if (data?.standings) {
       console.log('update standings')
       setStandings(data.standings)
@@ -173,6 +175,7 @@ const LeagueViewPage = (props) => {
           {editSchedule
             ? <LeagueScheduler
               event={event}
+              division={division}
               schedule={schedule}
               onSave={(newSchedule, keepOpen = true) => {
                 setSchedule(newSchedule)
@@ -180,7 +183,7 @@ const LeagueViewPage = (props) => {
                 setEvent((prev) => ({ ...prev, league_schedule: newSchedule }));
               }}
             />
-            : <ScheduleView event={event} schedule={schedule} onScoreReported={handleScoreReported} />
+            : <ScheduleView event={event} division={division} schedule={schedule} onScoreReported={handleScoreReported} />
           }
 
         </Box>
@@ -210,9 +213,12 @@ const LeagueViewPage = (props) => {
             originType={'event'}
             originId={event.id}
             initialMatches={event.matches}
+            divisions={event.divisions}
+            showFilterByDivision={event.divisions && event.divisions.length > 0} 
             pageSize={10}
             showComments={true}
             showH2H={true}
+
           />
 
 

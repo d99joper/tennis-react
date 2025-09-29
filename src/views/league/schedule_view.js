@@ -6,7 +6,7 @@ import authAPI from "api/auth";
 import { matchHelper } from "helpers";
 import ResponsiveDataLayout from "components/layout/Data/responsiveDataLayout";
 
-const ScheduleView = ({ event, schedule: initialSchedule, onScoreReported }) => {
+const ScheduleView = ({ event, division, schedule: initialSchedule, onScoreReported }) => {
   const [editingMatch, setEditingMatch] = useState(null);
   const [schedule, setSchedule] = useState(initialSchedule)
   const [modalOpen, setModalOpen] = useState(false);
@@ -174,6 +174,7 @@ const ScheduleView = ({ event, schedule: initialSchedule, onScoreReported }) => 
           <MatchEditor
             participant={currentUser}
             event={event}
+            division_id={division?.id}
             matchType={event.match_type}
             scheduleMatchId={editingMatch.id}
             limitedParticipants={[editingMatch.player1, editingMatch.player2]}

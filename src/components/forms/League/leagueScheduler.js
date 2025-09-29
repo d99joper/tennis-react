@@ -24,8 +24,10 @@ import { v4 as uuidv4 } from 'uuid';
 import leagueAPI from 'api/services/league';
 import eventAPI from 'api/services/event';
 import { CiTrash } from 'react-icons/ci';
+import { divisionAPI } from 'api/services';
 
-const LeagueScheduler = ({ event, schedule, onSave }) => {
+const LeagueScheduler = ({ event, division, schedule, onSave }) => {
+  console.log("LeagueScheduler division prop:", division);
   const [localSchedule, setLocalSchedule] = useState([]);
   const [loading, setLoading] = useState(false);
   const [participants, setParticipants] = useState([]);
@@ -46,7 +48,12 @@ const LeagueScheduler = ({ event, schedule, onSave }) => {
     const fetchParticipants = async () => {
       setLoading(true);
       try {
-        const response = await eventAPI.getParticipants(event.id, null, 0); // Fetch all participants
+        let response;
+        if (division && division.id) {
+          response = await divisionAPI.getDivisionParticipants(division.id);
+        } else {
+          response = await eventAPI.getParticipants(event?.id, null, 0); // Fetch all participants
+        }
         console.log('Fetched participants:', response);
         setParticipants(response.data);
       } catch (error) {
@@ -56,7 +63,7 @@ const LeagueScheduler = ({ event, schedule, onSave }) => {
       }
     };
     fetchParticipants();
-  }, [event.id]);
+  }, [event?.id, division?.id]);
 
   useEffect(() => {
     if (Array.isArray(schedule)) {
@@ -131,7 +138,8 @@ const LeagueScheduler = ({ event, schedule, onSave }) => {
   const handleUpdateSchedule = async (updatedSchedule = localSchedule) => {
     try {
       setLoading(true);
-      const data = await leagueAPI.updateSchedule(event.league_id, updatedSchedule);
+      const leagueId = division?.content_object?.id || event?.league_id;
+      const data = await leagueAPI.updateSchedule(leagueId, updatedSchedule);
       //setSchedule(data.schedule);
       setLocalSchedule(data.schedule)
       onSave(data.schedule);
@@ -145,7 +153,8 @@ const LeagueScheduler = ({ event, schedule, onSave }) => {
   const handleGenerateSchedule = async () => {
     try {
       setLoading(true);
-      const data = await leagueAPI.generateSchedule(event.league_id);
+      let leagueId = division?.content_object?.id || event?.league_id;
+      const data = await leagueAPI.generateSchedule(leagueId);
       setLocalSchedule(sortSchedule(data.schedule)); // Update local state
       onSave(sortSchedule(data.schedule)); // Propagate to parent state
       setIsGenerateDialogOpen(false); // Close confirmation dialog
@@ -201,7 +210,7 @@ const LeagueScheduler = ({ event, schedule, onSave }) => {
                 </TableCell>
                 <TableCell>
                   <Autocomplete
-                    options={participants.filter(
+                    options={(participants || []).filter(
                       (option) => option.object_id !== match.player2?.id
                     )}
                     getOptionLabel={(option) => option.name || ''}
@@ -215,7 +224,7 @@ const LeagueScheduler = ({ event, schedule, onSave }) => {
                     vs
                   </Typography>
                   <Autocomplete
-                    options={participants.filter(
+                    options={(participants || []).filter(
                       (option) => option.object_id !== match.player1?.id
                     )}
                     getOptionLabel={(option) => option.name || ''}
@@ -300,7 +309,7 @@ const LeagueScheduler = ({ event, schedule, onSave }) => {
             sx={{ mb: 2 }}
           />
           <Autocomplete
-            options={participants.filter(
+            options={(participants || []).filter(
               (option) => option.object_id !== newMatch.player2?.id
             )}
             getOptionLabel={(option) => option.name || ''}
@@ -312,7 +321,7 @@ const LeagueScheduler = ({ event, schedule, onSave }) => {
             sx={{ mb: 2 }}
           />
           <Autocomplete
-            options={participants.filter(
+            options={(participants || []).filter(
               (option) => option.object_id !== newMatch.player1?.id
             )}
             getOptionLabel={(option) => option.name || ''}

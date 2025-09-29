@@ -13,17 +13,16 @@ import JoinRequest from "components/forms/Notifications/joinRequests";
 import InfoPopup from "components/forms/infoPopup";
 import { FaUsers } from "react-icons/fa";
 import { ProfileImage } from "components/forms/ProfileImage";
-import DivisionSelect from '../../components/forms/Event/divisionSelect';
 
 // Participants Content Component
-const ParticipantsContent = ({ event }) => {
+const ParticipantsContent = ({ event, callback }) => {
   const [participants, setParticipants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [lastEventUpdate, setLastEventUpdate] = useState(null);
   const [lastParticipantCount, setLastParticipantCount] = useState(null);
   const [hasLoaded, setHasLoaded] = useState(false);
-  const [participantDivisions, setParticipantDivisions] = useState({});
+  //const [participantDivisions, setParticipantDivisions] = useState({}); 
   const [selectedDivisionForAssignment, setSelectedDivisionForAssignment] = useState('');
   const [selectedParticipants, setSelectedParticipants] = useState([]);
   const [assigning, setAssigning] = useState(false);
@@ -56,7 +55,7 @@ const ParticipantsContent = ({ event }) => {
             }
           });
         }
-        setParticipantDivisions(divisionMap);
+        //setParticipantDivisions(divisionMap);
         
         setLastEventUpdate(event.updated_on || event.id);
         setLastParticipantCount(event.count_participants);
@@ -135,14 +134,32 @@ const ParticipantsContent = ({ event }) => {
         !selectedParticipants.includes(id)
       );
       
+      function refreshEventData() {
+        eventAPI.getEvent(event.id).then(updatedEvent => {
+          if (updatedEvent && !updatedEvent.statusCode) {
+            callback(updatedEvent);
+          }
+        });
+      }
+
       // Add participants to division
       if (participantsToAdd.length > 0) {
         await divisionAPI.addDivisionPlayers(selectedDivisionForAssignment, participantsToAdd);
+        // update the division's league standings if applicable
+        const division = event.divisions.find(d => d.id === selectedDivisionForAssignment);
+        if (division && division.type === 'league') {
+          refreshEventData();
+        }
       }
-      
+
       // Remove participants from division
       if (participantsToRemove.length > 0) {
         await divisionAPI.removeDivisionPlayers(selectedDivisionForAssignment, participantsToRemove);
+        // update the division's league standings if applicable
+        const division = event.divisions.find(d => d.id === selectedDivisionForAssignment);
+        if (division && division.type === 'league') {
+          refreshEventData();
+        }
       }
       
       // Update participants data to reflect changes
@@ -614,7 +631,7 @@ const EventView = () => {
             width="400px"
             size={16}
           >
-            <ParticipantsContent event={event} />
+            <ParticipantsContent event={event} callback={setEvent} />
           </InfoPopup>
         </Box>
       )}
@@ -740,7 +757,7 @@ const EventView = () => {
         // No division selected, show participants list
         content = (
           <Box sx={{ px: isMobile ? 2 : 4, mt: 4 }}>
-            <ParticipantsContent event={event} />
+            <ParticipantsContent event={event} callback={setEvent} />
           </Box>
         );
       } else {

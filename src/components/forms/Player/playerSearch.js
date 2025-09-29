@@ -76,6 +76,7 @@ const PlayerSearch = ({
     <>
       <Autocomplete
         fullWidth
+        multiple={true}
         options={optionsList}
         getOptionLabel={(option) => option?.name || ''}
         value={selectedPlayer || null}

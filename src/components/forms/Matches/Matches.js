@@ -23,6 +23,7 @@ import GetParticipants from '../Event/getParticipants';
 import MatchEditor from '../MatchEditor/MatchEditor';
 import useComponentWidth from 'helpers/useComponentWidth';
 import { ProfileImage } from '../ProfileImage';
+import MatchFilters from './MatchFilters';
 
 const Matches = ({
   originType,
@@ -30,6 +31,8 @@ const Matches = ({
   matchType = 'singles',
   pageSize = 10,
   showFilterByPlayer = true,
+  showFilterByDivision = false,
+  divisions = [], // New prop for divisions
   showAsSmallScreen = false,
   showH2H = false,
   showComments = false,
@@ -44,6 +47,7 @@ const Matches = ({
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [selectedPlayers, setSelectedPlayers] = useState([]);
+  const [selectedDivisionId, setSelectedDivisionId] = useState(''); // New state for division filter
   const [isFetchingMore, setIsFetchingMore] = useState(false); // Track infinite scrolling state
   const [pagesLoaded, setPagesLoaded] = useState(new Set());
   const [modalContent, setModalContent] = useState(null);
@@ -68,63 +72,65 @@ const Matches = ({
 
   const fetchMatches = useCallback(
     async (page = 1) => {
-      // Reset cache if originId changes
-      setMatchesCache((prevCache) => {
-        if (prevCache.originId !== originId) {
-          return { originId, pages: {} }; // Clear cache and store new originId
-        }
-        return prevCache;
-      });
-
-      if (matchesCache.pages?.[page]) {
-        setPagedMatches(matchesCache.pages[page]);
-        return;
-      }
-
       const effectiveSkip = (page - 1) * pageSize;
       setLoading(true);
+      
       try {
-        //console.log(selectedPlayers)
         const filter = {
           ...originType ? { "origin-type": originType } : {},
           ...originId ? { "origin-id": originId } : {},
           ...matchType ? { "match-type": matchType } : {},
-          ...selectedPlayers.length > 0 ? { "player-ids": selectedPlayers.map(p => p.id) } : {}
-        }
-        const response = await matchAPI.getMatches(
-          filter,
-          page,
-          pageSize,
-          effectiveSkip
-        );
+          ...selectedPlayers.length > 0 ? { "player-ids": selectedPlayers.map(p => p.id) } : {},
+          ...selectedDivisionId ? { "division": selectedDivisionId } : {}
+        };
+        
+        const response = await matchAPI.getMatches(filter, page, pageSize, effectiveSkip);
 
-        // setMatchesCache((prev) => ({ ...prev, [page]: response.matches }));
         setMatchesCache((prev) => ({
           originId,
-          pages: { ...prev.pages, [page]: response.matches }
+          pages: { 
+            ...(prev.originId === originId ? prev.pages : {}),
+            [page]: response.matches 
+          }
         }));
+        
         setPagedMatches(response.matches);
-        //setAllMatches((prev) => [...prev, ...response.matches]);
         setAllMatches((prev) => {
           const newMatches = [...prev, ...response.matches];
-          return Array.from(new Map(newMatches.map(m => [m.id, m])).values()); // Remove duplicates
+          return Array.from(new Map(newMatches.map(m => [m.id, m])).values());
         });
         setTotalPages(response.num_pages);
-        setPagesLoaded((prev) => new Set(prev).add(page)); // Track the page as loaded
+        setPagesLoaded((prev) => new Set(prev).add(page));
       } catch (error) {
         console.error("Failed to fetch matches:", error);
       } finally {
         setLoading(false);
       }
     },
-    [originType, originId, pageSize, matchesCache, refresh]
+    [originType, originId, pageSize, refresh, selectedPlayers, selectedDivisionId]
   );
 
-  // Fetch matches on component mount and page change
+  // Effect to handle cache clearing when originId changes
   useEffect(() => {
-    fetchMatches(currentPage);
-  }, [fetchMatches, currentPage]);
+    if (matchesCache.originId && matchesCache.originId !== originId) {
+      setMatchesCache({ originId, pages: {} });
+      setAllMatches([]);
+      setPagesLoaded(new Set());
+      setCurrentPage(1); // Reset to page 1 when origin changes
+    }
+  }, [originId, matchesCache.originId]);
 
+  // Effect to handle fetching data
+  useEffect(() => {
+    // Check if we have cached data first
+    if (matchesCache.originId === originId && matchesCache.pages?.[currentPage]) {
+      setPagedMatches(matchesCache.pages[currentPage]);
+      return;
+    }
+    
+    // Fetch new data
+    fetchMatches(currentPage);
+  }, [fetchMatches, currentPage, originId]);
 
   const loadMoreMatches = useCallback(() => {
     if (currentPage < totalPages && !isFetchingMore && !pagesLoaded.has(currentPage + 1)) {
@@ -156,6 +162,14 @@ const Matches = ({
       setSelectedPlayers([])
     else
       setSelectedPlayers(Array.isArray(player) ? player : [player]); // Update selected player
+    setPagedMatches([]); // Clear matches when filter changes
+    setAllMatches([]); // Clear all matches
+    setMatchesCache({}); // Clear cache
+    setCurrentPage(1); // Reset to the first page
+  };
+
+  const handleDivisionChange = (divisionId) => {
+    setSelectedDivisionId(divisionId || ''); // Update selected division
     setPagedMatches([]); // Clear matches when filter changes
     setAllMatches([]); // Clear all matches
     setMatchesCache({}); // Clear cache
@@ -280,8 +294,8 @@ const Matches = ({
 
   return (
     <Box ref={ref}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, gap: 2 }} >
-        {showAddMatch &&
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2, gap: 2, flexDirection: 'column' }} >
+        {showAddMatch && (
           <Box sx={{ width: '100%' }}>
             <Button
               variant="contained"
@@ -316,22 +330,20 @@ const Matches = ({
               Add Match
             </Button>
           </Box>
-        }
-        {/* Player Search */}
-        {showFilterByPlayer &&
-          (originType.toLowerCase() === 'event' ?
-            <GetParticipants eventId={originId} label={'Filter on a participant ...'}
-              //selectedParticipant={selectedPlayers}
-              setParticipantPlayers={handlePlayerChange}
-              setSelectedParticipant={() => { }}
-            />
-            :
-            <PlayerSearch
-              label={'Filter on a player ...'}
-              selectedPlayer={selectedPlayers[0]}
-              setSelectedPlayer={handlePlayerChange}
-            />
-          )}
+        )}
+        
+        {/* Filter Controls */}
+        <MatchFilters
+          originType={originType}
+          originId={originId}
+          divisions={divisions}
+          selectedPlayers={selectedPlayers}
+          selectedDivisionId={selectedDivisionId}
+          onPlayerChange={handlePlayerChange}
+          onDivisionChange={handleDivisionChange}
+          showFilterByPlayer={showFilterByPlayer}
+          showFilterByDivision={showFilterByDivision}
+        />
       </Box>
 
       <ResponsiveDataLayout
