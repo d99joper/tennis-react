@@ -10,11 +10,10 @@ import {
   TextField,
   Button,
   IconButton,
-  Divider,
 } from '@mui/material';
 import { AiFillDelete } from 'react-icons/ai';
 import { IoArrowBack, IoArrowForward } from 'react-icons/io5';
-import { divisionAPI, eventAPI, tournamentsAPI } from 'api/services';
+import { eventAPI, tournamentsAPI } from 'api/services';
 import BracketMatch from './bracketMatch';
 import bracket_data from './test_data';
 import { MatchEditor } from 'components/forms';
@@ -461,8 +460,8 @@ const TournamentBracket = ({ initialBracket, event, tournament_id, isSelfReporte
                         match={match}
                         matchHeight={_matchHeight}
                         showConnector={!isFinalRound}
-                        isAdmin={event.is_admin} // TODO: pass actual isAdmin prop
-                        isSelfReported={isSelfReported} // TODO: determine if current user has reported
+                        isAdmin={event.is_admin} 
+                        isSelfReported={isSelfReported} 
                         onReportScore={handleReportScore}
                         onAddComment={handleAddComment}
                       />

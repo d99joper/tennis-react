@@ -109,7 +109,9 @@ const BracketMatch = ({
   const isPlayer1CurrentUser = user?.id && match.player1?.id === user.id;
   const isPlayer2CurrentUser = user?.id && match.player2?.id === user.id;
   const isCurrentUserInMatch = isPlayer1CurrentUser || isPlayer2CurrentUser;
-  const canReportScore = !match.score && (isAdmin || (isSelfReported && isCurrentUserInMatch));
+  console.log("isCurrentUserInMatch:", isCurrentUserInMatch);
+  console.log("isself:", isSelfReported);
+  const canReportScore = !match.score && ( (isSelfReported && isCurrentUserInMatch));
   const areBothPlayersPresent = match.player1 && match.player2;
   const canComment = !!match.score;
 
@@ -135,7 +137,7 @@ const BracketMatch = ({
     handleMenuClose();
   };
 
-  const shouldShowMenu = areBothPlayersPresent && (isCurrentUserInMatch || isAdmin) && (canReportScore || canComment);
+  const shouldShowMenu = areBothPlayersPresent && (canReportScore || canComment);
 
   return (
     <Box

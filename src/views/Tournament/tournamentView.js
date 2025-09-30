@@ -177,6 +177,7 @@ const TournamentViewPage = ({ event: initialEvent,
           <TournamentBracket 
             key={`${tournament_id || id}-${division?.id || 'main'}-${JSON.stringify(bracket)?.slice(0, 50)}`}
             initialBracket={bracket} 
+            isSelfReported={event.allow_self_report_scores}
             event={event} 
             tournament_id={tournament_id || id} 
             division_id={division?.id || event.divisions?.[0]?.id || null} 
