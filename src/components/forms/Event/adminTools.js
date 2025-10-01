@@ -52,9 +52,11 @@ const EventAdminTools = ({ event, setEvent }) => {
   const [divisionName, setDivisionName] = useState('')
   const [divisionType, setDivisionType] = useState('')
   const [divisionMatchType, setDivisionMatchType] = useState('')
-
+  
   // get the current division id from URL
   const division_num = new URLSearchParams(window.location.search).get('division');
+  // get the current division override settings
+  const [divisionOverrideSettings, setDivisionOverrideSettings] = useState({})
 
 
   const [snackbarOpen, setSnackbarOpen] = useState(false)
@@ -66,6 +68,15 @@ const EventAdminTools = ({ event, setEvent }) => {
     setSnackbarSeverity(severity)
     setSnackbarOpen(true)
   }
+
+  useEffect(() => {
+    // update the override settings if division_num changes
+    if (division_num && event.divisions && event.divisions.length > division_num) {
+      setDivisionOverrideSettings(event.divisions[division_num].override_settings || {});
+    } else {
+      setDivisionOverrideSettings({});
+    }
+  }, [division_num]);
 
   const handleAddDivision = async () => {
     if (!divisionName) return;

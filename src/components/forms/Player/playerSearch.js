@@ -129,9 +129,16 @@ const PlayerSearch = ({
             {...params}
             label={`${props.label || "Search for Player"} ${required ? '*' : ''}`}
             fullWidth
+            size="small"
+            variant="outlined"
             placeholder="Type to search..."
             error={error}
             helperText={error ? errorMessage : ""}
+            sx={{ 
+              '& .MuiInputLabel-root': {
+                fontSize: '0.875rem'
+              }
+            }}
           // onChange={(e) => setSearchTerm(e.target.value)}
           // slotProps={{
           //   endAdornment: {

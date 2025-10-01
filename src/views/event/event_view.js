@@ -402,7 +402,7 @@ const ParticipantsContent = ({ event, callback }) => {
                     )}
                     
                     <ProfileImage
-                      player={participant?.content_object}
+                      player={participant?.players[0]}
                       size={32}
                       showName={true}
                       asLink={true}
@@ -410,28 +410,16 @@ const ParticipantsContent = ({ event, callback }) => {
                     <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                       <Typography variant="body2" sx={{ fontWeight: 500 }}>
                         <Link
-                          to={`/players/${participant?.content_object?.slug}`}
+                          to={`/players/${participant?.players[0]?.slug}`}
                           style={{ 
                             textDecoration: 'none', 
                             color: 'inherit'
                           }}
                         >
-                          {participant?.content_object?.first_name} {participant?.content_object?.last_name}
+                          {participant?.players[0]?.first_name} {participant?.players[0]?.last_name}
                         </Link>
                       </Typography>
-                      {participant?.content_object?.rating && (
-                        <Typography variant="caption" sx={{
-                          color: 'text.secondary',
-                          backgroundColor: 'rgba(0,0,0,0.1)',
-                          px: 1,
-                          py: 0.25,
-                          borderRadius: 1,
-                          alignSelf: 'flex-start',
-                          mt: 0.25
-                        }}>
-                          {participant.content_object.rating}
-                        </Typography>
-                      )}
+                      
                       
                       {/* Show assigned divisions - always show from participant.divisions */}
                       {participant.divisions && participant.divisions.length > 0 && (

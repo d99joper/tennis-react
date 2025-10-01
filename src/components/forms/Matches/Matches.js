@@ -24,6 +24,7 @@ import MatchEditor from '../MatchEditor/MatchEditor';
 import useComponentWidth from 'helpers/useComponentWidth';
 import { ProfileImage } from '../ProfileImage';
 import MatchFilters from './MatchFilters';
+import { useParams, useSearchParams } from 'react-router-dom';
 
 const Matches = ({
   originType,
@@ -47,7 +48,17 @@ const Matches = ({
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [selectedPlayers, setSelectedPlayers] = useState([]);
-  const [selectedDivisionId, setSelectedDivisionId] = useState(''); // New state for division filter
+  const [searchParams] = useSearchParams();
+  const division_id_from_url = searchParams.get('division');
+  
+  // Initialize selectedDivisionId immediately with URL param value
+  const [selectedDivisionId, setSelectedDivisionId] = useState(() => {
+    if (divisions && division_id_from_url) {
+      return divisions[division_id_from_url]?.id || '';
+    }
+    return '';
+  });
+  
   const [isFetchingMore, setIsFetchingMore] = useState(false); // Track infinite scrolling state
   const [pagesLoaded, setPagesLoaded] = useState(new Set());
   const [modalContent, setModalContent] = useState(null);
@@ -61,6 +72,16 @@ const Matches = ({
     setModalTitle(title);
     setIsModalOpen(true);
   };
+
+  // Simplified effect - only update if URL param changes after initial load
+  useEffect(() => {
+    if (divisions && division_id_from_url) {
+      const newDivisionId = divisions[division_id_from_url]?.id || '';
+      if (newDivisionId !== selectedDivisionId) {
+        setSelectedDivisionId(newDivisionId);
+      }
+    }
+  }, [division_id_from_url, divisions, selectedDivisionId]);
 
   const theme = useTheme();
   const [ref, width] = useComponentWidth();

@@ -38,7 +38,7 @@ const ProfileImageProvider = ({ children }) => {
 // UserProfile component to use wherever you need it in your app
 const ProfileImage = ({ player, size, asLink=false, showName=false, ...props }) => {
   const { setProfileImage, getProfileImage } = useContext(ProfileImageContext);
-
+  //console.log('ProfileImage render for player:', player)
   useEffect(() => {
     // try to get the stored imagem, if there is one
     const { imageUrlWithRandomNumber, isImageLoaded } = getProfileImage(player.id);
