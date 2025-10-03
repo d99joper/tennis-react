@@ -101,7 +101,7 @@ const Matches = ({
           ...originType ? { "origin-type": originType } : {},
           ...originId ? { "origin-id": originId } : {},
           ...matchType ? { "match-type": matchType } : {},
-          ...selectedPlayers.length > 0 ? { "player-ids": selectedPlayers.map(p => p.id) } : {},
+          ...selectedPlayers.length > 0 ? { "player-ids": selectedPlayers.map(p => p.id).join(',') } : {},
           ...selectedDivisionId ? { "division": selectedDivisionId } : {}
         };
         
@@ -364,6 +364,7 @@ const Matches = ({
           onDivisionChange={handleDivisionChange}
           showFilterByPlayer={showFilterByPlayer}
           showFilterByDivision={showFilterByDivision}
+          fromProfileId={originType?.toLowerCase() === 'player' ? originId : null}
         />
       </Box>
 

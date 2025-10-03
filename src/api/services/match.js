@@ -20,13 +20,6 @@ const matchAPI = {
 
     const requestOptions = authAPI.getRequestOptions('GET')
     const params = new URLSearchParams({ page: page, 'page-size': pageSize, skip: skip, ...(filter ? filter : {}) })
-    // const url = apiUrl + 'matches/'
-    //   + '?origin-type=' + originType
-    //   + (originId ? '&origin-id=' + originId : '')
-    //   + (matchType ? '&match-type=' + matchType : '')
-    //   + (page ? '&page=' + page : '')
-    //   + (pageSize ? '&page-size=' + pageSize : '')
-    //   + (skip ? '&skip=' + skip : '')
 
     let response = await fetch(`${matchesUrl}?${params}`, requestOptions)
 

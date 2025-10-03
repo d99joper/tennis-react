@@ -13,12 +13,13 @@ const MatchFilters = ({
   onPlayerChange,
   onDivisionChange,
   showFilterByPlayer = true,
-  showFilterByDivision = false
+  showFilterByDivision = false,
+  fromProfileId = null
 }) => {
   if (!showFilterByPlayer && !showFilterByDivision) {
     return null;
   }
-
+  console.log('MatchFilter', fromProfileId)
   return (
     <Box sx={{ 
       display: 'flex', 
@@ -40,6 +41,7 @@ const MatchFilters = ({
               label={'Filter on a player ...'}
               selectedPlayer={selectedPlayers[0]}
               setSelectedPlayer={onPlayerChange}
+              fromProfileId={fromProfileId}
             />
           )}
         </Box>

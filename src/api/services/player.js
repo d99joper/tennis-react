@@ -127,7 +127,7 @@ const playerAPI = {
   },
 
   getPlayers: async function (filter) {
-    //console.log(filter)
+    console.log(filter)
     //const url = new URL(playersUrl)
     const params = new URLSearchParams(filter) //helpers.parseFilter(filter)
     //console.log("params: ",params)

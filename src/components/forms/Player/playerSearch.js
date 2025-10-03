@@ -14,6 +14,7 @@ const PlayerSearch = ({
   error = false,
   errorMessage,
   allowCreate = false,
+  fromProfileId = null,
   ...props
 }) => {
   const [players, setPlayers] = useState([]);
@@ -27,7 +28,10 @@ const PlayerSearch = ({
   const fetchPlayers = async (strName = '') => {
     setLoading(true);
     try {
-      const filter = helpers.hasValue(strName) ? { 'name': strName } : '';
+      const filter = helpers.hasValue(strName) ? { 'name': strName } : {};
+      // if this comes from a profile id, add that as a origin_player_id for the filter
+      console.log('fromProfileId', fromProfileId)
+      if (fromProfileId) filter['origin-player-id'] = fromProfileId;
       const response = await playerAPI.getPlayers(filter);
       setPlayers(response.data.players);
     } catch (error) {
@@ -68,7 +72,7 @@ const PlayerSearch = ({
     .filter(p => p?.id) // Ensure player is defined and has an id
     .filter(p => !excludePlayers.some(excluded => excluded?.id === p.id));
 
-  const optionsList = allowCreate && searchTerm.length >= 3 && filteredPlayers.length === 0
+  const optionsList = allowCreate && searchTerm?.length >= 3 && filteredPlayers?.length === 0
     ? [...filteredPlayers, { id: 'new', name: `Create "${searchTerm}"` }]
     : filteredPlayers;
 
@@ -79,23 +83,8 @@ const PlayerSearch = ({
         multiple={true}
         options={optionsList}
         getOptionLabel={(option) => option?.name || ''}
-        value={selectedPlayer || null}
-        //key={(option) => option.id}
+        value={selectedPlayer ? (Array.isArray(selectedPlayer) ? selectedPlayer : [selectedPlayer]) : []}
         renderOption={(props, option) => (
-          // <li {...props} key={option.id} onClick={() => {
-          //   if (option.id === 'new') {
-          //     setNewPlayerName(searchTerm);
-          //     setShowModal(true);
-          //   } else {
-          //     setSelectedPlayer(option);
-          //     setSearchTerm('')
-          //   }
-          // }}>
-          //   {option.id === 'new'
-          //     ? `"${searchTerm}" doesn't exist. Create?`
-          //     : <ProfileImage size={30} showName={true} player={option} />
-          //   }
-          // </li>
           <li {...props} key={option.id}>
             {option.id === 'new'
               ? `"${searchTerm}" doesn't exist. Create?`
@@ -105,23 +94,18 @@ const PlayerSearch = ({
         )}
         disableCloseOnSelect={false}
         onChange={(event, newValue) => {
-          if (newValue?.id === 'new') {
+          if (Array.isArray(newValue) && newValue.find(v => v?.id === 'new')) {
             setNewPlayerName(searchTerm);
             setShowModal(true);
           } else {
             setSelectedPlayer(newValue);
           }
         }}
-        // onChange={(event, newValue) => {
-        //   setSelectedPlayer(newValue);
-        //   setSearchTerm('');
-        //   event?.target?.blur();
-        // }}
         onClose={() => setSearchTerm('')}
         onInputChange={(event, newInputValue, reason) => {
-          if (reason === 'clear') setSelectedPlayer(null)
+          if (reason === 'clear') setSelectedPlayer([])
           setSearchTerm(newInputValue);
-          if (newInputValue === '') setSelectedPlayer(null); // ✅ Reset when cleared
+          if (newInputValue === '') setSelectedPlayer([]); // ✅ Reset to empty array when cleared
         }}
         loading={loading}
         renderInput={(params) => (
@@ -139,12 +123,6 @@ const PlayerSearch = ({
                 fontSize: '0.875rem'
               }
             }}
-          // onChange={(e) => setSearchTerm(e.target.value)}
-          // slotProps={{
-          //   endAdornment: {
-          //     children: loading ? <CircularProgress size={20} /> : null,
-          //   },
-          // }}
           />
         )}
       />
