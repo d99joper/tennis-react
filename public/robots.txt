@@ -1,3 +1,31 @@
-# https://www.robotstxt.org/robotstxt.html
+# robots.txt for Tennis Space
+# Docs: https://www.robotstxt.org/robotstxt.html
+
+# Crawl-all baseline
 User-agent: *
-Disallow:
+
+# Allow crawling everything by default
+Allow: /
+
+# Sensible exclusions (adjust if these paths exist)
+# Prevent indexing of internal/admin and build artifacts
+Disallow: /admin/
+Disallow: /api/
+Disallow: /static/js/*.map
+Disallow: /static/css/*.map
+Disallow: /__analytics
+Disallow: /__debug
+
+# If your app has client-side routes that shouldn't be indexed, list them here
+# Disallow: /checkout/
+# Disallow: /profile/settings/
+
+# Point search engines to your sitemap(s)
+Sitemap: https://mytennis.space/sitemap.xml
+
+# Notes:
+# - Ensure sitemap.xml is available at the URL above (or multiple sitemaps if needed).
+# - Do not block resources (CSS/JS/images) required for rendering; Google needs them.
+# - For staging, use a robots.txt with:
+#   User-agent: *
+#   Disallow: /

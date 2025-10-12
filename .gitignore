@@ -49,3 +49,7 @@ src/todo.txt
 .env.*
 public/firebase-messaging-sw.dev.js
 public/firebase-messaging-sw.prod.js
+create-cert-key.pem
+create-cert.pem
+localhost-key.pem
+localhost.pem

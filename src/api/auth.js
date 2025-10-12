@@ -61,7 +61,7 @@ const authAPI = {
 
 	verifyEmail: async function (userid, key) {
 		try {
-			const body = { key: key, userid: userid }
+			//const body = { key: key, userid: userid }
 			let response = await fetch(apiUrl + "confirm-user/" + userid + "/" + key, {
 				method: 'GET',
 				headers: {

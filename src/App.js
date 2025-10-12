@@ -1,5 +1,5 @@
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import React, { useState, useEffect, useRef } from 'react';
+import { ThemeProvider } from '@mui/material/styles';
+import React, { useEffect, useRef } from 'react';
 import './App.css';
 import MyRouter from './routes';
 import { BrowserRouter } from 'react-router-dom';
@@ -7,7 +7,7 @@ import { Box, CssBaseline } from '@mui/material';
 import { ProfileImageProvider } from "components/forms";
 import { requestNotificationPermission } from "./firebase/requestNotificationPermission";
 import { setupNotificationListener, onNotificationReceived, removeNotificationListener } from "./firebase/notificationService";
-import { theme, PrimaryMainTheme } from 'theme_config';
+import { theme } from 'theme_config';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import default styles
 import { AuthProvider } from 'contexts/AuthContext';

@@ -17,7 +17,8 @@ import { Match } from 'components/forms'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { AuthContext } from 'contexts/AuthContext'
-const DEFAULT_LOCATION = { lat: 38.5449, lng: -121.7405 };
+import SeoHelmet from 'components/seoHelmet';
+
 const CACHE_DURATION_MS = 1000 * 60 * 60; // 1 hour
 
 const Home = ({ homeDataRef }) => {
@@ -32,9 +33,7 @@ const Home = ({ homeDataRef }) => {
     events: !homeDataRef.current,
   })
 
-  const setAllLoading = (state) => {
-    setLoading({ clubs: state, matches: state, events: state })
-  }
+
 
   useEffect(() => {
     const isFresh =
@@ -64,22 +63,6 @@ const Home = ({ homeDataRef }) => {
       }
     };
 
-    // const loadAll = (lat, lng) => {
-    //   let filters = {};
-    //   filters.geo = `${lat},${lng},25`;
-
-    //   clubAPI.getClubs(filters, 1, 5)
-    //     .then(res => saveAndMaybeCache('clubs', res?.data?.clubs || []))
-    //     .catch(() => setLoading(prev => ({ ...prev, clubs: false })));
-
-    //   matchAPI.getMatches(filters, 1, 5)
-    //     .then(res => saveAndMaybeCache('matches', res?.matches || []))
-    //     .catch(() => setLoading(prev => ({ ...prev, matches: false })));
-
-    //   eventAPI.getEvents(filters, 1, 5)
-    //     .then(res => saveAndMaybeCache('events', res?.events || []))
-    //     .catch(() => setLoading(prev => ({ ...prev, events: false })));
-    // };
     const loadAll = async (lat, lng) => {
       let filters = { geo: `${lat},${lng}, 25` };
 
@@ -89,7 +72,7 @@ const Home = ({ homeDataRef }) => {
       } catch {
         setLoading(prev => ({ ...prev, matches: false }));
       }
-      
+
       try {
         const clubRes = await clubAPI.getClubs(filters, 1, 5);
         saveAndMaybeCache('clubs', clubRes?.data?.clubs || []);
@@ -138,6 +121,11 @@ const Home = ({ homeDataRef }) => {
       <Helmet>
         <title>MyTennis Space</title>
       </Helmet>
+      <SeoHelmet
+        title="Home – My Tennis Space"
+        description="Track your matches, discover clubs, and compete in tennis events and ladders."
+        url="https://mytennis.space/"
+      />
 
       <Typography variant="h4" gutterBottom>
         🎾 Welcome to My Tennis Space

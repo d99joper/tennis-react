@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Production domain: https://mytennis.space -->
+  <url>
+    <loc>https://mytennis.space/</loc>
+  </url>
+  <url>
+    <loc>https://mytennis.space/about</loc>
+  </url>
+  <url>
+    <loc>https://mytennis.space/faq</loc>
+  </url>
+  <url>
+    <loc>https://mytennis.space/rules</loc>
+  </url>
+  <url>
+    <loc>https://mytennis.space/search</loc>
+  </url>
+  <url>
+    <loc>https://mytennis.space/players</loc>
+  </url>
+  <url>
+    <loc>https://mytennis.space/privacy-policy</loc>
+  </url>
+  <url>
+    <loc>https://mytennis.space/terms-of-service</loc>
+  </url>
+  <!-- Clubs -->
+  <url>
+    <loc>https://mytennis.space/clubs</loc>
+  </url>
+  <!-- Courts -->
+  <url>
+    <loc>https://mytennis.space/courts</loc>
+  </url>
+  <!-- Ladders -->
+  <url>
+    <loc>https://mytennis.space/ladders</loc>
+  </url>
+  <url>
+    <loc>https://mytennis.space/ladders/search</loc>
+  </url>
+  <url>
+    <loc>https://mytennis.space/ladders/new</loc>
+  </url>
+  <!-- League -->
+  <url>
+    <loc>https://mytennis.space/league/create</loc>
+  </url>
+  <!-- Events -->
+  <url>
+    <loc>https://mytennis.space/events</loc>
+  </url>
+  <url>
+    <loc>https://mytennis.space/events/create</loc>
+  </url>
+  <!-- Tournament -->
+  <url>
+    <loc>https://mytennis.space/tournament/create</loc>
+  </url>
+  <!-- Auth and profile-related pages typically shouldn't be indexed; omit or use meta noindex on-page -->
+  <!-- Notifications, admin, temp pages also typically excluded from sitemap -->
+</urlset>
