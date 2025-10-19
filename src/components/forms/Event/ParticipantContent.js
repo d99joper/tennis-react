@@ -5,19 +5,27 @@ import { Box, MenuItem, TextField, Typography, CircularProgress, Card, Button, C
 import { eventAPI, divisionAPI } from "api/services";
 import { ProfileImage } from "components/forms/ProfileImage";
 
-const ParticipantsContent = ({ event, includeDivisions = false, callback }) => {
-  const [participants, setParticipants] = useState([]);
-  const [loading, setLoading] = useState(true);
+const ParticipantsContent = ({ event, participants: propParticipants = null, includeDivisions = false, callback }) => {
+  const [participants, setParticipants] = useState(propParticipants || []);
+  const [loading, setLoading] = useState(!propParticipants);
   const [updating, setUpdating] = useState(false);
   const [lastEventUpdate, setLastEventUpdate] = useState(null);
   const [lastParticipantCount, setLastParticipantCount] = useState(null);
-  const [hasLoaded, setHasLoaded] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(!!propParticipants);
   //const [participantDivisions, setParticipantDivisions] = useState({}); 
   const [selectedDivisionForAssignment, setSelectedDivisionForAssignment] = useState('');
   const [selectedParticipants, setSelectedParticipants] = useState([]);
   const [assigning, setAssigning] = useState(false);
 
   useEffect(() => {
+    // If participants are provided as props, use them
+    if (propParticipants) {
+      setParticipants(propParticipants);
+      setHasLoaded(true);
+      setLoading(false);
+      return;
+    }
+
     const fetchParticipants = async () => {
       try {
         // Only show main loading on first load, use updating for subsequent fetches
@@ -70,7 +78,7 @@ const ParticipantsContent = ({ event, includeDivisions = false, callback }) => {
     if (shouldFetch) {
       fetchParticipants();
     }
-  }, [event.id, event.updated_on, event.count_participants, event.divisions, hasLoaded, lastEventUpdate, lastParticipantCount]);
+  }, [event.id, event.updated_on, event.count_participants, event.divisions, hasLoaded, lastEventUpdate, lastParticipantCount, propParticipants, includeDivisions]);
 
   // Auto-select participants who are already in the selected division
   useEffect(() => {

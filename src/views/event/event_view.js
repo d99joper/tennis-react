@@ -1,5 +1,5 @@
 import { Link, useParams, useNavigate, useSearchParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Box, MenuItem, TextField, Typography, useMediaQuery } from "@mui/material";
 import { eventAPI } from "api/services";
 import LeagueViewPage from "views/league/league_view";
@@ -13,6 +13,7 @@ import JoinRequest from "components/forms/Notifications/joinRequests";
 import InfoPopup from "components/forms/infoPopup";
 import { FaUsers } from "react-icons/fa";
 import ParticipantsContent from "components/forms/Event/ParticipantContent";
+import SeoHelmet from "components/seoHelmet";
 
 const EventView = () => {
   const { id } = useParams();
@@ -23,29 +24,39 @@ const EventView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedDivision, setSelectedDivision] = useState(null);
+  const [participants, setParticipants] = useState([]);
 
   // Responsive design
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const fetchEvent = async () => {
+  const fetchEvent = useCallback(async () => {
     try {
       setLoading(true);
       const event = await eventAPI.getEvent(id);
       console.log("EventView rendering with event_type:", event.event_type);
       setEvent(event);
       console.log("Event data:", event);
+      
+      // Fetch participants once at the top level
+      if (event.id) {
+        try {
+          const res = await eventAPI.getParticipants(event.id, null, 0);
+          setParticipants(res.data || []);
+        } catch (err) {
+          console.error('Error fetching participants:', err);
+        }
+      }
     } catch (err) {
       setError("Failed to load event");
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
-  // Only fetch event when ID changes, not division_num
   useEffect(() => {
     fetchEvent();
-  }, [id]); // Remove division_num from dependencies
+  }, [fetchEvent]);
 
   // Handle initial division selection after event loads
   useEffect(() => {
@@ -76,7 +87,7 @@ const EventView = () => {
         }));
       }
     }
-  }, [division_num, event?.divisions]); // This only updates division selection, not the entire event
+  }, [event, division_num, event?.divisions]); // This only updates division selection, not the entire event
 
   const refreshEvent = (updatedEvent) => {
     console.log('EventView received updated event:', updatedEvent);
@@ -98,6 +109,13 @@ const EventView = () => {
       if (!selectedDivision && updatedEvent.divisions && updatedEvent.divisions.length > 0) {
         setSelectedDivision(updatedEvent.divisions[0]);
       }
+      
+      // Refresh participants when event is refreshed
+      if (updatedEvent.id) {
+        eventAPI.getParticipants(updatedEvent.id, null, 0)
+          .then(res => setParticipants(res.data || []))
+          .catch(err => console.error('Error refreshing participants:', err));
+      }
     } else {
       fetchEvent();
     }
@@ -112,6 +130,11 @@ const EventView = () => {
       <Helmet>
         <title>{event.name} | MyTennis Space</title>
       </Helmet>
+      <SeoHelmet
+        title={`${event.name} | My Tennis Space`}
+        description={event.description}
+        url={`https://mytennis.space/events/${event.slug}`}
+      />
       <Typography variant="h4" gutterBottom>
         {event.name}
       </Typography>
@@ -159,7 +182,7 @@ const EventView = () => {
             width="400px"
             size={16}
           >
-            <ParticipantsContent event={event} callback={setEvent} />
+            <ParticipantsContent event={event} callback={setEvent} participants={participants} />
           </InfoPopup>
         </Box>
       )}
@@ -272,33 +295,34 @@ const EventView = () => {
   let content;
   switch (event.event_type) {
     case "league":
-      content = <LeagueViewPage event={event} />;
+      content = <LeagueViewPage event={event} participants={participants} />;
       break;
     case "tournament":
-      content = <TournamentView event={event} tournament_id={event.tournament_id} callback={refreshEvent} />;
+      content = <TournamentView event={event} tournament_id={event.tournament_id} participants={participants} callback={refreshEvent} />;
       break;
     case "ladder":
-      content = <LadderView event={event} />;
+      content = <LadderView event={event} participants={participants} />;
       break;
     case "multievent":
       if (!selectedDivision) {
         // No division selected, show participants list
         content = (
           <Box sx={{ px: isMobile ? 2 : 4, mt: 4 }}>
-            <ParticipantsContent event={event} includeDivisions={true} callback={setEvent} />
+            <ParticipantsContent event={event} participants={participants} includeDivisions={true} callback={setEvent} />
           </Box>
         );
       } else {
         const division_content_id = selectedDivision?.content_object?.id;
         console.log("Selected Division:", selectedDivision);
         if (selectedDivision?.type === 'league')
-          content = <LeagueViewPage event={event} division={selectedDivision} />;
+          content = <LeagueViewPage event={event} division={selectedDivision} participants={participants} />;
         else if (selectedDivision?.type === 'tournament') {
           content = <TournamentView
             key={division_content_id}
             event={event}
             tournament_id={division_content_id}
             division={selectedDivision}
+            participants={participants}
             callback={refreshEvent}
           />;
         }

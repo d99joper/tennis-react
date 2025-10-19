@@ -1,3 +1,4 @@
+import { fetchWithRetry } from "api/fetchWithRetry";
 import { authAPI } from "."
 import apiUrl from "config"
 
@@ -7,7 +8,7 @@ const requestAPI = {
   /* API calls */
   createJoinRequest: async function (type, id) {
     const requestOptions = authAPI.getRequestOptions('POST');
-    const response = await fetch(`${requestUrl}join/${type}/${id}`, requestOptions);
+    const response = await fetchWithRetry(`${requestUrl}join/${type}/${id}`, requestOptions);
     if (response.ok) {
       const data = await response.json();
       return { success: response.ok, statusCode: response.statusCode, data: data }
@@ -18,7 +19,7 @@ const requestAPI = {
 
   getRequestStatusForUser: async function (id) {
     const requestOptions = authAPI.getRequestOptions('GET');
-    const response = await fetch(`${requestUrl}${id}/get-status-for-user`, requestOptions)
+    const response = await fetchWithRetry(`${requestUrl}${id}/get-status-for-user`, requestOptions)
     if (response.ok) {
       const data = await response.json();
       return { success: response.ok, statusCode: response.statusCode, status: data.status }
@@ -30,7 +31,7 @@ const requestAPI = {
   processRequest: async function (id, approve) {
     console.log('approve', approve)
     const requestOptions = authAPI.getRequestOptions('POST')
-    const response = await fetch(`${requestUrl}process/${id}/${approve}`, requestOptions)
+    const response = await fetchWithRetry(`${requestUrl}process/${id}/${approve}`, requestOptions)
     if (response.ok) {
       const data = await response.json()
       return { success: response.ok, statusCode: response.statusCode, data: data }
@@ -41,7 +42,7 @@ const requestAPI = {
 
   getPendingRequests: async function (id) {
     const requestOptions = authAPI.getRequestOptions('GET') 
-    const response = await fetch(`${requestUrl}${id}/pending?include_sender=true`, requestOptions);
+    const response = await fetchWithRetry(`${requestUrl}${id}/pending?include_sender=true`, requestOptions);
     if (response.ok) {
       const data = await response.json()
       return { success: response.ok, statusCode: response.statusCode, data: data }
@@ -54,7 +55,7 @@ const requestAPI = {
 
   sendInvites: async function(object_id, content_type, recipients, message) {
     const requestOptions = authAPI.getRequestOptions('POST', {recipients: recipients, message:message});
-    const response = await fetch(`${requestUrl}${object_id}/${content_type}/send-invites`, requestOptions)
+    const response = await fetchWithRetry(`${requestUrl}${object_id}/${content_type}/send-invites`, requestOptions)
     if (response.ok) {
       return await response.json()
     }

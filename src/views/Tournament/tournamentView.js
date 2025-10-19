@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { Box, Typography, CircularProgress, Tabs, Tab, useMediaQuery, Grid2 } from '@mui/material';
+import { useParams } from 'react-router-dom';
+import { Box, Typography, CircularProgress, Tabs, Tab, useMediaQuery, Grid2, Button } from '@mui/material';
 import TournamentBracket from 'components/forms/Tournament/bracket';
 import tournamentsAPI from 'api/services/tournament';
 import { eventAPI } from 'api/services';
@@ -9,9 +9,12 @@ import { Matches } from 'components/forms';
 import EventAdminTools from 'components/forms/Event/adminTools';
 import AddParticipants from 'components/forms/League/addParticipants';
 import { eventHelper } from 'helpers';
+import BracketGenerator from 'components/forms/Tournament/bracketGenerator';
+import MyModal from 'components/layout/MyModal';
 
 const TournamentViewPage = ({ event: initialEvent,
   tournament_id,
+  participants = [],
   showMatches = true,
   showEventDetails = true,
   division=null,
@@ -28,6 +31,7 @@ const TournamentViewPage = ({ event: initialEvent,
   const [bracket, setBracket] = useState(
     initialEvent?.tournament_bracket || initialEvent?.tournament?.bracket || null
   );
+  const [showBracketGenerator, setShowBracketGenerator] = useState(false);
 
   useEffect(() => {
     if (event?.event_type === 'multievent') {
@@ -135,28 +139,6 @@ const TournamentViewPage = ({ event: initialEvent,
 
   return (
     <Box sx={{ mt: 0, px: isMobile ? 2 : 4 }}>
-      {/* <Helmet>
-        <title>{event.name} | MyTennis Space</title>
-      </Helmet>
-      
-      {showEventDetails &&
-        <Box sx={{ p: 2 }}>
-          <Typography variant="h4" gutterBottom>
-            {event.name}
-          </Typography>
-          {event.club && (
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              Hosted by <Link to={'/clubs/' + event.club.slug}>{event.club.name}</Link>
-            </Typography>
-          )}
-          {event.description && (
-            <Typography variant="subtitle1" sx={{ mb: 2 }}>
-              {event.description}
-            </Typography>
-          )}
-
-        </Box> 
-      }*/}
       {/** Tabs for Bracket, Matches, and Admin */}
       <Tabs
         value={currentTab}
@@ -174,15 +156,36 @@ const TournamentViewPage = ({ event: initialEvent,
       {/** BRACKET TAB  */}
       {currentTab === 0 && (
         <Box sx={{ p: 1 }}>
-          <TournamentBracket 
-            key={`${tournament_id || id}-${division?.id || 'main'}-${JSON.stringify(bracket)?.slice(0, 50)}`}
-            initialBracket={bracket} 
-            isSelfReported={event.allow_self_report_scores}
-            event={event} 
-            tournament_id={tournament_id || id} 
-            division_id={division?.id || event.divisions?.[0]?.id || null} 
-            onMatchSubmit={handleMatchSubmit} 
-          />
+          {bracket && bracket.length > 0  &&  (
+            bracket.map((round, roundIndex) => (
+              <Box key={`round-${roundIndex}`} sx={{ mb: 3 }}>
+                <Typography variant="h6" gutterBottom>{round.name || `Round ${roundIndex + 1}`}</Typography>
+                <TournamentBracket 
+                  key={`${tournament_id || id}-${division?.id || 'main'}-round-${roundIndex}`}
+                  initialBracket={[round]}
+                  isSelfReported={event.allow_self_report_scores}
+                  event={event} 
+                  tournament_id={tournament_id || id}
+                  division_id={division?.id || event.divisions?.[0]?.id || null}
+                  availableParticipants={participants}
+                  onMatchSubmit={handleMatchSubmit} 
+                />
+              </Box>
+            )))}
+            {/* add option to add a new bracket (for admins) */}
+            {event.is_admin && (
+              <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  onClick={() => setShowBracketGenerator(true)}
+                  sx={{ minWidth: 250 }}
+                >
+                  + Generate New Bracket
+                </Button>
+              </Box>
+            )}
         </Box>
       )}
       {/** MATCHES TAB  */}
@@ -213,6 +216,23 @@ const TournamentViewPage = ({ event: initialEvent,
           </Grid2>
         </Box>
       )}
+
+      {/* Bracket Generator Modal */}
+      <MyModal 
+        showHide={showBracketGenerator} 
+        onClose={() => setShowBracketGenerator(false)}
+        title="Generate Tournament Bracket"
+      >
+        <BracketGenerator
+          availableParticipants={participants}
+          tournamentId={tournament_id || id}
+          onBracketGenerated={(newBracket) => {
+            console.log('New bracket generated:', newBracket);
+            handleMatchSubmit(newBracket, division);
+            setShowBracketGenerator(false);
+          }}
+        />
+      </MyModal>
 
     </Box>
   );

@@ -1,13 +1,13 @@
 import apiUrl from "config"
 import { authAPI } from "."
-import { helpers } from "helpers"
+import { fetchWithRetry } from "api/fetchWithRetry"
 
 const courtsUrl = apiUrl + 'courts/'
 
 const courtAPI = {
   getCourt: async function (id) {
     const requestOptions = authAPI.getRequestOptions('GET')
-    let response = await fetch(courtsUrl + id, requestOptions)
+    let response = await fetchWithRetry(courtsUrl + id, requestOptions)
 
     if (response.ok) {
       const data = await response.json()
@@ -23,7 +23,7 @@ const courtAPI = {
     const params = new URLSearchParams(filter) 
     
     const requestOptions = authAPI.getRequestOptions('GET')
-    const response = await fetch(url + '?' + params, requestOptions,requestOptions)
+    const response = await fetchWithRetry(url + '?' + params, requestOptions,requestOptions)
     
     if (response.ok) {
       const data = await response.json()
@@ -36,7 +36,7 @@ const courtAPI = {
   createCourt: async function(court) {
     const requestOptions = authAPI.getRequestOptions('POST', court)
 
-    const response = await fetch(courtsUrl + 'create', requestOptions)
+    const response = await fetchWithRetry(courtsUrl + 'create', requestOptions)
     if (response.ok)
       return await response.json()
     else

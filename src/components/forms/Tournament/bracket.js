@@ -1,143 +1,69 @@
 import React, { useContext, useEffect, useState } from 'react';
-import Grid from '@mui/material/Grid2'; // Grid2
 import {
   Box,
   Typography,
   Select,
   MenuItem,
-  FormControlLabel,
-  Switch,
-  TextField,
-  Button,
   IconButton,
 } from '@mui/material';
-import { AiFillDelete } from 'react-icons/ai';
 import { IoArrowBack, IoArrowForward } from 'react-icons/io5';
-import { eventAPI, tournamentsAPI } from 'api/services';
 import BracketMatch from './bracketMatch';
-import bracket_data from './test_data';
+import BracketGenerator from './bracketGenerator';
 import { MatchEditor } from 'components/forms';
 import MyModal from 'components/layout/MyModal';
 import { AuthContext } from 'contexts/AuthContext';
 
-const TournamentBracket = ({ initialBracket, event, tournament_id, isSelfReported, division_id, onMatchSubmit = null }) => {
-  const [selectedParticipants, setSelectedParticipants] = React.useState([]);
-  const [availableParticipants, setAvailableParticipants] = React.useState([]);
-  const [loading, setLoading] = React.useState(false);
-  const [useSeeding, setUseSeeding] = React.useState(true);
-  const [seedCount, setSeedCount] = React.useState(4);
-  const [currentRoundIndex, setCurrentRoundIndex] = React.useState(0); // Navigation state
+const TournamentBracket = ({ initialBracket, 
+  event, 
+  tournament_id, 
+  isSelfReported, 
+  division_id, 
+  availableParticipants = [], 
+  onMatchSubmit = null, }) => {
+  const [currentRoundIndex, setCurrentRoundIndex] = useState(0); // Navigation state
+  const [currentBracketIndex, setCurrentBracketIndex] = useState(0); // Which bracket (Main Draw, Consolation, etc.)
   const [editingMatch, setEditingMatch] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [bracket, setBracket] = useState(initialBracket || null);
+  const [brackets, setBrackets] = useState(initialBracket || null);
 
   useEffect(() => {
-    setBracket(initialBracket || null);
+    setBrackets(initialBracket || null);
   }, [initialBracket]);
-  const { user, isLoggedIn, loading: userIsLoading } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
+
+  // Helper to normalize bracket structure - handle both single bracket object and array
+  const bracketsArray = Array.isArray(brackets) ? brackets : (brackets?.rounds ? [brackets] : []);
+  const currentBracket = bracketsArray[currentBracketIndex] || null;
 
   //bracket = bracket_data; // for testing
   // console.log('Rendering TournamentBracket with bracket:', bracket, initialBracket);
   // console.log('Event:', event);
-  const handleChange = (e) => {
-    const next = e.target.value || [];
-    setSelectedParticipants(next);
-    // Remove this line - it's causing the flicker
-    // setSeedCount((s) => Math.min(s, next.length || 0));
-  };
 
-  const handleRemove = (name) => {
-    const id = typeof name === 'string' || typeof name === 'number' ? name : name?.id;
-    setSelectedParticipants((prev) => {
-      const next = prev.filter((p) => p.id !== id);
-      // Remove this line too - handle it in useEffect instead
-      // setSeedCount((s) => Math.min(s, next.length));
-      return next;
-    });
-  };
+  const handleBracketGenerated = (newBracket) => {
+    console.log('Bracket generated callback received:', newBracket);
+    
+    // Update local bracket state
+    setBrackets(newBracket);
 
-  // Add a useEffect to handle seedCount adjustments properly
-  useEffect(() => {
-    // Only adjust seedCount if it exceeds the number of selected participants
-    if (seedCount > selectedParticipants.length) {
-      setSeedCount(selectedParticipants.length);
-    }
-  }, [selectedParticipants.length, seedCount]);
-
-  const handleGenerate = async () => {
-    setLoading(true);
-    const participants = selectedParticipants.map((p, idx) => ({
-      id: p.id,
-      seed: useSeeding && idx < seedCount ? idx + 1 : null,
-    }));
-    console.log('Generating bracket with participants:', participants);
-
-    try {
-      const response = await tournamentsAPI.generateBrackets(tournament_id, participants, useSeeding, seedCount);
-      const newBracket = { rounds: response }
-      console.log('Generated bracket response:', newBracket);
-
-      if (newBracket) {
-        // Update local bracket state
-        setBracket(newBracket);
-
-        // Propagate the new bracket up to parent components
-        if (onMatchSubmit) {
-          // For multi-events, we might need to include division info
-          const updatedDivision = null
-          if (division_id && event.event_type === 'multievent') {
-            // find the division object based on division_id
-            let currentDivision = event.divisions.find(d => d.id === division_id);
-            if (currentDivision) {
-              updatedDivision = {
-                ...currentDivision,
-                content_object: {
-                  ...currentDivision.content_object,
-                  bracket: newBracket
-                }
-              }
+    // Propagate the new bracket up to parent components
+    if (onMatchSubmit) {
+      // For multi-events, we might need to include division info
+      let updatedDivision = null;
+      if (division_id && event.event_type === 'multievent') {
+        // find the division object based on division_id
+        let currentDivision = event.divisions.find(d => d.id === division_id);
+        if (currentDivision) {
+          updatedDivision = {
+            ...currentDivision,
+            content_object: {
+              ...currentDivision.content_object,
+              bracket: newBracket
             }
-            onMatchSubmit(newBracket, updatedDivision);
-          }
+          };
         }
       }
-    } catch (err) {
-      console.error('Error generating bracket:', err);
+      onMatchSubmit(newBracket, updatedDivision);
     }
-
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    if (!event.id) return;
-    const fetchParticipants = async () => {
-      try {
-        const res = await eventAPI.getParticipants(event.id, null, 0);
-        setAvailableParticipants(res.data || []);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchParticipants();
-  }, [event.id]);
-
-  const [dragIndex, setDragIndex] = React.useState(null);
-
-  const handleDragStart = (index) => {
-    setDragIndex(index);
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (index) => {
-    if (dragIndex === null || dragIndex === index) return;
-    const updated = [...selectedParticipants];
-    const [removed] = updated.splice(dragIndex, 1);
-    updated.splice(index, 0, removed);
-    setSelectedParticipants(updated);
-    setDragIndex(null);
   };
 
   // Navigation handlers
@@ -146,7 +72,7 @@ const TournamentBracket = ({ initialBracket, event, tournament_id, isSelfReporte
   };
 
   const handleNext = () => {
-    const maxIndex = bracket.rounds.length - 2; // -2 because we show 2 rounds at once
+    const maxIndex = currentBracket?.rounds?.length ? currentBracket.rounds.length - 2 : 0; // -2 because we show 2 rounds at once
     setCurrentRoundIndex(Math.min(maxIndex, currentRoundIndex + 1));
   };
 
@@ -176,7 +102,7 @@ const TournamentBracket = ({ initialBracket, event, tournament_id, isSelfReporte
     } else {
       // For regular tournaments, update the bracket directly
       const newMatch = updatedMatchData.schedule_match;
-      updatedBracket = { ...bracket };
+      updatedBracket = { ...currentBracket };
       updatedBracket.rounds = updatedBracket.rounds.map((round) => ({
         ...round,
         matches: round.matches.map((match) =>
@@ -186,7 +112,7 @@ const TournamentBracket = ({ initialBracket, event, tournament_id, isSelfReporte
     }
 
     // Update local bracket state immediately
-    setBracket(updatedBracket);
+    setBrackets(updatedBracket);
 
     // Propagate changes up to parent
     onMatchSubmit && onMatchSubmit(updatedBracket, updatedDivision);
@@ -198,161 +124,16 @@ const TournamentBracket = ({ initialBracket, event, tournament_id, isSelfReporte
   };
 
   // if no bracket -> show selection UI
-  if (!bracket) {
+  if (!currentBracket) {
     return (
       <Box sx={{ p: 2 }}>
-        <Typography>No bracket available</Typography>
-
-        <Grid
-          container
-          spacing={2}
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 2fr' },
-            alignItems: 'start',
-            gap: 16 / 8,
-          }}
-        >
-          {/* 1,1 Select Participants */}
-          <Grid xs={12} md={4}>
-            <Typography variant="subtitle1" sx={{ mb: 1 }}>
-              Select Participants:
-            </Typography>
-            <Select
-              multiple
-              value={selectedParticipants}
-              onChange={handleChange}
-              sx={{ minWidth: 200, maxWidth: 200 }}
-              renderValue={(selected) => (selected || []).map((p) => p.name).join(', ')}
-            >
-              {availableParticipants.map((p) => (
-                <MenuItem key={p.id} value={p}>
-                  {p.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </Grid>
-
-          {/* 1,2 Use seeding switch (content can scroll internally) */}
-          <Grid xs={12} md={4}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={useSeeding}
-                    onChange={(e) => setUseSeeding(e.target.checked)}
-                    color="primary"
-                  />
-                }
-                label="Use seeding"
-              />
-              {useSeeding && (
-                <Box>
-                  <Typography variant="body2" sx={{ mb: 0.5 }}>
-                    How many players should be seeded?
-                  </Typography>
-                  <TextField
-                    type="number"
-                    size="small"
-                    value={seedCount}
-                    onChange={(e) => {
-                      const v = Number(e.target.value) || 0;
-                      setSeedCount(Math.max(0, Math.min(v, selectedParticipants.length)));
-                    }}
-                    inputProps={{ min: 0, max: Math.max(0, selectedParticipants.length) }} // Changed from slotProps
-                    sx={{ width: 100 }}
-                  />
-                </Box>
-              )}
-            </Box>
-          </Grid>
-
-          {/* 1,3 Selected participants grid (scroll internally so it doesn't push button) */}
-          <Grid xs={12} md={4}>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Selected Participants:
-            </Typography>
-
-            <Box
-              sx={{
-                display: 'inline-block',
-                minWidth: 220,
-                maxWidth: 360,
-                border: '1px solid',
-                borderColor: 'divider',
-                borderRadius: 1,
-                overflow: 'hidden',
-              }}
-            >
-              {/* header */}
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: useSeeding ? '65px 1fr 65px' : '1fr 65px',
-                  alignItems: 'center',
-                  fontWeight: 600,
-                  background: '#1b5e20',
-                  color: 'white',
-                  px: 1,
-                  py: 1,
-                }}
-              >
-                {useSeeding && <Typography sx={{ textAlign: 'center' }}>Seed #</Typography>}
-                {/* <Divider orientation="vertical" flexItem sx={{ mx: 0, bgcolor: 'rgba(241, 226, 226, 1)' }} /> */}
-                <Typography sx={{ pl: 2 }}>Name</Typography>
-                {/* <Divider orientation="vertical" flexItem sx={{ mx: 1, bgcolor: 'rgba(255,255,255,0.2)' }} /> */}
-                <Typography sx={{ textAlign: 'center' }}>Remove</Typography>
-              </Box>
-
-              {/* rows: constrain height so tall lists scroll internally */}
-              <Box sx={{ maxHeight: 320, overflowY: 'auto' }}>
-                {selectedParticipants.map((name, idx) => (
-                  <Box
-                    key={selectedParticipants[idx].id}
-                    sx={{
-                      display: 'grid',
-                      gridTemplateColumns: useSeeding ? '65px 1fr 65px' : '1fr 65px',
-                      alignItems: 'center',
-                      borderBottom: '1px solid',
-                      borderColor: 'divider',
-                      px: 1,
-                      py: 0.5,
-                      cursor: 'grab',
-                      background: dragIndex === idx ? 'rgba(0,0,0,0.04)' : 'transparent',
-                    }}
-                    draggable
-                    onDragStart={() => handleDragStart(idx)}
-                    onDragOver={handleDragOver}
-                    onDrop={() => handleDrop(idx)}
-                  >
-                    {useSeeding && (
-                      <Typography sx={{ textAlign: 'center', fontWeight: 500 }}>
-                        {idx < seedCount ? idx + 1 : '-'}
-                      </Typography>
-                    )}
-                    <Typography sx={{ pr: 1 }}>{selectedParticipants[idx].name}</Typography>
-                    <IconButton size="small" onClick={() => handleRemove(selectedParticipants[idx])}>
-                      <AiFillDelete />
-                    </IconButton>
-                  </Box>
-                ))}
-              </Box>
-            </Box>
-          </Grid>
-
-          {/* Row 2: Generate button spanning all columns */}
-          <Grid xs={12} sx={{ gridColumn: '1 / -1' }}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleGenerate}
-              disabled={selectedParticipants.length < 2 || loading}
-              sx={{ width: { xs: '100%', md: '100%' }, mt: 2 }}
-            >
-              {loading ? 'Generating...' : 'Generate Bracket'}
-            </Button>
-          </Grid>
-        </Grid>
+        <BracketGenerator
+          availableParticipants={availableParticipants}
+          tournamentId={tournament_id}
+          onBracketGenerated={handleBracketGenerated}
+          title="Generate Tournament Bracket"
+          subtitle="Select participants and configure seeding to generate your tournament bracket"
+        />
       </Box>
     );
   }
@@ -362,8 +143,12 @@ const TournamentBracket = ({ initialBracket, event, tournament_id, isSelfReporte
   const _matchGap = 20;
   const _roundGap = 60;
 
-  // Get the two rounds to display
-  const displayRounds = bracket.rounds.slice(currentRoundIndex, currentRoundIndex + 2);
+  // Get the two rounds to display - handle case where currentBracket.rounds might be undefined or empty
+  const displayRounds = (!currentBracket?.rounds || currentBracket.rounds.length === 0)
+    ? []
+    : currentBracket.rounds.length === 1
+    ? [currentBracket.rounds[0]] // Single round only
+    : currentBracket.rounds.slice(currentRoundIndex, currentRoundIndex + 2); // Show 2 rounds at a time
 
   // Calculate grid based on the FIRST displayed round (left-hand side)
   const firstDisplayedRound = displayRounds[0];
@@ -372,48 +157,86 @@ const TournamentBracket = ({ initialBracket, event, tournament_id, isSelfReporte
 
   return (
     <Box sx={{ p: 2 }}>
-      {/* Navigation Controls */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 3, gap: 2 }}>
-        <IconButton
-          onClick={handlePrevious}
-          disabled={currentRoundIndex === 0}
-          sx={{
-            bgcolor: 'primary.main',
-            color: 'white',
-            '&:hover': { bgcolor: 'primary.dark' },
-            '&:disabled': { bgcolor: 'grey.300' }
-          }}
-        >
-          <IoArrowBack />
-        </IconButton>
+      {/* Bracket Selector - Only show if there are multiple brackets */}
+      {bracketsArray.length > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+          <Select
+            value={currentBracketIndex}
+            onChange={(e) => {
+              setCurrentBracketIndex(e.target.value);
+              setCurrentRoundIndex(0); // Reset round index when switching brackets
+            }}
+            size="small"
+          >
+            {bracketsArray.map((b, idx) => (
+              <MenuItem key={idx} value={idx}>
+                {b.name || `Bracket ${idx + 1}`}
+              </MenuItem>
+            ))}
+          </Select>
+        </Box>
+      )}
 
-        <Typography variant="h6">
-          {displayRounds.length === 2
-            ? `${displayRounds[0]?.round_of_text || `Round ${currentRoundIndex + 1}`} → ${displayRounds[1]?.round_of_text || `Round ${currentRoundIndex + 2}`}`
-            : displayRounds[0]?.round_of_text || `Round ${currentRoundIndex + 1}`
-          }
-        </Typography>
+      {/* Navigation Controls - Only show if there are multiple rounds */}
+      {currentBracket?.rounds && currentBracket.rounds.length > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 3, gap: 2 }}>
+          <IconButton
+            onClick={handlePrevious}
+            disabled={currentRoundIndex === 0}
+            sx={{
+              bgcolor: 'primary.main',
+              color: 'white',
+              '&:hover': { bgcolor: 'primary.dark' },
+              '&:disabled': { bgcolor: 'grey.300' }
+            }}
+          >
+            <IoArrowBack />
+          </IconButton>
 
-        <IconButton
-          onClick={handleNext}
-          disabled={currentRoundIndex >= bracket.rounds.length - 2}
-          sx={{
-            bgcolor: 'primary.main',
-            color: 'white',
-            '&:hover': { bgcolor: 'primary.dark' },
-            '&:disabled': { bgcolor: 'grey.300' }
-          }}
-        >
-          <IoArrowForward />
-        </IconButton>
-      </Box>
+          <Typography variant="h6">
+            {displayRounds.length === 2
+              ? `${displayRounds[0]?.round_of_text || `Round ${currentRoundIndex + 1}`} → ${displayRounds[1]?.round_of_text || `Round ${currentRoundIndex + 2}`}`
+              : displayRounds[0]?.round_of_text || `Round ${currentRoundIndex + 1}`
+            }
+          </Typography>
+
+          <IconButton
+            onClick={handleNext}
+            disabled={currentRoundIndex >= (currentBracket?.rounds?.length || 0) - 2}
+            sx={{
+              bgcolor: 'primary.main',
+              color: 'white',
+              '&:hover': { bgcolor: 'primary.dark' },
+              '&:disabled': { bgcolor: 'grey.300' }
+            }}
+          >
+            <IoArrowForward />
+          </IconButton>
+        </Box>
+      )}
+      
+      {/* Single round title - show only if there's exactly 1 round */}
+      {currentBracket?.rounds && currentBracket.rounds.length === 1 && displayRounds[0] && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+          <Typography variant="h6">
+            {displayRounds[0]?.round_of_text || 'Final'}
+          </Typography>
+        </Box>
+      )}
 
       {/* Bracket Display */}
-      <Box sx={{ display: 'flex', overflowX: 'auto', gap: `${_roundGap}px`, py: 2, px: 2 }}>
-        {displayRounds.map((round, roundIndex) => {
+      {displayRounds.length === 0 ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
+          <Typography variant="body1" color="text.secondary">
+            No bracket rounds available. Generate a bracket to get started.
+          </Typography>
+        </Box>
+      ) : (
+        <Box sx={{ display: 'flex', overflowX: 'auto', gap: `${_roundGap}px`, py: 2, px: 2 }}>
+          {displayRounds.map((round, roundIndex) => {
           const matches = round.matches || [];
           const isLastDisplayedRound = roundIndex === displayRounds.length - 1;
-          const isFinalRound = currentRoundIndex + roundIndex === bracket.rounds.length - 1;
+          const isFinalRound = currentRoundIndex + roundIndex === (currentBracket?.rounds?.length || 0) - 1;
 
           // Calculate how many grid rows each match should span in this round
           // Reset the calculation for each displayed round pair
@@ -572,7 +395,8 @@ const TournamentBracket = ({ initialBracket, event, tournament_id, isSelfReporte
             </Box>
           );
         })}
-      </Box>
+        </Box>
+      )}
 
       {/* Match Editor Modal - Single instance */}
       <MyModal showHide={modalOpen} onClose={closeModal} title="Report Match">

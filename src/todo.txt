@@ -4,6 +4,7 @@ current:
         [ ] Calculate winner and lock matches
             [ ] Nightly process that checks last match date
             [ ] Manual button press 
+    [ ] Add SEO Helmet on most pages
     [ ] Tournaments
         [ ] View
         [ ] Create

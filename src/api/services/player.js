@@ -1,6 +1,7 @@
 import apiUrl from "config"
 import { authAPI, eventAPI } from "."
 import { helpers } from "helpers"
+import { fetchWithRetry } from "api/fetchWithRetry"
 
 const playersUrl = apiUrl + 'players/'
 
@@ -12,7 +13,7 @@ const playerAPI = {
     let playerId = id ?? authAPI.getCurrentUser()?.id;
     if(!helpers.hasValue(playerId)) return {}
     
-    let response = await fetch(playersUrl + playerId + shortUrl, requestOptions)
+    let response = await fetchWithRetry(playersUrl + playerId + shortUrl, requestOptions)
 
     if (response.ok) {
       const player = await response.json()
@@ -27,7 +28,7 @@ const playerAPI = {
   markAwardSeen: async function(awards) {
     const requestOptions = authAPI.getRequestOptions('PUT', awards);
 
-    let response = await fetch(playersUrl + 'awards/mark-celebrated', requestOptions)
+    let response = await fetchWithRetry(playersUrl + 'awards/mark-celebrated', requestOptions)
 
     if (response.ok) return true
     else throw new Error('Failed to update award')
@@ -36,7 +37,7 @@ const playerAPI = {
   getPlayerAwards: async function (id) {
     const requestOptions = authAPI.getRequestOptions('GET');
     
-    let response = await fetch(playersUrl + id + '/awards', requestOptions)
+    let response = await fetchWithRetry(playersUrl + id + '/awards', requestOptions)
 
     if (response.ok) {
       const player = await response.json()
@@ -51,7 +52,7 @@ const playerAPI = {
   createAward: async function(playerId, award_type, title, description, icon) {
     const requestOptions = authAPI.getRequestOptions('POST', {award_type, title, description, icon})
 
-    let response = await fetch(playersUrl + playerId + '/award')
+    let response = await fetchWithRetry(playersUrl + playerId + '/award')
 
     if (response.ok) {
       return true
@@ -63,19 +64,19 @@ const playerAPI = {
   getLaddersForPlayer: async function(playerId) {
     const requestOptions = authAPI.getRequestOptions('GET')
 
-    let response = await fetch(playersUrl + playerId + '/ladders', requestOptions)
+    let response = await fetchWithRetry(playersUrl + playerId + '/ladders', requestOptions)
 
     if (response.ok) {
       const ladders = await response.json()
       return ladders
     }
     else
-      throw new Error('Something went wrong fetching player ladders')
+      throw new Error('Something went wrong fetchWithRetrying player ladders')
   },
 
   requestPasswordReset: async function (email) {
     const requestOptions = authAPI.getRequestOptions('POST', {email})
-    let response = await fetch(playersUrl+'password-reset/', requestOptions)
+    let response = await fetchWithRetry(playersUrl+'password-reset/', requestOptions)
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || 'Failed to send password reset email');
@@ -87,7 +88,7 @@ const playerAPI = {
   resetPassword: async function (token, password) {
     const requestOptions = authAPI.getRequestOptions('POST',{token, password});
   
-    const response = await fetch(playersUrl + 'password-reset/confirm/', requestOptions);
+    const response = await fetchWithRetry(playersUrl + 'password-reset/confirm/', requestOptions);
   
     if (!response.ok) {
       const error = await response.json();
@@ -99,7 +100,7 @@ const playerAPI = {
 
   getPlayerUTR: async function (id) {
     const requestOptions = authAPI.getRequestOptions('GET')
-    let response = await fetch(playersUrl + id + '/utr', requestOptions)
+    let response = await fetchWithRetry(playersUrl + id + '/utr', requestOptions)
 
     if (response.ok) {
       const utr = await response.json()
@@ -111,7 +112,7 @@ const playerAPI = {
 
   getPlayerByFilter: async function (username) {
     const requestOptions = authAPI.getRequestOptions('GET')
-    let response = await fetch(`${playersUrl}?filter=${username}&include-deleted=true`, requestOptions)
+    let response = await fetchWithRetry(`${playersUrl}?filter=${username}&include-deleted=true`, requestOptions)
 
     if (response.ok) {
       const data = await response.json()
@@ -132,7 +133,7 @@ const playerAPI = {
     const params = new URLSearchParams(filter) //helpers.parseFilter(filter)
     //console.log("params: ",params)
     const requestOptions = authAPI.getRequestOptions('GET')
-    const response = await fetch(playersUrl + '?' + params, requestOptions)//`${playersUrl}?filter=${filter}`, requestOptions)
+    const response = await fetchWithRetry(playersUrl + '?' + params, requestOptions)//`${playersUrl}?filter=${filter}`, requestOptions)
     if (response.ok) {
       const data = await response.json()
       return {success: response.ok, statusCode: response.statusCode, data: data}
@@ -144,7 +145,7 @@ const playerAPI = {
   // ids as an array, since you can search for doubles pairs
   getGreatestRivals: async function (ids, type) {
     const requestOptions = authAPI.getRequestOptions('GET')
-    const response = await fetch(`${playersUrl + ids[0]}/rivals`, requestOptions)
+    const response = await fetchWithRetry(`${playersUrl + ids[0]}/rivals`, requestOptions)
     if (response.ok) {
       let data = await response.json()
       //await data.rivals.forEach(r => this.setPlayerImage(r.player))
@@ -156,7 +157,7 @@ const playerAPI = {
 
   getPlayerH2H: async function (player1, player2) {
     const requestOptions = authAPI.getRequestOptions('GET')
-    const response = await fetch(`${playersUrl + player1.id}/h2h?player2=${player2.id}`, requestOptions)
+    const response = await fetchWithRetry(`${playersUrl + player1.id}/h2h?player2=${player2.id}`, requestOptions)
     if (response.ok) {
       let data = await response.json()
       return data
@@ -170,7 +171,7 @@ const playerAPI = {
   createPlayer: async function (player) {
     const requestOptions = authAPI.getRequestOptions('POST', player, true)
 
-    const response = await fetch(playersUrl + 'create', requestOptions)
+    const response = await fetchWithRetry(playersUrl + 'create', requestOptions)
     //console.log(response)
     const jsonResp = await response.json()
     if (response.ok)
@@ -183,7 +184,7 @@ const playerAPI = {
     const requestOptions = authAPI.getRequestOptions('POST', userData, true)
     // temp test solution
     //return {is_new_user: true, user_id: '123'}
-		const response = await fetch(playersUrl + 'google-user-check/', requestOptions)
+		const response = await fetchWithRetry(playersUrl + 'google-user-check/', requestOptions)
 		if (response.ok) {
 			const data = await response.json()
 			console.log(data)
@@ -197,7 +198,7 @@ const playerAPI = {
 		const requestOptions = authAPI.getRequestOptions('POST', userData, true)
     // temp test solution
     //return {is_new_user: true, user_id: '123'}
-		const response = await fetch(playersUrl + 'check-or-create/', requestOptions)
+		const response = await fetchWithRetry(playersUrl + 'check-or-create/', requestOptions)
 		if (response.ok) {
 			const data = await response.json()
 			console.log(data)
@@ -219,7 +220,7 @@ const playerAPI = {
       true
     )
     //console.log(requestOptions)
-    const response = await fetch(playersUrl + id + '/claim', requestOptions)
+    const response = await fetchWithRetry(playersUrl + id + '/claim', requestOptions)
 
     return { status: response.status, message: response.message }
   },
@@ -227,7 +228,7 @@ const playerAPI = {
   sendVerificationEmail: async function (id) {
     const requestOptions = authAPI.getRequestOptions('GET')
     
-    const response = await fetch(playersUrl + id + '/resend_verification', requestOptions)
+    const response = await fetchWithRetry(playersUrl + id + '/resend_verification', requestOptions)
     if (response.ok)
       return await response.json()
     else
@@ -238,7 +239,7 @@ const playerAPI = {
   updatePlayer: async function (player) {
     const requestOptions = authAPI.getRequestOptions('PATCH', player)
 
-    const response = await fetch(playersUrl + player.id + '/update', requestOptions)
+    const response = await fetchWithRetry(playersUrl + player.id + '/update', requestOptions)
     if (response.ok)
       return await response.json()
     else
@@ -248,7 +249,7 @@ const playerAPI = {
   updatePlayerImage: async function (playerId, image) {
     const requestOptions = authAPI.getRequestOptionsFormData('PATCH', image)
 
-    const response = await fetch(playersUrl + playerId + '/update/image', requestOptions)
+    const response = await fetchWithRetry(playersUrl + playerId + '/update/image', requestOptions)
     if (response.ok)
       return await response.json()
     else
@@ -258,7 +259,7 @@ const playerAPI = {
   initiateMerge: async function (playerId, mergeId) {
     const requestOptions = authAPI.getRequestOptions('POST', { merge_id: mergeId })
 
-    const response = await fetch(playersUrl + playerId + '/initiate_merge', requestOptions)
+    const response = await fetchWithRetry(playersUrl + playerId + '/initiate_merge', requestOptions)
     console.log(response)
     if (response.ok)
       return { statusCode: response.status }
@@ -268,7 +269,7 @@ const playerAPI = {
 
   findPotentialMergers: async function (playerId) {
     const requestOptions = authAPI.getRequestOptions('GET')
-    let response = await fetch(playersUrl + playerId, requestOptions)
+    let response = await fetchWithRetry(playersUrl + playerId, requestOptions)
     if (response.ok) {
       let data = await response.json()
       return data
@@ -283,7 +284,7 @@ const playerAPI = {
         merge_id: mergePlayerId,
         token: token
       })
-    let response = await fetch(playersUrl + mainPlayerId + '/merge', requestOptions)
+    let response = await fetchWithRetry(playersUrl + mainPlayerId + '/merge', requestOptions)
     console.log(response)
     if (response.ok) {
       let data = await response.json()

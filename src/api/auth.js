@@ -1,6 +1,7 @@
 import apiUrl from "config"
 import { playerAPI } from "./services"
 import { requestNotificationPermission } from "../firebase/requestNotificationPermission";
+import { fetchWithRetry } from './fetchWithRetry';
 
 const authUrl = apiUrl + 'rest-auth/'
 
@@ -16,7 +17,7 @@ const authAPI = {
 				'Authorization': 'Token ' + key
 			}
 		}
-		let response = await fetch(authUrl + 'user/', requestOptions)
+		let response = await fetchWithRetry(authUrl + 'user/', requestOptions, 3, 1000)
 		if (response.ok) {
 			const user = await response.json()
 			return user
@@ -39,13 +40,8 @@ const authAPI = {
 					lng: location.lng
 				} : null,
 			}
-			let response = await fetch(apiUrl + "register-user/", {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(body)
-			})
+			const requestOptions = this.getRequestOptions('POST', body)
+			let response = await fetchWithRetry(apiUrl + "register-user/", requestOptions)
 
 			if (response.ok) {
 				return //await this.login(username, password)
@@ -62,12 +58,8 @@ const authAPI = {
 	verifyEmail: async function (userid, key) {
 		try {
 			//const body = { key: key, userid: userid }
-			let response = await fetch(apiUrl + "confirm-user/" + userid + "/" + key, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			})
+			const requestOptions = this.getRequestOptions('GET')
+			let response = await fetchWithRetry(apiUrl + "confirm-user/" + userid + "/" + key, requestOptions)
 
 			if (response.ok) {
 				const data = await response.json()

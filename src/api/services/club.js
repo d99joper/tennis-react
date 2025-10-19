@@ -1,3 +1,4 @@
+import { fetchWithRetry } from "api/fetchWithRetry"
 import { authAPI } from "."
 import apiUrl from "config"
 
@@ -8,7 +9,7 @@ const clubAPI = {
   /* API calls */
   getClub: async function (id) {
     const requestOptions = authAPI.getRequestOptions('GET')
-    const response = await fetch(clubUrl + id, requestOptions)
+    const response = await fetchWithRetry(clubUrl + id, requestOptions)
     if (response.ok) {
       const data = await response.json()
       return {success: response.ok, statusCode: response.statusCode, data:data}
@@ -18,12 +19,12 @@ const clubAPI = {
   },
   getArchivedEvents: async function(clubId) {
     const requestOptions = authAPI.getRequestOptions('GET')
-    const response = await fetch(clubUrl + clubId + '/archived-events', requestOptions);
+    const response = await fetchWithRetry(clubUrl + clubId + '/archived-events', requestOptions);
     return await response.json();
   },
   getMembers: async function(clubId) {
     const requestOptions = authAPI.getRequestOptions('GET')
-    const response = await fetch(clubUrl + clubId + '/members', requestOptions);
+    const response = await fetchWithRetry(clubUrl + clubId + '/members', requestOptions);
     if (response.ok) {
       const data = await response.json()
       return {success: response.ok, statusCode: response.statusCode, data:data}
@@ -36,7 +37,7 @@ const clubAPI = {
     const requestOptions = authAPI.getRequestOptions('GET')
     const params = new URLSearchParams(filter)
     console.log(params)
-    const response = await fetch(`${clubUrl}?${params}`, requestOptions)
+    const response = await fetchWithRetry(`${clubUrl}?${params}`, requestOptions)
     if (response.ok) {
       const data = await response.json()
       return {success: response.ok, statusCode: response.statusCode, data:data}
@@ -47,7 +48,7 @@ const clubAPI = {
 
   createClub: async function(club) {
     const requestOptions = authAPI.getRequestOptions('POST', club)
-    const response = await fetch(clubUrl+'create', requestOptions)
+    const response = await fetchWithRetry(clubUrl+'create', requestOptions)
     if (response.ok) {
       return await response.json()
     }
@@ -57,7 +58,7 @@ const clubAPI = {
 
   updateClub: async function(clubId, club) {
     const requestOptions = authAPI.getRequestOptions('PUT', club)
-    const response = await fetch(clubUrl+clubId+'/update', requestOptions)
+    const response = await fetchWithRetry(clubUrl+clubId+'/update', requestOptions)
     if (response.ok) {
       const data = await response.json()
       return {success: response.ok, statusCode: response.statusCode, data: data}
@@ -68,7 +69,7 @@ const clubAPI = {
 
   addPlayer: async function(clubId, playerId) {
     const requestOptions = authAPI.getRequestOptions('POST')
-    const response = await fetch(`${clubUrl}add-player-to-club/${clubId}/${playerId}`, requestOptions)
+    const response = await fetchWithRetry(`${clubUrl}add-player-to-club/${clubId}/${playerId}`, requestOptions)
     if (response.ok) {
       return {success: response.ok, statusCode: response.statusCode, message: response.message}
     }
@@ -78,7 +79,7 @@ const clubAPI = {
 
   removePlayer: async function(clubId, playerId) {
     const requestOptions = authAPI.getRequestOptions('POST')
-    const response = await fetch(`${clubUrl}remove-player-from-club/${clubId}/${playerId}`, requestOptions)
+    const response = await fetchWithRetry(`${clubUrl}remove-player-from-club/${clubId}/${playerId}`, requestOptions)
     if (response.ok) {
       return {success: response.ok, statusCode: response.statusCode, message: response.message}
     }
@@ -88,7 +89,7 @@ const clubAPI = {
 
   addAdmin: async function(clubId, playerId) {
     const requestOptions = authAPI.getRequestOptions('POST')
-    const response = await fetch(`${clubUrl}add-admin-to-club/${clubId}/${playerId}`, requestOptions)
+    const response = await fetchWithRetry(`${clubUrl}add-admin-to-club/${clubId}/${playerId}`, requestOptions)
     if (response.ok) {
       return {success: response.ok, statusCode: response.statusCode, message: response.message}
     }

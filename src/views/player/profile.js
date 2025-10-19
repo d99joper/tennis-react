@@ -11,6 +11,7 @@ import { enums, helpers } from 'helpers'
 import { Helmet } from 'react-helmet-async'
 import { Matches, TopRivals, UserStats } from 'components/forms'
 import { BsHouse } from 'react-icons/bs'
+import SeoHelmet from 'components/seoHelmet'
 
 const Profile = () => {
   const { userid } = useParams()
@@ -141,6 +142,11 @@ const Profile = () => {
       <Helmet>
         <title>{player?.name} | MyTennis Space</title>
       </Helmet>
+      <SeoHelmet
+        title={`${player?.name} | My Tennis Space`}
+        description={player?.bio || `View the profile of ${player?.name} on My Tennis Space.`}
+        url={`https://mytennis.space/player/${player?.id}`}
+      />
       <Box sx={{ width: '100%', maxWidth: 900 }}>
         <ProfileHeader
           player={player}

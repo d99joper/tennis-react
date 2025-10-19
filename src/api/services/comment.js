@@ -1,3 +1,4 @@
+import { fetchWithRetry } from "api/fetchWithRetry"
 import { authAPI } from "."
 import apiUrl from "config"
 
@@ -15,6 +16,13 @@ const commentsAPI = {
         break;
       case 'court':
         urlPart += 'court-id='
+        break;
+      case 'club':
+        urlPart += 'club-id='
+        break;
+      case 'event':
+        urlPart += 'event-id='
+        break;
       default:
         break;
     }
@@ -23,7 +31,7 @@ const commentsAPI = {
       + (page ? '&page=' + page : '')
       + (numPerPage ? '&num-per-page=' + numPerPage : '')
 
-    let response = await fetch(url, requestOptions)
+    let response = await fetchWithRetry(url, requestOptions)
 
     if (response.ok)
       return await response.json()
@@ -35,7 +43,7 @@ const commentsAPI = {
     console.log('create comment')
     const requestOptions = authAPI.getRequestOptions('POST', comment)
     
-    const response = await fetch(commentsUrl + 'create', requestOptions)
+    const response = await fetchWithRetry(commentsUrl + 'create', requestOptions)
     if (response.ok)
       return await response.json()
     else
@@ -46,7 +54,7 @@ const commentsAPI = {
     console.log('delete comment')
     const requestOptions = authAPI.getRequestOptions('POST')
     
-    const response = await fetch(commentsUrl + id + '/delete', requestOptions)
+    const response = await fetchWithRetry(commentsUrl + id + '/delete', requestOptions)
 
   }
 }

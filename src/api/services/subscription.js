@@ -1,12 +1,13 @@
 import apiUrl from "config"
 import { authAPI } from "."
+import { fetchWithRetry } from "api/fetchWithRetry"
 
 const subscriptionsUrl = apiUrl + 'subscriptions/'
 
 const subscriptionAPI = {
   getSubscription: async function (id) {
     const requestOptions = authAPI.getRequestOptions('GET')
-    let response = await fetch(subscriptionsUrl + id, requestOptions)
+    let response = await fetchWithRetry(subscriptionsUrl + id, requestOptions)
 
     if (response.ok) {
       const data = await response.json()
@@ -19,7 +20,7 @@ const subscriptionAPI = {
   getSubscriptions: async function() {
     
     const requestOptions = authAPI.getRequestOptions('GET')
-    let response = await fetch(subscriptionsUrl, requestOptions)
+    let response = await fetchWithRetry(subscriptionsUrl, requestOptions)
     
     if (response.ok) {
       return await response.json()
@@ -31,7 +32,7 @@ const subscriptionAPI = {
   getPlayerSubscription: async function() {
     const requestOptions = authAPI.getRequestOptions('GET')
 
-    const response = await fetch(subscriptionsUrl + 'get-for-player', requestOptions)
+    const response = await fetchWithRetry(subscriptionsUrl + 'get-for-player', requestOptions)
     if (response.ok)
       return await response.json()
     else

@@ -1,6 +1,7 @@
 import { helpers } from "helpers"
 import { authAPI } from "."
 import apiUrl from "config"
+import { fetchWithRetry } from "api/fetchWithRetry"
 
 const laddersUrl = apiUrl+'ladders/'
 
@@ -9,7 +10,7 @@ const ladderAPI = {
   /* API calls */
   getLadder: async function (id) {
     const requestOptions = authAPI.getRequestOptions('GET')
-    const response = await fetch(laddersUrl + id, requestOptions)
+    const response = await fetchWithRetry(laddersUrl + id, requestOptions)
     if (response.ok)
       return await response.json()
     else
@@ -23,7 +24,7 @@ const ladderAPI = {
     //console.log(url.search)
     const requestOptions = authAPI.getRequestOptions('GET')
     //const queryString = helpers.parseFilter(filter)
-    const response = await fetch(url, requestOptions)//(laddersUrl + queryString, requestOptions)
+    const response = await fetchWithRetry(url, requestOptions)//(laddersUrl + queryString, requestOptions)
     if (response.ok)
       return await response.json()
     else
@@ -33,7 +34,7 @@ const ladderAPI = {
   createLadder: async function (ladder) {
     const requestOptions = authAPI.getRequestOptions('POST', ladder)
 
-    const response = await fetch(laddersUrl + 'create', requestOptions)
+    const response = await fetchWithRetry(laddersUrl + 'create', requestOptions)
     if (response.ok)
       return await response.json()
     else
@@ -44,7 +45,7 @@ const ladderAPI = {
   updateLadder: async function (ladder) {
     const requestOptions = authAPI.getRequestOptions('PATCH', ladder)
 
-    const response = await fetch(laddersUrl + 'update', requestOptions)
+    const response = await fetchWithRetry(laddersUrl + 'update', requestOptions)
     if (response.ok)
       return await response.json()
     else
@@ -54,7 +55,7 @@ const ladderAPI = {
   addPlayerToLadder: async function (playerId, ladderId) {
     const requestOptions = authAPI.getRequestOptions('POST', { player_id: playerId })
 
-    const response = await fetch(laddersUrl + ladderId + '/add-player', requestOptions)
+    const response = await fetchWithRetry(laddersUrl + ladderId + '/add-player', requestOptions)
     if (response.ok)
       return await response.json()
     else

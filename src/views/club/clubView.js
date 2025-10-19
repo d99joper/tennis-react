@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Typography, Button, Tabs, Tab, Switch, Snackbar, Pagination, TextField, IconButton, capitalize, Autocomplete, Chip, DialogContent, Select, MenuItem, LinearProgress } from '@mui/material';
+import { Box, Typography, Button, Tabs, Tab, Switch, Snackbar, Pagination, TextField, IconButton, capitalize, Autocomplete, Chip, DialogContent, Select, MenuItem, LinearProgress, List, ListItem, ListItemAvatar, ListItemText, Stack } from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
 import clubAPI from 'api/services/club';
 import ResponsiveDataLayout from 'components/layout/Data/responsiveDataLayout';
@@ -17,6 +17,7 @@ import { Helmet } from 'react-helmet-async';
 import { eventAPI } from 'api/services';
 import { helpers } from 'helpers';
 import DOMPurify from "dompurify";
+import MemberList from 'components/forms/MemberList';
 
 const ClubViewPage = () => {
   const { clubId } = useParams();
@@ -103,13 +104,13 @@ const ClubViewPage = () => {
   const fetchMembers = async () => {
     setIsFetching(true);
     try {
-    const response = await clubAPI.getMembers(club.id,);
-    setMembers(response.data.members);
-    const selectedAdmins = response.data.members.filter(member => club.admins.includes(member.id));
-    //console.log(selectedAdmins);
-    setAdmins(selectedAdmins);
+      const response = await clubAPI.getMembers(club.id,);
+      setMembers(response.data.members);
+      const selectedAdmins = response.data.members.filter(member => club.admins.includes(member.id));
+      //console.log(selectedAdmins);
+      setAdmins(selectedAdmins);
     }
-    catch(e) {
+    catch (e) {
       console.log(e)
     }
     finally {
@@ -477,52 +478,27 @@ const ClubViewPage = () => {
 
           )}
           {activeTab === 1 && (
-            <>
+            <Box sx={{ mt: 2 }}>
               {isFetching && <LinearProgress />}
-              {members.map((p) => (
-                <Box sx={{ display: "flex", mt: 1, alignItems: "center", gap: 1 }} key={'member_' + p.id}>
-                  <Link to={'/players/' + p.slug} >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <ProfileImage player={p} size={30} />
-                      <Typography>{p.name}</Typography>
-                    </Box>
-                  </Link>
-                  {club.admins.includes(p.id) && (
-                    <Typography component="span" sx={{ ml: 0, fontSize: 12, color: "primary.main", fontWeight: "bold" }}>
-                      (Admin)
-                    </Typography>
-                  )}
-                  {user?.id === p.id && (
-                    <Typography
-                      component="span"
-                      sx={{ ml: 0, fontSize: 12, color: "secondary.main" }}
-                      onClick={() => {
-                        console.log('clicked to leave')
-                        if (isAdmin && admins.length < 2) {
-                          setSnackbar({ open: true, message: `You can't leave without assigning at least one admin to the club` });
-                          return;
-                        }
-                        setMemberToRemove(p);
-                        setShowModal(true);
-                      }}
-                      style={{ cursor: "pointer" }}>
-                      <GiExitDoor size={20} />Leave club
-                    </Typography>
-                  )}
-                  {isAdmin && !club.admins.includes(p.id) && ( // Show delete icon only for non-admins
-                    <MdDelete
-                      size={20}
-                      color="red"
-                      style={{ cursor: "pointer" }}
-                      onClick={() => {
-                        setMemberToRemove(p);
-                        setShowModal(true);
-                      }}
-                    />
-                  )}
-                </Box>
-              ))}
-            </>
+              <MemberList
+                members={members}
+                currentUserId={user?.id}
+                admins={club.admins}
+                showRemoveButton={isAdmin}
+                onLeave={(member) => {
+                  if (isAdmin && admins.length < 2) {
+                    setSnackbar({ open: true, message: `You can't leave without assigning at least one admin to the club` });
+                    return;
+                  }
+                  setMemberToRemove(member);
+                  setShowModal(true);
+                }}
+                onRemove={(member) => {
+                  setMemberToRemove(member);
+                  setShowModal(true);
+                }}
+              />
+            </Box>
           )}
           <MyModal showHide={showModal}
             onClose={() => {

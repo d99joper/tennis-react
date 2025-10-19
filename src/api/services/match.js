@@ -1,3 +1,4 @@
+import { fetchWithRetry } from "api/fetchWithRetry"
 import { authAPI } from "."
 import apiUrl from "config"
 
@@ -7,7 +8,7 @@ const matchAPI = {
 
   getMatch: async function (id) {
     const requestOptions = authAPI.getRequestOptions('GET')
-    let response = await fetch(matchesUrl + id, requestOptions)
+    let response = await fetchWithRetry(matchesUrl + id, requestOptions)
 
     if (response.ok) {
       return await response.json()
@@ -21,7 +22,7 @@ const matchAPI = {
     const requestOptions = authAPI.getRequestOptions('GET')
     const params = new URLSearchParams({ page: page, 'page-size': pageSize, skip: skip, ...(filter ? filter : {}) })
 
-    let response = await fetch(`${matchesUrl}?${params}`, requestOptions)
+    let response = await fetchWithRetry(`${matchesUrl}?${params}`, requestOptions)
 
     if (response.ok)
       return await response.json()
@@ -32,7 +33,7 @@ const matchAPI = {
   createMatchesFromArray: async function(matches) {
     const requestOptions = authAPI.getRequestOptions('POST', matches)
 
-    let response = await fetch(matchesUrl + 'import/bulk', requestOptions)
+    let response = await fetchWithRetry(matchesUrl + 'import/bulk', requestOptions)
     
     if (response.ok) {
       return response
@@ -42,7 +43,7 @@ const matchAPI = {
 
   importFromUTR: async function (utr_id) {
     const requestOptions = authAPI.getRequestOptions('GET')
-    let response = await fetch(matchesUrl + 'import/utr/' + utr_id, requestOptions)
+    let response = await fetchWithRetry(matchesUrl + 'import/utr/' + utr_id, requestOptions)
 
     if (response.ok) {
       const response = await response.json()
@@ -60,7 +61,7 @@ const matchAPI = {
       + (page ? '&page=' + page : '')
       + (numPerPage ? '&num-per-page=' + numPerPage : '')
 
-    let response = await fetch(url, requestOptions)
+    let response = await fetchWithRetry(url, requestOptions)
 
     if (response.ok)
       return await response.json()
@@ -77,7 +78,7 @@ const matchAPI = {
       //+ (sortDirection ? '&sort=' + sortDirection : '')
       + (sortOrder ? '&sort=' + sortOrder : '')
 
-    let response = await fetch(url, requestOptions)
+    let response = await fetchWithRetry(url, requestOptions)
 
     if (response.ok)
       return await response.json()
@@ -93,7 +94,7 @@ const matchAPI = {
       + (page ? '&page=' + page : '')
       + (numPerPage ? '&num-per-page=' + numPerPage : '')
 
-    let response = await fetch(matchesUrl + '?ladder=' + ladderId, requestOptions)
+    let response = await fetchWithRetry(matchesUrl + '?ladder=' + ladderId, requestOptions)
 
     if (response.ok)
       return await response.json()
@@ -104,7 +105,7 @@ const matchAPI = {
   createMatch: async function (match) {
     const requestOptions = authAPI.getRequestOptions('POST', match)
 
-    const response = await fetch(matchesUrl + 'create', requestOptions)
+    const response = await fetchWithRetry(matchesUrl + 'create', requestOptions)
     if (response.ok)
       return await response.json()
     else
@@ -114,7 +115,7 @@ const matchAPI = {
   updateMatch: async function (match) {
     const requestOptions = authAPI.getRequestOptions('PATCH', match)
 
-    const response = await fetch(matchesUrl + 'update', requestOptions)
+    const response = await fetchWithRetry(matchesUrl + 'update', requestOptions)
     if (response.ok)
       return await response.json()
     else
