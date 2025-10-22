@@ -9,17 +9,16 @@ import {
   Snackbar,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import MyModal from 'components/layout/MyModal';
-import { MatchEditor, Matches, ProfileImage } from 'components/forms';
+import { Matches, ProfileImage } from 'components/forms';
 import LeagueScheduler from '../../components/forms/League/leagueScheduler';
-import { authAPI, eventAPI, leagueAPI } from 'api/services';
+import { eventAPI, leagueAPI } from 'api/services';
 import AddParticipants from 'components/forms/League/addParticipants';
 import ScheduleView from './schedule_view';
 import { GiPencil } from 'react-icons/gi';
 import { MdClose } from 'react-icons/md';
 import StandingsView from './standings_view';
-import JoinRequest from 'components/forms/Notifications/joinRequests';
 import EventAdminTools from 'components/forms/Event/adminTools';
 import { eventHelper } from 'helpers';
 
@@ -30,7 +29,7 @@ const LeagueViewPage = (props) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedParticipant, setSelectedParticipant] = useState(null);
   const [event, setEvent] = useState(props.event || null);
-  const [division, setDivision] = useState(props.division || null);
+  const division = props.division; // Use props directly to avoid state issues
   console.log("LeagueView division prop:", props.division);
   // Use division data if available, otherwise fall back to event data
   const [standings, setStandings] = useState(
@@ -39,7 +38,6 @@ const LeagueViewPage = (props) => {
   const [schedule, setSchedule] = useState(
     props.division?.content_object?.schedule || props.event?.league_schedule || []
   );
-  const [matches, setMatches] = useState(props.event?.matches || []);
   const [editSchedule, setEditSchedule] = useState(false);
   const [isParticipant, setIsParticipant] = useState(props.event?.is_participant || false)
   const [isAdmin, setIsAdmin] = useState(props.event?.is_admin || false)
@@ -62,7 +60,6 @@ const LeagueViewPage = (props) => {
             setSchedule(event.league_schedule || []);
           }
           
-          setMatches(event.matches || []);
           setIsAdmin(event.is_admin);
           setIsParticipant(event.is_participant);
         } else {
@@ -77,7 +74,8 @@ const LeagueViewPage = (props) => {
     if (!event) {
       fetchLeague();
     }
-  }, [id, props.event, props.division]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]); // Only depend on id - props.event and props.division cause infinite loops
 
   // Add useEffect to handle division changes
   useEffect(() => {
@@ -85,17 +83,14 @@ const LeagueViewPage = (props) => {
       console.log("Division changed in LeagueView, updating standings/schedule:", props.division);
       setStandings(props.division.content_object.standings || []);
       setSchedule(props.division.content_object.schedule || []);
-    } else if (props.event) {
-      // Fall back to event-level data
+    } else if (props.event && !props.division) {
+      // Fall back to event-level data only if no division
       setStandings(props.event.league_standings || []);
       setSchedule(props.event.league_schedule || []);
     }
-  }, [props.division, props.event?.league_standings, props.event?.league_schedule]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.division?.id, props.event?.id]); // Use IDs instead of full objects to prevent infinite loops
 
-
-  const handleMatchEditorSubmit = (newMatch) => {
-    console.log(newMatch);
-  }
 
   const handleAddDeleteParticipant = async () => {
     const e = await eventHelper.refreshEvent(id);
@@ -212,9 +207,9 @@ const LeagueViewPage = (props) => {
           <Matches
             originType={'event'}
             originId={event.id}
-            initialMatches={event.matches}
+            //initialMatches={event.matches}
             divisions={event.divisions}
-            showFilterByDivision={event.divisions && event.divisions.length > 0} 
+            //showFilterByDivision={event.divisions && event.divisions.length > 0} 
             pageSize={10}
             showComments={true}
             showH2H={true}

@@ -4,20 +4,20 @@ current:
         [ ] Calculate winner and lock matches
             [ ] Nightly process that checks last match date
             [ ] Manual button press 
-    [ ] Add SEO Helmet on most pages
-    [ ] Tournaments
-        [ ] View
+    [*] Add SEO Helmet on most pages
+    [*] Tournaments
+        [x] View
         [ ] Create
-            [ ] Add players
-            [ ] Create bracket
+            [x] Add players
+            [x] Create bracket
             [ ] Set dates
-    [ ] Add tournament style playoff to a league   
-        [ ] Tab to display on league page
-        [ ] Admin settings for 
-            [ ] picking players
-            [ ] Generating / editing bracket
-    [ ] League schedule, only add minimal data for players (id and name to save space)
-        [ ] Same with admins
+    [x] Add tournament style playoff to a league   
+        [x] Tab to display on league page
+        [x] Admin settings for 
+            [x] picking players
+            [x] Generating / editing bracket
+    [x] League schedule, only add minimal data for players (id and name to save space)
+        [x] Same with admins
     [ ] FAQ 
         [ ] Explain Subscriptions
         [ ] Ladders

@@ -19,7 +19,7 @@ const MatchFilters = ({
   if (!showFilterByPlayer && !showFilterByDivision) {
     return null;
   }
-  console.log('MatchFilter', fromProfileId)
+  console.log('MatchFilter', fromProfileId, selectedDivisionId, originType, originId);
   return (
     <Box sx={{ 
       display: 'flex', 

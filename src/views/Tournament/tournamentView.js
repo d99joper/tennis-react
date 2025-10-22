@@ -197,7 +197,8 @@ const TournamentViewPage = ({ event: initialEvent,
           <Matches
             originType={'event'}
             originId={event.id}
-            initialMatches={event.matches}
+            divisions={event.divisions}
+            //initialMatches={event.matches}
             pageSize={10}
             showComments={true}
             showH2H={true}

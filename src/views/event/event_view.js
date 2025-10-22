@@ -38,10 +38,10 @@ const EventView = () => {
       setEvent(event);
       console.log("Event data:", event);
       
-      // Fetch participants once at the top level
+      // Fetch participants once at the top level with division information
       if (event.id) {
         try {
-          const res = await eventAPI.getParticipants(event.id, null, 0);
+          const res = await eventAPI.getParticipants(event.id, {include_divisions: true}, 0);
           setParticipants(res.data || []);
         } catch (err) {
           console.error('Error fetching participants:', err);
@@ -87,7 +87,8 @@ const EventView = () => {
         }));
       }
     }
-  }, [event, division_num, event?.divisions]); // This only updates division selection, not the entire event
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [event?.id, division_num]); // Only depend on event ID and division_num to prevent infinite loops
 
   const refreshEvent = (updatedEvent) => {
     console.log('EventView received updated event:', updatedEvent);
@@ -110,9 +111,9 @@ const EventView = () => {
         setSelectedDivision(updatedEvent.divisions[0]);
       }
       
-      // Refresh participants when event is refreshed
+      // Refresh participants when event is refreshed with division information
       if (updatedEvent.id) {
-        eventAPI.getParticipants(updatedEvent.id, null, 0)
+        eventAPI.getParticipants(updatedEvent.id, {include_divisions: true}, 0)
           .then(res => setParticipants(res.data || []))
           .catch(err => console.error('Error refreshing participants:', err));
       }

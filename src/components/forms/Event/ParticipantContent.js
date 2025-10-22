@@ -12,20 +12,13 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
   const [lastEventUpdate, setLastEventUpdate] = useState(null);
   const [lastParticipantCount, setLastParticipantCount] = useState(null);
   const [hasLoaded, setHasLoaded] = useState(!!propParticipants);
+  const [lastIncludeDivisions, setLastIncludeDivisions] = useState(includeDivisions);
   //const [participantDivisions, setParticipantDivisions] = useState({}); 
   const [selectedDivisionForAssignment, setSelectedDivisionForAssignment] = useState('');
   const [selectedParticipants, setSelectedParticipants] = useState([]);
   const [assigning, setAssigning] = useState(false);
 
   useEffect(() => {
-    // If participants are provided as props, use them
-    if (propParticipants) {
-      setParticipants(propParticipants);
-      setHasLoaded(true);
-      setLoading(false);
-      return;
-    }
-
     const fetchParticipants = async () => {
       try {
         // Only show main loading on first load, use updating for subsequent fetches
@@ -57,6 +50,7 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
         
         setLastEventUpdate(event.updated_on || event.id);
         setLastParticipantCount(event.count_participants);
+        setLastIncludeDivisions(includeDivisions);
         setHasLoaded(true);
       } catch (error) {
         console.error('Failed to fetch participants:', error);
@@ -70,15 +64,36 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
       }
     };
 
-    // Only fetch if we haven't loaded yet, or if the event has been updated, or if participant count changed
+    // Check if we need to fetch participants
+    // Don't fetch if we have propParticipants and they already have division data (when includeDivisions is true)
+    const hasValidPropParticipants = propParticipants && 
+      (!includeDivisions || (propParticipants.length > 0 && propParticipants[0]?.divisions !== undefined));
+    console.log('ParticipantContent useEffect:', {
+      includeDivisions,
+      hasPropParticipants: !!propParticipants,
+      propParticipantsCount: propParticipants?.length,
+      firstParticipantHasDivisions: propParticipants?.[0]?.divisions !== undefined,
+      hasValidPropParticipants
+    });
+    if (hasValidPropParticipants) {
+      // Use the prop participants if they're valid
+      setParticipants(propParticipants);
+      setHasLoaded(true);
+      setLoading(false);
+      setLastIncludeDivisions(includeDivisions);
+      return;
+    }
+
+    // Only fetch if we haven't loaded yet, or if the event has been updated, or if participant count changed, or if includeDivisions changed
     const shouldFetch = !hasLoaded || 
                        lastEventUpdate !== (event.updated_on || event.id) ||
-                       lastParticipantCount !== event.count_participants;
+                       lastParticipantCount !== event.count_participants ||
+                       lastIncludeDivisions !== includeDivisions;
 
     if (shouldFetch) {
       fetchParticipants();
     }
-  }, [event.id, event.updated_on, event.count_participants, event.divisions, hasLoaded, lastEventUpdate, lastParticipantCount, propParticipants, includeDivisions]);
+  }, [event.id, event.updated_on, event.count_participants, event.divisions, hasLoaded, lastEventUpdate, lastParticipantCount, lastIncludeDivisions, propParticipants, includeDivisions]);
 
   // Auto-select participants who are already in the selected division
   useEffect(() => {
