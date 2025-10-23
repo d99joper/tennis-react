@@ -23,7 +23,7 @@ const courtAPI = {
     const params = new URLSearchParams(filter) 
     
     const requestOptions = authAPI.getRequestOptions('GET')
-    const response = await fetchWithRetry(url + '?' + params, requestOptions,requestOptions)
+    const response = await fetchWithRetry(url + '?' + params, requestOptions)
     
     if (response.ok) {
       const data = await response.json()
