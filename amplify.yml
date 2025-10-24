@@ -13,11 +13,14 @@ frontend:
         - |
           echo "Selecting environment-specific robots.txt for branch: $AWS_BRANCH"
           if [ "$AWS_BRANCH" = "master" ]; then
-            echo "Using production robots.txt"
-            cp public/robots.txt public/robots.txt
+            echo "Using production robots.txt (no-op)"
           else
-            echo "Using staging robots.txt"
-            cp public/robots.staging.txt public/robots.txt || echo "robots.staging.txt not found; keeping production robots.txt"
+            if [ -f public/robots.staging.txt ]; then
+              cp -f public/robots.staging.txt public/robots.txt
+              echo "Using staging robots.txt"
+            else
+              echo "robots.staging.txt not found; leaving production robots.txt"
+            fi
           fi
     build:
       commands:
