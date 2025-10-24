@@ -4,13 +4,12 @@ import {
   Pagination,
   CircularProgress,
   Typography,
-  useMediaQuery,
   Badge,
   Button,
 } from '@mui/material';
 import { authAPI, matchAPI } from 'api/services';
 import ResponsiveDataLayout from 'components/layout/Data/responsiveDataLayout';
-import { enums, userHelper as uh, userHelper } from 'helpers';
+import { enums, userHelper as uh } from 'helpers';
 import { GiCrossedSwords, GiTennisCourt } from 'react-icons/gi';
 import { GoCommentDiscussion } from 'react-icons/go';
 import InfoPopup from '../infoPopup';
@@ -18,13 +17,11 @@ import { useTheme } from '@emotion/react';
 import MyModal from 'components/layout/MyModal';
 import H2H from '../H2H/H2H';
 import { Comments } from '../Comments/Comments';
-import PlayerSearch from '../Player/playerSearch';
-import GetParticipants from '../Event/getParticipants';
 import MatchEditor from '../MatchEditor/MatchEditor';
 import useComponentWidth from 'helpers/useComponentWidth';
 import { ProfileImage } from '../ProfileImage';
 import MatchFilters from './MatchFilters';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
 const Matches = ({
   originType,

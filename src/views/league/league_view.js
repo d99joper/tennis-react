@@ -108,14 +108,15 @@ const LeagueViewPage = (props) => {
     setSelectedParticipant(null);
   };
 
-  const handleScoreReported = async () => {
-    // not implemented
+  const handleScoreReported = async (new_schedule) => {
+    console.log('Score reported, refreshing standings and schedule', new_schedule);
     const leagueId = division ? division.content_object?.id : event.league_id;
     const data = await leagueAPI.getStandings(leagueId);
     console.log(data);
     if (data?.standings) {
       console.log('update standings')
       setStandings(data.standings)
+      setSchedule(new_schedule)
     }
   }
 
@@ -178,7 +179,7 @@ const LeagueViewPage = (props) => {
                 setEvent((prev) => ({ ...prev, league_schedule: newSchedule }));
               }}
             />
-            : <ScheduleView event={event} division={division} schedule={schedule} onScoreReported={handleScoreReported} />
+            : <ScheduleView event={event} division={division} schedule={schedule} onScoreReported={(new_match, new_schedule) => handleScoreReported(new_schedule)} />
           }
 
         </Box>

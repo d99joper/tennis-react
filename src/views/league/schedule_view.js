@@ -21,16 +21,16 @@ const ScheduleView = ({ event, division, schedule: initialSchedule, onScoreRepor
   const handleMatchEditorSubmit = (updatedMatch) => {
     setEditingMatch(null);
     const schedule_match = updatedMatch?.schedule_match;
+    let new_schedule;
     if (schedule_match) {
-      setSchedule((prevSchedule) =>
-        prevSchedule.map((match) =>
-          match.id === schedule_match.id ? { ...match, ...schedule_match } : match
-        )
+      new_schedule = schedule.map((match) =>
+        match.id === schedule_match.id ? { ...match, ...schedule_match } : match
       );
+      setSchedule(new_schedule);
     }
     if (onScoreReported) {
       // report back to parent
-      onScoreReported(updatedMatch);
+      onScoreReported(updatedMatch, new_schedule);
     }
   };
 
