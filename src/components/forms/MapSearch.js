@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Box, TextField, Button, Slider, Typography, List, ListItem, ListItemText, CircularProgress, FormControlLabel, Checkbox, useMediaQuery, Grid2 as Grid } from "@mui/material";
-import { AutoCompletePlaces, ProfileImage } from "components/forms";
+import { AutoCompletePlaces } from "components/forms";
 import useGoogleMapsApi from "helpers/useGoogleMapsApi";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { AuthContext } from "contexts/AuthContext";
@@ -42,7 +42,7 @@ const MapSearch = ({
   const zoom = 11;
 
   // Use custom width hook
-  const [containerRef, containerWidth] = useComponentWidth();
+  const [containerRef] = useComponentWidth();
 
   // Media query for responsiveness
   const isSmallScreen = useMediaQuery("(max-width: 600px)");
@@ -90,7 +90,7 @@ const MapSearch = ({
       setMap(newMap);
       setInfoWindow(new mapsApi.InfoWindow());
     }
-  }, [mapsApi, initialCity]);
+  }, [mapsApi, initialCity, map]);
 
   const updateSearch = async () => {
     if (requireLocation && !location) {
@@ -144,11 +144,24 @@ const MapSearch = ({
       return parseFloat(Number(coord).toFixed(precision));
     };
     const groupedLocations = {};
+    console.log(items[1]);
     items.forEach(item => {
-      const lat = roundCoord(parseFloat(item.lat || item?.city?.lat), 4);
-      const lng = roundCoord(parseFloat(item.lng || item?.city?.lng), 4);
-      //console.log(lat, lng)
-      if (!lat || !lng) return;
+      const latValue = item.lat || item?.city?.lat;
+      const lngValue = item.lng || item?.city?.lng;
+      
+      if (!latValue || !lngValue) {
+        console.log('Skipping item with missing coordinates:', item);
+        return;
+      }
+      
+      const lat = roundCoord(parseFloat(latValue), 4);
+      const lng = roundCoord(parseFloat(lngValue), 4);
+      
+      if (isNaN(lat) || isNaN(lng)) {
+        console.log('Skipping item with invalid coordinates:', item, lat, lng);
+        return;
+      }
+      
       const key = `${lat},${lng}`;
       if (!groupedLocations[key]) groupedLocations[key] = [];
       groupedLocations[key].push(item);
