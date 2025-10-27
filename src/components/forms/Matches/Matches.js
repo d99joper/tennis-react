@@ -126,7 +126,7 @@ const Matches = ({
         setLoading(false);
       }
     },
-    [originType, originId, pageSize, refresh, selectedPlayers, selectedDivisionId]
+    [originType, originId, pageSize, selectedPlayers, selectedDivisionId, matchType]
   );
 
   // Effect to handle cache clearing when originId changes

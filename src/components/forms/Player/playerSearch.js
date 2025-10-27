@@ -24,29 +24,29 @@ const PlayerSearch = ({
   const [newPlayerName, setNewPlayerName] = useState('');
   const debounceRef = useRef(null);
 
-  // Fetch players dynamically
-  const fetchPlayers = async (strName = '') => {
-    setLoading(true);
-    try {
-      const filter = helpers.hasValue(strName) ? { 'name': strName } : {};
-      // if this comes from a profile id, add that as a origin_player_id for the filter
-      console.log('fromProfileId', fromProfileId)
-      if (fromProfileId) filter['origin-player-id'] = fromProfileId;
-      const response = await playerAPI.getPlayers(filter);
-      setPlayers(response.data.players);
-    } catch (error) {
-      console.error('Failed to fetch players:', error);
-    }
-    setLoading(false);
-  };
-
+  
   // Set up debounce
   useEffect(() => {
+    // Fetch players dynamically
+    const fetchPlayers = async (strName = '') => {
+      setLoading(true);
+      try {
+        const filter = helpers.hasValue(strName) ? { 'name': strName } : {};
+        // if this comes from a profile id, add that as a origin_player_id for the filter
+        //console.log('fromProfileId', fromProfileId)
+        if (fromProfileId) filter['origin-player-id'] = fromProfileId;
+        const response = await playerAPI.getPlayers(filter);
+        setPlayers(response.data.players);
+      } catch (error) {
+        console.error('Failed to fetch players:', error);
+      }
+      setLoading(false);
+    };
     if (!debounceRef.current) {
       debounceRef.current = debounce(fetchPlayers, 300);
     }
     debounceRef.current(searchTerm);
-  }, [searchTerm]);
+  }, [searchTerm, fromProfileId]);
 
   const handleCreatePlayer = async () => {
     try {
