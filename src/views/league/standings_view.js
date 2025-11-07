@@ -16,7 +16,7 @@ import { AuthContext } from "contexts/AuthContext";
 import Conversation from "components/forms/Conversations/conversations";
 import ConverstationButton from "components/forms/Conversations/ConversationButton";
 
-const StandingsView = ({ standings, winner, event_id, isAdmin = false, isParticipant = false, callback }) => {
+const StandingsView = ({ standings, winner, event_id, division_id, isAdmin = false, isParticipant = false, callback }) => {
   const [participantToRemove, setParticipantToRemove] = useState()
   const [showModal, setShowModal] = useState(false)
   const [loading, setLoading] = useState([])
@@ -36,7 +36,13 @@ const StandingsView = ({ standings, winner, event_id, isAdmin = false, isPartici
   }
 
   const handleRemoveParticipant = async () => {
-    await eventAPI.removeParticipant(event_id, participantToRemove.id)
+    if (division_id) {
+      // remove from division
+      await eventAPI.removeParticipantFromDivision(division_id, participantToRemove.id)
+    } else {
+      // remove from event
+      await eventAPI.removeParticipant(event_id, participantToRemove.id)
+    }
     setShowModal(false)
     setLoading(prev => {
       const newLoading = [...prev]

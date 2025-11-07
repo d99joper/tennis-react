@@ -42,14 +42,12 @@ const CreateLeague = ({ club, admins, onSuccess }) => {
           if (results)
             setUserClubs(results.data.clubs);
         }
-      }
-
-      catch (error) {
+      } catch (error) {
         console.error('Failed to fetch user clubs:', error);
       };
     }
     fetchUserClubs();
-  }, []);
+  }, [club, user.id]);
 
   const updateFormState = (key, value) => {
     if (key.startsWith('content_object.')) {

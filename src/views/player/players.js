@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React from "react";
 import { playerAPI } from "api/services";
 import MapSearch from "components/forms/MapSearch";
 import { ProfileImage } from "components/forms";

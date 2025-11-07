@@ -30,7 +30,7 @@ const LeagueViewPage = (props) => {
   const [selectedParticipant, setSelectedParticipant] = useState(null);
   const [event, setEvent] = useState(props.event || null);
   const division = props.division; // Use props directly to avoid state issues
-  console.log("LeagueView division prop:", props.division);
+  //console.log("LeagueView division prop:", props.division);
   // Use division data if available, otherwise fall back to event data
   const [standings, setStandings] = useState(
     props.division?.content_object?.standings || props.event?.league_standings || []
@@ -38,6 +38,7 @@ const LeagueViewPage = (props) => {
   const [schedule, setSchedule] = useState(
     props.division?.content_object?.schedule || props.event?.league_schedule || []
   );
+  const winner = props.division?.content_object?.winner || props.event?.winner || null;
   const [editSchedule, setEditSchedule] = useState(false);
   const [isParticipant, setIsParticipant] = useState(props.event?.is_participant || false)
   const [isAdmin, setIsAdmin] = useState(props.event?.is_admin || false)
@@ -80,7 +81,7 @@ const LeagueViewPage = (props) => {
   // Add useEffect to handle division changes
   useEffect(() => {
     if (props.division && props.division.content_object) {
-      console.log("Division changed in LeagueView, updating standings/schedule:", props.division);
+      //console.log("Division changed in LeagueView, updating standings/schedule:", props.division);
       setStandings(props.division.content_object.standings || []);
       setSchedule(props.division.content_object.schedule || []);
     } else if (props.event && !props.division) {
@@ -109,12 +110,12 @@ const LeagueViewPage = (props) => {
   };
 
   const handleScoreReported = async (new_schedule) => {
-    console.log('Score reported, refreshing standings and schedule', new_schedule);
+    //console.log('Score reported, refreshing standings and schedule', new_schedule);
     const leagueId = division ? division.content_object?.id : event.league_id;
     const data = await leagueAPI.getStandings(leagueId);
-    console.log(data);
+    //console.log(data);
     if (data?.standings) {
-      console.log('update standings')
+      //console.log('update standings')
       setStandings(data.standings)
       setSchedule(new_schedule)
     }
@@ -148,8 +149,9 @@ const LeagueViewPage = (props) => {
           </Typography>
           <StandingsView
             standings={standings}
-            winner={event.winner}
+            winner={winner}
             event_id={event.id}
+            division_id={division?.id}
             isAdmin={isAdmin}
             isParticipant={isParticipant}
             callback={handleAddDeleteParticipant}
@@ -194,14 +196,6 @@ const LeagueViewPage = (props) => {
 
           {/* Add Match Button */}
           {(event?.is_participant || isAdmin) && (
-            // <Button
-            //   variant="contained"
-            //   color="primary"
-            //   onClick={() => setMatchModalOpen(true)} // Show wizard editor
-            //   sx={{ mb: 2 }}
-            // >
-            //   Add Match
-            // </Button>
             <Typography>Submit new match results from the schedule tab.</Typography>
           )}
 
@@ -216,22 +210,6 @@ const LeagueViewPage = (props) => {
             showH2H={true}
 
           />
-
-
-          {/* Add Match Wizard */}
-          {/* Match Editor Modal */}
-          {/* <MyModal showHide={matchModalOpen} onClose={handleMatchModalClose} title="Report Match">
-            <MatchEditor
-              participant={currentUser}
-              event={event}
-              matchType={event.match_type}
-              onSubmit={(matchData) => {
-                console.log("Match reported:", matchData);
-                handleMatchEditorSubmit(matchData);
-                handleMatchModalClose();
-              }}
-            />
-          </MyModal> */}
         </Box>
       )}
 

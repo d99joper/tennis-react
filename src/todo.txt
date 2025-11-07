@@ -1,4 +1,5 @@
 current:
+    [ ] Set winner and create trophy for tournaments
     [ ] End a league 
         [ ] Set an last match date
         [ ] Calculate winner and lock matches
