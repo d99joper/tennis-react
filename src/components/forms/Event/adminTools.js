@@ -76,7 +76,7 @@ const EventAdminTools = ({ event, setEvent }) => {
     } else {
       setDivisionOverrideSettings({});
     }
-  }, [division_num]);
+  }, [division_num, event.divisions]);
 
   const handleAddDivision = async () => {
     if (!divisionName) return;
@@ -117,7 +117,7 @@ const EventAdminTools = ({ event, setEvent }) => {
       clubAPI.getMembers(event.club.id).then((result) => {
         setAdminOptions(result.data.members)
       });
-  }, [])
+  }, [event.club])
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === 'clickaway') return

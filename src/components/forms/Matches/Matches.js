@@ -149,7 +149,7 @@ const Matches = ({
     
     // Fetch new data
     fetchMatches(currentPage);
-  }, [fetchMatches, currentPage, originId]);
+  }, [fetchMatches, currentPage, originId, matchesCache.originId, matchesCache.pages]);
 
   const loadMoreMatches = useCallback(() => {
     if (currentPage < totalPages && !isFetchingMore && !pagesLoaded.has(currentPage + 1)) {

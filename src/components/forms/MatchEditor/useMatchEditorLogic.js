@@ -182,7 +182,10 @@ const useMatchEditorLogic = ({
   };
 
   const getPlayers = (playerList) => {
-    const names = playerList.map((p) => p?.name)
+    console.log(playerList)
+    // Flatten the array in case it's nested (e.g., [[player]] or [player])
+    const flatList = playerList.flat();
+    const names = flatList.map((p) => p?.name)
       .filter(Boolean) // Remove any null values if an ID doesn't match
       .join(", ");
     return names;

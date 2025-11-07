@@ -34,9 +34,9 @@ const EventView = () => {
     try {
       setLoading(true);
       const event = await eventAPI.getEvent(id);
-      console.log("EventView rendering with event_type:", event.event_type);
+      //console.log("EventView rendering with event_type:", event.event_type);
       setEvent(event);
-      console.log("Event data:", event);
+      //console.log("Event data:", event);
       
       // Fetch participants once at the top level with division information
       if (event.id) {
@@ -61,7 +61,7 @@ const EventView = () => {
   // Handle initial division selection after event loads
   useEffect(() => {
     if (event && event.divisions) {
-      console.log("division_num from URL:", division_num);
+      //console.log("division_num from URL:", division_num);
 
       let division = null;
       if (division_num !== null) {
@@ -72,7 +72,7 @@ const EventView = () => {
       }
       // If division_num is null or invalid, leave division as null (blank selection)
 
-      console.log("Setting initial/updated division:", division);
+      //console.log("Setting initial/updated division:", division);
 
       // Update selectedDivision
       setSelectedDivision(division);
@@ -91,7 +91,7 @@ const EventView = () => {
   }, [event?.id, division_num]); // Only depend on event ID and division_num to prevent infinite loops
 
   const refreshEvent = (updatedEvent) => {
-    console.log('EventView received updated event:', updatedEvent);
+    //console.log('EventView received updated event:', updatedEvent);
 
     if (updatedEvent) {
       setEvent(updatedEvent);
@@ -314,7 +314,7 @@ const EventView = () => {
         );
       } else {
         const division_content_id = selectedDivision?.content_object?.id;
-        console.log("Selected Division:", selectedDivision);
+        //console.log("Selected Division:", selectedDivision);
         if (selectedDivision?.type === 'league')
           content = <LeagueViewPage event={event} division={selectedDivision} participants={participants} />;
         else if (selectedDivision?.type === 'tournament') {

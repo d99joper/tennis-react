@@ -19,6 +19,7 @@ const FriendlyMatchPlayers = ({ matchLogic }) => {
             label="Your partner"
             required
             allowCreate={true}
+            maxSelection={1}
             error={matchLogic.error.winners}
             errorMessage={matchLogic.error.winners ? 'Partner is required in doubles' : ''}
           />
@@ -34,6 +35,7 @@ const FriendlyMatchPlayers = ({ matchLogic }) => {
         label="Opponent"
         required
         allowCreate={true}
+        maxSelection={1}
         error={matchLogic.error.opponents}
         errorMessage={matchLogic.error.opponents ? 'Opponent is required' : ''}
       />
@@ -46,6 +48,7 @@ const FriendlyMatchPlayers = ({ matchLogic }) => {
           label="Opponent partner"
           required
           allowCreate={true}
+          maxSelection={1}
           error={matchLogic.error.opponents}
           errorMessage={matchLogic.error.winners ? 'Partner is required in doubles' : ''}
         />

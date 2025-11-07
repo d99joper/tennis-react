@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Autocomplete, TextField, CircularProgress, Button, Box } from '@mui/material';
+import { Autocomplete, TextField, Button, Box } from '@mui/material';
 import { debounce } from 'lodash';
 import { playerAPI } from 'api/services';
 import { helpers } from 'helpers';
@@ -15,6 +15,7 @@ const PlayerSearch = ({
   errorMessage,
   allowCreate = false,
   fromProfileId = null,
+  maxSelection = null, // null = unlimited, 1 = single player, 2+ = limited multiple
   ...props
 }) => {
   const [players, setPlayers] = useState([]);
@@ -80,10 +81,13 @@ const PlayerSearch = ({
     <>
       <Autocomplete
         fullWidth
-        multiple={true}
+        multiple={maxSelection !== 1}
         options={optionsList}
         getOptionLabel={(option) => option?.name || ''}
-        value={selectedPlayer ? (Array.isArray(selectedPlayer) ? selectedPlayer : [selectedPlayer]) : []}
+        value={maxSelection === 1 
+          ? (Array.isArray(selectedPlayer) ? selectedPlayer[0] || null : selectedPlayer || null)
+          : (selectedPlayer ? (Array.isArray(selectedPlayer) ? selectedPlayer : [selectedPlayer]) : [])
+        }
         renderOption={(props, option) => (
           <li {...props} key={option.id}>
             {option.id === 'new'
@@ -92,20 +96,35 @@ const PlayerSearch = ({
             }
           </li>
         )}
-        disableCloseOnSelect={false}
+        disableCloseOnSelect={maxSelection !== 1}
         onChange={(event, newValue) => {
-          if (Array.isArray(newValue) && newValue.find(v => v?.id === 'new')) {
-            setNewPlayerName(searchTerm);
-            setShowModal(true);
+          if (maxSelection === 1) {
+            // Single selection mode
+            if (newValue?.id === 'new') {
+              setNewPlayerName(searchTerm);
+              setShowModal(true);
+            } else {
+              setSelectedPlayer(newValue);
+            }
           } else {
-            setSelectedPlayer(newValue);
+            // Multiple selection mode
+            if (Array.isArray(newValue) && newValue.find(v => v?.id === 'new')) {
+              setNewPlayerName(searchTerm);
+              setShowModal(true);
+            } else {
+              // Apply max selection limit if specified
+              if (maxSelection && Array.isArray(newValue) && newValue.length > maxSelection) {
+                return; // Don't allow more than maxSelection
+              }
+              setSelectedPlayer(newValue);
+            }
           }
         }}
         onClose={() => setSearchTerm('')}
         onInputChange={(event, newInputValue, reason) => {
-          if (reason === 'clear') setSelectedPlayer([])
+          if (reason === 'clear') setSelectedPlayer(maxSelection === 1 ? null : [])
           setSearchTerm(newInputValue);
-          if (newInputValue === '') setSelectedPlayer([]); // ✅ Reset to empty array when cleared
+          if (newInputValue === '') setSelectedPlayer(maxSelection === 1 ? null : []); // Reset based on mode
         }}
         loading={loading}
         renderInput={(params) => (

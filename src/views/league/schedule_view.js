@@ -90,7 +90,7 @@ const ScheduleView = ({ event, division, schedule: initialSchedule, onScoreRepor
         sortableColumns={["scheduled_date", "player1.name", "player2.name"]}
         getRowData={(row) => [
           row.reported
-            ? (row.played_on != row.scheduled_date)
+            ? (row.played_on !== row.scheduled_date)
               ?
               <>
                 {new Date(row.played_on).toISOString().split("T")[0]} <br />
