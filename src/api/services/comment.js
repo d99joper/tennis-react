@@ -43,7 +43,7 @@ const commentsAPI = {
     console.log('create comment')
     const requestOptions = authAPI.getRequestOptions('POST', comment)
     
-    const response = await fetchWithRetry(commentsUrl + 'create', requestOptions)
+    const response = await fetch(commentsUrl + 'create', requestOptions)
     if (response.ok)
       return await response.json()
     else
@@ -54,7 +54,11 @@ const commentsAPI = {
     console.log('delete comment')
     const requestOptions = authAPI.getRequestOptions('POST')
     
-    const response = await fetchWithRetry(commentsUrl + id + '/delete', requestOptions)
+    const response = await fetch(commentsUrl + id + '/delete', requestOptions)
+    if (response.ok)
+      return await response.json()
+    else
+      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to delete comment' }
 
   }
 }

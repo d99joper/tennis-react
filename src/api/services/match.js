@@ -33,7 +33,7 @@ const matchAPI = {
   createMatchesFromArray: async function(matches) {
     const requestOptions = authAPI.getRequestOptions('POST', matches)
 
-    let response = await fetchWithRetry(matchesUrl + 'import/bulk', requestOptions)
+    let response = await fetch(matchesUrl + 'import/bulk', requestOptions)
     
     if (response.ok) {
       return response
@@ -46,7 +46,7 @@ const matchAPI = {
     let response = await fetchWithRetry(matchesUrl + 'import/utr/' + utr_id, requestOptions)
 
     if (response.ok) {
-      const response = await response.json()
+      response = await response.json()
       return response //just a 203 status and a success text
     }
     else
@@ -94,7 +94,7 @@ const matchAPI = {
       + (page ? '&page=' + page : '')
       + (numPerPage ? '&num-per-page=' + numPerPage : '')
 
-    let response = await fetchWithRetry(matchesUrl + '?ladder=' + ladderId, requestOptions)
+    let response = await fetchWithRetry(url, requestOptions)
 
     if (response.ok)
       return await response.json()
@@ -105,7 +105,7 @@ const matchAPI = {
   createMatch: async function (match) {
     const requestOptions = authAPI.getRequestOptions('POST', match)
 
-    const response = await fetchWithRetry(matchesUrl + 'create', requestOptions)
+    const response = await fetch(matchesUrl + 'create', requestOptions)
     if (response.ok)
       return await response.json()
     else
@@ -115,7 +115,7 @@ const matchAPI = {
   updateMatch: async function (match) {
     const requestOptions = authAPI.getRequestOptions('PATCH', match)
 
-    const response = await fetchWithRetry(matchesUrl + 'update', requestOptions)
+    const response = await fetch(matchesUrl + 'update', requestOptions)
     if (response.ok)
       return await response.json()
     else

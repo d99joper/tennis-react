@@ -32,7 +32,7 @@ const eventAPI = {
   archiveEvent: async function (id) {
     const requestOptions = authAPI.getRequestOptions('PUT');
 
-    const response = await fetchWithRetry(`${eventsUrl}${id}/archive`, requestOptions)
+    const response = await fetch(`${eventsUrl}${id}/archive`, requestOptions)
     if (response.ok) {
       return { status: response.status }
     }
@@ -43,7 +43,7 @@ const eventAPI = {
   deleteEvent: async function (id) {
     const requestOptions = authAPI.getRequestOptions('DELETE');
 
-    const response = await fetchWithRetry(`${eventsUrl}${id}/delete`, requestOptions)
+    const response = await fetch(`${eventsUrl}${id}/delete`, requestOptions)
     if (response.ok) {
       return { status: response.status }
     }
@@ -55,7 +55,7 @@ const eventAPI = {
   setWinner: async function (event_id, winner_id, division_id = null) {
     const requestOptions = authAPI.getRequestOptions('POST', { division_id: division_id })
 
-    const response = await fetchWithRetry(`${eventsUrl}${event_id}/set-winner/${winner_id}`, requestOptions)
+    const response = await fetch(`${eventsUrl}${event_id}/set-winner/${winner_id}`, requestOptions)
     if (response.ok) {
       return true
     }
@@ -66,7 +66,7 @@ const eventAPI = {
   resetWinner: async function (event_id, division_id = null) {
     const requestOptions = authAPI.getRequestOptions('DELETE', { division_id: division_id })
 
-    const response = await fetchWithRetry(`${eventsUrl}${event_id}/reset-winner`, requestOptions)
+    const response = await fetch(`${eventsUrl}${event_id}/reset-winner`, requestOptions)
     if (response.ok) {
       return true
     }
@@ -89,7 +89,7 @@ const eventAPI = {
   createEvent: async function (event) {
     const requestOptions = authAPI.getRequestOptions('POST', event)
 
-    const response = await fetchWithRetry(eventsUrl + 'create', requestOptions)
+    const response = await fetch(eventsUrl + 'create', requestOptions)
     if (response.ok) {
       const data = await response.json()
       return { success: response.ok, statusCode: response.status, event: data }
@@ -101,7 +101,7 @@ const eventAPI = {
   updateEvent: async function (id, event) {
     const requestOptions = authAPI.getRequestOptions('PUT', event);
 
-    const response = await fetchWithRetry(eventsUrl + id + '/update', requestOptions)
+    const response = await fetch(eventsUrl + id + '/update', requestOptions)
     if (response.ok) {
       return await response.json()
       //return {success: response.ok, statusCode: response.status, event: data}
@@ -113,7 +113,7 @@ const eventAPI = {
   addParticipant: async function (event_id, participant) {
     const requestOptions = authAPI.getRequestOptions('POST', { participant: participant });
 
-    const response = await fetchWithRetry(eventsUrl + event_id + '/participants/add', requestOptions)
+    const response = await fetch(eventsUrl + event_id + '/participants/add', requestOptions)
     if (response.ok) {
       return await response.json()
       //return {success: response.ok, statusCode: response.status, event: data}
@@ -139,7 +139,7 @@ const eventAPI = {
 
   removeParticipant: async function (event_id, participant_id) {
     const requestOptions = authAPI.getRequestOptions('DELETE');
-    const response = await fetchWithRetry(`${eventsUrl}${event_id}/participants/remove/${participant_id}`, requestOptions)
+    const response = await fetch(`${eventsUrl}${event_id}/participants/remove/${participant_id}`, requestOptions)
     if (response.ok) {
       return response.ok
     }
@@ -150,7 +150,7 @@ const eventAPI = {
 
   sendNotifications: async function (id, message) {
     const requestOptions = authAPI.getRequestOptions('POST', { message: message });
-    const response = await fetchWithRetry(`${eventsUrl}send-notifications/${id}`, requestOptions)
+    const response = await fetch(`${eventsUrl}send-notifications/${id}`, requestOptions)
     if (response.ok) {
       return true
     }

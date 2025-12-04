@@ -41,7 +41,7 @@ const authAPI = {
 				} : null,
 			}
 			const requestOptions = this.getRequestOptions('POST', body)
-			let response = await fetchWithRetry(apiUrl + "register-user/", requestOptions)
+			let response = await fetch(apiUrl + "register-user/", requestOptions)
 
 			if (response.ok) {
 				return //await this.login(username, password)
@@ -59,7 +59,7 @@ const authAPI = {
 		try {
 			//const body = { key: key, userid: userid }
 			const requestOptions = this.getRequestOptions('GET')
-			let response = await fetchWithRetry(apiUrl + "confirm-user/" + userid + "/" + key, requestOptions)
+			let response = await fetch(apiUrl + "confirm-user/" + userid + "/" + key, requestOptions)
 
 			if (response.ok) {
 				const data = await response.json()

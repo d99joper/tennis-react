@@ -58,7 +58,7 @@ const notificationAPI = {
   // Create a new notification
   createNotification: async function (notificationData) {
     const requestOptions = authAPI.getRequestOptions('POST', notificationData);
-    const response = await fetchWithRetry(notificationsUrl + 'create', requestOptions);
+    const response = await fetch(notificationsUrl + 'create', requestOptions);
 
     if (response.ok) {
       const data = await response.json();
@@ -124,7 +124,7 @@ const notificationAPI = {
   // Delete a specific notification
   deleteNotification: async function (id) {
     const requestOptions = authAPI.getRequestOptions('DELETE');
-    const response = await fetchWithRetry(`${notificationsUrl}delete?id=${id}`, requestOptions);
+    const response = await fetch(`${notificationsUrl}delete?id=${id}`, requestOptions);
 
     if (response.ok) {
       return { success: true };
@@ -140,7 +140,7 @@ const notificationAPI = {
   // Delete all notifications
   deleteAllNotifications: async function () {
     const requestOptions = authAPI.getRequestOptions('DELETE');
-    const response = await fetchWithRetry(notificationsUrl + 'delete', requestOptions);
+    const response = await fetch(notificationsUrl + 'delete', requestOptions);
 
     if (response.ok) {
       return { success: true };

@@ -32,7 +32,7 @@ const leagueAPI = {
   createLeague: async function (league) {
     const requestOptions = authAPI.getRequestOptions('POST', league)
 
-    const response = await fetchWithRetry(leaguesUrl + 'create', requestOptions)
+    const response = await fetch(leaguesUrl + 'create', requestOptions)
     if (response.ok) {
       const data = await response.json()
       return {success: response.ok, statusCode: response.status, data: data}
@@ -44,7 +44,7 @@ const leagueAPI = {
   generateSchedule: async function(id) {
     const requestOptions = authAPI.getRequestOptions('POST')
 
-    const response = await fetchWithRetry(leaguesUrl + id + '/schedule/generate', requestOptions)
+    const response = await fetch(leaguesUrl + id + '/schedule/generate', requestOptions)
     //console.log(response)
     if (response.ok) {
       const data = await response.json()
@@ -57,7 +57,7 @@ const leagueAPI = {
   updateSchedule: async function(id, schedule) {
     const requestOptions = authAPI.getRequestOptions('PUT', {schedule: schedule})
 
-    const response = await fetchWithRetry(leaguesUrl + id + '/schedule/update', requestOptions)
+    const response = await fetch(leaguesUrl + id + '/schedule/update', requestOptions)
     if (response.ok) {
       const data = await response.json()
       return {success: response.ok, statusCode: response.status, schedule: data.schedule}
@@ -71,7 +71,7 @@ const leagueAPI = {
         participant: participant
     })
 
-    const response = await fetchWithRetry(leaguesUrl + leagueId + '/participants/add', requestOptions)
+    const response = await fetch(leaguesUrl + leagueId + '/participants/add', requestOptions)
     if (response.ok)
       return {success: response.ok}
     else
@@ -81,7 +81,7 @@ const leagueAPI = {
   removeParticipant: async function (leagueId, participantId) {
     const requestOptions = authAPI.getRequestOptions('POST')
 
-    const response = await fetchWithRetry(leaguesUrl + leagueId + '/participants/remove/'+participantId, requestOptions)
+    const response = await fetch(leaguesUrl + leagueId + '/participants/remove/'+participantId, requestOptions)
     if (response.ok)
       return {success: response.ok}
     else

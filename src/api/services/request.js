@@ -8,7 +8,7 @@ const requestAPI = {
   /* API calls */
   createJoinRequest: async function (type, id) {
     const requestOptions = authAPI.getRequestOptions('POST');
-    const response = await fetchWithRetry(`${requestUrl}join/${type}/${id}`, requestOptions);
+    const response = await fetch(`${requestUrl}join/${type}/${id}`, requestOptions);
     if (response.ok) {
       const data = await response.json();
       return { success: response.ok, statusCode: response.statusCode, data: data }
@@ -31,7 +31,7 @@ const requestAPI = {
   processRequest: async function (id, approve) {
     console.log('approve', approve)
     const requestOptions = authAPI.getRequestOptions('POST')
-    const response = await fetchWithRetry(`${requestUrl}process/${id}/${approve}`, requestOptions)
+    const response = await fetch(`${requestUrl}process/${id}/${approve}`, requestOptions)
     if (response.ok) {
       const data = await response.json()
       return { success: response.ok, statusCode: response.statusCode, data: data }
@@ -55,7 +55,7 @@ const requestAPI = {
 
   sendInvites: async function(object_id, content_type, recipients, message) {
     const requestOptions = authAPI.getRequestOptions('POST', {recipients: recipients, message:message});
-    const response = await fetchWithRetry(`${requestUrl}${object_id}/${content_type}/send-invites`, requestOptions)
+    const response = await fetch(`${requestUrl}${object_id}/${content_type}/send-invites`, requestOptions)
     if (response.ok) {
       return await response.json()
     }

@@ -19,7 +19,7 @@ const tournamentsAPI = {
       participants: participants, 
       name: name
     })
-    const response = await fetchWithRetry(tournamentsUrl + tournament_id + '/generate-bracket/', requestOptions)
+    const response = await fetch(tournamentsUrl + tournament_id + '/generate-bracket/', requestOptions)
     if (response.ok)
       return await response.json()  
     else

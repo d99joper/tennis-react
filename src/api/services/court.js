@@ -36,7 +36,7 @@ const courtAPI = {
   createCourt: async function(court) {
     const requestOptions = authAPI.getRequestOptions('POST', court)
 
-    const response = await fetchWithRetry(courtsUrl + 'create', requestOptions)
+    const response = await fetch(courtsUrl + 'create', requestOptions)
     if (response.ok)
       return await response.json()
     else

@@ -34,7 +34,7 @@ const ladderAPI = {
   createLadder: async function (ladder) {
     const requestOptions = authAPI.getRequestOptions('POST', ladder)
 
-    const response = await fetchWithRetry(laddersUrl + 'create', requestOptions)
+    const response = await fetch(laddersUrl + 'create', requestOptions)
     if (response.ok)
       return await response.json()
     else
@@ -45,7 +45,7 @@ const ladderAPI = {
   updateLadder: async function (ladder) {
     const requestOptions = authAPI.getRequestOptions('PATCH', ladder)
 
-    const response = await fetchWithRetry(laddersUrl + 'update', requestOptions)
+    const response = await fetch(laddersUrl + 'update', requestOptions)
     if (response.ok)
       return await response.json()
     else
@@ -55,7 +55,7 @@ const ladderAPI = {
   addPlayerToLadder: async function (playerId, ladderId) {
     const requestOptions = authAPI.getRequestOptions('POST', { player_id: playerId })
 
-    const response = await fetchWithRetry(laddersUrl + ladderId + '/add-player', requestOptions)
+    const response = await fetch(laddersUrl + ladderId + '/add-player', requestOptions)
     if (response.ok)
       return await response.json()
     else

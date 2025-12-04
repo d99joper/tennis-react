@@ -48,7 +48,7 @@ const clubAPI = {
 
   createClub: async function(club) {
     const requestOptions = authAPI.getRequestOptions('POST', club)
-    const response = await fetchWithRetry(clubUrl+'create', requestOptions)
+    const response = await fetch(clubUrl+'create', requestOptions)
     if (response.ok) {
       return await response.json()
     }
@@ -58,7 +58,7 @@ const clubAPI = {
 
   updateClub: async function(clubId, club) {
     const requestOptions = authAPI.getRequestOptions('PUT', club)
-    const response = await fetchWithRetry(clubUrl+clubId+'/update', requestOptions)
+    const response = await fetch(clubUrl+clubId+'/update', requestOptions)
     if (response.ok) {
       const data = await response.json()
       return {success: response.ok, statusCode: response.statusCode, data: data}
@@ -69,7 +69,7 @@ const clubAPI = {
 
   addPlayer: async function(clubId, playerId) {
     const requestOptions = authAPI.getRequestOptions('POST')
-    const response = await fetchWithRetry(`${clubUrl}add-player-to-club/${clubId}/${playerId}`, requestOptions)
+    const response = await fetch(`${clubUrl}add-player-to-club/${clubId}/${playerId}`, requestOptions)
     if (response.ok) {
       return {success: response.ok, statusCode: response.statusCode, message: response.message}
     }
@@ -79,7 +79,7 @@ const clubAPI = {
 
   removePlayer: async function(clubId, playerId) {
     const requestOptions = authAPI.getRequestOptions('POST')
-    const response = await fetchWithRetry(`${clubUrl}remove-player-from-club/${clubId}/${playerId}`, requestOptions)
+    const response = await fetch(`${clubUrl}remove-player-from-club/${clubId}/${playerId}`, requestOptions)
     if (response.ok) {
       return {success: response.ok, statusCode: response.statusCode, message: response.message}
     }
@@ -89,7 +89,7 @@ const clubAPI = {
 
   addAdmin: async function(clubId, playerId) {
     const requestOptions = authAPI.getRequestOptions('POST')
-    const response = await fetchWithRetry(`${clubUrl}add-admin-to-club/${clubId}/${playerId}`, requestOptions)
+    const response = await fetch(`${clubUrl}add-admin-to-club/${clubId}/${playerId}`, requestOptions)
     if (response.ok) {
       return {success: response.ok, statusCode: response.statusCode, message: response.message}
     }
