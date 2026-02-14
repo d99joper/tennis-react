@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Typography, Button, Card, CardContent, Grid2 as Grid, CircularProgress, LinearProgress, Tabs, Tab } from '@mui/material'
+import { Box, Typography, Card, CardContent, Grid, LinearProgress, Tabs, Tab } from '@mui/material'
 import { ProfileImage } from 'components/forms/ProfileImage'
 import Matches from '../Matches/Matches'
 import MyModal from 'components/layout/MyModal'

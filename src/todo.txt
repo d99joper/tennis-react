@@ -1,4 +1,28 @@
+#My to-do list
+    - payments 
+    - make league play more intuitive (break up divisions)
+    - enter phone number for league (if requested)
+    - create phone group 
+    - create league chat
+    - restyle
+    - doubles leagues
+    - event admin
+        - propogate to update the event data and page
+        - restrictions for divisions
+        - message a division's participants
+        - general settings for a division
+
 current:
+    [ ] Make filters for ladders
+        [ ] Gender
+        [ ] Date range
+        [ ] Rating
+    [ ] Add challenge opportunities for ladders
+    [ ] Redesign club page with sleeker tabs for events and members and ladders, etc
+    [ ] Redesign multi-event with sleeker tabs
+    [ ] Add phone requirement option for leagues.
+        [ ] Set more requirements for contacting players.
+        [ ] Popup where you have to add enter additionally required info.
     [ ] Set winner and create trophy for tournaments
     [ ] End a league 
         [ ] Set an last match date
@@ -29,6 +53,13 @@ current:
         [x] court
         [x] city
     [ ] Leagues for doubles 
+        [ ] Ask for partner
+            [ ] Partner has to adhear to filters
+            [ ] Verify partner or Deny
+            [ ] Change partner
+        [ ] Display doubles teams
+        [ ] Report score
+        [ ] Make sure standings and scores are reported correctly 
     [ ] Leagues for teams
     [ ] Subscriptions
         [ ] structure

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Card, CardContent, CardActions, Typography, Grid2 as Grid, Button } from "@mui/material";
+import { Box, Card, CardContent, CardActions, Typography, Grid, Button } from "@mui/material";
 import { Link } from "react-router-dom";
 import { ProfileImage } from "../ProfileImage";
 import MyModal from "components/layout/MyModal";
@@ -21,7 +21,7 @@ const TopRivals = ({ data, rivalsFetched, player }) => {
 						<Box mt={2}>
 							<Grid container spacing={2}>
 								{data.rivals.map((rival, index) => (
-									<Grid key={index} size={{ xs: 12, sm: 6 }}>
+									<Grid key={index} item xs={12} sm={6}>
 										<Card variant="outlined">
 											<CardContent>
 												<Typography as="span" variant="body1">

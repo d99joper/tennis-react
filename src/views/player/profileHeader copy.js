@@ -1,7 +1,7 @@
 // ProfileHeader.js
 import React, { useContext, useEffect, useState } from 'react'
 import { Box, Typography, CircularProgress, Card, CardContent, Divider, TextField, MenuItem, Button, Select } from '@mui/material'
-import { Grid2 as Grid } from '@mui/material'
+import { Grid } from '@mui/material'
 import { BsHouse } from 'react-icons/bs'
 import { MdSportsTennis, MdOutlineRefresh } from 'react-icons/md'
 import PlayerLadders from './playerLadders'

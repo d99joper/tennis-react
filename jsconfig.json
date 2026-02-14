@@ -3,7 +3,9 @@
         "baseUrl": "./src",
         "paths": {
             "views":  ["src/views"]
-        }
+        },
+        "checkJs": false
     },
-    "include": ["src"]
+    "include": ["src"],
+    "exclude": ["node_modules"]
 }

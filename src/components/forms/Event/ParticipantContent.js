@@ -1,9 +1,10 @@
 // Participants Content Component
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Box, MenuItem, TextField, Typography, CircularProgress, Card, Button, Checkbox } from "@mui/material";
+import { Box, MenuItem, TextField, Typography, CircularProgress, Card, Button, Checkbox, Paper } from "@mui/material";
 import { eventAPI, divisionAPI } from "api/services";
 import { ProfileImage } from "components/forms/ProfileImage";
+import TeamDisplayName from "components/forms/Team/TeamDisplayName";
 
 const ParticipantsContent = ({ event, participants: propParticipants = null, includeDivisions = false, callback }) => {
   const [participants, setParticipants] = useState(propParticipants || []);
@@ -28,10 +29,10 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
           setUpdating(true);
         }
         console.log('Fetching participants for event', event.id, 'with includeDivisions:', includeDivisions);
-        const response = await eventAPI.getParticipants(event.id, {include_divisions: includeDivisions}, 1, 1000);
+        const response = await eventAPI.getParticipants(event.id, { include_divisions: includeDivisions }, 1, 1000);
         const participantsList = response.data || [];
         setParticipants(participantsList);
-        
+
         // Build participant to divisions mapping (supports multiple divisions per participant)
         const divisionMap = {};
         if (event.divisions) {
@@ -47,7 +48,7 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
           });
         }
         //setParticipantDivisions(divisionMap);
-        
+
         setLastEventUpdate(event.updated_on || event.id);
         setLastParticipantCount(event.count_participants);
         setLastIncludeDivisions(includeDivisions);
@@ -66,7 +67,7 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
 
     // Check if we need to fetch participants
     // Don't fetch if we have propParticipants and they already have division data (when includeDivisions is true)
-    const hasValidPropParticipants = propParticipants && 
+    const hasValidPropParticipants = propParticipants &&
       (!includeDivisions || (propParticipants.length > 0 && propParticipants[0]?.divisions !== undefined));
     console.log('ParticipantContent useEffect:', {
       includeDivisions,
@@ -85,10 +86,10 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
     }
 
     // Only fetch if we haven't loaded yet, or if the event has been updated, or if participant count changed, or if includeDivisions changed
-    const shouldFetch = !hasLoaded || 
-                       lastEventUpdate !== (event.updated_on || event.id) ||
-                       lastParticipantCount !== event.count_participants ||
-                       lastIncludeDivisions !== includeDivisions;
+    const shouldFetch = !hasLoaded ||
+      lastEventUpdate !== (event.updated_on || event.id) ||
+      lastParticipantCount !== event.count_participants ||
+      lastIncludeDivisions !== includeDivisions;
 
     if (shouldFetch) {
       fetchParticipants();
@@ -101,7 +102,7 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
       const participantsInDivision = participants
         .filter(p => p.divisions?.some(div => div.id === selectedDivisionForAssignment))
         .map(p => p.id);
-      
+
       setSelectedParticipants(participantsInDivision);
     } else {
       setSelectedParticipants([]);
@@ -125,28 +126,28 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
       setSelectedParticipants(participants.map(p => p.id).filter(Boolean));
     }
   };
-  
+
   const handleBulkAssign = async () => {
     if (!selectedDivisionForAssignment) return;
-    
+
     try {
       setAssigning(true);
-      
+
       // Get participants who are already in the selected division
       const participantsAlreadyInDivision = participants
         .filter(p => p.divisions?.some(div => div.id === selectedDivisionForAssignment))
         .map(p => p.id);
-      
+
       // Find participants to add (checked but not already in division)
-      const participantsToAdd = selectedParticipants.filter(id => 
+      const participantsToAdd = selectedParticipants.filter(id =>
         !participantsAlreadyInDivision.includes(id)
       );
-      
+
       // Find participants to remove (were in division but now unchecked)
-      const participantsToRemove = participantsAlreadyInDivision.filter(id => 
+      const participantsToRemove = participantsAlreadyInDivision.filter(id =>
         !selectedParticipants.includes(id)
       );
-      
+
       function refreshEventData() {
         eventAPI.getEvent(event.id).then(updatedEvent => {
           if (updatedEvent && !updatedEvent.statusCode) {
@@ -174,12 +175,12 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
           refreshEventData();
         }
       }
-      
+
       // Update participants data to reflect changes
       setParticipants(prev => prev.map(participant => {
         const participantId = participant.id;
         let updatedDivisions = [...(participant.divisions || [])];
-        
+
         // Add division if participant was added
         if (participantsToAdd.includes(participantId)) {
           const division = event.divisions.find(d => d.id === selectedDivisionForAssignment);
@@ -187,22 +188,22 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
             updatedDivisions.push(division);
           }
         }
-        
+
         // Remove division if participant was removed
         if (participantsToRemove.includes(participantId)) {
           updatedDivisions = updatedDivisions.filter(d => d.id !== selectedDivisionForAssignment);
         }
-        
+
         return {
           ...participant,
           divisions: updatedDivisions
         };
       }));
-      
+
       // Clear selections
       setSelectedParticipants([]);
       setSelectedDivisionForAssignment('');
-      
+
     } catch (error) {
       console.error('Failed to assign/remove participants to/from division:', error);
     } finally {
@@ -213,14 +214,14 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
   // Calculate add/remove counts for button text
   const getAssignmentCounts = () => {
     if (!selectedDivisionForAssignment) return { toAdd: 0, toRemove: 0 };
-    
+
     const participantsAlreadyInDivision = participants
       .filter(p => p.divisions?.some(div => div.id === selectedDivisionForAssignment))
       .map(p => p.id);
-    
+
     const toAdd = selectedParticipants.filter(id => !participantsAlreadyInDivision.includes(id)).length;
     const toRemove = participantsAlreadyInDivision.filter(id => !selectedParticipants.includes(id)).length;
-    
+
     return { toAdd, toRemove };
   };
 
@@ -247,10 +248,10 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
 
         {/* Division Assignment Section - Only for admins */}
         {showCheckboxes && (
-          <Box sx={{ 
-            mb: 3, 
-            p: 2, 
-            backgroundColor: 'grey.50', 
+          <Box sx={{
+            mb: 3,
+            p: 2,
+            backgroundColor: 'grey.50',
             borderRadius: 1,
             border: '1px solid',
             borderColor: 'grey.200'
@@ -258,7 +259,7 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
             <Typography variant="body2" sx={{ mb: 2, fontWeight: 500 }}>
               Assign participants to division:
             </Typography>
-            
+
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
               <TextField
                 select
@@ -283,7 +284,7 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
                   </MenuItem>
                 ))}
               </TextField>
-              
+
               {selectedDivisionForAssignment && (
                 <>
                   <Button
@@ -295,14 +296,14 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
                   >
                     {selectedParticipants.length === participants.length ? 'Deselect All' : 'Select All'}
                   </Button>
-                  
+
                   {hasChanges && (
                     <Button
                       variant="contained"
                       size="small"
                       onClick={handleBulkAssign}
                       disabled={assigning}
-                      sx={{ 
+                      sx={{
                         textTransform: 'none',
                         backgroundColor: toRemove > 0 ? 'error.main' : 'primary.main',
                         '&:hover': {
@@ -330,22 +331,22 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {participants.length > 0 ? (
-            <>
+            <Paper sx={{ p: 2, mb: 3 }}>
               {participants.map((participant, index) => {
                 const participantId = participant.id;
                 const isSelected = selectedParticipants.includes(participantId);
-                
+
                 // Check if participant is already in the selected division
-                const isAlreadyInSelectedDivision = selectedDivisionForAssignment && 
+                const isAlreadyInSelectedDivision = selectedDivisionForAssignment &&
                   participant.divisions?.some(div => div.id === selectedDivisionForAssignment);
-                
+
                 // Determine if this would be a removal (was in division but now unchecked)
                 const wouldBeRemoved = isAlreadyInSelectedDivision && !isSelected;
-                
+
                 return (
-                  <Box key={participant.id || index} sx={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
+                  <Box key={participant.id || index} sx={{
+                    display: 'flex',
+                    alignItems: 'center',
                     gap: 2,
                     p: 1,
                     borderRadius: 1,
@@ -371,7 +372,7 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
                             borderRadius: '3px'
                           } : {}
                         }}
-                        icon={wouldBeRemoved ? 
+                        icon={wouldBeRemoved ?
                           <Box sx={{
                             width: 18,
                             height: 18,
@@ -391,7 +392,7 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
                           </Box>
                           : undefined
                         }
-                        checkedIcon={wouldBeRemoved ? 
+                        checkedIcon={wouldBeRemoved ?
                           <Box sx={{
                             width: 18,
                             height: 18,
@@ -413,27 +414,26 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
                         }
                       />
                     )}
-                    
-                    <ProfileImage
-                      player={participant?.players[0]}
-                      size={32}
-                      showName={true}
-                      asLink={true}
-                    />
+
+
+                    {participant.players && participant.players.length > 1
+                      ? 
+                        <TeamDisplayName
+                          team={participant}
+                          size={16}
+                          asLink={true}
+                          showInitials={true}
+                        />
+                      :
+                      <ProfileImage
+                        player={participant?.players[0]}
+                        size={32}
+                        showName={true}
+                        asLink={true}
+                      />
+                    }
                     <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        <Link
-                          to={`/players/${participant?.players[0]?.slug}`}
-                          style={{ 
-                            textDecoration: 'none', 
-                            color: 'inherit'
-                          }}
-                        >
-                          {participant?.players[0]?.first_name} {participant?.players[0]?.last_name}
-                        </Link>
-                      </Typography>
-                      
-                      
+
                       {/* Show assigned divisions - always show from participant.divisions */}
                       {participant.divisions && participant.divisions.length > 0 && (
                         <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap' }}>
@@ -459,12 +459,12 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
                   </Box>
                 );
               })}
-              
+
               {/* Show small loading indicator at the end when updating */}
               {updating && (
-                <Box sx={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
+                <Box sx={{
+                  display: 'flex',
+                  alignItems: 'center',
                   gap: 2,
                   opacity: 0.6,
                   py: 1
@@ -475,7 +475,7 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
                   </Typography>
                 </Box>
               )}
-            </>
+            </Paper>
           ) : (
             <Typography variant="body2" color="text.secondary">
               {updating ? "Loading participants..." : "No participants found"}

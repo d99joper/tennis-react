@@ -7,7 +7,7 @@ import { Box, CssBaseline } from '@mui/material';
 import { ProfileImageProvider } from "components/forms";
 import { requestNotificationPermission } from "./firebase/requestNotificationPermission";
 import { setupNotificationListener, onNotificationReceived, removeNotificationListener } from "./firebase/notificationService";
-import { theme } from 'theme_config';
+import { PrimaryTheme } from 'theme_config';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import default styles
 import { AuthProvider } from 'contexts/AuthContext';
@@ -128,7 +128,7 @@ function App() {
           <Box className="App" id="app" sx={{ display: 'flex', flexDirection: 'column' }}>
             <ToastContainer />
             <CssBaseline />
-            <ThemeProvider theme={theme}>
+            <ThemeProvider theme={PrimaryTheme}>
               <AuthProvider>
                 <NotificationsProvider>
                   <SnackbarProvider>

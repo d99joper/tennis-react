@@ -78,6 +78,11 @@ const CreateLeague = ({ club, admins, onSuccess }) => {
       if (!formState.name) newErrors.name = 'League name is required.';
       if (!formState.club_id) newErrors.club = 'A league must belong to a club.';
       if (!formState.startDate) newErrors.startDate = 'Start date is required.';
+      if (formState.endDate) {
+        if (new Date(formState.endDate) < new Date(formState.startDate)) {
+          newErrors.endDate = 'End date cannot be before start date.';
+        }
+      }
       //if (!formState.endDate) newErrors.endDate = 'End date is required.';
     }
 
@@ -177,7 +182,10 @@ const CreateLeague = ({ club, admins, onSuccess }) => {
             fullWidth
             value={formState.endDate}
             onChange={(e) => updateFormState('endDate', e.target.value)}
-            slotProps={{ inputLabel: { shrink: true } }}
+            slotProps={{ 
+              inputLabel: { shrink: true },
+              htmlInput: { min: formState.startDate }
+            }}
             margin="normal"
             error={!!errors.endDate}
             helperText={errors.endDate}
@@ -225,8 +233,8 @@ const CreateLeague = ({ club, admins, onSuccess }) => {
             label="League Type"
             fullWidth
             value={formState.match_type}
-            onChange={(e) => updateFormState('content_object.type', e.target.value)}
             margin="normal"
+            onChange={(e) => updateFormState('match_type', e.target.value)}
           >
             <MenuItem value="singles">Singles</MenuItem>
             <MenuItem value="doubles">Doubles</MenuItem>

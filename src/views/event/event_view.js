@@ -1,34 +1,59 @@
 import { Link, useParams, useNavigate, useSearchParams } from "react-router-dom";
-import { useCallback, useEffect, useState } from "react";
-import { Box, MenuItem, TextField, Typography, useMediaQuery } from "@mui/material";
+import { useCallback, useEffect, useState, useContext, useRef } from "react";
+import { Box, Typography, useMediaQuery, Grid, Collapse, IconButton, Chip } from "@mui/material";
+import { AuthContext } from "contexts/AuthContext";
 import { eventAPI } from "api/services";
 import LeagueViewPage from "views/league/league_view";
 import TournamentView from "views/Tournament/tournamentView";
 import LadderView from "views/ladder/view";
 import { Helmet } from "react-helmet-async";
 import { helpers } from "helpers";
-import { useTheme } from "@emotion/react";
+import { useTheme } from "@mui/material/styles"; 
 import TruncatedText from "components/forms/truncateText";
 import JoinRequest from "components/forms/Notifications/joinRequests";
 import InfoPopup from "components/forms/infoPopup";
 import { FaUsers } from "react-icons/fa";
+import { MdExpandMore, MdExpandLess } from "react-icons/md";
 import ParticipantsContent from "components/forms/Event/ParticipantContent";
 import SeoHelmet from "components/seoHelmet";
+import DivisionCard from "components/forms/Event/DivisionCard";
 
 const EventView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams(); // Use React Router's hook
   const division_num = searchParams.get('division'); // This will properly track changes
+  const { user } = useContext(AuthContext);
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedDivision, setSelectedDivision] = useState(null);
   const [participants, setParticipants] = useState([]);
+  const [divisionsExpanded, setDivisionsExpanded] = useState(
+    searchParams.get('divisionsExpanded') !== 'false' // Default to true/expanded
+  );
 
   // Responsive design
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  // Check if user is enrolled in a specific division
+  const isUserEnrolledInDivision = (divisionId) => {
+    if (!user?.id || !participants.length) return false;
+    
+    // Find participant records that include this user
+    return participants.some(participant => {
+      // Check if this participant includes the user (singles, doubles, or team)
+      const isUserInParticipant = 
+        participant.player?.id === user.id || 
+        participant.players?.some(p => p.id === user.id);
+      
+      // Check if this participant is enrolled in the division
+      const isInDivision = participant.divisions?.some(div => div.id === divisionId);
+      
+      return isUserInParticipant && isInDivision;
+    });
+  };
 
   const fetchEvent = useCallback(async () => {
     try {
@@ -122,6 +147,8 @@ const EventView = () => {
     }
   };
 
+  const contentRef = useRef(null); // Add ref for scroll target
+
   if (loading) return <Typography>Loading...</Typography>;
   if (error) return <Typography color="error">{error}</Typography>;
   if (!event) return <Typography>No event found</Typography>;
@@ -152,23 +179,28 @@ const EventView = () => {
 
       <TruncatedText text={event.description} />
 
-      <JoinRequest
-        objectType={'event'}
-        id={event.id}
-        isMember={event?.is_participant}
-        memberText={'You are participating'}
-        isOpenRegistration={event.is_open_registration}
-        startDate={event.start_date}
-        registrationDate={event.registration_open_date}
-        callback={async () => {
-          const updatedEvent = await eventAPI.getEvent(id);
-          if (updatedEvent && !updatedEvent.statusCode) {
-            setEvent(updatedEvent);
-          } else {
-            console.error(event.statusMessage);
-          }
-        }}
-      />
+      {/* Show JoinRequest only for single-division events */}
+      {(!event.divisions || event.divisions.length <= 1) && (
+        <JoinRequest
+          objectType={'event'}
+          matchType={event.match_type}
+          restrictions={event.restrictions}
+          id={event.id}
+          isMember={event?.is_participant}
+          memberText={'You are participating'}
+          isOpenRegistration={event.is_open_registration}
+          startDate={event.start_date}
+          registrationDate={event.registration_open_date}
+          callback={async () => {
+            const updatedEvent = await eventAPI.getEvent(id);
+            if (updatedEvent && !updatedEvent.statusCode) {
+              setEvent(updatedEvent);
+            } else {
+              console.error(event.statusMessage);
+            }
+          }}
+        />
+      )}
 
       {/* Participants Info Popup */}
       {event.count_participants > 0 && (
@@ -179,7 +211,6 @@ const EventView = () => {
           <InfoPopup
             iconType="custom"
             customIcon={<FaUsers />}
-            //backgroundColor="white"
             width="400px"
             size={16}
           >
@@ -187,108 +218,137 @@ const EventView = () => {
           </InfoPopup>
         </Box>
       )}
+    </Box>
+  );
 
-      {/* Division selector integrated into title section */}
-      {event.divisions && event.divisions.length > 1 && (
-        <Box sx={{
-          mt: 2,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 2
-        }}>
-          <Typography
-            variant="body2"
-            sx={{
-              color: 'text.secondary',
-              fontWeight: 500,
-              minWidth: 'fit-content'
+  // Division cards section
+  const divisionCards = event.divisions && event.divisions.length > 1 && (
+    <Box sx={{ mt: 4, px: isMobile ? 2 : 4 }}>
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          mb: 2,
+          cursor: 'pointer',
+          '&:hover': {
+            '& .division-heading': {
+              color: 'primary.main'
+            }
+          }
+        }}
+        onClick={() => {
+          const newExpanded = !divisionsExpanded;
+          setDivisionsExpanded(newExpanded);
+          const newSearchParams = new URLSearchParams(searchParams);
+          newSearchParams.set('divisionsExpanded', newExpanded.toString());
+          navigate(`?${newSearchParams.toString()}`, { replace: true });
+        }}
+      >
+        <IconButton 
+          size="small"
+          sx={{ mr: 1 }}
+        >
+          {divisionsExpanded ? <MdExpandLess /> : <MdExpandMore />}
+        </IconButton>
+        <Box sx={{ flex: 1 }}>
+          <Typography 
+            variant="h5" 
+            className="division-heading"
+            sx={{ 
+              fontWeight: 600,
+              transition: 'color 0.2s'
             }}
           >
-            Division:
+            Choose Your Division
           </Typography>
-          <TextField
-            select
-            variant="outlined"
-            size="small"
-            value={selectedDivision?.id || ""}
-            onChange={(e) => {
-              if (e.target.value === "") {
-                // Blank option selected
-                setSelectedDivision(null);
-
-                // Remove division parameter from URL
-                const newSearchParams = new URLSearchParams(window.location.search);
-                newSearchParams.delete('division');
-
-                const newUrl = newSearchParams.toString()
-                  ? `${window.location.pathname}?${newSearchParams.toString()}`
-                  : window.location.pathname;
-                navigate(newUrl, { replace: true });
-              } else {
-                const selected = event.divisions.find(d => d.id === e.target.value);
-                setSelectedDivision(selected);
-
-                // Update URL with division index
-                const divisionIndex = event.divisions.findIndex(d => d.id === e.target.value);
-                const newSearchParams = new URLSearchParams(window.location.search);
-                newSearchParams.set('division', divisionIndex.toString());
-
-                // Update URL without page reload
-                const newUrl = `${window.location.pathname}?${newSearchParams.toString()}`;
-                navigate(newUrl, { replace: true });
-              }
-            }}
-            sx={{
-              minWidth: 180,
-              '& .MuiOutlinedInput-root': {
-                height: 32,
-                '& fieldset': {
-                  borderColor: 'divider',
-                },
-                '&:hover fieldset': {
-                  borderColor: 'primary.main',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: 'primary.main',
-                },
-              },
-              '& .MuiSelect-select': {
-                py: 0.5,
-                fontSize: '0.875rem',
-              }
-            }}
-          >
-            <MenuItem value="">
-              <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
-                Select a division
-              </Typography>
-            </MenuItem>
-            {event.divisions?.map((division) => (
-              <MenuItem key={division.id} value={division.id}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    {division.name}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      color: 'text.secondary',
-                      textTransform: 'capitalize',
-                      backgroundColor: 'action.hover',
-                      px: 0.75,
-                      py: 0.25,
-                      borderRadius: 0.5,
-                      fontSize: '0.75rem'
-                    }}
-                  >
-                    {division.type}
-                  </Typography>
-                </Box>
-              </MenuItem>
-            ))}
-          </TextField>
         </Box>
-      )}
+      </Box>
+      <Collapse in={divisionsExpanded}>
+        <Grid container spacing={2} sx={{ mt: 1, width: '100%' }}>
+        {event.divisions.map((division, index) => (
+          <Grid size={{xs:12, sm:6, md:4}} key={division.id} sx={{ display: 'flex' }}>
+            <DivisionCard
+              division={division}
+              event={event}
+              isSelected={selectedDivision?.id === division.id}
+              isEnrolled={isUserEnrolledInDivision(division.id)}
+              onClick={() => {
+                const newSearchParams = new URLSearchParams(searchParams);
+                if (selectedDivision?.id === division.id) {
+                  // Deselect if clicking same division
+                  setSelectedDivision(null);
+                  newSearchParams.delete('division');
+                } else {
+                  // Select new division
+                  setSelectedDivision(division);
+                  newSearchParams.set('division', index.toString());
+                  
+                  // On mobile: collapse divisions and scroll to content
+                  if (isMobile) {
+                    setDivisionsExpanded(false);
+                    newSearchParams.set('divisionsExpanded', 'false');
+                    
+                    // Scroll to content after a brief delay (let React render)
+                    setTimeout(() => {
+                      contentRef.current?.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                      });
+                    }, 100);
+                  }
+                }
+                navigate(`?${newSearchParams.toString()}`, { replace: true });
+              }}
+              onSignUpSuccess={() => {
+                fetchEvent();
+              }}
+              userMeetsRequirements={true} // TODO: Implement actual restriction checking
+            />
+          </Grid>
+        ))}
+        </Grid>
+      </Collapse>
+    </Box>
+  );
+
+  // Add sticky breadcrumb when division is selected on mobile
+  const divisionBreadcrumb = selectedDivision && isMobile && !divisionsExpanded && (
+    <Box
+      sx={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 10,
+        bgcolor: 'background.paper',
+        borderBottom: 1,
+        borderColor: 'divider',
+        py: 1.5,
+        px: isMobile ? 2 : 4,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1,
+        boxShadow: 1
+      }}
+    >
+      <Chip
+        label={selectedDivision.name}
+        color="primary"
+        sx={{ fontWeight: 600 }}
+      />
+      <Typography variant="body2" color="text.secondary" sx={{ flex: 1 }}>
+        Viewing division
+      </Typography>
+      <IconButton
+        size="small"
+        onClick={() => {
+          setDivisionsExpanded(true);
+          const newSearchParams = new URLSearchParams(searchParams);
+          newSearchParams.set('divisionsExpanded', 'true');
+          navigate(`?${newSearchParams.toString()}`, { replace: true });
+        }}
+        sx={{ ml: 'auto' }}
+      >
+        <MdExpandMore />
+      </IconButton>
     </Box>
   );
 
@@ -296,13 +356,13 @@ const EventView = () => {
   let content;
   switch (event.event_type) {
     case "league":
-      content = <LeagueViewPage event={event} participants={participants} />;
+      content = <LeagueViewPage event={event} participants={participants} callback={refreshEvent} />;
       break;
     case "tournament":
       content = <TournamentView event={event} tournament_id={event.tournament_id} participants={participants} callback={refreshEvent} />;
       break;
     case "ladder":
-      content = <LadderView event={event} participants={participants} />;
+      content = <LadderView event={event} participants={participants} callback={refreshEvent} />;
       break;
     case "multievent":
       if (!selectedDivision) {
@@ -314,31 +374,30 @@ const EventView = () => {
         );
       } else {
         const division_content_id = selectedDivision?.content_object?.id;
-        //console.log("Selected Division:", selectedDivision);
-        if (selectedDivision?.type === 'league')
-          content = <LeagueViewPage event={event} division={selectedDivision} participants={participants} />;
-        else if (selectedDivision?.type === 'tournament') {
-          content = <TournamentView
-            key={division_content_id}
-            event={event}
-            tournament_id={division_content_id}
-            division={selectedDivision}
-            participants={participants}
-            callback={refreshEvent}
-          />;
+        if (selectedDivision?.type === 'league') {
+          content = <LeagueViewPage event={event} participants={participants} league_id={division_content_id} callback={refreshEvent} />;
+        } else if (selectedDivision?.type === 'tournament') {
+          content = <TournamentView event={event} tournament_id={division_content_id} participants={participants} callback={refreshEvent} />;
+        } else if (selectedDivision?.type === 'ladder') {
+          content = <LadderView event={event} participants={participants} callback={refreshEvent} />;
         }
       }
       break;
     default:
-      return <Typography>Unknown event type</Typography>;
+      content = null;
   }
 
   return (
     <>
       {titleSection}
-      {content}
+      {divisionCards}
+      {divisionBreadcrumb}
+      <Box ref={contentRef} sx={{ scrollMarginTop: '80px' }}>
+        {content}
+      </Box>
     </>
   );
+
 };
 
 export default EventView;

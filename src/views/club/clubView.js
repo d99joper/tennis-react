@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Box, Typography, Button, Tabs, Tab, Switch, Snackbar, Pagination, TextField, IconButton, capitalize, Autocomplete, Chip, DialogContent, Select, MenuItem, LinearProgress, List, ListItem, ListItemAvatar, ListItemText, Stack } from '@mui/material';
+import React, { useContext, useEffect, useState, useMemo } from 'react';
+import { Box, Typography, Button, Tabs, Tab, Switch, Snackbar, Pagination, TextField, IconButton, capitalize, Autocomplete, Chip, DialogContent, Select, MenuItem, LinearProgress, useTheme, useMediaQuery } from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
 import clubAPI from 'api/services/club';
 import ResponsiveDataLayout from 'components/layout/Data/responsiveDataLayout';
@@ -8,9 +8,10 @@ import requestAPI from 'api/services/request';
 import { AiFillEdit } from 'react-icons/ai';
 import MyModal from 'components/layout/MyModal';
 import CreateLeague from 'components/forms/League/create';
-import { MdArchive, MdCheckCircleOutline, MdClose, MdDelete } from 'react-icons/md';
+import { MdArchive, MdCheckCircleOutline, MdClose, 
+  MdDelete, MdEvent, MdPeople, MdAdminPanelSettings } from 'react-icons/md';
+import { GiStairsGoal } from 'react-icons/gi';
 import { AuthContext } from 'contexts/AuthContext';
-import { GiExitDoor } from 'react-icons/gi';
 import notificationAPI from 'api/services/notifications';
 import JoinRequest from 'components/forms/Notifications/joinRequests';
 import { Helmet } from 'react-helmet-async';
@@ -18,9 +19,20 @@ import { eventAPI } from 'api/services';
 import { helpers } from 'helpers';
 import DOMPurify from "dompurify";
 import MemberList from 'components/forms/MemberList';
+import { 
+  flexRow, 
+  flexColumn, 
+  flexCenterGap, 
+  getTabContainerStyles, 
+  getTabStyles,
+  getClickableBox,
+  modalFooter
+} from 'styles/componentStyles';
 
 const ClubViewPage = () => {
   const { clubId } = useParams();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [club, setClub] = useState(null);
   const [activeEvents, setActiveEvents] = useState([]);
   const [archivedEvents, setArchivedEvents] = useState([]);
@@ -44,7 +56,11 @@ const ClubViewPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [requests, setRequests] = useState([]);
   const [eventType, setEventType] = useState("");
-  const { user } = useContext(AuthContext)
+  const { user } = useContext(AuthContext);
+
+  // Memoized styles for tabs using shared utilities
+  const tabContainerStyles = useMemo(() => getTabContainerStyles(theme), [theme]);
+  const tabStyles = useMemo(() => getTabStyles(theme), [theme]);
 
   useEffect(() => {
 
@@ -153,7 +169,7 @@ const ClubViewPage = () => {
   }
 
   const handleDeleteRequest = async (id) => {
-    const response = await notificationAPI.deleteNotification(id);
+    await notificationAPI.deleteNotification(id);
     setRequests((prev) => {
       // Remove the request from the list
       return prev.filter((r) => r.id !== id);
@@ -313,7 +329,7 @@ const ClubViewPage = () => {
 
                 multiline
               />
-              <Box display={'flex'} alignItems={'left'} gap={3}>
+              <Box sx={flexCenterGap(3)}>
                 <Button variant="contained" onClick={() => handleSave('description')}>Save</Button>
                 <Button variant="outlined" onClick={() => handleEditToggle('description')}>Cancel</Button>
               </Box>
@@ -328,12 +344,43 @@ const ClubViewPage = () => {
 
           <JoinRequest objectType={'club'} id={club.id} isMember={isMember} />
 
-          <Tabs value={activeTab} onChange={handleTabChange} sx={{ mt: 3 }}>
-            <Tab label="Events" />
-            <Tab label="Members" />
-            {isAdmin && <Tab label="Admin" />}
-          </Tabs>
+          <Box sx={tabContainerStyles}>
+            <Tabs 
+              value={activeTab} 
+              onChange={handleTabChange}
+              variant={isMobile ? "fullWidth" : "standard"}
+              centered={!isMobile}
+              sx={tabStyles}
+            >
+              <Tab 
+                icon={<GiStairsGoal size={20} />} 
+                iconPosition="start" 
+                label="Club Ladder" 
+              />
+              <Tab 
+                icon={<MdEvent size={20} />} 
+                iconPosition="start"
+                label="Events" 
+              />
+              <Tab 
+                icon={<MdPeople size={20} />} 
+                iconPosition="start" 
+                label="Members" 
+              />
+              {isAdmin && (
+                <Tab 
+                  icon={<MdAdminPanelSettings size={20} />} 
+                  iconPosition="start" 
+                  label="Admin" 
+                />
+              )}
+            </Tabs>
+
+            <Box sx={{ p: 3 }}>
           {activeTab === 0 && (
+            <Typography>Ladder functionality coming soon!</Typography>
+          )}
+          {activeTab === 1 && (
             <>
               <MyModal
                 showHide={showCreate}
@@ -370,7 +417,7 @@ const ClubViewPage = () => {
                   Create new event
                 </Button>
               )}
-              <Box display={'flex'} alignItems="center" gap={1} mt={2}>
+              <Box sx={{ ...flexCenterGap(1), mt: 2 }}>
                 <Switch
                   checked={showArchivedEvents}
                   onChange={() => {
@@ -404,7 +451,7 @@ const ClubViewPage = () => {
                   row.count_matches || 0,
                   row.count_players || 0,
                   row.start_date,
-                  <Box display={'flex'} flexDirection={'row'}>
+                  <Box sx={flexRow}>
                     {row.is_participant && <ProfileImage player={user} size={25} />}
                     {(row.count_players || 0) === 0 && (row.count_matches || 0) === 0 && isAdmin
                       ?
@@ -437,8 +484,8 @@ const ClubViewPage = () => {
                   </Link>
                 )} // Always pass a function
                 basicContentForScreen={(row) => (
-                  <Box display={'flex'} flexDirection={'column'} alignItems={'right'}>
-                    <Box display={'flex'} flexDirection={'row'} alignItems={'right'}>
+                  <Box sx={flexColumn}>
+                    <Box sx={flexRow}>
                       {row.is_participant &&
                         <Typography sx={{ pr: 1 }}>
                           <ProfileImage player={user} size={20} />
@@ -452,11 +499,11 @@ const ClubViewPage = () => {
                   </Box>
                 )} // Always pass a function
                 expandableContentForScreen={(row) => (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'left' }}>
+                  <Box sx={flexColumn}>
                     <Typography>
                       {row.description}
                     </Typography>
-                    <Box display={'flex'} alignItems={'center'} gap={1}>
+                    <Box sx={flexCenterGap(1)}>
                       <Typography>{row.count_players} participants</Typography>
                       <Typography>{row.count_matches} matches played</Typography>
                     </Box>
@@ -477,7 +524,7 @@ const ClubViewPage = () => {
             </>
 
           )}
-          {activeTab === 1 && (
+          {activeTab === 2 && (
             <Box sx={{ mt: 2 }}>
               {isFetching && <LinearProgress />}
               <MemberList
@@ -520,7 +567,7 @@ const ClubViewPage = () => {
               {eventToRemove && `Are you sure you want to remove ${eventToRemove?.name}?`}
               {eventToArchive && `Are you sure you want to archive ${eventToArchive?.name}?`}
             </Typography>
-            <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+            <Box sx={modalFooter}>
               <Button variant="outlined" onClick={() => setShowModal(false)}>Cancel</Button>
               {memberToRemove &&
                 <Button variant="contained" color="error" onClick={handleRemoveMember} sx={{ ml: 2 }}>
@@ -539,7 +586,7 @@ const ClubViewPage = () => {
               }
             </Box>
           </MyModal>
-          {activeTab === 2 && (
+          {activeTab === 3 && (
             <>
               <Box mt={3}>
                 <Typography variant="h6">Manage Admins</Typography>
@@ -571,34 +618,27 @@ const ClubViewPage = () => {
                 />
                 <Typography variant="h6" sx={{ mt: 2 }}>Pending Join Requests</Typography>
                 {requests?.length > 0 ? (
-                  <Box display={'flex'} flexDirection={'column'} sx={{ mt: 2 }}>
+                  <Box sx={{ ...flexColumn, mt: 2 }}>
                     {requests?.filter((x) => x.status === 'pending').map((r) => (
-                      <Box display={'flex'} alignItems={'center'} gap={2} key={'request_' + r.id} >
+                      <Box sx={flexCenterGap(2)} key={'request_' + r.id}>
                         <Typography>
                           {r.title} from <Link to={'players/' + r.sender.slug}>{r.sender?.name}</Link>
                         </Typography>
                         <Box
-                          display={'flex'}
-                          alignItems={'center'}
-                          sx={{ color: "primary.main" }}
-                          style={{ cursor: "pointer" }}
+                          sx={getClickableBox("primary.main")}
                           onClick={() => handleApproveDenyRequest(r.id, true)}>
                           <MdCheckCircleOutline size={20} /> Approve
                         </Box>
 
-                        <Box display={'flex'}
-                          alignItems={'center'}
-                          style={{ cursor: "pointer" }}
-                          onClick={() => handleApproveDenyRequest(r.id, false)}
-                          sx={{ color: "secondary.main" }}>
+                        <Box
+                          sx={getClickableBox("secondary.main")}
+                          onClick={() => handleApproveDenyRequest(r.id, false)}>
                           <MdClose size={20} /> Deny
                         </Box>
 
-                        <Box display={'flex'}
-                          alignItems={'center'}
-                          style={{ cursor: "pointer" }}
-                          onClick={() => handleDeleteRequest(r.id)}
-                          sx={{ color: "gray" }}>
+                        <Box
+                          sx={getClickableBox("gray")}
+                          onClick={() => handleDeleteRequest(r.id)}>
                           <MdDelete size={20} /> Delete
                         </Box>
                       </Box>
@@ -612,6 +652,8 @@ const ClubViewPage = () => {
               </Box>
             </>
           )}
+            </Box>
+          </Box>
         </Box>
       )
       }

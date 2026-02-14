@@ -1,8 +1,7 @@
 import { useRef, useEffect, useState } from "react"
 import "./AutocompletePlaces.css"
 import { MdOutlineMyLocation } from "react-icons/md"
-import Grid from "@mui/material/Grid2"
-import { TextField } from "@mui/material"
+import { Grid, TextField } from "@mui/material"
 import useGoogleMapsApi from "helpers/useGoogleMapsApi"
 
 const AutoCompletePlaces = ({ onPlaceChanged, initialCity = '', label, showGetUserLocation = false, hasError, ...props }) => {

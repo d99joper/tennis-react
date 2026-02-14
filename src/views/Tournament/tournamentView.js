@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, Typography, CircularProgress, Tabs, Tab, useMediaQuery, Grid2, Button } from '@mui/material';
+import { Box, Typography, CircularProgress, Tabs, Tab, useMediaQuery, Grid, Button } from '@mui/material';
 import TournamentBracket from 'components/forms/Tournament/bracket';
 import tournamentsAPI from 'api/services/tournament';
 import { eventAPI } from 'api/services';
@@ -211,10 +211,10 @@ const TournamentViewPage = ({ event: initialEvent,
           <Typography variant="h6" gutterBottom>
             Admin Tools
           </Typography>
-          <Grid2 container direction={'column'}>
+          <Grid container direction={'column'}>
             <EventAdminTools event={event} participants={event.participants || []} setEvent={refreshEvent}  />
             <AddParticipants event={event} callback={handleAddDeleteParticipant} />
-          </Grid2>
+          </Grid>
         </Box>
       )}
 

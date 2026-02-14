@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Button, TextField, Typography, Autocomplete, Chip } from '@mui/material';
+import { Box, Button, TextField, Typography, Autocomplete } from '@mui/material';
 import playerAPI from 'api/services/player';
 import debounce from 'lodash.debounce';
 import { helpers } from 'helpers';

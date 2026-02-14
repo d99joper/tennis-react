@@ -6,12 +6,14 @@ import requestAPI from 'api/services/request'
 import { Alert, Box, List, ListItem, Snackbar, Typography } from '@mui/material'
 import { AuthContext } from 'contexts/AuthContext'
 import { eventAPI } from 'api/services'
-import { userHelper } from 'helpers'
 import InfoPopup from '../infoPopup'
 import MyModal from 'components/layout/MyModal'
 import { Link } from 'react-router-dom'
+import PlayerSearch from '../Player/playerSearch'
+import Wizard from '../Wizard/Wizard'
 
-const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration = false, callback, ...props }) => {
+const JoinRequest = ({ objectType, id, matchType, isMember,
+  memberText, isOpenRegistration = false, callback, restrictions, divisionId = null, ...props }) => {
   const [status, setStatus] = useState('loading')
   const [error, setError] = useState(null)
   const [snackbarOpen, setSnackbarOpen] = useState(false)
@@ -21,6 +23,9 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
   const [restrictionResult, setRestrictionResult] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const { isLoggedIn, user } = useContext(AuthContext)
+  const [modalType, setModalType] = useState(null) // 'doubles' or 'single'
+  const [doublesCandidates, setDoublesCandidates] = useState([])
+  const [doublesPartner, setDoublesPartner] = useState(null)
 
   const showSnackbar = (message, severity = 'info') => {
     setSnackbarMessage(message)
@@ -34,6 +39,31 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
   }
 
   useEffect(() => {
+
+
+    const checkEligibility = async () => {
+      setLoading(true)
+      let passed = true
+      try {
+        if (objectType === 'event') {
+          const response = await eventAPI.checkRequirements(id, user.id)
+          passed = response.allowed
+          if (!response.allowed) {
+            setRestrictionResult(response.reasons || [])
+          }
+        }
+      }
+      catch (error) {
+        console.error("Error checking restrictions:", error);
+        setRestrictionResult(["Failed to fetch restriction data."]);
+        passed = false
+      }
+      finally {
+        setLoading(false)
+      }
+      return passed
+    }
+
     async function setJoinRequest() {
       setError(null)
       try {
@@ -62,36 +92,24 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
     if (isLoggedIn && user?.id) {
       setJoinRequest();
     }
-  }, [id, isLoggedIn, user])
+  }, [id, isLoggedIn, user, objectType])
 
-  const checkEligibility = async () => {
+  const handleSignUp = async (participant_type='player') => {
     setLoading(true)
-    let passed = true
     try {
-      if (objectType === 'event') {
-        const response = await eventAPI.checkRequirements(id, user.id)
-        passed = response.allowed
-        if (!response.allowed) {
-          setRestrictionResult(response.reasons || [])
-        }
+      let participant = { type: participant_type}
+      if (participant_type === 'player') participant.id = user.id;
+      if (participant_type === 'doubles') {
+        participant.player_ids = [user.id, doublesPartner.id];
       }
-    }
-    catch (error) {
-      console.error("Error checking restrictions:", error);
-      setRestrictionResult(["Failed to fetch restriction data."]);
-      passed = false
-    }
-    finally {
-      setLoading(false)
-    }
-    return passed
-  }
-
-  const handleSignUp = async () => {
-    setLoading(true)
-    try {
-      const participant = { type: 'player', id: user.id }
+      // Add division_id if this is a division-specific signup
+      if (divisionId) {
+        participant.division_id = divisionId;
+      }
       const response = await eventAPI.addParticipant(id, participant)
+      if (!response || response.error) {
+        throw new Error('Failed to sign up for event')
+      }
       showSnackbar('You have been added to the event', 'success')
       if (callback) {
         callback();
@@ -109,9 +127,148 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
     }
   }
 
+  // create a preFilter based on the restrictions to limit partner selection
+  const doublesPreFilter = (() => {
+    const pf = {};
+    if (!restrictions) return pf;
+
+    Object.entries(restrictions).forEach(([key, val]) => {
+      if (val == null) return;
+      // age: backend expects a JSON object with keys 'over', 'under' or 'between'
+      if (key === 'age') {
+        const min = val?.min ? Number(val.min) : null;
+        const max = val?.max ? Number(val.max) : null;
+        if (val.type === 'over') {
+          pf[key] = JSON.stringify({ over: min });
+        } else if (val.type === 'under') {
+          pf[key] = JSON.stringify({ under: max });
+        } else if (val.type === 'between') {
+          pf[key] = JSON.stringify({ between: [min, max] });
+        }
+      }
+      else if (key === 'club') pf[key] = JSON.stringify({ id: val["id"] })
+      // gender, rating
+      else pf[key] = val['value'];
+    });
+
+    return pf;
+  })();
+
+  const doublesWizardSteps = [
+    {
+      label: 'Select Partner',
+      //description: 'Select Partner',
+      content: (
+        <Box sx={{ mb: 2 }}>
+          <Typography>
+            Signing up as {user?.name}.
+          </Typography>
+          <Typography>
+            Who is your partner for this doubles event?
+          </Typography>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+            <PlayerSearch
+              excludePlayers={[user]}
+              maxSelection={1}
+              preFilter={doublesPreFilter}
+              onResults={(players) => {
+                console.log('Doubles partner candidates:', players)
+                setDoublesCandidates(players)
+              }}
+              manualSearch={true}
+            />
+          </Box>
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+              {doublesCandidates.length} partner candidate{doublesCandidates.length !== 1 ? 's' : ''} found
+            </Typography>
+            {doublesCandidates.map((p) => (
+              <Box
+                key={p.id}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  p: 1.5,
+                  mb: 1,
+                  border: 1,
+                  borderColor: doublesPartner?.id === p.id ? 'primary.main' : 'divider',
+                  borderRadius: 1,
+                  bgcolor: doublesPartner?.id === p.id ? 'primary.light' : 'background.paper',
+                  opacity: doublesPartner?.id === p.id ? 1 : 0.8,
+                  transition: 'all 0.2s',
+                  '&:hover': {
+                    bgcolor: doublesPartner?.id === p.id ? 'primary.light' : 'action.hover',
+                    opacity: 1
+                  }
+                }}
+              >
+                <Typography>{p.name}</Typography>
+                <Button
+                  variant={doublesPartner?.id === p.id ? 'contained' : 'outlined'}
+                  size="small"
+                  onClick={() => setDoublesPartner(doublesPartner?.id === p.id ? null : p)}
+                >
+                  {doublesPartner?.id === p.id ? 'Selected' : 'Select'}
+                </Button>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      ),
+      handleNext: () => { return doublesPartner != null; }
+    },
+    {
+      label: 'Confirm Sign Up',
+      description: 'Confirm Sign Up',
+      content: (
+        <Box sx={{ mb: 2 }}>
+          <Typography>
+            You are about to sign up with partner {doublesPartner?.name}.
+          </Typography>
+        </Box>
+      ),
+    }
+  ];
+  const doublesModalContent = (
+    <Wizard
+      steps={doublesWizardSteps}
+      handleSubmit={() => { 
+        showSnackbar(`Signing up with partner ${doublesPartner?.name}`, 'info'); 
+        // implement sign up with partner logic here
+        handleSignUp('doubles');
+        
+      }}
+      submitText="Confirm Sign Up"
+    />
+
+  )
+  const SingleModalContent = (
+    <Box>
+      <Typography>
+        You are about to sign up.
+      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+        <Button variant="outlined" onClick={() => setShowModal(false)}>Cancel</Button>
+        <Button variant="contained" color="primary" onClick={handleSignUp} sx={{ ml: 2 }}>
+          Sign Up!
+        </Button>
+      </Box>
+    </Box>
+  )
+
   const handleJoinRequest = async () => {
-    if (canRegisterDirectly()) {
+    // console.log('handleJoinRequest called. Match type:', matchType);
+    if (matchType === 'doubles') {
+      console.log('Current user:', user);
+      setModalType('doubles')
       setShowModal(true)
+      return
+    }
+    if (canRegisterDirectly()) {
+      setModalType('single')
+      setShowModal(true)
+      return
     }
     else {
       requestAPI.createJoinRequest(objectType, id)
@@ -136,14 +293,14 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
 
   if (!isLoggedIn) {
     return (
-      <Box sx={{p:1.5}}>
+      <Box sx={{ p: 1.5 }}>
         <Typography variant='body2'>
           Do you want to join? <br />
           Sign up for account today!
         </Typography>
-        <Button 
-          variant="contained" 
-          color="info" 
+        <Button
+          variant="contained"
+          color="info"
           component={Link}
           to="/Registration"
         >
@@ -214,15 +371,8 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
       </Snackbar>
 
       <MyModal showHide={showModal} onClose={() => setShowModal(false)} title="Confirm Signing up">
-        <Typography>
-          You are about to sign up.
-        </Typography>
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-          <Button variant="outlined" onClick={() => setShowModal(false)}>Cancel</Button>
-          <Button variant="contained" color="primary" onClick={handleSignUp} sx={{ ml: 2 }}>
-            Sign Up!
-          </Button>
-        </Box>
+        {modalType === 'doubles' && doublesModalContent}
+        {modalType === 'single' && SingleModalContent}
       </MyModal>
     </Box>
   )

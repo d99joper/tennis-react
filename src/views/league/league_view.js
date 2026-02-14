@@ -5,7 +5,7 @@ import {
   Tab,
   Typography,
   useMediaQuery,
-  Grid2,
+  Grid,
   Snackbar,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -215,10 +215,13 @@ const LeagueViewPage = (props) => {
 
       {/* Admin Tools Tab */}
       {currentTab === 3 && isAdmin && (
-        <Grid2 container direction={'column'}>
-          <EventAdminTools event={event} setEvent={setEvent} />
+        <Grid container direction={'column'}>
+          <EventAdminTools event={event} setEvent={(updatedEvent) => {
+            setEvent(updatedEvent);
+            if (props.callback) props.callback(updatedEvent);
+          }} />
           <AddParticipants event={event} callback={handleAddDeleteParticipant} />
-        </Grid2>
+        </Grid>
       )}
 
       <MyModal

@@ -3,10 +3,10 @@
     "version": "0.1.0",
     "private": true,
     "dependencies": {
-        "@emotion/react": "^11.10.6",
-        "@emotion/styled": "^11.10.6",
+        "@emotion/react": "^11.14.0",
+        "@emotion/styled": "^11.14.1",
         "@googlemaps/markerclusterer": "^2.5.3",
-        "@mui/material": "^6.1.1",
+        "@mui/material": "^7.3.7",
         "@react-oauth/google": "^0.11.1",
         "canvas-confetti": "^1.9.3",
         "dompurify": "^3.2.4",

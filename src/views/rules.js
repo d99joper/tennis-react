@@ -16,8 +16,8 @@ const RulesPage = () => {
         <ListItem>
           <ListItemText
             primary="Scheduling"
-            secondary="Once challenged, the players should try to find a match time and location within two
-            weeks of the challenge date."
+            secondary="How to schedule your league or tournament matches is up to the organizers of the particular event you are participating in.  
+            However, if left without guidelines, a general rule of thumb is that once challenged the players should try to find a match time and location within ten days of the challenge date."
           />
         </ListItem>
         <ListItem>

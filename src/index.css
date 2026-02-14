@@ -10,6 +10,12 @@ body {
   /* background-color: #f2f3ed; */
 }
 
+:root {
+  --color-warn: #FFA000; /* primary warning */
+  --color-warn-dark: #FF8F00; /* hover/active */
+  --color-warn-contrast: #ffffff;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;

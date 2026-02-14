@@ -1,6 +1,6 @@
 import * as React from "react";
 import { helpers } from "helpers";
-import { Card, decomposeColor, Grid2, Typography } from "@mui/material";
+import { Card, Grid, Typography } from "@mui/material";
 
 const ItemCard = ({ highlight, onHover, onClick, header, description, footer, footerRight, ...props }) => {
     return (
@@ -15,8 +15,8 @@ const ItemCard = ({ highlight, onHover, onClick, header, description, footer, fo
             onMouseEnter={onHover}
             onMouseLeave={onHover}
         >
-            <Grid2
-                templateRows={'1fr 2fr auto'}
+            <Grid
+                container
                 rowGap=".25rem"
             >
                 <Typography fontSize={'1.1rem'} fontWeight='bold'>{header}</Typography>
@@ -30,7 +30,7 @@ const ItemCard = ({ highlight, onHover, onClick, header, description, footer, fo
                         <span style={{float:'right'}}>{footerRight}</span>
                     }
                 </Typography>
-            </Grid2>
+            </Grid>
         </Card>
 
         // <Flex

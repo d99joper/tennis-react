@@ -1,6 +1,6 @@
 // Profile.js
 import React, { useState, useEffect, useContext } from 'react'
-import { Box, LinearProgress, Typography, Modal, Card, Tab, CardContent, Tabs } from '@mui/material'
+import { Box, LinearProgress, Typography, Modal, Card, Tab, CardContent, Tabs, CircularProgress } from '@mui/material'
 import { useParams } from 'react-router-dom'
 import { playerAPI } from 'api/services'
 import { AuthContext } from 'contexts/AuthContext'
@@ -32,6 +32,8 @@ const Profile = () => {
   const [statsFetched, setStatsFetched] = useState(false);
   const [rivals, setRivals] = useState({})
   const [rivalsFetched, setRivalsFetched] = useState(false);
+  const [rivalsLoading, setRivalsLoading] = useState(false);
+  const [rivalsPlayerId, setRivalsPlayerId] = useState(null);
   const [refreshIndex, setRefreshIndex] = useState(0);
   const [tabIndex, setTabIndex] = useState(0)
   const [matchTabIndex, setMatchTabIndex] = useState(0);
@@ -40,6 +42,7 @@ const Profile = () => {
     async function fetchProfile() {
       setRivals({})
       setRivalsFetched(false)
+      setRivalsPlayerId(null)
       setStatsFetched(false)
       setStats({})
       try {
@@ -56,6 +59,9 @@ const Profile = () => {
         if (!userIsLoading && isLoggedIn && user?.id === fetchedPlayer.id) {
           setCanEdit(true)
           setShowUtrRefresh(true)
+        } else {
+          setCanEdit(false)
+          setShowUtrRefresh(false)
         }
 
         if (fetchedPlayer.UTR) {
@@ -83,15 +89,47 @@ const Profile = () => {
 
   const handleRivalsClick = () => {
     if (!rivalsFetched) {
+      setRivalsLoading(true)
       // userHelper.getGreatestRivals(player.id)
       playerAPI.getGreatestRivals([player.id], enums.MATCH_TYPE.SINGLES)
         //playerFunctions.getGreatestRivals([player.id,'abc'], enums.MATCH_TYPE.DOUBLES)
         .then((data) => {
           setRivals(data)
+          setRivalsPlayerId(player.id)
           setRivalsFetched(true)
+          setRivalsLoading(false)
+        })
+        .catch((error) => {
+          console.error('Failed to fetch rivals:', error)
+          setRivalsPlayerId(player.id)
+          setRivalsLoading(false)
+          setRivalsFetched(true) // Set to true to prevent infinite retry
         })
     }
   }
+
+  // Fetch rivals when on Rivals tab and player changes
+  useEffect(() => {
+    console.log('Rivals useEffect:', { tabIndex, playerId: player?.id, rivalsFetched, rivalsPlayerId })
+    if (tabIndex === 3 && player && rivalsPlayerId !== player.id) {
+      console.log('Fetching rivals for player:', player.id)
+      setRivalsLoading(true)
+      playerAPI.getGreatestRivals([player.id], enums.MATCH_TYPE.SINGLES)
+        .then((data) => {
+          console.log('Rivals data received:', data)
+          setRivals(data)
+          setRivalsPlayerId(player.id)
+          setRivalsFetched(true)
+          setRivalsLoading(false)
+        })
+        .catch((error) => {
+          console.error('Failed to fetch rivals:', error)
+          setRivalsPlayerId(player.id)
+          setRivalsLoading(false)
+          setRivalsFetched(true) // Set to true to prevent infinite retry
+        })
+    }
+  }, [tabIndex, player, rivalsPlayerId])
 
   const handleImageUpdate = async (e) => {
     try {
@@ -149,6 +187,7 @@ const Profile = () => {
       />
       <Box sx={{ width: '100%', maxWidth: 900 }}>
         <ProfileHeader
+          key={userid || user?.id}
           player={player}
           awards={awards}
           canEdit={canEdit}
@@ -198,7 +237,7 @@ const Profile = () => {
           </Tabs>
           <CardContent>
             {tabIndex === 0 &&
-              <EventSection player={player} />
+              <EventSection key={player.id} player={player} />
             }
             {tabIndex === 1 &&
               <Box sx={{ padding: { xs: 1, sm: 2 } }}>
@@ -212,6 +251,7 @@ const Profile = () => {
                 </Tabs>
                 {matchTabIndex === 0 && (
                   <Matches
+                    key={`singles-${player.id}`}
                     originId={player.id}
                     originType={'player'}
                     matchType={'singles'}
@@ -230,6 +270,7 @@ const Profile = () => {
                 )}
                 {matchTabIndex === 1 && (
                   <Matches
+                    key={`doubles-${player.id}`}
                     originId={player.id}
                     originType={'player'}
                     matchType={'doubles'}
@@ -242,10 +283,17 @@ const Profile = () => {
               </Box>
             }
             {tabIndex === 2 &&
-              <UserStats stats={stats} statsFetched={statsFetched} />
+              <UserStats key={player.id} stats={stats} statsFetched={statsFetched} />
             }
             {tabIndex === 3 &&
-              <TopRivals data={rivals} rivalsFetched={rivalsFetched} player={player} paddingTop={10} />
+              (rivalsLoading || rivalsPlayerId !== player.id ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4, flexDirection: 'column', gap: 2 }}>
+                  <CircularProgress />
+                  <Typography>Loading rivals...</Typography>
+                </Box>
+              ) : (
+                <TopRivals key={player.id} data={rivals} rivalsFetched={rivalsFetched} player={player} paddingTop={10} />
+              ))
             }
           </CardContent>
         </Card>
