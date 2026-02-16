@@ -1,4 +1,5 @@
 import authAPI from 'api/auth'
+import billableItemAPI from './billableItemService'
 import clubAPI from './club'
 import commentsAPI from './comment'
 import courtAPI from './court'
@@ -10,9 +11,11 @@ import matchAPI from './match'
 import playerAPI from './player'
 import subscriptionAPI from './subscription'
 import tournamentsAPI from './tournament'
+import stripeAPI from './stripeService'
 
 export {
   authAPI,
+  billableItemAPI,
   clubAPI,
   commentsAPI,
   courtAPI,
@@ -22,6 +25,7 @@ export {
   leagueAPI,
   matchAPI,
   playerAPI,
+  stripeAPI,
   subscriptionAPI,
   tournamentsAPI
 }

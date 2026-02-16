@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { Box, Typography, Button, Tabs, Tab, Switch, Snackbar, Pagination, TextField, IconButton, capitalize, Autocomplete, Chip, DialogContent, Select, MenuItem, LinearProgress, useTheme, useMediaQuery } from '@mui/material';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import clubAPI from 'api/services/club';
 import ResponsiveDataLayout from 'components/layout/Data/responsiveDataLayout';
 import { AddPlayerToClub, Editable, ProfileImage } from 'components/forms';
@@ -19,6 +19,7 @@ import { eventAPI } from 'api/services';
 import { helpers } from 'helpers';
 import DOMPurify from "dompurify";
 import MemberList from 'components/forms/MemberList';
+import ClubPaymentSettings from 'components/forms/Stripe/ClubPaymentSettings';
 import { 
   flexRow, 
   flexColumn, 
@@ -31,6 +32,7 @@ import {
 
 const ClubViewPage = () => {
   const { clubId } = useParams();
+  const [searchParams] = useSearchParams();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [club, setClub] = useState(null);
@@ -84,6 +86,29 @@ const ClubViewPage = () => {
     fetchClubDetails();
 
   }, [clubId]);
+
+  // Map tab query param to tab index
+  const tabNameToIndex = useMemo(() => ({
+    ladder: 0,
+    events: 1,
+    members: 2,
+    admin: 3,
+  }), []);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    const tabParam = searchParams.get('tab');
+    if (tabParam) {
+      const index = tabNameToIndex[tabParam.toLowerCase()];
+      if (index !== undefined) {
+        setActiveTab(index);
+        // Trigger data fetching for the target tab
+        if (index >= 1 && members.length === 0) fetchMembers();
+        if (index === 3 && requests.length === 0) fetchRequests();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, tabNameToIndex, isLoaded, isAdmin]);
 
   const handleRemoveMember = async () => {
     if (memberToRemove) {
@@ -649,6 +674,10 @@ const ClubViewPage = () => {
                 )}
                 <Typography variant="h6" sx={{ mt: 2 }}>Add Players (without join request)</Typography>
                 <AddPlayerToClub club={club} />
+                
+                <Box sx={{ mt: 4, pt: 3, borderTop: `1px solid ${theme.palette.divider}` }}>
+                  <ClubPaymentSettings clubId={club.id} />
+                </Box>
               </Box>
             </>
           )}

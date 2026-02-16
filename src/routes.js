@@ -34,6 +34,10 @@ const AdminTasks = lazy(() => import('./views/adminTasks'))
 const PrivacyPolicyPage = lazy(() => import('./views/privacyPolicyPage'))
 const TermsOfServicePage = lazy(() => import('./views/termsOfServicePage'))
 const LeagueCreate = lazy(() => import('./components/forms/League/create'))
+const MarketplaceCheckout = React.lazy(() => import('views/MarketplaceCheckout'));
+const PaymentComplete = React.lazy(() => import('views/PaymentComplete'));
+const StripeConnectReturn = React.lazy(() => import('views/StripeConnectReturn'));
+const StripeOAuthCallback = React.lazy(() => import('views/StripeOAuthCallback'));
 const preloadPage = (page) => page().then((module) => module.default);
 
 
@@ -137,6 +141,10 @@ const MyRouter = (props) => {
             <Route path=":id" element={<EventView isLoggedIn={isLoggedIn} />} />
             <Route path="create" element={<LeagueCreate isLoggedIn={isLoggedIn} />} />
           </Route>
+          <Route path="/checkout/:billableItemId" element={<MarketplaceCheckout />} />
+          <Route path="/payments/complete" element={<PaymentComplete />} />
+          <Route path="/stripe/connect/return" element={<StripeConnectReturn />} />
+          <Route path="/stripe/oauth/callback" element={<StripeOAuthCallback />} />
           <Route path="*" element={<NoPage />} />
         </Routes>
         {showHeaderOrFooter(location.pathname) ? <MemoizedFooter /> : null}
