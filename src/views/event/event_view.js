@@ -160,6 +160,7 @@ const EventView = () => {
         isOpenRegistration={event.is_open_registration}
         startDate={event.start_date}
         registrationDate={event.registration_open_date}
+        billableItem={event.billable_item}
         callback={async () => {
           const updatedEvent = await eventAPI.getEvent(id);
           if (updatedEvent && !updatedEvent.statusCode) {

@@ -5,13 +5,13 @@ import { AiOutlineClockCircle } from 'react-icons/ai'
 import requestAPI from 'api/services/request'
 import { Alert, Box, List, ListItem, Snackbar, Typography } from '@mui/material'
 import { AuthContext } from 'contexts/AuthContext'
-import { eventAPI } from 'api/services'
+import { billableItemAPI, eventAPI } from 'api/services'
 import { userHelper } from 'helpers'
 import InfoPopup from '../infoPopup'
 import MyModal from 'components/layout/MyModal'
 import { Link } from 'react-router-dom'
 
-const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration = false, callback, ...props }) => {
+const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration = false, callback, billableItem, ...props }) => {
   const [status, setStatus] = useState('loading')
   const [error, setError] = useState(null)
   const [snackbarOpen, setSnackbarOpen] = useState(false)
@@ -109,6 +109,22 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
     }
   }
 
+  const handlePayAndSignUp = async () => {
+    setLoading(true)
+    try {
+      const session = await billableItemAPI.createCheckoutSession(id)
+      if (session?.checkout_url) {
+        window.location.href = session.checkout_url
+      } else {
+        throw new Error('No checkout URL returned')
+      }
+    } catch (e) {
+      showSnackbar('Failed to start payment. Please try again.', 'error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleJoinRequest = async () => {
     if (canRegisterDirectly()) {
       setShowModal(true)
@@ -187,7 +203,10 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
         : <>
           {status === 'none' && (
             <Button variant="contained" color="primary" onClick={handleJoinRequest}>
-              {canRegisterDirectly() ? 'Sign Up' : 'Request to Join'}
+              {canRegisterDirectly()
+                ? (billableItem ? 'Sign Up & Pay' : 'Sign Up')
+                : (billableItem ? 'Request to Join (Paid)' : 'Request to Join')
+              }
             </Button>
           )}
           {status === 'pending' && (
@@ -214,15 +233,34 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
       </Snackbar>
 
       <MyModal showHide={showModal} onClose={() => setShowModal(false)} title="Confirm Signing up">
-        <Typography>
-          You are about to sign up.
-        </Typography>
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-          <Button variant="outlined" onClick={() => setShowModal(false)}>Cancel</Button>
-          <Button variant="contained" color="primary" onClick={handleSignUp} sx={{ ml: 2 }}>
-            Sign Up!
-          </Button>
-        </Box>
+        {billableItem ? (
+          <>
+            <Typography>
+              This is a paid event. An entry fee of <strong>{new Intl.NumberFormat('en-US', { style: 'currency', currency: billableItem.currency || 'usd' }).format(billableItem.price)}</strong> is required to sign up.
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              You will be redirected to a secure payment page to complete your registration.
+            </Typography>
+            <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+              <Button variant="outlined" onClick={() => setShowModal(false)}>Cancel</Button>
+              <Button variant="contained" color="primary" onClick={handlePayAndSignUp} disabled={loading} sx={{ ml: 2 }}>
+                {loading ? <CircularProgress size={20} /> : 'Proceed to Payment'}
+              </Button>
+            </Box>
+          </>
+        ) : (
+          <>
+            <Typography>
+              You are about to sign up.
+            </Typography>
+            <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+              <Button variant="outlined" onClick={() => setShowModal(false)}>Cancel</Button>
+              <Button variant="contained" color="primary" onClick={handleSignUp} sx={{ ml: 2 }}>
+                Sign Up!
+              </Button>
+            </Box>
+          </>
+        )}
       </MyModal>
     </Box>
   )

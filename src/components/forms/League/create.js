@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Box, Container, TextField, Checkbox, FormControlLabel, MenuItem, Typography } from '@mui/material';
+import { Alert, Box, Container, TextField, Checkbox, FormControlLabel, MenuItem, Typography, InputAdornment, Tooltip } from '@mui/material';
 import Wizard from 'components/forms/Wizard/Wizard';
 import { AutoCompletePlaces, InfoPopup } from 'components/forms';
 import { helpers } from 'helpers';
 import EventRestrictions from './restrictions';
 import clubAPI from 'api/services/club';
 import { AuthContext } from 'contexts/AuthContext';
-import { eventAPI } from 'api/services';
+import { billableItemAPI, eventAPI } from 'api/services';
 
 const CreateLeague = ({ club, admins, onSuccess }) => {
   const [formState, setFormState] = useState({
@@ -25,6 +25,7 @@ const CreateLeague = ({ club, admins, onSuccess }) => {
     club_id: club?.id || '',
     admins: admins || [],
     event_type: 'league', // Set event type explicitly
+    price: '',
     content_object: { // Store League-specific data separately
       schedule: null
     }
@@ -32,6 +33,7 @@ const CreateLeague = ({ club, admins, onSuccess }) => {
 
   const [errors, setErrors] = useState({});
   const [userClubs, setUserClubs] = useState(club ? [club] : []);
+  const [billableItemError, setBillableItemError] = useState(false);
   const { user } = useContext(AuthContext)
 
   useEffect(() => {
@@ -104,12 +106,20 @@ const CreateLeague = ({ club, admins, onSuccess }) => {
 
   const handleCreateLeague = async () => {
     try {
-      const snakeCaseData = helpers.camelToSnake(preprocessFormData(formState))
+      const { price, ...rest } = formState;
+      const snakeCaseData = helpers.camelToSnake(preprocessFormData(rest))
       console.log('Creating league with data:', snakeCaseData);
-      const response = await eventAPI.createEvent(snakeCaseData);  //leagueAPI.createLeague(snakeCaseData);
+      const response = await eventAPI.createEvent(snakeCaseData);
       if (response.success) {
+        if (price && parseFloat(price) > 0) {
+          try {
+            await billableItemAPI.createBillableItem(response.event.id, parseFloat(price));
+          } catch (billableError) {
+            console.error('Failed to create billable item:', billableError);
+            setBillableItemError(true);
+          }
+        }
         onSuccess(response.event)
-        //navigate(`/league/${response.event.id}`);
       } else {
         throw new Error(response.message);
       }
@@ -258,6 +268,36 @@ const CreateLeague = ({ club, admins, onSuccess }) => {
               margin="normal"
             />
           )}
+
+          {/* Payment Option */}
+          <Box mt={2}>
+            <Typography variant="subtitle1" gutterBottom>
+              Payment
+            </Typography>
+            <Tooltip
+              title={!club?.stripe_account_id ? 'A payment account must be set up before paid events can be enabled.' : ''}
+              arrow
+            >
+              <span>
+                <TextField
+                  label="Entry Fee (USD)"
+                  type="number"
+                  fullWidth
+                  value={formState.price}
+                  onChange={(e) => updateFormState('price', e.target.value)}
+                  disabled={!club?.stripe_account_id}
+                  InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }}
+                  inputProps={{ min: 0, step: 0.01 }}
+                  margin="normal"
+                  helperText={
+                    !club?.stripe_account_id
+                      ? 'A payment account must be set up before paid events can be enabled.'
+                      : 'Leave blank or set to 0 for a free event.'
+                  }
+                />
+              </span>
+            </Tooltip>
+          </Box>
         </Container>
       ),
     },
@@ -279,6 +319,11 @@ const CreateLeague = ({ club, admins, onSuccess }) => {
       <Typography variant="h4" align="center" gutterBottom>
         {formState.name || 'Create New League'}
       </Typography>
+      {billableItemError && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          The event was created successfully, but the payment setup failed. Please contact support or try setting the entry fee again.
+        </Alert>
+      )}
       <Wizard
         steps={steps}
         handleSubmit={handleCreateLeague}
