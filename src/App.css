@@ -8,7 +8,7 @@ body,html {
   width: 100%;
   height: 100%;
   
-  background-color: #edfdf0;
+  /* background-color removed - now uses theme background */
 }
 
 * {
@@ -46,7 +46,7 @@ div[data-lastpass-root] { display: none; }
   display: flex;
   padding: 1rem;
   flex-direction: column;
-  background-color: #edfdf0;
+  /* background-color removed - now uses theme background */
   min-width: 450px;
 }
 
@@ -99,7 +99,7 @@ div[data-lastpass-root] { display: none; }
   .content {
     /* width: 60rem; */
     padding: 1rem;
-    background-color: #edfdf0;
+    /* background-color removed - uses theme */
   }
 }
 

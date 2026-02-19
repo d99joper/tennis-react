@@ -3,7 +3,7 @@ import { enums } from "helpers";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./ladder.css"
 import { useState } from "react";
-import { Autocomplete, TextField, Slider, Grid2, Button } from "@mui/material";
+import { Autocomplete, TextField, Slider, Grid, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { ladderAPI } from "api/services";
 import { ErrorHandler } from "components/forms";
@@ -25,18 +25,18 @@ const LadderCreate = () => {
 	// const geocoder = createAmplifyGeocoder();
 	// document.getElementById("search").appendChild(geocoder.onAdd());
 
-	const searchOptionsWithBiasPosition = {
-		countries: ['USA'], // Alpha-3 country codes
-		maxResults: 10, // 50 is the max and the default
-		types: ['locality'],
-		biasPosition: [
-			-121.74365619216327,
-			38.54422591158026
-		], // Coordinates point to act as the center of the search
-		minLength: 2
-		//searchAreaConstraints: [SWLongitude, SWLatitude, NELongitude, NELatitude], // Bounding box to search inside of
-		//searchIndexName:  the string name of the search index
-	}
+	// const searchOptionsWithBiasPosition = {
+	// 	countries: ['USA'], // Alpha-3 country codes
+	// 	maxResults: 10, // 50 is the max and the default
+	// 	types: ['locality'],
+	// 	biasPosition: [
+	// 		-121.74365619216327,
+	// 		38.54422591158026
+	// 	], // Coordinates point to act as the center of the search
+	// 	minLength: 2
+	// 	//searchAreaConstraints: [SWLongitude, SWLatitude, NELongitude, NELatitude], // Bounding box to search inside of
+	// 	//searchIndexName:  the string name of the search index
+	// }
 	function handleSearch(e) {
 		const searchText = e.target.value
 		if (searchText.length <= 2) return
@@ -63,12 +63,12 @@ const LadderCreate = () => {
 		// 	}
 		// 	)
 	}
-	const options = {
-		types: ['locality'],
-		countries: ['USA'],
-		placeholder: 'City',
-		minLength: 4
-	}
+	// const options = {
+	// 	types: ['locality'],
+	// 	countries: ['USA'],
+	// 	placeholder: 'City',
+	// 	minLength: 4
+	// }
 
 	//console.log(geoTest)
 	function onCreate(e) {
@@ -109,7 +109,7 @@ const LadderCreate = () => {
 	return (
 		<>
 			Create a new ladder
-			<Grid2 as="form"
+			<Grid as="form"
 				gap="1rem"
 				width={300}
 				onSubmit={onCreate}
@@ -165,7 +165,7 @@ const LadderCreate = () => {
 					Create
 				</Button>
 				<ErrorHandler error={error} />
-			</Grid2>
+			</Grid>
 
 			{/* <Button onClick={createOtherLadder}>Create Other Ladder</Button> */}
 		</>

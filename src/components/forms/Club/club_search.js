@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, TextField, Typography, Button, Grid2 as Grid, Card, CardContent, CardActions, Slider } from '@mui/material';
+import { Box, TextField, Typography, Button, Grid, Card, CardContent, CardActions, Slider } from '@mui/material';
 import clubAPI from 'api/services/club';
 import AutoCompletePlaces from '../Autocomplete/AutocompletePlaces';
 

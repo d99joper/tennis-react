@@ -1,4 +1,4 @@
-import { Box, Button, Checkbox, Dialog, DialogTitle, Grid2 } from "@mui/material"
+import { Box, Button, Checkbox, Dialog, DialogTitle, Grid } from "@mui/material"
 import { useState } from "react"
 import { Match } from "../index"
 import { matchHelper, userHelper } from "helpers"
@@ -112,11 +112,11 @@ const UnlinkedMatches = ({
       >
         <DialogTitle>Link matches</DialogTitle>
         <Box padding={'1rem'}>
-          <Grid2 templateRows={"auto"}>
+          <Grid templateRows={"auto"}>
             {unLinkedMatches?.map((x, i) => {
               if (!x.checked) x.checked = false
               return (
-                <Grid2 templateColumns={"auto 1fr"} key={`unlinkedMatch_${i}`}>
+                <Grid templateColumns={"auto 1fr"} key={`unlinkedMatch_${i}`}>
                   <Checkbox
                     checked={x.checked}
                     //value={x.checked}
@@ -127,14 +127,14 @@ const UnlinkedMatches = ({
                     }}
                   />
                   <Match match={x.match} />
-                </Grid2>
+                </Grid>
               )
             })}
             <Box>
               <Button variation='primary' onClick={handleLinkToProfile} >Link matches to my profile</Button>
               <Button variation='link' onClick={handleIgnoreLinkedMatches} >Ignore Selected</Button>
             </Box>
-          </Grid2>
+          </Grid>
         </Box>
       </Dialog>
     </>

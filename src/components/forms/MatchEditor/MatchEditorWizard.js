@@ -6,8 +6,11 @@ import InfoPopup from '../infoPopup';
 import FriendlyMatchPlayers from './friendlyMatchPlayers';
 import CourtSearchAutocomplete from '../Courts/searchCourt';
 import { helpers } from 'helpers';
+import { useTheme } from '@emotion/react';
 
 const MatchEditorWizard = ({ matchLogic, onSubmit }) => {
+
+  const theme = useTheme();
   //console.log(matchLogic.selectedOpponents)
   const steps = [
     !matchLogic.selectedEvent &&
@@ -15,8 +18,10 @@ const MatchEditorWizard = ({ matchLogic, onSubmit }) => {
       label: 'Event Selection',
       content: (
         <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1 }}>
-          <Typography variant="h6">Friendly match</Typography>
-          <InfoPopup>
+          <Typography variant="h6" sx={{ color: theme.palette.warning.dark }}>
+            Friendly matches only
+          </Typography>
+          <InfoPopup color={theme.palette.warning.dark}>
             If you want to post a match result from a league or tournament, please do so on the respective event's site. <br />
             Only friendly matches can be posted from your profile page.
           </InfoPopup>

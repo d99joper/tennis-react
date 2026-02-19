@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import { Ladder, Ladders } from "components/forms";
 import { enums } from "helpers";
-import { Button, Divider, Grid2, Typography } from "@mui/material";
+import { Button, Divider, Grid, Typography } from "@mui/material";
 import { ladderAPI } from "api/services";
 
 
@@ -71,12 +71,12 @@ const LadderView = (props) => {
       //     GetPlayerLadders()
     }
 
-  }, [params.ladderId], userId)
+  }, [params.ladderId, currentUser, isLoggedIn], userId)
 
   if (params.ladderId)
     return (
       <>
-        <Grid2
+        <Grid
           templateRows={'1fr auto'}
         >
           {/* display the ladder */}
@@ -91,13 +91,13 @@ const LadderView = (props) => {
           }
           {/* Search for ladders */}
           {/* <LadderSearch /> */}
-        </Grid2>
+        </Grid>
       </>
     )
   else if (isLoggedIn) {// no ladderId, so display my ladders
     return (
       <>
-        <Grid2 templateColumns={"1fr"} templateRows={"1fr auto 1fr 1fr auto"} gap="1rem">
+        <Grid templateColumns={"1fr"} templateRows={"1fr auto 1fr 1fr auto"} gap="1rem">
           <Typography variant="h6">My Ladders</Typography>
           <Ladders
             ladders={playerLadders}
@@ -114,7 +114,7 @@ const LadderView = (props) => {
               displayAs={enums.DISPLAY_MODE.Card}
             />
           }
-        </Grid2>
+        </Grid>
 
         <LadderSearch />
       </>

@@ -20,7 +20,7 @@ import {
   IconButton,
   Button,
 } from '@mui/material';
-import { v4 as uuidv4 } from 'uuid'; 
+//import { v4 as uuidv4 } from 'uuid'; 
 import leagueAPI from 'api/services/league';
 import eventAPI from 'api/services/event';
 import { CiTrash } from 'react-icons/ci';
@@ -127,7 +127,7 @@ const LeagueScheduler = ({ event, division, schedule, onSave }) => {
     }
     const updatedSchedule = sortSchedule([
       ...localSchedule, 
-      { ...newMatch, id: uuidv4(), round: parseInt(newMatch.round, 10), reported: false },
+      { ...newMatch, id: crypto.randomUUID(), round: parseInt(newMatch.round, 10), reported: false },
     ]);
     setLocalSchedule(updatedSchedule);
     setIsDialogOpen(false);

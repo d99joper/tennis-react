@@ -1,5 +1,5 @@
 import React from 'react'
-import { Divider, Grid2 as Grid } from "@mui/material"
+import { Divider, Grid } from "@mui/material"
 import PlayerLadders from './playerLadders'
 import PlayerLeagues from './playerLeagues'
 import PlayerTournaments from './playerTournaments'

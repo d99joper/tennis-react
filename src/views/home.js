@@ -6,7 +6,7 @@ import {
   CardContent,
   CardHeader,
   Divider,
-  Grid2 as Grid,
+  Grid,
   CircularProgress,
   Button,
   Stack

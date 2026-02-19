@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Grid2 as Grid, Box, Typography, CircularProgress, LinearProgress } from "@mui/material";
+import { Grid, Box, Typography, LinearProgress } from "@mui/material";
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md";
 
 const TableLayout = ({

@@ -1,10 +1,7 @@
 // ProfileHeader.js
 import React, { useContext, useEffect, useState } from 'react'
-import { Box, Typography, CircularProgress, Card, CardContent, Divider, TextField, MenuItem, Button, Select, IconButton, Tooltip } from '@mui/material'
-import { Grid2 as Grid } from '@mui/material'
-import { BsHouse } from 'react-icons/bs'
-import { MdSportsTennis, MdOutlineRefresh } from 'react-icons/md'
-import PlayerLadders from './playerLadders'
+import { Box, Typography, CircularProgress, Grid, Card, CardContent, Divider, TextField, MenuItem, Button, Select, IconButton, Tooltip } from '@mui/material'
+import { MdOutlineRefresh } from 'react-icons/md'
 import { AutoCompletePlaces, Editable, InfoPopup, ProfileImage } from 'components/forms'
 import TrophyCase from 'components/forms/TrophyCase'
 import UTRImportButton from 'components/forms/Player/UTRImport'
@@ -53,6 +50,20 @@ const ProfileHeader = ({
     id: player.id,
     birth_year: player.birth_year || ''
   })
+
+  useEffect(() => {
+    setFormData({
+      name: player.name || '',
+      city_name: player.city?.name || '',
+      lat: player.city?.lat,
+      lng: player.city?.lng,
+      about: player.about || '',
+      NTRP: player.NTRP || '',
+      UTR: player.UTR || '',
+      id: player.id,
+      birth_year: player.birth_year || ''
+    })
+  }, [player])
 
   useEffect(() => {
     if (awards) {
@@ -218,6 +229,7 @@ const ProfileHeader = ({
                               <NTRPLevels />
                               <a
                                 href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'
+                                rel= 'noopener noreferrer'
                                 target='_blank'
                               >
                                 {`View the USTA NTPR guidelines here >>`}
@@ -236,6 +248,7 @@ const ProfileHeader = ({
                               <NTRPLevels />
                               <a
                                 href='https://www.usta.com/content/dam/usta/pdfs/NTRP%20General%20Characteristics.pdf'
+                                rel= 'noopener noreferrer'
                                 target='_blank'
                               >
                                 {`View the USTA NTPR guidelines here >>`}

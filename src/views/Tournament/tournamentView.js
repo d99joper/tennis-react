@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Box, Typography, CircularProgress, Tabs, Tab, useMediaQuery, Grid2, Button } from '@mui/material';
+import { useParams, useSearchParams } from 'react-router-dom';
+import { Box, Typography, CircularProgress, Tabs, Tab, useMediaQuery, Grid, Button } from '@mui/material';
 import TournamentBracket from 'components/forms/Tournament/bracket';
 import tournamentsAPI from 'api/services/tournament';
 import { eventAPI } from 'api/services';
@@ -23,15 +23,23 @@ const TournamentViewPage = ({ event: initialEvent,
 ) => {
 
   const { id } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [event, setEvent] = useState(initialEvent || null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [currentTab, setCurrentTab] = useState(0);
   //const [tournament, setTournament] = useState(initialEvent || null);
   const [bracket, setBracket] = useState(
     initialEvent?.tournament_bracket || initialEvent?.tournament?.bracket || null
   );
   const [showBracketGenerator, setShowBracketGenerator] = useState(false);
+
+  // Tab name mappings
+  const tabNameToIndex = { 'bracket': 0, 'matches': 1, 'admin': 2 };
+  const indexToTabName = { 0: 'bracket', 1: 'matches', 2: 'admin' };
+  
+  // Derive current tab from URL parameter
+  const tabParam = searchParams.get('tab') || 'bracket';
+  const currentTab = tabNameToIndex[tabParam] ?? 0;
 
   useEffect(() => {
     if (event?.event_type === 'multievent') {
@@ -121,7 +129,10 @@ const TournamentViewPage = ({ event: initialEvent,
     callback && callback(updatedEvent);
   }
   const handleTabChange = (event, newValue) => {
-    setCurrentTab(newValue);
+    const tabName = indexToTabName[newValue];
+    if (tabName) {
+      setSearchParams({ tab: tabName }, { replace: true });
+    }
   };
 
   const handleAddDeleteParticipant = async () => {
@@ -211,10 +222,10 @@ const TournamentViewPage = ({ event: initialEvent,
           <Typography variant="h6" gutterBottom>
             Admin Tools
           </Typography>
-          <Grid2 container direction={'column'}>
+          <Grid container direction={'column'}>
             <EventAdminTools event={event} participants={event.participants || []} setEvent={refreshEvent}  />
             <AddParticipants event={event} callback={handleAddDeleteParticipant} />
-          </Grid2>
+          </Grid>
         </Box>
       )}
 

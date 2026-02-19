@@ -11,6 +11,7 @@ import matchAPI from './match'
 import playerAPI from './player'
 import subscriptionAPI from './subscription'
 import tournamentsAPI from './tournament'
+import stripeAPI from './stripeService'
 
 export {
   authAPI,
@@ -24,6 +25,7 @@ export {
   leagueAPI,
   matchAPI,
   playerAPI,
+  stripeAPI,
   subscriptionAPI,
   tournamentsAPI
 }

@@ -5,7 +5,7 @@ import {
   Checkbox,
   Container,
   FormControlLabel,
-  Grid2 as Grid,
+  Grid,
   TextField,
   Typography,
 } from "@mui/material";
@@ -14,7 +14,6 @@ import { courtAPI } from "api/services";
 import useGoogleMapsApi from "helpers/useGoogleMapsApi";
 import { AuthContext } from "contexts/AuthContext";
 import { helpers } from "helpers";
-import { setCurrentScreen } from "firebase/analytics";
 
 const CreateCourt = ({ mapsApi: parentMapsApi, newItem = "", callback, ...props }) => {
   const markerRef = useRef(null);

@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Box, TextField, Button, Slider, Typography, List, ListItem, ListItemText, CircularProgress, FormControlLabel, Checkbox, useMediaQuery, Grid2 as Grid } from "@mui/material";
+import { Box, TextField, Button, Slider, Typography, List, ListItem, ListItemText, 
+  CircularProgress, FormControlLabel, Checkbox, useMediaQuery, Grid } from "@mui/material";
 import { AutoCompletePlaces } from "components/forms";
 import useGoogleMapsApi from "helpers/useGoogleMapsApi";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";

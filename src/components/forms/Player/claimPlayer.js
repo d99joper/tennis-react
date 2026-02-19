@@ -1,16 +1,13 @@
-import { Box, Button, Divider, Typography } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import { Box, Button, Typography, Grid } from '@mui/material';
 import PlayerCard from './playerCard';
-import { Link } from 'react-router-dom';
 import InfoPopup from '../infoPopup';
 import { GiTennisCourt } from 'react-icons/gi';
 import Matches from '../Matches/Matches';
 import { useState } from 'react';
-import { enums } from 'helpers';
 
 export const ClaimPlayer = ({ players, onClaim, onAbort, ...props }) => {
 
-  const [errors, setErrors] = useState({})
+  //const [errors, setErrors] = useState({})
   const [selectedPlayer, setSelectedPlayer] = useState(null);
 
   const handleClick = (noClaim) => {

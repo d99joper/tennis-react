@@ -55,7 +55,7 @@ const Matches = ({
     }
     return '';
   });
-  console.log("Selected Division ID:", selectedDivisionId, "from URL param:", division_id_from_url, divisions);
+  //console.log("Selected Division ID:", selectedDivisionId, "from URL param:", division_id_from_url, divisions);
   
   const [isFetchingMore, setIsFetchingMore] = useState(false); // Track infinite scrolling state
   const [pagesLoaded, setPagesLoaded] = useState(new Set());
@@ -65,7 +65,7 @@ const Matches = ({
   const currentUser = authAPI.getCurrentUser();
 
   const openModal = (content, title) => {
-    console.log(title)
+    //console.log(title)
     setModalContent(content);
     setModalTitle(title);
     setIsModalOpen(true);

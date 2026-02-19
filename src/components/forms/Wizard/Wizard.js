@@ -9,11 +9,21 @@ import Typography from '@mui/material/Typography';
 import { CircularProgress } from '@mui/material';
 import React, { useState } from 'react';
 
+
+// Wizard component for multi-step forms
+// steps: array of { label, description, content, handleNext (return true/false) }
+// handleSubmit: function to call on final submission
+// submitText: text for the final submit button
+// showCompleteStep: optional content to show when all steps are completed
+// showLastStepMeta: whether to show metadata on the last step
+// sx: additional styles for the root Box
+
 export default function Wizard({
   steps,
   handleSubmit,
   submitText = 'Submit',
-  completeStep,
+  showCompleteStep = false,
+  showLastStepMeta = false,
   sx = null,
 }) {
   const [activeStep, setActiveStep] = useState(0);
@@ -69,7 +79,7 @@ export default function Wizard({
                   setActiveStep(index)
               }}
               optional={
-                index === steps.length - 1 ? (
+                index === steps.length - 1 && showLastStepMeta ? (
                   <Typography as='span' variant="caption">Last step</Typography>
                 ) : null
               }
@@ -97,21 +107,23 @@ export default function Wizard({
                   </Button>
                 )
                 }
-                <Button
-                  disabled={index === 0 || step.disableBackButton === true}
-                  onClick={handleBack}
-                  sx={{ mt: 1, mr: 1 }}
-                >
-                  Back
-                </Button>
+                {activeStep !== 0 && (
+                  <Button
+                    disabled={index === 0 || step.disableBackButton === true}
+                    onClick={handleBack}
+                    sx={{ mt: 1, mr: 1 }}
+                  >
+                    Back
+                  </Button>
+                )}
               </Box>
             </StepContent>
           </Step>
         ))}
       </Stepper>
-      {activeStep === steps.length && (
+      {activeStep === steps.length && showLastStepMeta && (
         <Paper square elevation={0} sx={{ p: 3 }}>
-          {completeStep ??
+          {showCompleteStep ??
             <Typography as='span'>'All steps completed - you&apos;re finished'
 
             </Typography>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Card, Grid2 as Grid, Typography, Divider } from "@mui/material";
+import { Box, Card, Grid, Typography, Divider } from "@mui/material";
 import { playerAPI } from "api/services";
 import { ProfileImage } from "../ProfileImage";
 import { Match } from "../index";

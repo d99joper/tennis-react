@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Container, TextField, MenuItem, IconButton, Chip, Autocomplete } from '@mui/material';
+import { Box, TextField, MenuItem, IconButton, Chip, Autocomplete } from '@mui/material';
 import { CiSquarePlus, CiTrash } from "react-icons/ci";
 import clubAPI from 'api/services/club';
 import { AuthContext } from 'contexts/AuthContext';
@@ -8,12 +8,14 @@ const EventRestrictions = ({ restrictions: parentRestrictions, updateRestriction
   const [localRestrictions, setLocalRestrictions] = useState(parentRestrictions || {});
   const [restrictionType, setRestrictionType] = useState('');
   const [restrictionValue, setRestrictionValue] = useState({});
+  const [isRestrictionTypeError, setIsRestrictionTypeError] = useState(false);
+  const [isRestrictionValueError, setIsRestrictionValueError] = useState(false);
   const [availableClubs, setAvailableClubs] = useState([]);
   const { user } = useContext(AuthContext)
 
   useEffect(() => {
     setLocalRestrictions(parentRestrictions);
-    console.log(localRestrictions)
+    //console.log(localRestrictions)
   }, [parentRestrictions]);
 
   const fetchClubs = async () => {
@@ -164,6 +166,7 @@ const EventRestrictions = ({ restrictions: parentRestrictions, updateRestriction
         <TextField
           select
           fullWidth
+          error={isRestrictionValueError} 
           label="Gender"
           value={restrictionValue.value || ''}
           onChange={(e) => setRestrictionValue({ value: e.target.value })}
@@ -181,6 +184,7 @@ const EventRestrictions = ({ restrictions: parentRestrictions, updateRestriction
           <TextField
             label="Age Type"
             select
+            error={isRestrictionValueError} 
             fullWidth
             value={restrictionValue.type || ''}
             onChange={(e) => setRestrictionValue({ ...restrictionValue, type: e.target.value })}
@@ -199,6 +203,7 @@ const EventRestrictions = ({ restrictions: parentRestrictions, updateRestriction
       return (
         <TextField
           select
+          error={isRestrictionValueError} 
           label="NTRP Rating"
           fullWidth
           value={restrictionValue.value || ''}
@@ -237,8 +242,12 @@ const EventRestrictions = ({ restrictions: parentRestrictions, updateRestriction
           select
           fullWidth
           label="Restriction Type"
+          error={isRestrictionTypeError}
           value={restrictionType}
-          onChange={(e) => setRestrictionType(e.target.value)}
+          onChange={(e) => {
+            setRestrictionType(e.target.value);
+            setIsRestrictionTypeError(false);
+          }}
           margin="normal"
         >
           {['gender', 'rating', 'age', 'club']
@@ -250,7 +259,21 @@ const EventRestrictions = ({ restrictions: parentRestrictions, updateRestriction
             ))}
         </TextField>
         {renderRestrictionInput()}
-        <IconButton onClick={addRestriction} color="primary">
+        <IconButton onClick={() => {
+            // only add if valid inputs
+            setIsRestrictionTypeError(false);
+            setIsRestrictionValueError(false);
+            if(restrictionType && Object.keys(restrictionValue).length > 0) {
+              addRestriction();
+            }
+            else {
+              if(!restrictionType)
+                setIsRestrictionTypeError(true);
+              if(Object.keys(restrictionValue).length === 0)
+                setIsRestrictionValueError(true);
+            }
+          }} 
+        color="primary">
           <CiSquarePlus />
         </IconButton>
       </Box>
