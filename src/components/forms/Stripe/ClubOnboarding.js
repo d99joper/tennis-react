@@ -1,10 +1,14 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { Button, CircularProgress, Alert, Box, Typography } from '@mui/material';
+import {
+  Button, CircularProgress, Alert, Box, Typography,
+  Accordion, AccordionSummary, AccordionDetails
+} from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { MdLink } from 'react-icons/md';
+import { MdLink, MdExpandMore, MdAdd } from 'react-icons/md';
 import { stripeAPI } from 'api/services';
+import { flexRow } from 'styles/componentStyles';
 
-const ClubOnboarding = ({ clubId, onComplete }) => {
+const ClubOnboarding = ({ clubId, onComplete, hasExistingAccounts = false }) => {
   const theme = useTheme();
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
@@ -68,7 +72,7 @@ const ClubOnboarding = ({ clubId, onComplete }) => {
     window.location.href = response.data.oauth_url;
   };
 
-  return (
+  const buttons = (
     <Box>
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       <Button
@@ -76,11 +80,11 @@ const ClubOnboarding = ({ clubId, onComplete }) => {
         onClick={handleOnboard}
         disabled={loading || oauthLoading}
       >
-        {loading ? <CircularProgress size={24} /> : 'Set Up Stripe Payments'}
+        {loading ? <CircularProgress size={24} /> : (hasExistingAccounts ? 'Add New Express Account' : 'Set Up Stripe Payments')}
       </Button>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: theme.spacing(1), mt: theme.spacing(1.5) }}>
         <Typography variant="body2" color="text.secondary">
-          Already have a Stripe account?
+          {hasExistingAccounts ? 'Already signed up to Stripe?' : 'Already have a Stripe account?'}
         </Typography>
         <Button
           variant="text"
@@ -90,11 +94,37 @@ const ClubOnboarding = ({ clubId, onComplete }) => {
           startIcon={oauthLoading ? <CircularProgress size={16} /> : <MdLink size={16} />}
           sx={{ textTransform: 'none' }}
         >
-          Connect existing account
+          Connect your account
         </Button>
       </Box>
     </Box>
   );
+
+  if (hasExistingAccounts) {
+    return (
+      <Accordion
+        disableGutters
+        elevation={0}
+        sx={{
+          border: `1px solid ${theme.palette.divider}`,
+          borderRadius: `${theme.spacing(1)} !important`,
+          '&:before': { display: 'none' },
+        }}
+      >
+        <AccordionSummary expandIcon={<MdExpandMore />}>
+          <Box sx={{ ...flexRow, alignItems: 'center', gap: theme.spacing(1) }}>
+            <MdAdd size={18} color={theme.palette.text.secondary} />
+            <Typography variant="body2" fontWeight="500">Add another account</Typography>
+          </Box>
+        </AccordionSummary>
+        <AccordionDetails>
+          {buttons}
+        </AccordionDetails>
+      </Accordion>
+    );
+  }
+
+  return buttons;
 };
 
 export default ClubOnboarding;

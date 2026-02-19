@@ -50,10 +50,13 @@ const stripeAPI = {
    * @param {string} clubId
    * @returns {{ success: boolean, statusCode: number, data: object }}
    */
-  refreshClubOnboardingLink: async (clubId) => {
+  refreshClubOnboardingLink: async (clubId, returnUrl, refreshUrl) => {
     try {
-      const requestOptions = authAPI.getRequestOptions('POST');
-      const response = await fetch(`${apiUrl}stripe/clubs/${clubId}/connect/refresh`, requestOptions);
+      const requestOptions = authAPI.getRequestOptions('POST', {
+        return_url: returnUrl,
+        refresh_url: refreshUrl,
+      });
+      const response = await fetch(`${apiUrl}stripe/clubs/${clubId}/onboarding/refresh`, requestOptions);
       const data = await response.json();
       return { success: response.ok, statusCode: response.status, data };
     } catch (err) {
@@ -127,6 +130,63 @@ const stripeAPI = {
       return { success: response.ok, statusCode: response.status, data };
     } catch (err) {
       console.error('Error disconnecting club Stripe account', err);
+      return { success: false, statusCode: 500, data: { error: err.message } };
+    }
+  },
+
+  /**
+   * List all Stripe Connect accounts (active and inactive) for a club
+   * @param {string} clubId
+   * @returns {{ success: boolean, statusCode: number, data: Array }}
+   */
+  listClubAccounts: async (clubId) => {
+    try {
+      const requestOptions = authAPI.getRequestOptions('GET');
+      const response = await fetch(`${apiUrl}stripe/clubs/${clubId}/accounts`, requestOptions);
+      const data = await response.json();
+      return { success: response.ok, statusCode: response.status, data };
+    } catch (err) {
+      console.error('Error listing club Stripe accounts', err);
+      return { success: false, statusCode: 500, data: { error: err.message } };
+    }
+  },
+
+  /**
+   * Switch to a different Stripe Connect account
+   * @param {string} clubId
+   * @param {string} stripeAccountId - The Stripe account ID to activate
+   * @returns {{ success: boolean, statusCode: number, data: object }}
+   */
+  switchClubAccount: async (clubId, stripeAccountId) => {
+    try {
+      const requestOptions = authAPI.getRequestOptions('POST', {
+        stripe_account_id: stripeAccountId,
+      });
+      const response = await fetch(`${apiUrl}stripe/clubs/${clubId}/accounts/switch`, requestOptions);
+      const data = await response.json();
+      return { success: response.ok, statusCode: response.status, data };
+    } catch (err) {
+      console.error('Error switching club Stripe account', err);
+      return { success: false, statusCode: 500, data: { error: err.message } };
+    }
+  },
+
+  /**
+   * Permanently remove a Stripe Connect account record from the club
+   * @param {string} clubId
+   * @param {string} stripeAccountId - The Stripe account ID to delete
+   * @returns {{ success: boolean, statusCode: number, data: object }}
+   */
+  deleteClubAccount: async (clubId, stripeAccountId) => {
+    try {
+      const requestOptions = authAPI.getRequestOptions('DELETE', {
+        stripe_account_id: stripeAccountId,
+      });
+      const response = await fetch(`${apiUrl}stripe/clubs/${clubId}/accounts/delete`, requestOptions);
+      const data = await response.json();
+      return { success: response.ok, statusCode: response.status, data };
+    } catch (err) {
+      console.error('Error deleting club Stripe account', err);
       return { success: false, statusCode: 500, data: { error: err.message } };
     }
   },

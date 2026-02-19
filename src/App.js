@@ -1,24 +1,38 @@
-import { ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import React, { useEffect, useRef } from 'react';
 import './App.css';
 import MyRouter from './routes';
 import { BrowserRouter } from 'react-router-dom';
-import { Box, CssBaseline } from '@mui/material';
+import { Box, CssBaseline, GlobalStyles } from '@mui/material';
 import { ProfileImageProvider } from "components/forms";
 import { requestNotificationPermission } from "./firebase/requestNotificationPermission";
 import { setupNotificationListener, onNotificationReceived, removeNotificationListener } from "./firebase/notificationService";
-import { PrimaryTheme } from 'theme_config';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import default styles
 import { AuthProvider } from 'contexts/AuthContext';
 import { NotificationsProvider } from 'contexts/NotificationContext';
 import { HelmetProvider } from "react-helmet-async";
 import { SnackbarProvider } from 'contexts/snackbarContext';
+import { ThemeProvider, ThemeContext } from 'contexts/ThemeContext';
 import useAwardToast from 'helpers/useAwardsToast';
 
 function App() {
+  return (
+    <BrowserRouter>
+      <HelmetProvider>
+        <ThemeProvider>
+          <ThemedApp />
+        </ThemeProvider>
+      </HelmetProvider>
+    </BrowserRouter>
+  )
+}
+
+// Separate component to access ThemeContext
+function ThemedApp() {
+  const { theme } = React.useContext(ThemeContext);
   const originalTitle = useRef(document.title);
-  const { showAward, AwardToast } = useAwardToast()
+  const { showAward, AwardToast } = useAwardToast();
 
   console.log('app is starting...')
   // request notification permission
@@ -108,7 +122,7 @@ function App() {
       unsubscribe();
       removeNotificationListener(handleNotification);
     };
-  }, []);
+  }, [showAward]);
 
   useEffect(() => {
     console.log("App.js: Mounted");
@@ -117,32 +131,40 @@ function App() {
     };
   }, []);
 
-  // if (isLoading) {
-  //   return <div>Loading...</div>;
-  // }
-
   return (
-    <BrowserRouter>
-      <HelmetProvider>
-        <ProfileImageProvider>
-          <Box className="App" id="app" sx={{ display: 'flex', flexDirection: 'column' }}>
-            <ToastContainer />
-            <CssBaseline />
-            <ThemeProvider theme={PrimaryTheme}>
-              <AuthProvider>
-                <NotificationsProvider>
-                  <SnackbarProvider>
-                    <MyRouter />
-                  </SnackbarProvider>
-                </NotificationsProvider>
-              </AuthProvider>
-            </ThemeProvider>
-            <AwardToast />
-          </Box>
-        </ProfileImageProvider>
-      </HelmetProvider>
-    </BrowserRouter>
-  )
+    <ProfileImageProvider>
+      <MuiThemeProvider theme={theme}>
+        <CssBaseline />
+        <GlobalStyles
+          styles={{
+            body: { 
+              backgroundColor: theme.palette.background.default,
+            },
+          }}
+        />
+        <Box 
+          className="App" 
+          id="app" 
+          sx={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            minHeight: '100vh',
+            backgroundColor: 'background.default'
+          }}
+        >
+          <ToastContainer />
+          <AuthProvider>
+            <NotificationsProvider>
+              <SnackbarProvider>
+                <MyRouter />
+              </SnackbarProvider>
+            </NotificationsProvider>
+          </AuthProvider>
+          <AwardToast />
+        </Box>
+      </MuiThemeProvider>
+    </ProfileImageProvider>
+  );
 }
 
 export default App

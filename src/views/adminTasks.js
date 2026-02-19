@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button, Card, FormControl, InputLabel, MenuItem, Select, Tab, Tabs, Box, TextField } from "@mui/material";
+import { useSearchParams, Link } from "react-router-dom";
 import { authAPI, ladderAPI, matchAPI, playerAPI } from "api/services";
 import { AddPlayerToClub, CreateClub, ErrorHandler, MatchEditor, SelectWithFetch } from "components/forms";
 import ClubSearchAutocomplete from "components/forms/Club/club_search";
@@ -9,13 +10,34 @@ import PlayerSearch from "components/forms/Player/playerSearch";
 import { Helmet } from "react-helmet-async";
 
 const AdminTasks = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [player, setPlayer] = useState({});
   const [ladders, setLadders] = useState([]);
   const [players, setPlayers] = useState([]);
   const [ladderId, setLadderId] = useState("");
   const [playerId, setPlayerId] = useState("");
   const [error, setError] = useState(null);
-  const [tabIndex, setTabIndex] = useState(0);
+
+  // Tab name mappings
+  const tabNameToIndex = useMemo(() => ({
+    'matches': 0,
+    'players': 1,
+    'player-to-ladder': 2,
+    'other': 3,
+    'theme': 4,
+  }), []);
+
+  const indexToTabName = useMemo(() => ({
+    0: 'matches',
+    1: 'players',
+    2: 'player-to-ladder',
+    3: 'other',
+    4: 'theme',
+  }), []);
+
+  // Derive tab from URL parameter
+  const tabParam = searchParams.get('tab') || 'matches';
+  const tabIndex = tabNameToIndex[tabParam] ?? 0;
 
   useEffect(() => {
     async function getData() {
@@ -71,11 +93,21 @@ const AdminTasks = () => {
       <ErrorHandler error={error} />
 
       {/* Tabs Navigation */}
-      <Tabs value={tabIndex} onChange={(e, newValue) => setTabIndex(newValue)} variant="scrollable">
+      <Tabs 
+        value={tabIndex} 
+        onChange={(e, newValue) => {
+          const tabName = indexToTabName[newValue];
+          if (tabName) {
+            setSearchParams({ tab: tabName }, { replace: true });
+          }
+        }} 
+        variant="scrollable"
+      >
         <Tab label="Matches" />
         <Tab label="Players" />
         <Tab label="Player to Ladder" />
         <Tab label="Other" />
+        <Tab label="Theme" />
       </Tabs>
 
       {/* Matches Tab */}
@@ -146,6 +178,25 @@ const AdminTasks = () => {
           <CreateClub />
           <AddPlayerToClub />
           <ClubSearchAutocomplete />
+        </Box>
+      )}
+
+      {/* Theme Tab */}
+      {tabIndex === 4 && (
+        <Box sx={{ mt: 2 }}>
+          <Card sx={{ p: 2 }}>
+            <Button 
+              variant="contained" 
+              component={Link} 
+              to="/theme-selector"
+              sx={{ mb: 2 }}
+            >
+              Open Theme Selector
+            </Button>
+            <Box sx={{ mt: 2 }}>
+              The theme selector allows you to preview and choose from 5 different color schemes for the application.
+            </Box>
+          </Card>
         </Box>
       )}
     </Box>

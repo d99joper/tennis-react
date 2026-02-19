@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Tabs,
@@ -9,7 +9,7 @@ import {
   Snackbar,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import MyModal from 'components/layout/MyModal';
 import { Matches, ProfileImage } from 'components/forms';
 import LeagueScheduler from '../../components/forms/League/leagueScheduler';
@@ -25,7 +25,7 @@ import { eventHelper } from 'helpers';
 const LeagueViewPage = (props) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [currentTab, setCurrentTab] = useState(0);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedParticipant, setSelectedParticipant] = useState(null);
   const [event, setEvent] = useState(props.event || null);
@@ -46,6 +46,25 @@ const LeagueViewPage = (props) => {
   const navigate = useNavigate();
 
   const { id } = useParams();
+
+  // Tab name mappings
+  const tabNameToIndex = useMemo(() => ({
+    'standings': 0,
+    'schedule': 1,
+    'matches': 2,
+    'admin': 3,
+  }), []);
+
+  const indexToTabName = useMemo(() => ({
+    0: 'standings',
+    1: 'schedule',
+    2: 'matches',
+    3: 'admin',
+  }), []);
+
+  // Derive current tab from URL parameter
+  const tabParam = searchParams.get('tab') || 'standings';
+  const currentTab = tabNameToIndex[tabParam] ?? 0;
 
   useEffect(() => {
     const fetchLeague = async () => {
@@ -101,7 +120,10 @@ const LeagueViewPage = (props) => {
   }
 
   const handleTabChange = (event, newValue) => {
-    setCurrentTab(newValue);
+    const tabName = indexToTabName[newValue];
+    if (tabName) {
+      setSearchParams({ tab: tabName }, { replace: true });
+    }
   };
   
   const handleModalClose = () => {

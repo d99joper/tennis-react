@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { Box, Typography, CircularProgress, Tabs, Tab, useMediaQuery, Grid, Button } from '@mui/material';
 import TournamentBracket from 'components/forms/Tournament/bracket';
 import tournamentsAPI from 'api/services/tournament';
@@ -23,15 +23,23 @@ const TournamentViewPage = ({ event: initialEvent,
 ) => {
 
   const { id } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [event, setEvent] = useState(initialEvent || null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [currentTab, setCurrentTab] = useState(0);
   //const [tournament, setTournament] = useState(initialEvent || null);
   const [bracket, setBracket] = useState(
     initialEvent?.tournament_bracket || initialEvent?.tournament?.bracket || null
   );
   const [showBracketGenerator, setShowBracketGenerator] = useState(false);
+
+  // Tab name mappings
+  const tabNameToIndex = { 'bracket': 0, 'matches': 1, 'admin': 2 };
+  const indexToTabName = { 0: 'bracket', 1: 'matches', 2: 'admin' };
+  
+  // Derive current tab from URL parameter
+  const tabParam = searchParams.get('tab') || 'bracket';
+  const currentTab = tabNameToIndex[tabParam] ?? 0;
 
   useEffect(() => {
     if (event?.event_type === 'multievent') {
@@ -121,7 +129,10 @@ const TournamentViewPage = ({ event: initialEvent,
     callback && callback(updatedEvent);
   }
   const handleTabChange = (event, newValue) => {
-    setCurrentTab(newValue);
+    const tabName = indexToTabName[newValue];
+    if (tabName) {
+      setSearchParams({ tab: tabName }, { replace: true });
+    }
   };
 
   const handleAddDeleteParticipant = async () => {

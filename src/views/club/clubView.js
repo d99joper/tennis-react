@@ -32,7 +32,7 @@ import {
 
 const ClubViewPage = () => {
   const { clubId } = useParams();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [club, setClub] = useState(null);
@@ -47,7 +47,6 @@ const ClubViewPage = () => {
   const [isFetching, setIsFetching] = useState(false);
   const [isMember, setIsMember] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [activeTab, setActiveTab] = useState(0); // 0 for Events, 1 for Members
   const [showArchivedEvents, setShowArchivedEvents] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '' });
   const [editFields, setEditFields] = useState({ name: false, description: false });
@@ -89,26 +88,31 @@ const ClubViewPage = () => {
 
   // Map tab query param to tab index
   const tabNameToIndex = useMemo(() => ({
-    ladder: 0,
-    events: 1,
-    members: 2,
-    admin: 3,
+    'club-ladder': 0,
+    'events': 1,
+    'members': 2,
+    'admin': 3,
   }), []);
 
+  // Reverse mapping for index to tab name
+  const indexToTabName = useMemo(() => ({
+    0: 'club-ladder',
+    1: 'events',
+    2: 'members',
+    3: 'admin',
+  }), []);
+
+  // Derive active tab from URL parameter
+  const tabParam = searchParams.get('tab') || 'events';
+  const activeTab = tabNameToIndex[tabParam] ?? 1;
+
+  // Trigger data fetching when tab becomes active
   useEffect(() => {
     if (!isLoaded) return;
-    const tabParam = searchParams.get('tab');
-    if (tabParam) {
-      const index = tabNameToIndex[tabParam.toLowerCase()];
-      if (index !== undefined) {
-        setActiveTab(index);
-        // Trigger data fetching for the target tab
-        if (index >= 1 && members.length === 0) fetchMembers();
-        if (index === 3 && requests.length === 0) fetchRequests();
-      }
-    }
+    if (activeTab >= 1 && members.length === 0) fetchMembers();
+    if (activeTab === 3 && requests.length === 0) fetchRequests();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, tabNameToIndex, isLoaded, isAdmin]);
+  }, [activeTab, isLoaded, isAdmin]);
 
   const handleRemoveMember = async () => {
     if (memberToRemove) {
@@ -203,12 +207,9 @@ const ClubViewPage = () => {
   }
 
   const handleTabChange = (event, newValue) => {
-    setActiveTab(newValue);
-    if (newValue !== 0 && members.length === 0) {
-      fetchMembers();
-    }
-    if (newValue === 2 && requests.length === 0) {
-      fetchRequests();
+    const tabName = indexToTabName[newValue];
+    if (tabName) {
+      setSearchParams({ tab: tabName }, { replace: true });
     }
   };
 

@@ -9,6 +9,8 @@ import { MdExpandMore, MdPayments, MdEvent, MdGroups, MdSecurity, MdCheckCircle,
 import { RiLockLine, RiBillLine } from 'react-icons/ri';
 import { stripeAPI } from 'api/services';
 import ClubOnboarding from './ClubOnboarding';
+import AccountSwitcher from './AccountSwitcher';
+import InfoPopup from '../infoPopup';
 import { flexColumn, flexRow } from 'styles/componentStyles';
 
 const ClubPaymentSettings = ({ clubId }) => {
@@ -17,6 +19,12 @@ const ClubPaymentSettings = ({ clubId }) => {
   const [loading, setLoading] = useState(true);
   const [stripeAccount, setStripeAccount] = useState(null);
   const [error, setError] = useState(null);
+  const [hasAccounts, setHasAccounts] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleAccountsLoaded = useCallback((count) => {
+    setHasAccounts(count > 0);
+  }, []);
 
   const fetchStripeAccount = useCallback(async () => {
     setLoading(true);
@@ -32,6 +40,7 @@ const ClubPaymentSettings = ({ clubId }) => {
       setError(err.message);
     } finally {
       setLoading(false);
+      setRefreshTrigger(prev => prev + 1);
     }
   }, [clubId]);
 
@@ -49,11 +58,57 @@ const ClubPaymentSettings = ({ clubId }) => {
 
   return (
     <Box sx={{ ...flexColumn, gap: theme.spacing(3), p: theme.spacing(3) }}>
-      <Typography variant="h5">Payment Settings</Typography>
+      <Box sx={{ ...flexRow, alignItems: 'center', gap: theme.spacing(1) }}>
+        <Typography variant="h5">Payment Settings</Typography>
+        <InfoPopup width="450px" size={22}>
+          <Box sx={{ ...flexColumn, gap: 2 }}>
+            <Typography variant="subtitle2" gutterBottom>
+              Accept Payments for Your Club
+            </Typography>
+            <Typography variant="body2">
+              Powered by <strong>Stripe</strong> — funds go directly to your club's bank account.
+            </Typography>
 
-      {error && <Alert severity="error">{error}</Alert>}
+            <Divider />
 
-      {stripeAccount?.connected ? (
+            <Typography variant="subtitle2">What you can do:</Typography>
+            <Typography variant="body2" component="div">
+              <ul style={{ margin: 0, paddingLeft: 20 }}>
+                <li>Charge entry fees for tournaments, leagues, and ladders</li>
+                <li>Collect membership dues from club members (coming soon)</li>
+                <li>Track payments and issue refunds from your Stripe dashboard</li>
+              </ul>
+            </Typography>
+
+            <Divider />
+
+            <Typography variant="subtitle2">Security</Typography>
+            <Typography variant="body2" component="div">
+              <ul style={{ margin: 0, paddingLeft: 20 }}>
+                <li>MyTennis never sees or stores your banking details</li>
+                <li>Stripe is PCI Level 1 certified</li>
+                <li>Disconnect anytime</li>
+              </ul>
+            </Typography>
+
+            <Divider />
+
+            <Typography variant="subtitle2">Common Questions</Typography>
+            <Typography variant="body2"><strong>Cost?</strong> Stripe charges ~2.9% + 30¢ per transaction. MyTennis charges a 10% platform fee.</Typography>
+            <Typography variant="body2"><strong>When do I get paid?</strong> Stripe deposits within 2 business days.</Typography>
+            <Typography variant="body2"><strong>Refunds?</strong> Set a refund policy per event; process refunds via Stripe dashboard.</Typography>
+            <Typography variant="body2"><strong>Need a Stripe account?</strong> Create a new one or connect an existing account.</Typography>
+          </Box>
+        </InfoPopup>
+      </Box>
+
+      {error ? (
+        <Box sx={{ ...flexColumn, gap: theme.spacing(3) }}>
+          <AccountSwitcher clubId={clubId} onRefresh={fetchStripeAccount} statusError={error} onAccountsLoaded={handleAccountsLoaded} refreshTrigger={refreshTrigger} />
+          <Divider />
+          <ClubOnboarding clubId={clubId} onComplete={fetchStripeAccount} hasExistingAccounts />
+        </Box>
+      ) : stripeAccount?.connected ? (
         <ConnectedStatus
           stripeAccount={stripeAccount}
           clubId={clubId}
@@ -238,17 +293,11 @@ const ClubPaymentSettings = ({ clubId }) => {
             </Accordion>
           </Box>
 
-          {/* Previously disconnected notice */}
-          {stripeAccount?.disconnected_at && (
-            <Alert severity="info">
-              Your club was previously connected to Stripe (disconnected on{' '}
-              {new Date(stripeAccount.disconnected_at).toLocaleDateString()}).
-              You can reconnect at any time using either option below.
-            </Alert>
-          )}
+          {/* Previously disconnected — show reconnect option */}
+          <AccountSwitcher clubId={clubId} onRefresh={fetchStripeAccount} onAccountsLoaded={handleAccountsLoaded} refreshTrigger={refreshTrigger} />
 
           {/* CTA */}
-          <ClubOnboarding clubId={clubId} onComplete={fetchStripeAccount} />
+          <ClubOnboarding clubId={clubId} onComplete={fetchStripeAccount} hasExistingAccounts={hasAccounts} />
         </Box>
       )}
     </Box>
@@ -314,7 +363,9 @@ const ConnectedStatus = ({ stripeAccount, clubId, theme, onRefresh }) => {
   const handleResumeSetup = async () => {
     setResumeLoading(true);
     try {
-      const response = await stripeAPI.refreshClubOnboardingLink(clubId);
+      const returnUrl = `${window.location.origin}/clubs/${clubId}?tab=settings&stripe=complete`;
+      const refreshUrl = `${window.location.origin}/clubs/${clubId}?tab=settings&stripe=refresh`;
+      const response = await stripeAPI.refreshClubOnboardingLink(clubId, returnUrl, refreshUrl);
       if (response.success && response.data?.url) {
         const popup = window.open(response.data.url, 'stripe_onboarding', 'width=700,height=800');
         const timer = setInterval(() => {
@@ -386,8 +437,8 @@ const ConnectedStatus = ({ stripeAccount, clubId, theme, onRefresh }) => {
         )}
       </Paper>
 
-      {/* Setup progress — only shown for Express accounts */}
-      {!isStandard && (
+      {/* Setup progress — only shown for Express accounts that aren't fully active */}
+      {!isStandard && !isFullyActive && (
         <Paper
           elevation={0}
           sx={{
@@ -421,6 +472,9 @@ const ConnectedStatus = ({ stripeAccount, clubId, theme, onRefresh }) => {
           </List>
         </Paper>
       )}
+
+      {/* Account Switcher */}
+      <AccountSwitcher clubId={clubId} onRefresh={onRefresh} />
 
       {/* Actions */}
       <Box sx={{ ...flexRow, gap: theme.spacing(2), flexWrap: 'wrap' }}>

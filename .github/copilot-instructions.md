@@ -121,11 +121,27 @@ For large forms:
 1. **AuthContext** - User authentication state, token management, `isLoggedIn`, `user`, `login()`, `logout()`
 2. **NotificationContext** - Firebase push notifications with badge/trophy display
 3. **SnackbarContext** - Toast notifications
+- import { useSnackbar } from 'contexts/snackbarContext';
+- const { showSnackbar } = useSnackbar();
 
 ### Component Organization
 - **Views** (`src/views/`) - Page-level components that fetch data and orchestrate layout
 - **Forms** (`src/components/forms/`) - Reusable entity-specific components organized by folder (Club/, Player/, Match/, etc.)
 - **Layout** (`src/components/layout/`) - Shared layout components (Header, Footer, Modals)
+
+### Custom Components
+- **ProfileImage** - Handles profile image display with fallback and styling
+- **Wizard** - Multi-step form component for complex entity creation (e.g., tournament setup)
+- **MyModal** - Custom modal wrapper with consistent styling and behavior
+- **InfoPopup** - Reusable info tooltip component
+- **MatchEditor** - Complex component for creating/editing matches with dynamic participant selection
+- **Editable** - Inline editable text component with validation
+- **truncateText** - Utility function for truncating text with ellipsis
+- **FloatingAward** - Component for displaying floating badge/trophy notifications
+
+### Iconography
+- Use react-icons for consistent iconography across the app
+- Import icons from `react-icons/*` as needed (e.g., `import { FaTrophy } from 'react-icons/fa'`)
 
 ### Routing (`src/routes.js`)
 - React Router v6 with lazy-loaded route components
@@ -136,6 +152,7 @@ For large forms:
 
 ### Styling & Theming
 - **Always** import shared style utilities from `styles/componentStyles.js`:
+there is also a `theme_config.js` that defines the custom MUI theme with tennis-specific colors and typography. Always use `useTheme()` to access theme values in components.
   ```javascript
   import { flexRow, flexColumn, flexCenterGap, getTabContainerStyles, getTabStyles, getClickableBox, modalFooter } from 'styles/componentStyles';
   ```

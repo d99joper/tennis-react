@@ -1,7 +1,7 @@
 // Profile.js
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useMemo } from 'react'
 import { Box, LinearProgress, Typography, Modal, Card, Tab, CardContent, Tabs, CircularProgress } from '@mui/material'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { playerAPI } from 'api/services'
 import { AuthContext } from 'contexts/AuthContext'
 import { ProfileImageContext } from 'components/forms/ProfileImage'
@@ -15,6 +15,7 @@ import SeoHelmet from 'components/seoHelmet'
 
 const Profile = () => {
   const { userid } = useParams()
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user, isLoggedIn, loading: userIsLoading } = useContext(AuthContext)
   const { setProfileImage } = useContext(ProfileImageContext)
 
@@ -35,8 +36,38 @@ const Profile = () => {
   const [rivalsLoading, setRivalsLoading] = useState(false);
   const [rivalsPlayerId, setRivalsPlayerId] = useState(null);
   const [refreshIndex, setRefreshIndex] = useState(0);
-  const [tabIndex, setTabIndex] = useState(0)
-  const [matchTabIndex, setMatchTabIndex] = useState(0);
+
+  // Tab name mappings
+  const tabNameToIndex = useMemo(() => ({
+    'events': 0,
+    'matches': 1,
+    'stats': 2,
+    'rivals': 3,
+  }), []);
+
+  const indexToTabName = useMemo(() => ({
+    0: 'events',
+    1: 'matches',
+    2: 'stats',
+    3: 'rivals',
+  }), []);
+
+  const matchTabNameToIndex = useMemo(() => ({
+    'singles': 0,
+    'doubles': 1,
+  }), []);
+
+  const indexToMatchTabName = useMemo(() => ({
+    0: 'singles',
+    1: 'doubles',
+  }), []);
+
+  // Derive tabs from URL parameters
+  const tabParam = searchParams.get('tab') || 'events';
+  const tabIndex = tabNameToIndex[tabParam] ?? 0;
+  
+  const matchTabParam = searchParams.get('matchTab') || 'singles';
+  const matchTabIndex = matchTabNameToIndex[matchTabParam] ?? 0;
 
   useEffect(() => {
     async function fetchProfile() {
@@ -161,7 +192,15 @@ const Profile = () => {
   }
 
   const handleTabChange = (event, newValue) => {
-    setTabIndex(newValue)
+    const tabName = indexToTabName[newValue];
+    if (tabName) {
+      const newParams = { tab: tabName };
+      // Preserve matchTab parameter if on matches tab
+      if (newValue === 1) {
+        newParams.matchTab = searchParams.get('matchTab') || 'singles';
+      }
+      setSearchParams(newParams, { replace: true });
+    }
   }
 
   if (!isLoaded) return <LinearProgress />
@@ -243,7 +282,12 @@ const Profile = () => {
               <Box sx={{ padding: { xs: 1, sm: 2 } }}>
                 <Tabs
                   value={matchTabIndex}
-                  onChange={(e, newValue) => setMatchTabIndex(newValue)}
+                  onChange={(e, newValue) => {
+                    const matchTabName = indexToMatchTabName[newValue];
+                    if (matchTabName) {
+                      setSearchParams({ tab: 'matches', matchTab: matchTabName }, { replace: true });
+                    }
+                  }}
                   sx={{ marginBottom: 2 }}
                 >
                   <Tab label="Singles" />

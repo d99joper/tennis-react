@@ -240,6 +240,11 @@ const ResponsiveMenu = ({ ...props }) => {
             open={open}
             onClose={() => setOpen(false)}
             onOpen={() => setOpen(true)}
+            sx={{
+              "& .MuiDrawer-paper": { 
+                backgroundColor: theme.palette.background.paper 
+              }
+            }}
           >
             <MenuContent />
           </SwipeableDrawer>
