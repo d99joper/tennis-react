@@ -6,14 +6,14 @@ import requestAPI from 'api/services/request'
 import { Alert, Box, List, ListItem, Snackbar, Typography } from '@mui/material'
 import { AuthContext } from 'contexts/AuthContext'
 import { billableItemAPI, eventAPI } from 'api/services'
-import { userHelper } from 'helpers'
 import InfoPopup from '../infoPopup'
 import MyModal from 'components/layout/MyModal'
 import { Link } from 'react-router-dom'
 import PlayerSearch from '../Player/playerSearch'
 import Wizard from '../Wizard/Wizard'
 
-const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration = false, callback, billableItem, ...props }) => {
+const JoinRequest = ({ objectType, id, matchType, isMember,
+  memberText, isOpenRegistration = false, callback, restrictions, divisionId = null, billableItem, ...props }) => {
   const [status, setStatus] = useState('loading')
   const [error, setError] = useState(null)
   const [snackbarOpen, setSnackbarOpen] = useState(false)
@@ -23,7 +23,7 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
   const [restrictionResult, setRestrictionResult] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const { isLoggedIn, user } = useContext(AuthContext)
-  const [modalType, setModalType] = useState(null) // 'doubles' or 'single'
+  const [modalType, setModalType] = useState(null) // 'doubles', 'single', or 'payment'
   const [doublesCandidates, setDoublesCandidates] = useState([])
   const [doublesPartner, setDoublesPartner] = useState(null)
 
@@ -39,7 +39,6 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
   }
 
   useEffect(() => {
-
 
     const checkEligibility = async () => {
       setLoading(true)
@@ -143,6 +142,152 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
     }
   }
 
+  // create a preFilter based on the restrictions to limit partner selection
+  const doublesPreFilter = (() => {
+    const pf = {};
+    if (!restrictions) return pf;
+
+    Object.entries(restrictions).forEach(([key, val]) => {
+      if (val == null) return;
+      // age: backend expects a JSON object with keys 'over', 'under' or 'between'
+      if (key === 'age') {
+        const min = val?.min ? Number(val.min) : null;
+        const max = val?.max ? Number(val.max) : null;
+        if (val.type === 'over') {
+          pf[key] = JSON.stringify({ over: min });
+        } else if (val.type === 'under') {
+          pf[key] = JSON.stringify({ under: max });
+        } else if (val.type === 'between') {
+          pf[key] = JSON.stringify({ between: [min, max] });
+        }
+      }
+      else if (key === 'club') pf[key] = JSON.stringify({ id: val["id"] })
+      // gender, rating
+      else pf[key] = val['value'];
+    });
+
+    return pf;
+  })();
+
+  const doublesWizardSteps = [
+    {
+      label: 'Select Partner',
+      //description: 'Select Partner',
+      content: (
+        <Box sx={{ mb: 2 }}>
+          <Typography>
+            Signing up as {user?.name}.
+          </Typography>
+          <Typography>
+            Who is your partner for this doubles event?
+          </Typography>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+            <PlayerSearch
+              excludePlayers={[user]}
+              maxSelection={1}
+              preFilter={doublesPreFilter}
+              onResults={(players) => {
+                console.log('Doubles partner candidates:', players)
+                setDoublesCandidates(players)
+              }}
+              manualSearch={true}
+            />
+          </Box>
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+              {doublesCandidates.length} partner candidate{doublesCandidates.length !== 1 ? 's' : ''} found
+            </Typography>
+            {doublesCandidates.map((p) => (
+              <Box
+                key={p.id}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  p: 1.5,
+                  mb: 1,
+                  border: 1,
+                  borderColor: doublesPartner?.id === p.id ? 'primary.main' : 'divider',
+                  borderRadius: 1,
+                  bgcolor: doublesPartner?.id === p.id ? 'primary.light' : 'background.paper',
+                  opacity: doublesPartner?.id === p.id ? 1 : 0.8,
+                  transition: 'all 0.2s',
+                  '&:hover': {
+                    bgcolor: doublesPartner?.id === p.id ? 'primary.light' : 'action.hover',
+                    opacity: 1
+                  }
+                }}
+              >
+                <Typography>{p.name}</Typography>
+                <Button
+                  variant={doublesPartner?.id === p.id ? 'contained' : 'outlined'}
+                  size="small"
+                  onClick={() => setDoublesPartner(doublesPartner?.id === p.id ? null : p)}
+                >
+                  {doublesPartner?.id === p.id ? 'Selected' : 'Select'}
+                </Button>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      ),
+      handleNext: () => { return doublesPartner != null; }
+    },
+    {
+      label: 'Confirm Sign Up',
+      description: 'Confirm Sign Up',
+      content: (
+        <Box sx={{ mb: 2 }}>
+          <Typography>
+            You are about to sign up with partner {doublesPartner?.name}.
+          </Typography>
+        </Box>
+      ),
+    }
+  ];
+  const doublesModalContent = (
+    <Wizard
+      steps={doublesWizardSteps}
+      handleSubmit={() => { 
+        showSnackbar(`Signing up with partner ${doublesPartner?.name}`, 'info'); 
+        // implement sign up with partner logic here
+        handleSignUp('doubles');
+        
+      }}
+      submitText="Confirm Sign Up"
+    />
+
+  )
+  const SingleModalContent = (
+    <Box>
+      <Typography>
+        You are about to sign up.
+      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+        <Button variant="outlined" onClick={() => setShowModal(false)}>Cancel</Button>
+        <Button variant="contained" color="primary" onClick={handleSignUp} sx={{ ml: 2 }}>
+          Sign Up!
+        </Button>
+      </Box>
+    </Box>
+  )
+  const PaymentModalContent = (
+    <Box>
+      <Typography>
+        This is a paid event. An entry fee of <strong>{billableItem && new Intl.NumberFormat('en-US', { style: 'currency', currency: billableItem.currency || 'usd' }).format(billableItem.price)}</strong> is required to sign up.
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+        You will be redirected to a secure payment page to complete your registration.
+      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+        <Button variant="outlined" onClick={() => setShowModal(false)}>Cancel</Button>
+        <Button variant="contained" color="primary" onClick={handlePayAndSignUp} disabled={loading} sx={{ ml: 2 }}>
+          {loading ? <CircularProgress size={20} /> : 'Proceed to Payment'}
+        </Button>
+      </Box>
+    </Box>
+  )
+
   const handleJoinRequest = async () => {
     // console.log('handleJoinRequest called. Match type:', matchType);
     if (matchType === 'doubles') {
@@ -152,7 +297,7 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
       return
     }
     if (canRegisterDirectly()) {
-      setModalType('single')
+      setModalType(billableItem ? 'payment' : 'single')
       setShowModal(true)
       return
     }
@@ -260,34 +405,9 @@ const JoinRequest = ({ objectType, id, isMember, memberText, isOpenRegistration 
       </Snackbar>
 
       <MyModal showHide={showModal} onClose={() => setShowModal(false)} title="Confirm Signing up">
-        {billableItem ? (
-          <>
-            <Typography>
-              This is a paid event. An entry fee of <strong>{new Intl.NumberFormat('en-US', { style: 'currency', currency: billableItem.currency || 'usd' }).format(billableItem.price)}</strong> is required to sign up.
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              You will be redirected to a secure payment page to complete your registration.
-            </Typography>
-            <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-              <Button variant="outlined" onClick={() => setShowModal(false)}>Cancel</Button>
-              <Button variant="contained" color="primary" onClick={handlePayAndSignUp} disabled={loading} sx={{ ml: 2 }}>
-                {loading ? <CircularProgress size={20} /> : 'Proceed to Payment'}
-              </Button>
-            </Box>
-          </>
-        ) : (
-          <>
-            <Typography>
-              You are about to sign up.
-            </Typography>
-            <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-              <Button variant="outlined" onClick={() => setShowModal(false)}>Cancel</Button>
-              <Button variant="contained" color="primary" onClick={handleSignUp} sx={{ ml: 2 }}>
-                Sign Up!
-              </Button>
-            </Box>
-          </>
-        )}
+        {modalType === 'doubles' && doublesModalContent}
+        {modalType === 'single' && SingleModalContent}
+        {modalType === 'payment' && PaymentModalContent}
       </MyModal>
     </Box>
   )
