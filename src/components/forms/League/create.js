@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Box, Container, TextField, Checkbox, FormControlLabel, MenuItem, Typography } from '@mui/material';
+import { Box, Container, TextField, Checkbox, FormControlLabel, MenuItem, Typography, Switch, Alert, CircularProgress } from '@mui/material';
 import Wizard from 'components/forms/Wizard/Wizard';
 import { AutoCompletePlaces, InfoPopup } from 'components/forms';
 import { helpers } from 'helpers';
 import EventRestrictions from './restrictions';
 import clubAPI from 'api/services/club';
 import { AuthContext } from 'contexts/AuthContext';
-import { eventAPI } from 'api/services';
+import { eventAPI, stripeAPI, billableItemAPI } from 'api/services';
+import BillableItemForm from 'components/forms/Stripe/BillableItemForm';
 
 const CreateLeague = ({ club, admins, onSuccess }) => {
   const [formState, setFormState] = useState({
@@ -32,7 +33,11 @@ const CreateLeague = ({ club, admins, onSuccess }) => {
 
   const [errors, setErrors] = useState({});
   const [userClubs, setUserClubs] = useState(club ? [club] : []);
-  const { user } = useContext(AuthContext)
+  const { user } = useContext(AuthContext);
+  const [isPaidEvent, setIsPaidEvent] = useState(false);
+  const [billableItem, setBillableItem] = useState({ amount: '', description: '', refund_policy: 'no_refunds' });
+  const [stripeConnected, setStripeConnected] = useState(false);
+  const [stripeLoading, setStripeLoading] = useState(false);
 
   useEffect(() => {
     const fetchUserClubs = async () => {
@@ -48,6 +53,24 @@ const CreateLeague = ({ club, admins, onSuccess }) => {
     }
     fetchUserClubs();
   }, [club, user.id]);
+
+  useEffect(() => {
+    const checkStripeStatus = async () => {
+      const clubId = club?.id || formState.club_id;
+      if (!clubId) return;
+      setStripeLoading(true);
+      try {
+        const res = await stripeAPI.getClubConnectStatus(clubId);
+        setStripeConnected(!!(res.success && res.data?.connected));
+      } catch (err) {
+        console.warn('Failed to check Stripe status:', err);
+        setStripeConnected(false);
+      } finally {
+        setStripeLoading(false);
+      }
+    };
+    checkStripeStatus();
+  }, [club, formState.club_id]);
 
   const updateFormState = (key, value) => {
     if (key.startsWith('content_object.')) {
@@ -113,6 +136,15 @@ const CreateLeague = ({ club, admins, onSuccess }) => {
       console.log('Creating league with data:', snakeCaseData);
       const response = await eventAPI.createEvent(snakeCaseData);  //leagueAPI.createLeague(snakeCaseData);
       if (response.success) {
+        if (isPaidEvent && billableItem.amount) {
+          await billableItemAPI.createBillableItem({
+            event_id: response.event.id,
+            amount: billableItem.amount,
+            description: billableItem.description || `Entry fee for ${formState.name}`,
+            currency: 'usd',
+            refund_policy: billableItem.refund_policy,
+          });
+        }
         onSuccess(response.event)
         //navigate(`/league/${response.event.id}`);
       } else {
@@ -278,6 +310,39 @@ const CreateLeague = ({ club, admins, onSuccess }) => {
           restrictions={formState.restrictions}
           updateRestrictions={(newRestrictions) => updateFormState('restrictions', newRestrictions)}
         />
+      ),
+    },
+    {
+      label: 'Payment',
+      description: 'Set an optional entry fee for this league.',
+      content: (
+        <Container maxWidth="sm">
+          <Typography variant="h6" gutterBottom>Entry Fee (Optional)</Typography>
+          {stripeLoading ? (
+            <CircularProgress size={24} />
+          ) : !stripeConnected ? (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              A payment account must be set up before paid events can be enabled.
+              Visit your club's <strong>Admin &gt; Payment Settings</strong> to connect a Stripe account.
+            </Alert>
+          ) : null}
+          <FormControlLabel
+            control={
+              <Switch
+                checked={isPaidEvent}
+                onChange={(e) => setIsPaidEvent(e.target.checked)}
+                disabled={!stripeConnected}
+              />
+            }
+            label="This is a paid event"
+          />
+          {isPaidEvent && stripeConnected && (
+            <BillableItemForm
+              value={billableItem}
+              onChange={setBillableItem}
+            />
+          )}
+        </Container>
       ),
     },
   ];

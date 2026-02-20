@@ -5,12 +5,14 @@ import { AiOutlineClockCircle } from 'react-icons/ai'
 import requestAPI from 'api/services/request'
 import { Alert, Box, List, ListItem, Snackbar, Typography } from '@mui/material'
 import { AuthContext } from 'contexts/AuthContext'
-import { eventAPI } from 'api/services'
+import { eventAPI, billableItemAPI, stripeAPI } from 'api/services'
 import InfoPopup from '../infoPopup'
 import MyModal from 'components/layout/MyModal'
 import { Link } from 'react-router-dom'
 import PlayerSearch from '../Player/playerSearch'
 import Wizard from '../Wizard/Wizard'
+import StripeProvider from 'components/forms/Stripe/StripeProvider'
+import CheckoutForm from 'components/forms/Stripe/CheckoutForm'
 
 const JoinRequest = ({ objectType, id, matchType, isMember,
   memberText, isOpenRegistration = false, callback, restrictions, divisionId = null, ...props }) => {
@@ -26,6 +28,10 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
   const [modalType, setModalType] = useState(null) // 'doubles' or 'single'
   const [doublesCandidates, setDoublesCandidates] = useState([])
   const [doublesPartner, setDoublesPartner] = useState(null)
+  const [billableItem, setBillableItem] = useState(null)
+  const [paymentClientSecret, setPaymentClientSecret] = useState(null)
+  const [paymentLoading, setPaymentLoading] = useState(false)
+  const [paymentDone, setPaymentDone] = useState(false)
 
   const showSnackbar = (message, severity = 'info') => {
     setSnackbarMessage(message)
@@ -94,6 +100,22 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
     }
   }, [id, isLoggedIn, user, objectType])
 
+  useEffect(() => {
+    const fetchBillableItems = async () => {
+      if (objectType !== 'event' || !id) return;
+      try {
+        const res = await billableItemAPI.getEventBillableItems(id);
+        if (res.success && res.data && res.data.length > 0) {
+          setBillableItem(res.data[0]);
+        }
+      } catch (err) {
+        console.warn('Failed to fetch billable items:', err);
+        // no billable items or error — treat as free event
+      }
+    };
+    fetchBillableItems();
+  }, [id, objectType]);
+
   const handleSignUp = async (participant_type='player') => {
     setLoading(true)
     try {
@@ -124,6 +146,24 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
       console.log('finally')
       setLoading(false)
       setShowModal(false)
+    }
+  }
+
+  const handleInitiatePayment = async () => {
+    if (!billableItem) return;
+    setPaymentLoading(true);
+    try {
+      const res = await stripeAPI.createPaymentIntent(billableItem.id);
+      if (res.success && res.data?.client_secret) {
+        setPaymentClientSecret(res.data.client_secret);
+      } else {
+        showSnackbar('Failed to initiate payment. Please try again.', 'error');
+      }
+    } catch (err) {
+      console.error('Payment initiation error:', err);
+      showSnackbar('Failed to initiate payment. Please try again.', 'error');
+    } finally {
+      setPaymentLoading(false);
     }
   }
 
@@ -248,14 +288,55 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
       <Typography>
         You are about to sign up.
       </Typography>
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-        <Button variant="outlined" onClick={() => setShowModal(false)}>Cancel</Button>
-        <Button variant="contained" color="primary" onClick={handleSignUp} sx={{ ml: 2 }}>
-          Sign Up!
-        </Button>
-      </Box>
+      {billableItem && !paymentDone && (
+        <Box sx={{ mt: 2 }}>
+          <Typography variant="subtitle1" gutterBottom>
+            Entry Fee: ${(billableItem.amount / 100).toFixed(2)}
+          </Typography>
+          {billableItem.description && (
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              {billableItem.description}
+            </Typography>
+          )}
+          {!paymentClientSecret ? (
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleInitiatePayment}
+              disabled={paymentLoading}
+              sx={{ mt: 1 }}
+            >
+              {paymentLoading ? <CircularProgress size={20} /> : 'Proceed to Payment'}
+            </Button>
+          ) : (
+            <StripeProvider clientSecret={paymentClientSecret}>
+              <CheckoutForm
+                returnUrl={`${window.location.origin}/events/${id}`}
+                onSuccess={() => {
+                  setPaymentDone(true);
+                  handleSignUp();
+                }}
+              />
+            </StripeProvider>
+          )}
+        </Box>
+      )}
+      {(!billableItem || paymentDone) && (
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+          <Button variant="outlined" onClick={handleCloseModal}>Cancel</Button>
+          <Button variant="contained" color="primary" onClick={handleSignUp} sx={{ ml: 2 }}>
+            Sign Up!
+          </Button>
+        </Box>
+      )}
     </Box>
   )
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setPaymentClientSecret(null);
+    setPaymentDone(false);
+  }
 
   const handleJoinRequest = async () => {
     // console.log('handleJoinRequest called. Match type:', matchType);
@@ -370,7 +451,7 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
         </Alert>
       </Snackbar>
 
-      <MyModal showHide={showModal} onClose={() => setShowModal(false)} title="Confirm Signing up">
+      <MyModal showHide={showModal} onClose={handleCloseModal} title="Confirm Signing up">
         {modalType === 'doubles' && doublesModalContent}
         {modalType === 'single' && SingleModalContent}
       </MyModal>
