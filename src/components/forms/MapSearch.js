@@ -293,7 +293,6 @@ const MapSearch = ({
           p: 2,
           mb: 2,
           borderRadius: 2,
-          backgroundColor: theme.palette.background.paper,
         }}
       >
         {/* Name search with inline search button */}
@@ -345,7 +344,7 @@ const MapSearch = ({
           {hasActiveFilters && (
             <Chip label="Active" size="small" color="primary" sx={{ height: 20, fontSize: '0.7rem' }} />
           )}
-          <IconButton size="small" sx={{ ml: 'auto' }}>
+          <IconButton size="small" sx={{ ml: 'auto' }} aria-label="Toggle filters">
             {filtersOpen ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
           </IconButton>
         </Box>

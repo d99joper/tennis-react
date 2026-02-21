@@ -128,7 +128,7 @@ const SearchPage = () => {
           }}
         >
           {Object.entries(searchTypeConfig).map(([key, { label, icon }]) => (
-            <ToggleButton key={key} value={key}>
+            <ToggleButton key={key} value={key} aria-label={label}>
               {icon} {!isSmallScreen && label}
             </ToggleButton>
           ))}
