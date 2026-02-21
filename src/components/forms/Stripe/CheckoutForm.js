@@ -4,7 +4,7 @@ import { Box, Button, Typography, CircularProgress, Alert } from '@mui/material'
 import { useTheme } from '@mui/material/styles';
 import { flexColumn } from 'styles/componentStyles';
 
-const CheckoutForm = ({ returnUrl, onSuccess }) => {
+const CheckoutForm = ({ returnUrl, onSuccess, onError }) => {
   const stripe = useStripe();
   const elements = useElements();
   const theme = useTheme();
@@ -12,6 +12,7 @@ const CheckoutForm = ({ returnUrl, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
+  const [elementReady, setElementReady] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,6 +22,7 @@ const CheckoutForm = ({ returnUrl, onSuccess }) => {
     setLoading(true);
     setError(null);
     setMessage(null);
+    setElementReady(false);
 
     const { error: confirmError, paymentIntent } = await stripe.confirmPayment({
       elements,
@@ -47,6 +49,7 @@ const CheckoutForm = ({ returnUrl, onSuccess }) => {
     }
 
     setLoading(false);
+    setElementReady(true);
   };
 
   return (
@@ -55,7 +58,14 @@ const CheckoutForm = ({ returnUrl, onSuccess }) => {
       onSubmit={handleSubmit}
       sx={{ ...flexColumn, gap: theme.spacing(2), maxWidth: 500 }}
     >
-      <PaymentElement />
+      <PaymentElement
+        onReady={() => setElementReady(true)}
+        onLoadError={(e) => {
+          const msg = e?.error?.message || 'Failed to load payment form. The payment may have already been processed.';
+          setError(msg);
+          if (onError) onError(msg);
+        }}
+      />
 
       {error && <Alert severity="error">{error}</Alert>}
       {message && <Alert severity="success">{message}</Alert>}
@@ -63,10 +73,10 @@ const CheckoutForm = ({ returnUrl, onSuccess }) => {
       <Button
         type="submit"
         variant="contained"
-        disabled={!stripe || loading}
+        disabled={!stripe || loading || !elementReady}
         sx={{ mt: theme.spacing(1) }}
       >
-        {loading ? <CircularProgress size={24} /> : 'Pay Now'}
+        {loading ? <CircularProgress size={24} /> : 'Complete Payment'}
       </Button>
     </Box>
   );

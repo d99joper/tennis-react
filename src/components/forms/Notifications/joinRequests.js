@@ -13,6 +13,7 @@ import PlayerSearch from '../Player/playerSearch'
 import Wizard from '../Wizard/Wizard'
 import StripeProvider from 'components/forms/Stripe/StripeProvider'
 import CheckoutForm from 'components/forms/Stripe/CheckoutForm'
+import { displayRefundPolicy } from 'helpers'
 
 const JoinRequest = ({ objectType, id, matchType, isMember,
   memberText, isOpenRegistration = false, callback, restrictions, divisionId = null, ...props }) => {
@@ -167,6 +168,37 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
     }
   }
 
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setPaymentClientSecret(null);
+    setPaymentDone(false);
+  }
+
+  const handleConfirmRequest = async () => {
+    setLoading(true)
+    try {
+      await requestAPI.createJoinRequest(objectType, id)
+      setStatus('pending')
+      showSnackbar('Join request sent successfully!', 'success')
+      handleCloseModal()
+    } catch (err) {
+      setError('Error sending join request.')
+      showSnackbar('Error sending join request.', 'error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const canRegisterDirectly = () => {
+    const today = new Date().getTime()
+    const startDate = new Date(`${props.startDate}T00:00:00Z`).getTime()
+    const registrationDate = new Date(`${props.registrationDate}T00:00:00Z`).getTime()
+    return isOpenRegistration && today < startDate && today > registrationDate
+  }
+
+  const isDirect = canRegisterDirectly()
+  const isPaidEvent = !!billableItem
+
   // create a preFilter based on the restrictions to limit partner selection
   const doublesPreFilter = (() => {
     const pf = {};
@@ -259,49 +291,32 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
       handleNext: () => { return doublesPartner != null; }
     },
     {
-      label: 'Confirm Sign Up',
-      description: 'Confirm Sign Up',
-      content: (
+      label: isPaidEvent && isDirect ? 'Confirm & Pay' : 'Confirm Sign Up',
+      content: isPaidEvent && isDirect ? (
+        // Paid + open registration
         <Box sx={{ mb: 2 }}>
-          <Typography>
-            You are about to sign up with partner {doublesPartner?.name}.
+          <Typography gutterBottom>
+            Signing up as a pair: you and <strong>{doublesPartner?.name}</strong>.
           </Typography>
-        </Box>
-      ),
-    }
-  ];
-  const doublesModalContent = (
-    <Wizard
-      steps={doublesWizardSteps}
-      handleSubmit={() => { 
-        showSnackbar(`Signing up with partner ${doublesPartner?.name}`, 'info'); 
-        // implement sign up with partner logic here
-        handleSignUp('doubles');
-        
-      }}
-      submitText="Confirm Sign Up"
-    />
-
-  )
-  const SingleModalContent = (
-    <Box>
-      <Typography>
-        You are about to sign up.
-      </Typography>
-      {billableItem && !paymentDone && (
-        <Box sx={{ mt: 2 }}>
-          <Typography variant="subtitle1" gutterBottom>
-            Entry Fee: ${(billableItem.amount / 100).toFixed(2)}
+          <Typography variant="subtitle1" gutterBottom fontWeight={600}>
+            Entry Fee: ${billableItem && parseFloat(billableItem.amount).toFixed(2)}
           </Typography>
-          {billableItem.description && (
+          <Typography variant="body2" gutterBottom>
+            This fee covers both players. You are responsible for the full payment — settle the split with your partner directly.
+          </Typography>
+          {billableItem?.description && (
             <Typography variant="body2" color="text.secondary" gutterBottom>
               {billableItem.description}
             </Typography>
           )}
+          {billableItem?.refund_policy && (
+            <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }} gutterBottom>
+              Refund policy: {displayRefundPolicy(billableItem.refund_policy)}
+            </Typography>
+          )}
           {!paymentClientSecret ? (
             <Button
-              variant="contained"
-              color="primary"
+              variant="contained" color="primary"
               onClick={handleInitiatePayment}
               disabled={paymentLoading}
               sx={{ mt: 1 }}
@@ -312,65 +327,186 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
             <StripeProvider clientSecret={paymentClientSecret}>
               <CheckoutForm
                 returnUrl={`${window.location.origin}/events/${id}`}
-                onSuccess={() => {
-                  setPaymentDone(true);
-                  handleSignUp();
-                }}
+                onSuccess={() => { setPaymentDone(true); handleSignUp('doubles'); }}
+              />
+            </StripeProvider>
+          )}
+        </Box>
+      ) : isPaidEvent && !isDirect ? (
+        // Paid + approval required
+        <Box sx={{ mb: 2 }}>
+          <Typography gutterBottom>
+            Signing up as a pair: you and <strong>{doublesPartner?.name}</strong>.
+          </Typography>
+          <Typography variant="subtitle1" gutterBottom fontWeight={600}>
+            Entry Fee: ${billableItem && parseFloat(billableItem.amount).toFixed(2)}
+          </Typography>
+          <Typography variant="body2" gutterBottom>
+            This event requires organizer approval. Once approved, you'll be notified to complete
+            the <strong>${billableItem && parseFloat(billableItem.amount).toFixed(2)}</strong> entry fee.
+            This fee covers both players — you are responsible for the full amount.
+          </Typography>
+          {billableItem?.refund_policy && (
+            <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }} gutterBottom>
+              Refund policy: {displayRefundPolicy(billableItem.refund_policy)}
+            </Typography>
+          )}
+        </Box>
+      ) : isDirect ? (
+        // Free + open registration
+        <Box sx={{ mb: 2 }}>
+          <Typography>
+            You are about to sign up with partner <strong>{doublesPartner?.name}</strong>. Confirm to join.
+          </Typography>
+        </Box>
+      ) : (
+        // Free + approval required
+        <Box sx={{ mb: 2 }}>
+          <Typography>
+            You are about to request to join with partner <strong>{doublesPartner?.name}</strong>.
+            Your request will be sent to the organizer for review.
+          </Typography>
+        </Box>
+      ),
+    }
+  ];
+  const doublesModalContent = (
+    <Wizard
+      steps={doublesWizardSteps}
+      handleSubmit={() => {
+        if (!isDirect) {
+          handleConfirmRequest()
+          return
+        }
+        if (isPaidEvent && !paymentDone) {
+          showSnackbar('Please complete payment above to confirm your spot', 'warning')
+          return
+        }
+        if (!paymentDone) {
+          handleSignUp('doubles')
+        }
+        // if paymentDone, handleSignUp was already called via onSuccess
+      }}
+      submitText={
+        !isDirect ? 'Send Request' :
+        isPaidEvent && !paymentDone ? 'Complete Payment Above' :
+        'Confirm Sign Up'
+      }
+    />
+  )
+  const ConfirmModalContent = (
+    <Box>
+      {/* Free + open registration */}
+      {!isPaidEvent && isDirect && (
+        <>
+          <Typography gutterBottom>
+            You are about to sign up for this event. Confirm to join.
+          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
+            <Button variant="outlined" onClick={handleCloseModal}>Cancel</Button>
+            <Button variant="contained" color="primary" onClick={() => handleSignUp()} disabled={loading}>
+              {loading ? <CircularProgress size={20} /> : 'Confirm Sign Up'}
+            </Button>
+          </Box>
+        </>
+      )}
+
+      {/* Free + approval required */}
+      {!isPaidEvent && !isDirect && (
+        <>
+          <Typography gutterBottom>
+            This event requires organizer approval. Your request will be sent for review — you'll
+            be notified once approved.
+          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
+            <Button variant="outlined" onClick={handleCloseModal}>Cancel</Button>
+            <Button variant="contained" color="primary" onClick={handleConfirmRequest} disabled={loading}>
+              {loading ? <CircularProgress size={20} /> : 'Send Request'}
+            </Button>
+          </Box>
+        </>
+      )}
+
+      {/* Paid + open registration */}
+      {isPaidEvent && isDirect && !paymentDone && (
+        <Box>
+          <Typography variant="subtitle1" gutterBottom fontWeight={600}>
+            Entry Fee: ${parseFloat(billableItem.amount).toFixed(2)}
+          </Typography>
+          {billableItem.description && (
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              {billableItem.description}
+            </Typography>
+          )}
+          {billableItem.refund_policy && (
+            <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontStyle: 'italic' }}>
+              Refund policy: {displayRefundPolicy(billableItem.refund_policy)}
+            </Typography>
+          )}
+          {!paymentClientSecret ? (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
+              <Button variant="outlined" onClick={handleCloseModal}>Cancel</Button>
+              <Button variant="contained" color="primary" onClick={handleInitiatePayment} disabled={paymentLoading}>
+                {paymentLoading ? <CircularProgress size={20} /> : 'Proceed to Payment'}
+              </Button>
+            </Box>
+          ) : (
+            <StripeProvider clientSecret={paymentClientSecret}>
+              <CheckoutForm
+                returnUrl={`${window.location.origin}/events/${id}`}
+                onSuccess={() => { setPaymentDone(true); handleSignUp(); }}
               />
             </StripeProvider>
           )}
         </Box>
       )}
-      {(!billableItem || paymentDone) && (
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-          <Button variant="outlined" onClick={handleCloseModal}>Cancel</Button>
-          <Button variant="contained" color="primary" onClick={handleSignUp} sx={{ ml: 2 }}>
-            Sign Up!
-          </Button>
-        </Box>
+
+      {/* Paid + approval required */}
+      {isPaidEvent && !isDirect && (
+        <>
+          <Typography gutterBottom>
+            This event requires organizer approval before payment is collected.
+          </Typography>
+          <Typography variant="subtitle1" gutterBottom fontWeight={600}>
+            Entry Fee: ${parseFloat(billableItem.amount).toFixed(2)}
+          </Typography>
+          {billableItem.description && (
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              {billableItem.description}
+            </Typography>
+          )}
+          <Typography variant="body2" gutterBottom sx={{ mt: 1 }}>
+            Once approved, you'll receive a notification to complete your{' '}
+            <strong>${parseFloat(billableItem.amount).toFixed(2)}</strong> payment to confirm your spot.
+          </Typography>
+          {billableItem.refund_policy && (
+            <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontStyle: 'italic' }}>
+              Refund policy: {displayRefundPolicy(billableItem.refund_policy)}
+            </Typography>
+          )}
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
+            <Button variant="outlined" onClick={handleCloseModal}>Cancel</Button>
+            <Button variant="contained" color="primary" onClick={handleConfirmRequest} disabled={loading}>
+              {loading ? <CircularProgress size={20} /> : 'Send Request'}
+            </Button>
+          </Box>
+        </>
       )}
     </Box>
   )
 
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setPaymentClientSecret(null);
-    setPaymentDone(false);
-  }
 
-  const handleJoinRequest = async () => {
-    // console.log('handleJoinRequest called. Match type:', matchType);
+  const handleJoinRequest = () => {
     if (matchType === 'doubles') {
-      console.log('Current user:', user);
       setModalType('doubles')
       setShowModal(true)
       return
     }
-    if (canRegisterDirectly()) {
-      setModalType('single')
-      setShowModal(true)
-      return
-    }
-    else {
-      requestAPI.createJoinRequest(objectType, id)
-        .then(() => {
-          setStatus('pending')
-          showSnackbar('Join request sent successfully!', 'success')
-        })
-        .catch((err) => {
-          setError('Error sending join request.')
-          showSnackbar('Error sending join request.', 'error')
-        })
-    }
+    setModalType('single')
+    setShowModal(true)
   }
 
-  const canRegisterDirectly = () => {
-    const today = new Date().getTime(); // Get current time in milliseconds
-    const startDate = new Date(`${props.startDate}T00:00:00Z`).getTime(); // for UTC time
-    const registrationDate = new Date(`${props.registrationDate}T00:00:00Z`).getTime();
-
-    return isOpenRegistration && today < startDate && today > registrationDate;
-  }
+  // canRegisterDirectly is now defined earlier in the component (before doublesWizardSteps)
 
   if (!isLoggedIn) {
     return (
@@ -438,6 +574,25 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
               Request to Join Denied - Try Again?
             </Button>
           )}
+          {status === 'approved_pending_payment' && (
+            <Alert
+              severity="warning"
+              action={
+                <Button
+                  color="inherit"
+                  size="small"
+                  onClick={() => {
+                    setModalType('single')
+                    setShowModal(true)
+                  }}
+                >
+                  Pay Now
+                </Button>
+              }
+            >
+              Your spot is reserved — complete payment to confirm your place.
+            </Alert>
+          )}
         </>
       }
       <Snackbar
@@ -453,7 +608,7 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
 
       <MyModal showHide={showModal} onClose={handleCloseModal} title="Confirm Signing up">
         {modalType === 'doubles' && doublesModalContent}
-        {modalType === 'single' && SingleModalContent}
+        {modalType === 'single' && ConfirmModalContent}
       </MyModal>
     </Box>
   )

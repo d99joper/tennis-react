@@ -10,7 +10,7 @@ const billableItemAPI = {
   createBillableItem: async (data) => {
     try {
       const requestOptions = authAPI.getRequestOptions('POST', data);
-      const response = await fetch(`${apiUrl}marketplace/billable_items`, requestOptions);
+      const response = await fetch(`${apiUrl}marketplace/billable-items/create`, requestOptions);
       const result = await response.json();
       return { success: response.ok, statusCode: response.status, data: result };
     } catch (err) {
@@ -27,7 +27,7 @@ const billableItemAPI = {
   getBillableItem: async (billableItemId) => {
     try {
       const requestOptions = authAPI.getRequestOptions('GET');
-      const response = await fetch(`${apiUrl}marketplace/billable_items/${billableItemId}`, requestOptions);
+      const response = await fetch(`${apiUrl}marketplace/billable-items/${billableItemId}`, requestOptions);
       const result = await response.json();
       return { success: response.ok, statusCode: response.status, data: result };
     } catch (err) {
@@ -45,7 +45,7 @@ const billableItemAPI = {
   updateBillableItem: async (billableItemId, data) => {
     try {
       const requestOptions = authAPI.getRequestOptions('PATCH', data);
-      const response = await fetch(`${apiUrl}marketplace/billable_items/${billableItemId}`, requestOptions);
+      const response = await fetch(`${apiUrl}marketplace/billable-items/${billableItemId}/update`, requestOptions);
       const result = await response.json();
       return { success: response.ok, statusCode: response.status, data: result };
     } catch (err) {
@@ -62,7 +62,7 @@ const billableItemAPI = {
   deleteBillableItem: async (billableItemId) => {
     try {
       const requestOptions = authAPI.getRequestOptions('DELETE');
-      const response = await fetch(`${apiUrl}marketplace/billable_items/${billableItemId}`, requestOptions);
+      const response = await fetch(`${apiUrl}marketplace/billable-items/${billableItemId}/delete`, requestOptions);
       return { success: response.ok, statusCode: response.status, data: {} };
     } catch (err) {
       console.error('Error deleting billable item', err);
@@ -78,11 +78,28 @@ const billableItemAPI = {
   getEventBillableItems: async (eventId) => {
     try {
       const requestOptions = authAPI.getRequestOptions('GET');
-      const response = await fetch(`${apiUrl}events/${eventId}/billable_items`, requestOptions);
+      const response = await fetch(`${apiUrl}marketplace/events/${eventId}/billable-items`, requestOptions);
+      const result = await response.json();
+      return { success: response.ok, statusCode: response.status, data: result.data || [] };
+    } catch (err) {
+      console.error('Error fetching event billable items', err);
+      return { success: false, statusCode: 500, data: { error: err.message } };
+    }
+  },
+
+  /**
+   * Get all billable items for a club
+   * @param {string} clubId
+   * @returns {{ success: boolean, statusCode: number, data: array }}
+   */
+  getClubBillableItems: async (clubId) => {
+    try {
+      const requestOptions = authAPI.getRequestOptions('GET');
+      const response = await fetch(`${apiUrl}marketplace/clubs/${clubId}/billable-items`, requestOptions);
       const result = await response.json();
       return { success: response.ok, statusCode: response.status, data: result };
     } catch (err) {
-      console.error('Error fetching event billable items', err);
+      console.error('Error fetching club billable items', err);
       return { success: false, statusCode: 500, data: { error: err.message } };
     }
   },

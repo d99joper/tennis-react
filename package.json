@@ -30,6 +30,7 @@
         "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz"
     },
     "scripts": {
+        "prestart": "node generate-sw.js",
         "start": "craco start",
         "build": "node generate-sw.js && craco build",
         "test": "craco test",

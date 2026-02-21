@@ -18,7 +18,12 @@ import useAwardToast from 'helpers/useAwardsToast';
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
       <HelmetProvider>
         <ThemeProvider>
           <ThemedApp />

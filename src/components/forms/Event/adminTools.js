@@ -25,6 +25,7 @@ import PlayerSearch from '../Player/playerSearch';
 import requestAPI from 'api/services/request';
 import { eventHelper } from 'helpers';
 import divisionAPI from 'api/services/divisions';
+import EventPaymentSettings from './EventPaymentSettings';
 
 const EventAdminTools = ({ event, setEvent }) => {
   const [selectedSection, setSelectedSection] = useState('settings');
@@ -279,6 +280,12 @@ const EventAdminTools = ({ event, setEvent }) => {
           <ListItem disablePadding>
             <ListItemButton selected={selectedSection === 'addDivision'} onClick={() => setSelectedSection('addDivision')}>
               <ListItemText primary="Divisions" />
+            </ListItemButton>
+          </ListItem>
+          <Divider />
+          <ListItem disablePadding>
+            <ListItemButton selected={selectedSection === 'payments'} onClick={() => setSelectedSection('payments')}>
+              <ListItemText primary="Payments" />
             </ListItemButton>
           </ListItem>
         </List>
@@ -568,6 +575,10 @@ const EventAdminTools = ({ event, setEvent }) => {
               Add Division
             </Button>
           </Box>
+        )}
+        {/* Payments Section */}
+        {selectedSection === 'payments' && (
+          <EventPaymentSettings event={event} />
         )}
       </Box>
     </Box>

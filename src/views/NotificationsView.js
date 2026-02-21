@@ -1,32 +1,32 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import {
-  Box,
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  Divider,
-  IconButton,
-  Grid,
-  Button,
-  LinearProgress,
+  Box, Typography, List, ListItem, ListItemText, Divider,
+  IconButton, Grid, Button, LinearProgress, Alert, Chip, CircularProgress,
 } from '@mui/material';
 import { AiOutlineMail, AiOutlineCheck, AiOutlineDelete, AiOutlineMessage } from 'react-icons/ai';
 import { useNotificationsContext } from 'contexts/NotificationContext';
 import { Link } from 'react-router-dom';
 import notificationAPI from 'api/services/notifications';
 import requestAPI from 'api/services/request';
+import { billableItemAPI, stripeAPI } from 'api/services';
 import { ProfileImage } from 'components/forms';
 import { useSnackbar } from 'contexts/snackbarContext';
 import { Helmet } from 'react-helmet-async';
 import MyModal from 'components/layout/MyModal';
 import Conversation from 'components/forms/Conversations/conversations';
 import { AuthContext } from 'contexts/AuthContext';
+import StripeProvider from 'components/forms/Stripe/StripeProvider';
+import CheckoutForm from 'components/forms/Stripe/CheckoutForm';
+import { displayRefundPolicy } from 'helpers';
 
 const NotificationsView = () => {
   const [loading, setLoading] = useState(false);
   const [showChatModal, setShowChatModal] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
+  const [eventBillableItem, setEventBillableItem] = useState(null);
+  const [paymentClientSecret, setPaymentClientSecret] = useState(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentDone, setPaymentDone] = useState(false);
   const { notifications, notificationCount, markAsRead, deleteNotification, updateNotification } = useNotificationsContext();
   //const [snackbar, setSnackbar] = useState({ open: false, message: '' });
   const { showSnackbar } = useSnackbar();
@@ -56,23 +56,75 @@ const NotificationsView = () => {
   };
 
   const handleAction = async (approve) => {
-
     try {
       const response = await requestAPI.processRequest(selectedNotification.id, approve)
+      if (!response.success) {
+        showSnackbar(response.message || 'Failed to process the request', 'error');
+        return;
+      }
       const newStatus = approve ? 'approved' : 'denied';
       updateNotification({ ...selectedNotification, status: newStatus });
       setSelectedNotification({ ...selectedNotification, status: newStatus });
-      showSnackbar(response.data.message, "success")
-      //setSnackbar({ open: true, message: response.data.message });
+      showSnackbar(response.data?.message || (approve ? 'Request approved' : 'Request denied'), 'success');
     }
     catch (e) {
-      showSnackbar("Failed to process the request", "error")
-      //setSnackbar({ open: true, message: 'Failed to process the request' });
+      showSnackbar('Failed to process the request', 'error');
     }
   }
 
   const unreadNotifications = notifications.filter(n => !n.is_read);
   const readNotifications = notifications.filter(n => n.is_read);
+
+  // Reset payment state when switching notifications
+  useEffect(() => {
+    setEventBillableItem(null);
+    setPaymentClientSecret(null);
+    setPaymentDone(false);
+  }, [selectedNotification?.id]);
+
+  // Fetch billable item for join_request notifications (approver fee preview)
+  useEffect(() => {
+    if (selectedNotification?.type !== 'join_request') return;
+    const eventId = selectedNotification.related_object?.id;
+    if (!eventId) return;
+    billableItemAPI.getEventBillableItems(eventId).then((res) => {
+      if (res.success) {
+        const items = Array.isArray(res.data) ? res.data : res.data?.results || [];
+        setEventBillableItem(items[0] || null);
+      }
+    });
+  }, [selectedNotification?.id, selectedNotification?.type, selectedNotification?.related_object?.id]);
+
+  // Fetch billable item for payment_required notifications (get event details)
+  useEffect(() => {
+    if (selectedNotification?.type !== 'payment_required') return;
+    const billableItemId = selectedNotification.related_object?.id;
+    if (!billableItemId) return;
+    billableItemAPI.getBillableItem(billableItemId).then((res) => {
+      if (res.success) {
+        const item = res.data?.id ? res.data : res.data?.data ?? res.data;
+        setEventBillableItem(item);
+      }
+    });
+  }, [selectedNotification?.id, selectedNotification?.type, selectedNotification?.related_object?.id]);
+
+  const handlePayNow = async () => {
+    const billableItemId = selectedNotification?.related_object?.id;
+    if (!billableItemId) return;
+    setPaymentLoading(true);
+    try {
+      const res = await stripeAPI.createPaymentIntent(billableItemId);
+      if (res.success && res.data?.client_secret) {
+        setPaymentClientSecret(res.data.client_secret);
+      } else {
+        showSnackbar(res.data?.error || 'Failed to initiate payment. Please try again.', 'error');
+      }
+    } catch (err) {
+      showSnackbar(err.message, 'error');
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
 
   return (
     <Grid container spacing={2}>
@@ -178,9 +230,12 @@ const NotificationsView = () => {
                 <>
                   {selectedNotification.related_object && (
                     <Box>
-                      <Link to={selectedNotification.related_object.url} style={{ marginRight: 10 }} target='_blank'>
-                        Go to {selectedNotification.related_object.name}
-                      </Link>
+                      {/* Only show generic event link for non-payment types */}
+                      {selectedNotification.type !== 'payment_required' && (
+                        <Link to={selectedNotification.related_object.url} style={{ marginRight: 10 }} target='_blank'>
+                          Go to {selectedNotification.related_object.name}
+                        </Link>
+                      )}
                       {selectedNotification.type === 'join_request' &&
                         <Link to={'/players/' + selectedNotification.sender.slug} style={{ marginRight: 10 }} target='_blank'>
                           <Box sx={{ display: "flex", mt: 1, alignItems: "center", gap: 1 }}>
@@ -190,9 +245,7 @@ const NotificationsView = () => {
                         </Link>
                       }
                     </Box>
-
-                  )
-                  }
+                  )}
                   {selectedNotification.type === 'message' && isLoggedIn && (
                     <Box display={'flex'} gap={1} alignItems={'center'}>
                       <AiOutlineMessage
@@ -210,27 +263,127 @@ const NotificationsView = () => {
               {/* Actions */}
               {selectedNotification.type === 'join_request' && (
                 <Box mt={2}>
-                  {selectedNotification?.status === "pending" ? (
-                    <>
-                      <Button
-                        variant="contained"
-                        color="success"
-                        onClick={() => handleAction(true)}
-                        style={{ marginRight: 10 }}
-                      >
+                  {eventBillableItem && selectedNotification?.status === 'pending' && (
+                    <Alert severity="info" sx={{ mb: 2 }}>
+                      <Typography variant="body2" fontWeight={600}>
+                        Entry Fee: ${parseFloat(eventBillableItem.amount).toFixed(2)}
+                      </Typography>
+                      {eventBillableItem.description && (
+                        <Typography variant="body2">{eventBillableItem.description}</Typography>
+                      )}
+                      {eventBillableItem.refund_policy && (
+                        <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
+                          Refund policy: {displayRefundPolicy(eventBillableItem.refund_policy)}
+                        </Typography>
+                      )}
+                      <Typography variant="caption" color="text.secondary">
+                        Upon approval, the player will be notified to complete payment to confirm their spot.
+                      </Typography>
+                    </Alert>
+                  )}
+                  {selectedNotification?.status === 'pending' ? (
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                      <Button variant="contained" color="success" onClick={() => handleAction(true)}>
                         Approve
                       </Button>
-                      <Button
-                        variant="contained"
-                        color="error"
-                        onClick={() => handleAction(false)}
-                      >
+                      <Button variant="contained" color="error" onClick={() => handleAction(false)}>
                         Deny
                       </Button>
-                    </>
+                    </Box>
                   ) : (
-                    <Typography>
-                      <i>This request has been {selectedNotification?.status || "processed"}</i>
+                    <Typography><i>This request has been {selectedNotification?.status || 'processed'}</i></Typography>
+                  )}
+                </Box>
+              )}
+
+              {/* payment_required: player completes payment */}
+              {selectedNotification.type === 'payment_required' && (
+                <Box mt={2}>
+                  {paymentDone ? (
+                    <Alert severity="success">
+                      Payment received! Your spot is being confirmed — you'll get a notification shortly.
+                    </Alert>
+                  ) : (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <Alert severity="warning">
+                        <Typography variant="body2" fontWeight={600}>
+                          Complete payment to confirm your spot
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          Your organizer has approved your request. Pay to secure your place.
+                        </Typography>
+                      </Alert>
+
+                      {/* Event info from billable item */}
+                      {eventBillableItem && (
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                          {eventBillableItem.event && (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Typography variant="body2" color="text.secondary">Event:</Typography>
+                              <Link
+                                to={`/events/${eventBillableItem.event.id}`}
+                                target="_blank"
+                                style={{ fontWeight: 600, fontSize: '1rem' }}
+                              >
+                                {eventBillableItem.event.name}
+                              </Link>
+                            </Box>
+                          )}
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Typography variant="body2" color="text.secondary">Entry fee:</Typography>
+                            <Typography variant="body2" fontWeight={600}>
+                              ${parseFloat(eventBillableItem.amount).toFixed(2)}
+                            </Typography>
+                          </Box>
+                          {eventBillableItem.refund_policy && (
+                            <Typography variant="caption" color="text.secondary" fontStyle="italic">
+                              Refund policy: {displayRefundPolicy(eventBillableItem.refund_policy)}
+                            </Typography>
+                          )}
+                        </Box>
+                      )}
+
+                      {!paymentClientSecret ? (
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={handlePayNow}
+                          disabled={paymentLoading}
+                          startIcon={paymentLoading ? <CircularProgress size={16} /> : null}
+                          sx={{ alignSelf: 'flex-start' }}
+                        >
+                          {paymentLoading ? 'Loading...' : 'Pay Now'}
+                        </Button>
+                      ) : (
+                        <StripeProvider clientSecret={paymentClientSecret}>
+                          <CheckoutForm
+                            returnUrl={`${window.location.origin}/notifications`}
+                            onSuccess={() => {
+                              setPaymentDone(true);
+                            }}
+                            onError={() => {
+                              setPaymentClientSecret(null);
+                              showSnackbar('Payment session expired or already used. Please try again.', 'error');
+                            }}
+                          />
+                        </StripeProvider>
+                      )}
+                    </Box>
+                  )}
+                </Box>
+              )}
+
+              {/* join_confirmed: player's spot is confirmed */}
+              {selectedNotification.type === 'join_confirmed' && (
+                <Box mt={2}>
+                  <Chip label="You're in!" color="success" />
+                  {selectedNotification.related_object && (
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                      Head to{' '}
+                      <Link to={selectedNotification.related_object.url} target="_blank">
+                        {selectedNotification.related_object.name}
+                      </Link>{' '}
+                      to see the details.
                     </Typography>
                   )}
                 </Box>
