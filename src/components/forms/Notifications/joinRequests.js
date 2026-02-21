@@ -5,12 +5,14 @@ import { AiOutlineClockCircle } from 'react-icons/ai'
 import requestAPI from 'api/services/request'
 import { Alert, Box, List, ListItem, Snackbar, Typography } from '@mui/material'
 import { AuthContext } from 'contexts/AuthContext'
-import { eventAPI } from 'api/services'
+import { eventAPI, subscriptionAPI } from 'api/services'
 import InfoPopup from '../infoPopup'
 import MyModal from 'components/layout/MyModal'
 import { Link } from 'react-router-dom'
 import PlayerSearch from '../Player/playerSearch'
 import Wizard from '../Wizard/Wizard'
+import { enums } from 'helpers'
+import { MdLock } from 'react-icons/md'
 
 const JoinRequest = ({ objectType, id, matchType, isMember,
   memberText, isOpenRegistration = false, callback, restrictions, divisionId = null, ...props }) => {
@@ -26,6 +28,7 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
   const [modalType, setModalType] = useState(null) // 'doubles' or 'single'
   const [doublesCandidates, setDoublesCandidates] = useState([])
   const [doublesPartner, setDoublesPartner] = useState(null)
+  const [eventLimitReached, setEventLimitReached] = useState(false)
 
   const showSnackbar = (message, severity = 'info') => {
     setSnackbarMessage(message)
@@ -67,6 +70,21 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
     async function setJoinRequest() {
       setError(null)
       try {
+        // Check subscription event limit for free users
+        const hasSubscription = user?.isBasicSubscriber || user?.isProSubscriber;
+        if (!hasSubscription && objectType === 'event') {
+          try {
+            const countData = await subscriptionAPI.getPlayerEventCount();
+            if (countData?.event_count >= enums.SUBSCRIPTION_LIMITS.FREE_MAX_EVENTS) {
+              setEventLimitReached(true);
+              setStatus('event_limit');
+              return;
+            }
+          } catch (err) {
+            console.error('Error checking event count:', err);
+          }
+        }
+
         const isEligible = await checkEligibility();
         if (isEligible) {
           requestAPI.getRequestStatusForUser(id)
@@ -312,6 +330,31 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
 
   if (status === 'loading' || loading) {
     return <CircularProgress />
+  }
+
+  if (status === 'event_limit') {
+    return (
+      <Box sx={{ p: 1.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+          <MdLock size={20} />
+          <Typography variant="body1" fontWeight={600}>
+            Event Limit Reached
+          </Typography>
+        </Box>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+          Free accounts can join up to {enums.SUBSCRIPTION_LIMITS.FREE_MAX_EVENTS} events.
+          Subscribe to join unlimited events and unlock more features!
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          component={Link}
+          to="/subscription"
+        >
+          View Plans
+        </Button>
+      </Box>
+    )
   }
 
   if (status === 'not_eligible') {

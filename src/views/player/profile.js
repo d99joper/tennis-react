@@ -11,7 +11,9 @@ import { enums, helpers } from 'helpers'
 import { Helmet } from 'react-helmet-async'
 import { Matches, TopRivals, UserStats } from 'components/forms'
 import { BsHouse } from 'react-icons/bs'
+import { MdLock } from 'react-icons/md'
 import SeoHelmet from 'components/seoHelmet'
+import LockedFeature from 'components/forms/Subscription/LockedFeature'
 
 const Profile = () => {
   const { userid } = useParams()
@@ -36,6 +38,11 @@ const Profile = () => {
   const [rivalsLoading, setRivalsLoading] = useState(false);
   const [rivalsPlayerId, setRivalsPlayerId] = useState(null);
   const [refreshIndex, setRefreshIndex] = useState(0);
+
+  // Subscription checks - only gate on the user's own profile
+  const isOwnProfile = isLoggedIn && user && player && user.id === player.id;
+  const hasBasic = user?.isBasicSubscriber || user?.isProSubscriber;
+  const isFreeTier = isOwnProfile && !hasBasic;
 
   // Tab name mappings
   const tabNameToIndex = useMemo(() => ({
@@ -142,7 +149,7 @@ const Profile = () => {
   // Fetch rivals when on Rivals tab and player changes
   useEffect(() => {
     console.log('Rivals useEffect:', { tabIndex, playerId: player?.id, rivalsFetched, rivalsPlayerId })
-    if (tabIndex === 3 && player && rivalsPlayerId !== player.id) {
+    if (tabIndex === 3 && player && rivalsPlayerId !== player.id && !isFreeTier) {
       console.log('Fetching rivals for player:', player.id)
       setRivalsLoading(true)
       playerAPI.getGreatestRivals([player.id], enums.MATCH_TYPE.SINGLES)
@@ -270,9 +277,21 @@ const Profile = () => {
         <Card variant="outlined">
           <Tabs value={tabIndex} onChange={handleTabChange} indicatorColor="primary" textColor="primary" variant="fullWidth">
             <Tab label="Events" />
-            <Tab label="Matches" />
-            <Tab label="Stats" />
-            <Tab label="Rivals" onClick={handleRivalsClick} />
+            <Tab label={
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                Matches {isFreeTier && <MdLock size={14} />}
+              </Box>
+            } />
+            <Tab label={
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                Stats {isFreeTier && <MdLock size={14} />}
+              </Box>
+            } />
+            <Tab label={
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                Rivals {isFreeTier && <MdLock size={14} />}
+              </Box>
+            } onClick={!isFreeTier ? handleRivalsClick : undefined} />
           </Tabs>
           <CardContent>
             {tabIndex === 0 &&
@@ -299,17 +318,12 @@ const Profile = () => {
                     originId={player.id}
                     originType={'player'}
                     matchType={'singles'}
-                    pageSize={10}
+                    pageSize={isFreeTier ? enums.SUBSCRIPTION_LIMITS.FREE_MAX_RECENT_MATCHES : 10}
                     refresh={refreshIndex}
                     showAddMatch={true}
                     showComments={true}
-                    showH2H={true}
+                    showH2H={!isFreeTier}
                     callback={(matchdata) => { console.log('new match to profile', matchdata) }}
-                  // highlightedMatch={highLightedMatch}
-                  // refreshMatches={refreshMatchesCounter}
-                  //allowDelete={true}
-                  //showChallenge={true}
-                  //isLoggedIn={isLoggedIn}
                   />
                 )}
                 {matchTabIndex === 1 && (
@@ -318,27 +332,50 @@ const Profile = () => {
                     originId={player.id}
                     originType={'player'}
                     matchType={'doubles'}
-                    pageSize={10}
+                    pageSize={isFreeTier ? enums.SUBSCRIPTION_LIMITS.FREE_MAX_RECENT_MATCHES : 10}
                     showAddMatch={true}
                     showComments={true}
-                    showH2H={true}
+                    showH2H={!isFreeTier}
+                  />
+                )}
+                {isFreeTier && (
+                  <LockedFeature
+                    featureName="Full Match History"
+                    requiredTier="basic"
+                    description="Upgrade to Basic to see all your matches, filter by opponent and date, and view head-to-head stats."
                   />
                 )}
               </Box>
             }
-            {tabIndex === 2 &&
-              <UserStats key={player.id} stats={stats} statsFetched={statsFetched} />
-            }
-            {tabIndex === 3 &&
-              (rivalsLoading || rivalsPlayerId !== player.id ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4, flexDirection: 'column', gap: 2 }}>
-                  <CircularProgress />
-                  <Typography>Loading rivals...</Typography>
-                </Box>
+            {tabIndex === 2 && (
+              isFreeTier ? (
+                <LockedFeature
+                  featureName="Player Stats"
+                  requiredTier="basic"
+                  description="Upgrade to Basic to see detailed win/loss stats, yearly breakdowns, and performance trends."
+                />
               ) : (
-                <TopRivals key={player.id} data={rivals} rivalsFetched={rivalsFetched} player={player} paddingTop={10} />
-              ))
-            }
+                <UserStats key={player.id} stats={stats} statsFetched={statsFetched} />
+              )
+            )}
+            {tabIndex === 3 && (
+              isFreeTier ? (
+                <LockedFeature
+                  featureName="Rivals"
+                  requiredTier="basic"
+                  description="Upgrade to Basic to see your top rivals, head-to-head records, and detailed matchup history."
+                />
+              ) : (
+                rivalsLoading || rivalsPlayerId !== player.id ? (
+                  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4, flexDirection: 'column', gap: 2 }}>
+                    <CircularProgress />
+                    <Typography>Loading rivals...</Typography>
+                  </Box>
+                ) : (
+                  <TopRivals key={player.id} data={rivals} rivalsFetched={rivalsFetched} player={player} paddingTop={10} />
+                )
+              )
+            )}
           </CardContent>
         </Card>
       </Box>
