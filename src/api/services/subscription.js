@@ -37,6 +37,32 @@ const subscriptionAPI = {
       return await response.json()
     else
       return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get player subscription' }
+  },
+
+  getPlayerEventCount: async function() {
+    const requestOptions = authAPI.getRequestOptions('GET')
+    try {
+      const response = await fetch(subscriptionsUrl + 'event-count', requestOptions)
+      if (response.ok)
+        return await response.json()
+      else
+        return { event_count: 0 }
+    } catch {
+      return { event_count: 0 }
+    }
+  },
+
+  getSubscriptionPortalUrl: async function() {
+    const requestOptions = authAPI.getRequestOptions('POST')
+    try {
+      const response = await fetch(subscriptionsUrl + 'customer-portal', requestOptions)
+      if (response.ok)
+        return await response.json()
+      else
+        return { success: false, error: 'Failed to get portal URL' }
+    } catch (err) {
+      return { success: false, error: err.message }
+    }
   }
 }
 
