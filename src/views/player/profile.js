@@ -149,7 +149,7 @@ const Profile = () => {
   // Fetch rivals when on Rivals tab and player changes
   useEffect(() => {
     console.log('Rivals useEffect:', { tabIndex, playerId: player?.id, rivalsFetched, rivalsPlayerId })
-    if (tabIndex === 3 && player && rivalsPlayerId !== player.id) {
+    if (tabIndex === 3 && player && rivalsPlayerId !== player.id && !isFreeTier) {
       console.log('Fetching rivals for player:', player.id)
       setRivalsLoading(true)
       playerAPI.getGreatestRivals([player.id], enums.MATCH_TYPE.SINGLES)
