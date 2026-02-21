@@ -1,14 +1,15 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Box, TextField, Button, Slider, Typography, List, ListItem, ListItemText, 
-  CircularProgress, FormControlLabel, Checkbox, useMediaQuery, Grid } from "@mui/material";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { Box, TextField, Button, Slider, Typography, List, ListItem, ListItemText,
+  CircularProgress, FormControlLabel, Checkbox, useMediaQuery, Paper, Chip, Collapse,
+  IconButton, InputAdornment, useTheme } from "@mui/material";
 import { AutoCompletePlaces } from "components/forms";
 import useGoogleMapsApi from "helpers/useGoogleMapsApi";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { AuthContext } from "contexts/AuthContext";
 import { Link } from "react-router-dom";
 import { helpers } from "helpers";
-import useComponentWidth from "helpers/useComponentWidth";
 import { Helmet } from "react-helmet-async";
+import { FaSearch, FaChevronDown, FaChevronUp, FaMapMarkerAlt } from "react-icons/fa";
 
 const MapSearch = ({
   title,
@@ -23,6 +24,7 @@ const MapSearch = ({
   onMapsApiLoaded
 }) => {
   const mapsApi = useGoogleMapsApi();
+  const theme = useTheme();
   const [name, setName] = useState("");
   const [applyLocation, setApplyLocation] = useState(false);
   const [applyNtrp, setApplyNtrp] = useState(false);
@@ -40,13 +42,16 @@ const MapSearch = ({
   const { user } = useContext(AuthContext)
   const [markerCluster, setMarkerCluster] = useState(null);
   const [initialCity, setInitialCity] = useState(null);
+  const [filtersOpen, setFiltersOpen] = useState(true);
   const zoom = 11;
 
-  // Use custom width hook
-  const [containerRef] = useComponentWidth();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMediumScreen = useMediaQuery(theme.breakpoints.down('md'));
 
-  // Media query for responsiveness
-  const isSmallScreen = useMediaQuery("(max-width: 600px)");
+  const hasActiveFilters = useMemo(() =>
+    applyNtrp || applyUtr || applyLocation || (location !== null),
+    [applyNtrp, applyUtr, applyLocation, location]
+  );
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -93,7 +98,7 @@ const MapSearch = ({
     }
   }, [mapsApi, initialCity, map]);
 
-  const updateSearch = async () => {
+  const updateSearch = useCallback(async () => {
     if (requireLocation && !location) {
       setLocationError('Please provide a location');
       return;
@@ -107,8 +112,8 @@ const MapSearch = ({
     if (location) filters.geo = `${location.lat},${location.lng},${radius}`;
     if (!name && !applyNtrp && !applyUtr && !location) {
       isBoundsSearch = true;
-      const bounds = map.getBounds();
-      if (!bounds) return;
+      const bounds = map?.getBounds();
+      if (!bounds) { setIsLoading(false); return; }
 
       const sw = bounds.getSouthWest();
       const ne = bounds.getNorthEast();
@@ -122,13 +127,21 @@ const MapSearch = ({
     setData(results.data);
     setCount(results.count || 0)
     setIsLoading(false);
-    //console.log("Initial city center:", initialCity);  // before map init 
     if (map) {
-      //map.setCenter({ lat: initialCity.lat, lng: initialCity.lng });
-      //map.setZoom(zoom);
       updateMapMarkers(results.data, isBoundsSearch);
     }
-  };
+    // Collapse filters on small screens after search
+    if (isSmallScreen) {
+      setFiltersOpen(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name, applyNtrp, applyUtr, ntrp, utr, location, radius, requireLocation, map, fetchData, isSmallScreen]);
+
+  const handleKeyDown = useCallback((e) => {
+    if (e.key === 'Enter') {
+      updateSearch();
+    }
+  }, [updateSearch]);
 
   const updateMapMarkers = (items, isBoundsSearch) => {
     
@@ -263,97 +276,264 @@ const MapSearch = ({
 
 
   return (
-    <Box ref={containerRef} display="flex" flexDirection={"column"} height="100vh" sx={{ flexGrow: 1 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '80vh', flexGrow: 1 }}>
       <Helmet>
-        <title>Search | MyTennis Space</title>
+        <title>{title} | MyTennis Space</title>
       </Helmet>
-      <Typography variant="h6">{title}</Typography>
-      <Grid container spacing={2}>
-        <Grid size={8}>
-          <TextField label="Name" fullWidth value={name} onChange={(e) => setName(e.target.value)} sx={{ mb: 2 }} />
-        </Grid>
-        {showNTRP && (
-          <Grid size={8}>
-            <FormControlLabel
-              control={<Checkbox checked={applyNtrp} onChange={() => setApplyNtrp(!applyNtrp)} />}
-              label="Apply NTRP Filter"
-            />
-            {applyNtrp &&
-              <>
-                <Typography>NTRP Range</Typography>
-                <Slider value={ntrp} min={2.0} max={6.5} step={0.5} onChange={(e, val) => setNtrp(val)} valueLabelDisplay="auto" />
-              </>
-            }
-          </Grid>
-        )}
-        {showUTR && (
-          <Grid size={8}>
-            <FormControlLabel
-              control={<Checkbox checked={applyUtr} onChange={() => setApplyUtr(!applyUtr)} />}
-              label="Apply UTR Filter"
-            />
-            {applyUtr && (
-              <>
-                <Typography>UTR Range</Typography>
-                <Slider value={utr} min={1.0} max={17.0} step={0.1} onChange={(e, val) => setUtr(val)} valueLabelDisplay="auto" />
-              </>
-            )}
-          </Grid>
-        )}
-        <Grid size={8}>
-          {!requireLocation &&
-            <FormControlLabel
-              control={<Checkbox checked={applyLocation} onChange={() => setApplyLocation(!applyLocation)} />}
-              label="Apply Location Filter"
-            />
-          }
-          {(requireLocation || applyLocation) && (
-            <>
-              <AutoCompletePlaces
-                onPlaceChanged={(location, place) => { setLocation(location, place); setLocationError('') }}
-                showGetUserLocation={true}
-                {...(requireLocation) && { required: true }}
-                helperText={locationError}
-                error={helpers.hasValue(locationError)}
-              />
-              <Typography>Radius: {radius} miles</Typography>
-              <Slider min={5} max={100} step={5} value={radius} onChange={(e, val) => setRadius(val)} valueLabelDisplay="auto" />
-            </>
-          )}
-        </Grid>
-        <Grid size={12}>
-          <Button variant="contained" fullWidth onClick={updateSearch} sx={{ mt: 2 }}>Search</Button>
-        </Grid>
-        <Grid size={12}>
-          {renderActions && renderActions()}
-        </Grid>
-      </Grid>
 
-      {/* Results and Map - Split Dynamically */}
-      <Box display="flex" flexDirection={isSmallScreen ? "column" : "row"} width={"100%"} height="100vh" sx={{ pt: 2 }}>
+      {/* Header */}
+      <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
+        {title}
+      </Typography>
 
-        {/* Results List */}
-        <Box width={"100%"} p={2} overflow="auto">
-          {count && <span>Found: {count} {count > 25 && ' (displaying 25, refine search to see all)'}</span>}
-          {isLoading ? <CircularProgress /> : (
-            <List>
-              {data.map(item => (
-                <ListItem key={item.id}>
-                  {renderListItem ? renderListItem(item) :
-                    <Link to={`/${type}/${item.id}`}>
-                      <ListItemText primary={item.name} secondary={item.location ?? item?.city?.name} />
-                    </Link>
-                  }
-                </ListItem>
-              ))}
-            </List>
-          )}
+      {/* Search bar + filter toggle */}
+      <Paper
+        elevation={1}
+        sx={{
+          p: 2,
+          mb: 2,
+          borderRadius: 2,
+          backgroundColor: theme.palette.background.paper,
+        }}
+      >
+        {/* Name search with inline search button */}
+        <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+          <TextField
+            label="Search by name"
+            fullWidth
+            size="small"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={handleKeyDown}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <FaSearch size={14} color={theme.palette.text.secondary} />
+                  </InputAdornment>
+                ),
+              }
+            }}
+          />
+          <Button
+            variant="contained"
+            onClick={updateSearch}
+            disabled={isLoading}
+            sx={{ minWidth: isSmallScreen ? 48 : 100, whiteSpace: 'nowrap' }}
+          >
+            {isLoading ? <CircularProgress size={20} color="inherit" /> : (isSmallScreen ? <FaSearch /> : 'Search')}
+          </Button>
         </Box>
 
+        {/* Filter toggle button */}
+        <Box
+          onClick={() => setFiltersOpen(!filtersOpen)}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 0.5,
+            cursor: 'pointer',
+            color: theme.palette.text.secondary,
+            '&:hover': { color: theme.palette.primary.main },
+            transition: 'color 0.2s',
+            userSelect: 'none',
+          }}
+        >
+          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+            Filters
+          </Typography>
+          {hasActiveFilters && (
+            <Chip label="Active" size="small" color="primary" sx={{ height: 20, fontSize: '0.7rem' }} />
+          )}
+          <IconButton size="small" sx={{ ml: 'auto' }}>
+            {filtersOpen ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
+          </IconButton>
+        </Box>
+
+        {/* Collapsible Filters */}
+        <Collapse in={filtersOpen}>
+          <Box sx={{ mt: 1.5, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            {/* NTRP Filter */}
+            {showNTRP && (
+              <Box>
+                <FormControlLabel
+                  control={<Checkbox size="small" checked={applyNtrp} onChange={() => setApplyNtrp(!applyNtrp)} />}
+                  label={<Typography variant="body2">NTRP Range</Typography>}
+                />
+                <Collapse in={applyNtrp}>
+                  <Box sx={{ px: 2, mt: 0.5 }}>
+                    <Typography variant="caption" color="text.secondary">
+                      {ntrp[0].toFixed(1)} - {ntrp[1].toFixed(1)}
+                    </Typography>
+                    <Slider value={ntrp} min={2.0} max={6.5} step={0.5} onChange={(e, val) => setNtrp(val)} valueLabelDisplay="auto" size="small" />
+                  </Box>
+                </Collapse>
+              </Box>
+            )}
+
+            {/* UTR Filter */}
+            {showUTR && (
+              <Box>
+                <FormControlLabel
+                  control={<Checkbox size="small" checked={applyUtr} onChange={() => setApplyUtr(!applyUtr)} />}
+                  label={<Typography variant="body2">UTR Range</Typography>}
+                />
+                <Collapse in={applyUtr}>
+                  <Box sx={{ px: 2, mt: 0.5 }}>
+                    <Typography variant="caption" color="text.secondary">
+                      {utr[0].toFixed(1)} - {utr[1].toFixed(1)}
+                    </Typography>
+                    <Slider value={utr} min={1.0} max={17.0} step={0.1} onChange={(e, val) => setUtr(val)} valueLabelDisplay="auto" size="small" />
+                  </Box>
+                </Collapse>
+              </Box>
+            )}
+
+            {/* Location Filter */}
+            <Box>
+              {!requireLocation && (
+                <FormControlLabel
+                  control={<Checkbox size="small" checked={applyLocation} onChange={() => setApplyLocation(!applyLocation)} />}
+                  label={
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <FaMapMarkerAlt size={12} />
+                      <Typography variant="body2">Location Filter</Typography>
+                    </Box>
+                  }
+                />
+              )}
+              <Collapse in={requireLocation || applyLocation}>
+                <Box sx={{ px: requireLocation ? 0 : 2, mt: 0.5 }}>
+                  <AutoCompletePlaces
+                    onPlaceChanged={(location, place) => { setLocation(location, place); setLocationError('') }}
+                    showGetUserLocation={true}
+                    {...(requireLocation) && { required: true }}
+                    helperText={locationError}
+                    error={helpers.hasValue(locationError)}
+                  />
+                  <Box sx={{ mt: 1 }}>
+                    <Typography variant="caption" color="text.secondary">
+                      Radius: {radius} miles
+                    </Typography>
+                    <Slider min={5} max={100} step={5} value={radius} onChange={(e, val) => setRadius(val)} valueLabelDisplay="auto" size="small" />
+                  </Box>
+                </Box>
+              </Collapse>
+            </Box>
+
+            {/* Actions */}
+            {renderActions && (
+              <Box sx={{ mt: 0.5 }}>
+                {renderActions()}
+              </Box>
+            )}
+          </Box>
+        </Collapse>
+      </Paper>
+
+      {/* Main content: Map + Results side-by-side (or stacked on mobile) */}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: isMediumScreen ? 'column' : 'row',
+          gap: 2,
+          flex: 1,
+          minHeight: 0,
+        }}
+      >
         {/* Map */}
-        <Box width={"100%"} id="map" sx={{ height: "100%" }}></Box>
+        <Paper
+          elevation={1}
+          sx={{
+            flex: isMediumScreen ? 'none' : 1.2,
+            borderRadius: 2,
+            overflow: 'hidden',
+            minHeight: isMediumScreen ? 300 : 450,
+            order: isMediumScreen ? 1 : 2,
+          }}
+        >
+          <Box id="map" sx={{ width: '100%', height: '100%', minHeight: isMediumScreen ? 300 : 450 }} />
+        </Paper>
+
+        {/* Results */}
+        <Paper
+          elevation={1}
+          sx={{
+            flex: 1,
+            borderRadius: 2,
+            overflow: 'auto',
+            maxHeight: isMediumScreen ? 'none' : 'calc(80vh - 200px)',
+            minHeight: isMediumScreen ? 'auto' : 300,
+            order: isMediumScreen ? 2 : 1,
+          }}
+        >
+          {/* Results header */}
+          <Box
+            sx={{
+              p: 1.5,
+              borderBottom: `1px solid ${theme.palette.divider}`,
+              backgroundColor: theme.palette.background.header,
+              position: 'sticky',
+              top: 0,
+              zIndex: 1,
+            }}
+          >
+            <Typography variant="subtitle2" color="text.secondary">
+              {count !== null
+                ? `${count} result${count !== 1 ? 's' : ''} found${count > 25 ? ' (showing 25)' : ''}`
+                : 'Search to see results'
+              }
+            </Typography>
+          </Box>
+
+          {/* Results list */}
+          <Box sx={{ p: 1 }}>
+            {isLoading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <CircularProgress />
+              </Box>
+            ) : data.length > 0 ? (
+              <List disablePadding>
+                {data.map(item => (
+                  <ListItem
+                    key={item.id}
+                    sx={{
+                      borderRadius: 1,
+                      mb: 0.5,
+                      px: 1.5,
+                      py: 1,
+                      '&:hover': {
+                        backgroundColor: theme.palette.action.hover,
+                      },
+                      transition: 'background-color 0.15s',
+                    }}
+                  >
+                    {renderListItem ? renderListItem(item) :
+                      <Link to={`/${type}/${item.slug || item.id}`} style={{ textDecoration: 'none', color: 'inherit', width: '100%' }}>
+                        <ListItemText
+                          primary={<Typography variant="body2" sx={{ fontWeight: 500 }}>{item.name}</Typography>}
+                          secondary={
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.25 }}>
+                              {(item.location || item?.city?.name) && (
+                                <><FaMapMarkerAlt size={10} /> {item.location ?? item?.city?.name}</>
+                              )}
+                            </Typography>
+                          }
+                        />
+                      </Link>
+                    }
+                  </ListItem>
+                ))}
+              </List>
+            ) : count === 0 ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <Typography variant="body2" color="text.secondary">No results found. Try adjusting your search.</Typography>
+              </Box>
+            ) : null}
+          </Box>
+        </Paper>
       </Box>
-    </Box >
+    </Box>
   );
 };
 
