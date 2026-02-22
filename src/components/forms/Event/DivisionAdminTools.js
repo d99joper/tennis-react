@@ -115,7 +115,7 @@ const DivisionAdminTools = ({ event, division, setEvent }) => {
       const divParticipants = await divisionAPI.getDivisionParticipants(division.id);
       setDivisionParticipants(divParticipants || []);
 
-      // Fetch all event participants
+      // Fetch all event participants (high limit to get all for admin management)
       const res = await eventAPI.getParticipants(event.id, { include_divisions: true }, 1, 1000);
       setAllParticipants(res.data || []);
     } catch (error) {

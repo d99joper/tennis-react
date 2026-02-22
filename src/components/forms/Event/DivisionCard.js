@@ -5,6 +5,8 @@ import { FaUsers, FaTrophy, FaMale, FaFemale, FaStar, FaCalendar, FaBuilding, Fa
 import { MdAccessTime } from 'react-icons/md';
 import JoinRequest from '../Notifications/joinRequests';
 
+const CARD_DESCRIPTION_MAX_LENGTH = 100;
+
 const DivisionCard = ({ 
   division, 
   event, 
@@ -130,8 +132,8 @@ const DivisionCard = ({
         {/* Division description */}
         {division.description && (
           <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-            {division.description.length > 100 
-              ? division.description.substring(0, 100) + '...' 
+            {division.description.length > CARD_DESCRIPTION_MAX_LENGTH
+              ? division.description.substring(0, CARD_DESCRIPTION_MAX_LENGTH) + '...' 
               : division.description}
           </Typography>
         )}
