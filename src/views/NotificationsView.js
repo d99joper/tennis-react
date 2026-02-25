@@ -8,7 +8,7 @@ import { useNotificationsContext } from 'contexts/NotificationContext';
 import { Link } from 'react-router-dom';
 import notificationAPI from 'api/services/notifications';
 import requestAPI from 'api/services/request';
-import { billableItemAPI, stripeAPI } from 'api/services';
+import { stripeAPI, billableItemAPI } from 'api/services';
 import { ProfileImage } from 'components/forms';
 import { useSnackbar } from 'contexts/snackbarContext';
 import { Helmet } from 'react-helmet-async';
@@ -25,32 +25,101 @@ const NotificationsView = () => {
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [eventBillableItem, setEventBillableItem] = useState(null);
   const [paymentClientSecret, setPaymentClientSecret] = useState(null);
+  const [paymentStripeAccount, setPaymentStripeAccount] = useState(null);
   const [paymentLoading, setPaymentLoading] = useState(false);
-  const [paymentDone, setPaymentDone] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState(null);
+
+  const paymentDone =
+    selectedNotification?.type === 'payment_required' &&
+    (selectedNotification?.status === 'paid' || paymentStatus === 'succeeded');
+
   const { notifications, notificationCount, markAsRead, deleteNotification, updateNotification } = useNotificationsContext();
   //const [snackbar, setSnackbar] = useState({ open: false, message: '' });
   const { showSnackbar } = useSnackbar();
   const { user, isLoggedIn } = useContext(AuthContext);
 
+  const loadPaymentRequiredData = async (notification) => {
+    const billableItemId = notification?.related_object?.id;
+    if (!billableItemId) {
+      setPaymentStatus('unpaid');
+      return;
+    }
+    setPaymentStatus('checking');
+    try {
+      const [billableRes, statusRes] = await Promise.all([
+        billableItemAPI.getBillableItem(billableItemId),
+        stripeAPI.getBillableItemPaymentStatus(billableItemId),
+      ]);
+      if (billableRes.success) {
+        const item = billableRes.data?.id ? billableRes.data : (billableRes.data?.data ?? billableRes.data);
+        setEventBillableItem(item);
+      }
+      if (statusRes.success) {
+        if (!statusRes.data?.has_payment) {
+          setPaymentStatus('unpaid');
+          return;
+        }
+        const status = statusRes.data.status;
+        setPaymentStatus(status);
+        if (status === 'succeeded') {
+          const updated = { ...notification, status: 'paid' };
+          updateNotification(updated);
+          setSelectedNotification(updated);
+        }
+      } else {
+        setPaymentStatus('pending');
+      }
+    } catch (err) {
+      setPaymentStatus('unpaid');
+      showSnackbar(err.message || 'Failed to check payment status', 'error');
+    }
+  };
+
   const handleSelectNotification = async (notification) => {
     if (selectedNotification?.id !== notification.id) {
-      setLoading(true)
+      // Mark previous as read
+      if (selectedNotification && !selectedNotification.is_read) {
+        markAsRead(selectedNotification.id, true);
+      }
+      // Reset payment state immediately
+      setPaymentClientSecret(null);
+      setPaymentStripeAccount(null);
+      setEventBillableItem(null);
+      setPaymentStatus(null);
+      setLoading(true);
       try {
         setSelectedNotification(notification);
         const details = await notificationAPI.getNotification(notification.id);
-        setSelectedNotification(details)
-        //check if there is a selected notification already
-        if (selectedNotification && !selectedNotification.is_read &&
-          String(selectedNotification.id) !== String(notification.id)) {
-          // mark it as read, but don't remove it from the list
-          markAsRead(selectedNotification.id, true);
+        // Merge locally-updated status (e.g. 'paid') so it isn't lost when
+        // the API response comes back with the pre-webhook status.
+        const contextNotif = notifications.find(n => String(n.id) === String(notification.id));
+        const merged = { ...details, status: contextNotif?.status || details.status };
+        setSelectedNotification(merged);
+
+        if (merged.type === 'payment_required') {
+          if (merged.status === 'paid') {
+            setPaymentStatus('succeeded');
+          } else {
+            // Don't await — let the payment section show its own spinner
+            loadPaymentRequiredData(merged);
+          }
+        } else if (merged.type === 'join_request') {
+          const eventId = merged.related_object?.id;
+          if (eventId) {
+            billableItemAPI.getEventBillableItems(eventId).then((res) => {
+              if (res.success) {
+                const items = Array.isArray(res.data) ? res.data
+                  : Array.isArray(res.data?.results) ? res.data.results
+                  : [];
+                setEventBillableItem(items[0] || null);
+              }
+            });
+          }
         }
-      }
-      catch (e) {
-        console.log('failed to get notification')
-      }
-      finally {
-        setLoading(false)
+      } catch (e) {
+        console.log('failed to get notification');
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -75,47 +144,33 @@ const NotificationsView = () => {
   const unreadNotifications = notifications.filter(n => !n.is_read);
   const readNotifications = notifications.filter(n => n.is_read);
 
-  // Reset payment state when switching notifications
-  useEffect(() => {
-    setEventBillableItem(null);
-    setPaymentClientSecret(null);
-    setPaymentDone(false);
-  }, [selectedNotification?.id]);
-
-  // Fetch billable item for join_request notifications (approver fee preview)
-  useEffect(() => {
-    if (selectedNotification?.type !== 'join_request') return;
-    const eventId = selectedNotification.related_object?.id;
-    if (!eventId) return;
-    billableItemAPI.getEventBillableItems(eventId).then((res) => {
-      if (res.success) {
-        const items = Array.isArray(res.data) ? res.data : res.data?.results || [];
-        setEventBillableItem(items[0] || null);
-      }
-    });
-  }, [selectedNotification?.id, selectedNotification?.type, selectedNotification?.related_object?.id]);
-
-  // Fetch billable item for payment_required notifications (get event details)
-  useEffect(() => {
-    if (selectedNotification?.type !== 'payment_required') return;
-    const billableItemId = selectedNotification.related_object?.id;
-    if (!billableItemId) return;
-    billableItemAPI.getBillableItem(billableItemId).then((res) => {
-      if (res.success) {
-        const item = res.data?.id ? res.data : res.data?.data ?? res.data;
-        setEventBillableItem(item);
-      }
-    });
-  }, [selectedNotification?.id, selectedNotification?.type, selectedNotification?.related_object?.id]);
-
   const handlePayNow = async () => {
     const billableItemId = selectedNotification?.related_object?.id;
     if (!billableItemId) return;
+    // Double-check server-side before creating a new payment intent
     setPaymentLoading(true);
     try {
+      const statusRes = await stripeAPI.getBillableItemPaymentStatus(billableItemId);
+      if (statusRes.success && statusRes.data?.has_payment) {
+        const status = statusRes.data.status;
+        setPaymentStatus(status);
+        if (status === 'succeeded') {
+          const updated = { ...selectedNotification, status: 'paid' };
+          updateNotification(updated);
+          setSelectedNotification(updated);
+          showSnackbar('This entry fee has already been paid.', 'info');
+          return;
+        }
+        if (status === 'pending') {
+          showSnackbar('Your payment is still processing. Please wait.', 'info');
+          return;
+        }
+        // failed / refunded — fall through and allow retry
+      }
       const res = await stripeAPI.createPaymentIntent(billableItemId);
       if (res.success && res.data?.client_secret) {
         setPaymentClientSecret(res.data.client_secret);
+        setPaymentStripeAccount(res.data.stripe_account_id || null);
       } else {
         showSnackbar(res.data?.error || 'Failed to initiate payment. Please try again.', 'error');
       }
@@ -254,7 +309,7 @@ const NotificationsView = () => {
                         size={25}
                         cursor={'pointer'}
                       />
-                      <Typography sx={{cursor:'pointer', color: 'green'}} onClick={() => setShowChatModal(true)}>See chat</Typography>
+                      <Typography sx={{ cursor: 'pointer', color: 'green' }} onClick={() => setShowChatModal(true)}>See chat</Typography>
                     </Box>
                   )}
                 </>
@@ -301,9 +356,24 @@ const NotificationsView = () => {
                 <Box mt={2}>
                   {paymentDone ? (
                     <Alert severity="success">
-                      Payment received! Your spot is being confirmed — you'll get a notification shortly.
+                      Payment received! Your spot is being confirmed. You should have recieved a confirmation notification. If you have any questions, contact the organizer.
                     </Alert>
-                  ) : (
+                  ) : (paymentStatus === null || paymentStatus === 'checking') ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <CircularProgress size={20} />
+                      <Typography variant="body2" color="text.secondary">
+                        Checking payment status...
+                      </Typography>
+                    </Box>
+                  ) : paymentStatus === 'pending' ? (
+                    <Alert severity="info">
+                      Your payment is processing — hang tight. You'll get a notification once confirmed.
+                    </Alert>
+                  ) : paymentStatus === 'refunded' ? (
+                    <Alert severity="warning">
+                      Your previous payment was refunded. Contact the organizer if you have questions.
+                    </Alert>
+                  ) : ['unpaid', 'failed'].includes(paymentStatus) ? (
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                       <Alert severity="warning">
                         <Typography variant="body2" fontWeight={600}>
@@ -314,7 +384,6 @@ const NotificationsView = () => {
                         </Typography>
                       </Alert>
 
-                      {/* Event info from billable item */}
                       {eventBillableItem && (
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                           {eventBillableItem.event && (
@@ -355,21 +424,26 @@ const NotificationsView = () => {
                           {paymentLoading ? 'Loading...' : 'Pay Now'}
                         </Button>
                       ) : (
-                        <StripeProvider clientSecret={paymentClientSecret}>
+                        <StripeProvider
+                          clientSecret={paymentClientSecret}
+                          stripeAccount={paymentStripeAccount}
+                        >
                           <CheckoutForm
                             returnUrl={`${window.location.origin}/notifications`}
                             onSuccess={() => {
-                              setPaymentDone(true);
+                              const updated = { ...selectedNotification, status: 'paid' };
+                              updateNotification(updated);
+                              setSelectedNotification(updated);
                             }}
                             onError={() => {
                               setPaymentClientSecret(null);
-                              showSnackbar('Payment session expired or already used. Please try again.', 'error');
+                              setPaymentStripeAccount(null);
                             }}
                           />
                         </StripeProvider>
                       )}
                     </Box>
-                  )}
+                  ) : null}
                 </Box>
               )}
 

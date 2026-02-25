@@ -31,6 +31,7 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
   const [doublesPartner, setDoublesPartner] = useState(null)
   const [billableItem, setBillableItem] = useState(null)
   const [paymentClientSecret, setPaymentClientSecret] = useState(null)
+  const [paymentStripeAccount, setPaymentStripeAccount] = useState(null)
   const [paymentLoading, setPaymentLoading] = useState(false)
   const [paymentDone, setPaymentDone] = useState(false)
 
@@ -151,18 +152,31 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
   }
 
   const handleInitiatePayment = async () => {
-    if (!billableItem) return;
     setPaymentLoading(true);
     try {
+      const statusRes = await stripeAPI.getBillableItemPaymentStatus(billableItem.id);
+      if (statusRes.success && statusRes.data?.has_payment) {
+        if (statusRes.data.status === 'succeeded') {
+          showSnackbar('Payment already completed for this entry.', 'info');
+          setPaymentDone(true);
+          setPaymentLoading(false);
+          return;
+        }
+        if (statusRes.data.status === 'pending') {
+          showSnackbar('A payment is already being processed. Please wait.', 'warning');
+          setPaymentLoading(false);
+          return;
+        }
+      }
       const res = await stripeAPI.createPaymentIntent(billableItem.id);
       if (res.success && res.data?.client_secret) {
         setPaymentClientSecret(res.data.client_secret);
+        setPaymentStripeAccount(res.data.stripe_account_id || null);
       } else {
-        showSnackbar('Failed to initiate payment. Please try again.', 'error');
+        showSnackbar(res.data?.error || 'Failed to start payment', 'error');
       }
     } catch (err) {
-      console.error('Payment initiation error:', err);
-      showSnackbar('Failed to initiate payment. Please try again.', 'error');
+      showSnackbar(err.message, 'error');
     } finally {
       setPaymentLoading(false);
     }
@@ -324,10 +338,14 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
               {paymentLoading ? <CircularProgress size={20} /> : 'Proceed to Payment'}
             </Button>
           ) : (
-            <StripeProvider clientSecret={paymentClientSecret}>
+            <StripeProvider
+              clientSecret={paymentClientSecret}
+              stripeAccount={paymentStripeAccount}
+            >
               <CheckoutForm
                 returnUrl={`${window.location.origin}/events/${id}`}
                 onSuccess={() => { setPaymentDone(true); handleSignUp('doubles'); }}
+                onError={() => { setPaymentClientSecret(null); setPaymentStripeAccount(null); }}
               />
             </StripeProvider>
           )}
@@ -451,10 +469,11 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
               </Button>
             </Box>
           ) : (
-            <StripeProvider clientSecret={paymentClientSecret}>
+            <StripeProvider clientSecret={paymentClientSecret} stripeAccount={paymentStripeAccount}>
               <CheckoutForm
                 returnUrl={`${window.location.origin}/events/${id}`}
                 onSuccess={() => { setPaymentDone(true); handleSignUp(); }}
+                onError={() => { setPaymentClientSecret(null); setPaymentStripeAccount(null); }}
               />
             </StripeProvider>
           )}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
-import { Box, Button, Typography, CircularProgress, Alert } from '@mui/material';
+import { Box, Button, CircularProgress, Alert } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { flexColumn } from 'styles/componentStyles';
 
