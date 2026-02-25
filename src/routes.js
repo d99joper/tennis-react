@@ -8,7 +8,7 @@ import Registration from 'views/Auth/registration';
 import Header from 'components/layout/header';
 import { Box, LinearProgress } from '@mui/material';
 import Footer from 'components/layout/footer';
-import { Home, AboutPage, ClubViewPage, EventView, FAQPage, LeagueViewPage, PlayersLandingPage, Profile, ProfileOld, RulesPage, SearchPage, Login } from './views/index'
+import { Home, AboutPage, ClubViewPage, EventView, FAQPage, LeagueViewPage, PlayersLandingPage, Profile, RulesPage, SearchPage, Login } from './views/index'
 import NotificationsView from 'views/NotificationsView';
 import { AuthContext } from 'contexts/AuthContext';
 import ForgotPassword from 'views/Auth/forgotpassword';

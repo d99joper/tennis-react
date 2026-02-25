@@ -14,11 +14,23 @@ const ClubsLandingPage = () => {
   const { showSnackbar } = useSnackbar();
   
   const fetchData = async (filters) => {
-    showSnackbar(`fetching data`, "success");
-    console.log('fetching data')
     const results = await clubAPI.getClubs(filters);
-    return {data: results.data.clubs, count: results.data.total_count || 0};
-    //return results.data.clubs;
+    let clubs = results.data?.clubs ?? [];
+
+    // The search endpoint may return a minimal projection (id, name, slug) without
+    // coordinates. Enrich any club missing lat/lng by fetching its full record.
+    const missing = clubs.filter(
+      c => !(c.lat ?? c?.city?.lat) || !(c.lng ?? c?.city?.lng)
+    );
+    if (missing.length) {
+      const enriched = await Promise.all(
+        missing.map(c => clubAPI.getClub(c.id).then(r => r.success ? r.data?.club ?? r.data : c))
+      );
+      const enrichedById = Object.fromEntries(enriched.map(c => [c.id, c]));
+      clubs = clubs.map(c => enrichedById[c.id] ?? c);
+    }
+
+    return { data: clubs, count: results.data?.total_count || clubs.length };
   };
 
   const renderInfoWindow = (clubs) => `

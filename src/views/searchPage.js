@@ -5,7 +5,8 @@ import { courtAPI, ladderAPI, playerAPI, clubAPI, eventAPI } from "api/services"
 import { AutoCompletePlaces, ProfileImage } from "components/forms";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
-import { FaSearch, FaMapMarkerAlt, FaUsers, FaBuilding, FaCalendarAlt, FaTableTennis } from "react-icons/fa";
+import { FaSearch, FaMapMarkerAlt, FaUsers, FaBuilding, FaCalendarAlt } from "react-icons/fa";
+import { GiTennisCourt } from "react-icons/gi";
 
 const SearchPage = () => {
   const theme = useTheme();
@@ -31,7 +32,7 @@ const SearchPage = () => {
     players: { label: 'Players', icon: <FaUsers size={14} /> },
     clubs: { label: 'Clubs', icon: <FaBuilding size={14} /> },
     events: { label: 'Events', icon: <FaCalendarAlt size={14} /> },
-    courts: { label: 'Courts', icon: <FaTableTennis size={14} /> },
+    courts: { label: 'Courts', icon: <GiTennisCourt size={14} /> },
   };
 
   const handleSearchTypeChange = (event, newValue) => {

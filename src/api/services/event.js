@@ -18,11 +18,15 @@ const eventAPI = {
   },
 
   getEvents: async function (filter, page, pageSize) {
-    const url = new URL(eventsUrl)
-    if (filter)
-      url.search = helpers.parseFilter(filter)
+      // const url = new URL(eventsUrl)
+      // if (filter)
+      //   url.search = helpers.parseFilter(filter)
     const requestOptions = authAPI.getRequestOptions('GET')
-    const response = await fetchWithRetry(url + `&page=${page || 1}&num-per-page=${pageSize || 10}`, requestOptions)
+    const params = new URLSearchParams(filter)
+    // add pagination params
+    if (page) params.append('page', page);
+    if (pageSize) params.append('num-per-page', pageSize);
+    const response = await fetchWithRetry(eventsUrl + `?${params}`, requestOptions)
     if (response.ok)
       return await response.json()
     else

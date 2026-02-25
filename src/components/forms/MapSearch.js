@@ -148,23 +148,18 @@ const MapSearch = ({
     //console.log("Items for markers:", items);
     //console.log(items)
     if (!mapsApi || !map) return;
-    if (markerCluster) {
-      markerCluster.clearMarkers();
-    }
-
-    if (!items.length) return; // No items, don't update map
+    if (!items || !items.length) return; // No results at all — leave map as-is
 
     const roundCoord = (coord, precision = 4) => {
       return parseFloat(Number(coord).toFixed(precision));
     };
     const groupedLocations = {};
-    console.log(items[1]);
     items.forEach(item => {
-      const latValue = item.lat || item?.city?.lat;
-      const lngValue = item.lng || item?.city?.lng;
+      const latValue = item.lat ?? item?.city?.lat ?? item?.latitude ?? item?.city?.latitude;
+      const lngValue = item.lng ?? item?.city?.lng ?? item?.longitude ?? item?.city?.longitude;
       
       if (!latValue || !lngValue) {
-        console.log('Skipping item with missing coordinates:', item);
+        // Item has no location set — silently skip, this is expected for some records
         return;
       }
       
@@ -193,20 +188,22 @@ const MapSearch = ({
         }
       })
 
+      const pin = new mapsApi.marker.PinElement({
+        background: isPublic ? "red" : "blue",
+        borderColor: isPublic ? "red" : "white",
+        glyphColor: "white",
+        scale: 1,
+        glyphText: String(totalCount),
+      });
+
       const marker = new mapsApi.marker.AdvancedMarkerElement({
         position: { lat, lng },
-        content: new mapsApi.marker.PinElement({
-          background: isPublic ? "red" : "blue",
-          borderColor: isPublic ? "red" : "white",
-          glyphColor: "white",
-          scale: 1,
-          glyph: String(totalCount),
-        }).element,
+        content: pin,
       });
 
       marker.itemCount = totalCount;
 
-      marker.addListener("click", () => {
+      marker.addListener("gmp-click", () => {
         infoWindow.setContent(renderInfoWindow(itemsAtLocation));
         infoWindow.open(map, marker);
       });
@@ -216,27 +213,47 @@ const MapSearch = ({
 
     // Adjust map center and zoom
     if (newMarkers.length) {
-      adjustMapView(newMarkers, isBoundsSearch);
-    }
-
-    const renderer = {
-      render: ({ markers, position }) => {
-        const totalItems = markers.reduce((sum, marker) => sum + (marker.itemCount || 1), 0);
-        //console.log(totalItems)
-        return new mapsApi.Marker({
-          label: { text: String(totalItems), color: "white", backgroundColor: 'blue', fontSize: "10px" },
-          position,
-          // adjust zIndex to be above other markers
-          zIndex: Number(mapsApi.Marker.MAX_ZINDEX) + 1,
-        })
+      // Only clear old markers once we know new ones are ready — avoids blanking the map
+      if (markerCluster) {
+        markerCluster.clearMarkers();
       }
+      adjustMapView(newMarkers, isBoundsSearch);
+
+      const renderer = {
+        render: ({ markers, position }) => {
+          const totalItems = markers.reduce((sum, m) => sum + (m.itemCount || 1), 0);
+          const clusterPin = new mapsApi.marker.PinElement({
+            background: "#1976d2",
+            borderColor: "#0d47a1",
+            glyphColor: "white",
+            glyphText: String(totalItems),
+            scale: 1.3,
+          });
+          const clusterMarker = new mapsApi.marker.AdvancedMarkerElement({
+            position,
+            content: clusterPin,
+            zIndex: 1000 + totalItems,
+          });
+          clusterMarker.itemCount = totalItems;
+          return clusterMarker;
+        }
+      };
+      const newMarkerCluster = new MarkerClusterer({ map, markers: newMarkers, renderer });
+      setMarkerCluster(newMarkerCluster);
     }
-    const newMarkerCluster = new MarkerClusterer({ map, markers: newMarkers, renderer: renderer });
-    setMarkerCluster(newMarkerCluster);
   };
 
   const adjustMapView = (markers, isBoundsSearch) => {
     if (!map || !markers.length) return;
+
+    // Single marker: skip fitBounds entirely — a zero-area bounds causes fitBounds
+    // to zoom to max (~21) and may not fire bounds_changed reliably.
+    if (markers.length === 1) {
+      const pos = markers[0].position;
+      map.setCenter({ lat: pos.lat, lng: pos.lng });
+      map.setZoom(13);
+      return;
+    }
 
     const bounds = new mapsApi.LatLngBounds();
     let sumLat = 0, sumLng = 0;
@@ -254,23 +271,20 @@ const MapSearch = ({
       lng: sumLng / markers.length
     };
 
-    map.setCenter(center);
+    const currentZoom = map.getZoom(); // Capture user's current zoom level before fitBounds
 
-    const currentZoom = map.getZoom(); // Capture user's current zoom level
-
-    // Fit map bounds to include all markers
+    // Fit map bounds to include all markers, then cap zoom
     map.fitBounds(bounds);
-    // Check if the zoom is too high after fitting bounds
     mapsApi.event.addListenerOnce(map, "bounds_changed", () => {
       const newZoom = map.getZoom();
       if (isBoundsSearch) {
-        map.setZoom(Math.min(Math.max(currentZoom, newZoom), 13))
-      }
-      else {
+        map.setZoom(Math.min(Math.max(currentZoom, newZoom), 13));
+      } else {
         if (newZoom > 13) {
           map.setZoom(13);
         }
       }
+      map.setCenter(center);
     });
   };
 
@@ -295,8 +309,8 @@ const MapSearch = ({
           borderRadius: 2,
         }}
       >
-        {/* Name search with inline search button */}
-        <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+        {/* Name search */}
+        <Box sx={{ mb: 1 }}>
           <TextField
             label="Search by name"
             fullWidth
@@ -314,14 +328,6 @@ const MapSearch = ({
               }
             }}
           />
-          <Button
-            variant="contained"
-            onClick={updateSearch}
-            disabled={isLoading}
-            sx={{ minWidth: isSmallScreen ? 48 : 100, whiteSpace: 'nowrap' }}
-          >
-            {isLoading ? <CircularProgress size={20} color="inherit" /> : (isSmallScreen ? <FaSearch /> : 'Search')}
-          </Button>
         </Box>
 
         {/* Filter toggle button */}
@@ -428,6 +434,19 @@ const MapSearch = ({
             )}
           </Box>
         </Collapse>
+
+        {/* Search button — below filters so it applies all active filter choices */}
+        <Box sx={{ mt: 1.5, display: 'flex', justifyContent: 'flex-start' }}>
+          <Button
+            variant="contained"
+            onClick={updateSearch}
+            disabled={isLoading}
+            startIcon={isLoading ? null : <FaSearch size={14} />}
+            sx={{ minWidth: 120 }}
+          >
+            {isLoading ? <CircularProgress size={20} color="inherit" /> : 'Search'}
+          </Button>
+        </Box>
       </Paper>
 
       {/* Main content: Map + Results side-by-side (or stacked on mobile) */}

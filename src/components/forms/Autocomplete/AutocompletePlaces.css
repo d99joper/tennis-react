@@ -16,6 +16,26 @@
   height: 0px; */
 }
 
+/* PlaceAutocompleteElement wrapper — makes the web component fill the cell */
+.gmp-autocomplete-wrapper {
+  width: 100%;
+}
+
+.gmp-autocomplete-wrapper gmp-place-autocomplete {
+  width: 100%;
+  /* Align border color with MUI outlined TextField */
+  --gmp-mat-color-outline: rgba(0, 0, 0, 0.23);
+  --gmp-mat-color-outline-variant: rgba(0, 0, 0, 0.87);
+  --gmp-mat-font-size-body-large: 1rem;
+}
+
+/* Error state border */
+.gmp-autocomplete-wrapper.gmp-autocomplete-error gmp-place-autocomplete {
+  --gmp-mat-color-outline: #d32f2f;
+  --gmp-mat-color-outline-variant: #d32f2f;
+}
+
+
 :root {
   --main-green: #4caf50;
   --main-white: #fff;

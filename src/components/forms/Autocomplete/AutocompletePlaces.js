@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import "./AutocompletePlaces.css";
 import { MdOutlineMyLocation } from "react-icons/md";
-import { TextField, Grid } from "@mui/material";
+import { FormHelperText, Grid } from "@mui/material";
 import useGoogleMapsApi from "helpers/useGoogleMapsApi";
 import { helpers } from "helpers";
 
@@ -13,109 +13,112 @@ const AutoCompletePlaces = ({
   useFullAddress = false,
   ...props
 }) => {
-  const [textValue, setTextValue] = useState(
-    typeof initialCity === "string" ? initialCity : initialCity.location || ""
-  );
-  const [lastCity, setLastCity] = useState(textValue);
   const mapApi = useGoogleMapsApi();
-
-  const autoCompleteRef = useRef();
-  const inputRef = useRef();
-  const options = {
-    componentRestrictions: { country: "us" },
-    fields: ["geometry.location", "formatted_address", "address_components"],
-    types: useFullAddress ? ["geocode"] : ["(cities)"],
-  };
+  const containerRef = useRef(null);
+  const autocompleteElementRef = useRef(null);
+  // Track last confirmed place text so getUserCity can update the element
+  const [lastCity, setLastCity] = useState(
+    typeof initialCity === "string" ? initialCity : initialCity?.location || ""
+  );
 
   useEffect(() => {
-    if (!mapApi) return;
+    if (!mapApi || !containerRef.current) return;
+    if (!mapApi.places?.PlaceAutocompleteElement) {
+      console.error("PlaceAutocompleteElement is not available in this Maps API version.");
+      return;
+    }
 
-    function callback(place) {
-      if (!place.geometry || !place.address_components) return;
+    // Clean up any previously mounted element
+    containerRef.current.innerHTML = "";
 
-      const location = place.geometry.location;
-      const fullAddress = place.formatted_address;
-      let city = "";
-      let state = "";
-      let zip = "";
-      // const location = place.geometry.location;
-      // const city = place.address_components.find(c => c.types.includes("locality"))?.long_name || "";
-      // const state = place.address_components.find(c => c.types.includes("administrative_area_level_1"))?.short_name || "";
-      place.address_components.forEach((component) => {
-        if (component.types.includes("locality")) city = component.long_name;
-        if (component.types.includes("administrative_area_level_1")) state = component.short_name;
-        if (component.types.includes("postal_code")) zip = component.long_name;
+    const element = new mapApi.places.PlaceAutocompleteElement({
+      componentRestrictions: { country: "us" },
+      types: useFullAddress ? ["geocode"] : ["(cities)"],
+    });
+
+    // Match placeholder/label to the old TextField label
+    element.setAttribute("placeholder", label || "Location");
+
+    containerRef.current.appendChild(element);
+    autocompleteElementRef.current = element;
+
+    element.addEventListener("gmp-placeselect", async (event) => {
+      const place = event.place;
+      await place.fetchFields({
+        fields: ["location", "formattedAddress", "addressComponents"],
       });
-      //const formattedAddress = `${city}, ${state}`;
-      const formattedAddress = useFullAddress ? fullAddress : `${city}, ${state}`;
-      setTextValue(formattedAddress);
+
+      let city = "", state = "", zip = "";
+      place.addressComponents?.forEach((component) => {
+        if (component.types.includes("locality")) city = component.longText;
+        if (component.types.includes("administrative_area_level_1")) state = component.shortText;
+        if (component.types.includes("postal_code")) zip = component.longText;
+      });
+
+      const formattedAddress = useFullAddress
+        ? place.formattedAddress
+        : `${city}, ${state}`;
+
       setLastCity(formattedAddress);
 
       if (onPlaceChanged && typeof onPlaceChanged === "function") {
-        onPlaceChanged({
-          location: formattedAddress,
-          city_name: helpers.extractCityFromPlace(place),
-          lat: location.lat(),
-          lng: location.lng(),
-          zip: zip
-        }, place);
+        onPlaceChanged(
+          {
+            location: formattedAddress,
+            city_name: city,
+            lat: place.location.lat(),
+            lng: place.location.lng(),
+            zip,
+          },
+          place
+        );
       }
+    });
+
+    // Seed the initial value if provided as a string
+    const initial = typeof initialCity === "string" ? initialCity : initialCity?.location || "";
+    if (initial) {
+      element.value = initial;
     }
 
-    function setAutoCompleteRef() {
-      if (!mapApi.places) {
-        console.error("Google Maps Places API is not available.");
-        return;
-      }
-
-      autoCompleteRef.current = new mapApi.places.Autocomplete(inputRef.current, options);
-      autoCompleteRef.current.addListener("place_changed", async function () {
-        const place = await autoCompleteRef.current.getPlace();
-        callback(place);
-      });
-    }
-
-    setAutoCompleteRef();
-
-    if (typeof initialCity === "object" && initialCity.lat && initialCity.lng) {
+    // If initialCity is a lat/lng object, reverse-geocode it
+    if (typeof initialCity === "object" && initialCity?.lat && initialCity?.lng) {
       const geocoder = new mapApi.Geocoder();
-      const latLng = new mapApi.LatLng(initialCity.lat, initialCity.lng);
-
-      geocoder.geocode({ location: latLng }, (results, status) => {
-        if (status === "OK" && results[0]) {
-          const addressComponents = results[0].address_components;
-          const city = addressComponents.find(c => c.types.includes("locality"))?.long_name || "";
-          const state = addressComponents.find(c => c.types.includes("administrative_area_level_1"))?.short_name || "";
-          const formattedAddress = `${city}, ${state}`;
-
-          setTextValue(formattedAddress);
-          setLastCity(formattedAddress);
-
-          if (onPlaceChanged) {
-            onPlaceChanged({
-              location: formattedAddress,
-              city_name: helpers.extractCityFromPlace(results[0]),
+      geocoder.geocode(
+        { location: { lat: initialCity.lat, lng: initialCity.lng } },
+        (results, status) => {
+          if (status === "OK" && results[0]) {
+            const ac = results[0].address_components;
+            const c = ac.find((x) => x.types.includes("locality"))?.long_name || "";
+            const s = ac.find((x) => x.types.includes("administrative_area_level_1"))?.short_name || "";
+            const addr = `${c}, ${s}`;
+            setLastCity(addr);
+            if (autocompleteElementRef.current) {
+              autocompleteElementRef.current.value = addr;
+            }
+            onPlaceChanged?.({
+              location: addr,
+              city_name: c,
               lat: initialCity.lat,
               lng: initialCity.lng,
             });
           }
-        } else {
-          console.error("Geocoder failed:", status);
         }
-      });
+      );
     }
 
     return () => {
-      if (autoCompleteRef.current) {
-        autoCompleteRef.current = null;
-      }
+      autocompleteElementRef.current = null;
+      if (containerRef.current) containerRef.current.innerHTML = "";
     };
-  }, [mapApi, initialCity]);
+    // Re-run only when mapApi loads; initialCity handled separately below
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapApi]);
 
-  // Allow external updates (e.g., when marker is moved)
+  // Sync initialCity string prop changes (e.g. parent resets the field)
   useEffect(() => {
-    if (typeof initialCity === "string" && initialCity !== textValue) {
-      setTextValue(initialCity);
+    if (typeof initialCity === "string" && autocompleteElementRef.current) {
+      autocompleteElementRef.current.value = initialCity;
     }
   }, [initialCity]);
 
@@ -133,30 +136,34 @@ const AutoCompletePlaces = ({
         }
 
         const geocoder = new mapApi.Geocoder();
-        const latLng = new mapApi.LatLng(position.coords.latitude, position.coords.longitude);
+        geocoder.geocode(
+          {
+            location: {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            },
+          },
+          (results, status) => {
+            if (status === "OK" && results[0]) {
+              const ac = results[0].address_components;
+              const city = ac.find((c) => c.types.includes("locality"))?.long_name || "";
+              const state = ac.find((c) => c.types.includes("administrative_area_level_1"))?.short_name || "";
+              const formattedAddress = `${city}, ${state}`;
 
-        geocoder.geocode({ location: latLng }, (results, status) => {
-          if (status === "OK" && results[0]) {
-            const addressComponents = results[0].address_components;
-            const city = addressComponents.find(c => c.types.includes("locality"))?.long_name || "";
-            const state = addressComponents.find(c => c.types.includes("administrative_area_level_1"))?.short_name || "";
-            const formattedAddress = `${city}, ${state}`;
+              setLastCity(formattedAddress);
+              if (autocompleteElementRef.current) {
+                autocompleteElementRef.current.value = formattedAddress;
+              }
 
-            setTextValue(formattedAddress);
-            setLastCity(formattedAddress);
-
-            if (onPlaceChanged && typeof onPlaceChanged === "function") {
-              onPlaceChanged({
+              onPlaceChanged?.({
                 location: formattedAddress,
                 city_name: helpers.extractCityFromPlace(results[0]),
                 lat: position.coords.latitude,
                 lng: position.coords.longitude,
               });
             }
-          } else {
-            console.error("Geocoder failed:", status);
           }
-        });
+        );
       },
       (error) => {
         console.error("Error getting location:", error.message);
@@ -165,36 +172,22 @@ const AutoCompletePlaces = ({
   }
 
   return (
-    <Grid container spacing={1} alignItems={'center'}>
+    <Grid container spacing={1} alignItems="center">
       <Grid size={showGetUserLocation ? 11 : 12}>
-        <TextField
-          autoComplete="off"
-          data-lpignore="true"
-          slotProps={{
-            input: { autoComplete: "off", "data-lpignore": true } // Prevent LastPass from filling this field
-          }}
-          inputRef={inputRef}
-          type="text"
-          required={props.required}
-          error={props.error}
-          helperText={props.helperText}
-          name='location'
-          fullWidth
-          onChange={(e) => setTextValue(e.target.value)}
-          onBlur={() => {
-            if (textValue.trim() !== '') {
-              setTextValue(lastCity);
-            }
-          }}
-          label={label || 'Location'}
-          value={textValue}
+        <div
+          ref={containerRef}
+          className={`gmp-autocomplete-wrapper${props.error ? " gmp-autocomplete-error" : ""}`}
+          data-required={props.required ? "true" : undefined}
         />
+        {props.helperText && (
+          <FormHelperText error={props.error}>{props.helperText}</FormHelperText>
+        )}
       </Grid>
       {showGetUserLocation && (
         <Grid size={1}>
           <MdOutlineMyLocation
             className="cursorHand"
-            color={'#66f'}
+            color={"#66f"}
             size={24}
             onClick={getUserCity}
           />

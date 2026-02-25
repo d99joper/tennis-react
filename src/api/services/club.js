@@ -36,6 +36,9 @@ const clubAPI = {
   getClubs: async function (filter, page, pageSize) {
     const requestOptions = authAPI.getRequestOptions('GET')
     const params = new URLSearchParams(filter)
+    // add pagination params
+    if (page) params.append('page', page);
+    if (pageSize) params.append('num-per-page', pageSize);
     console.log(params)
     const response = await fetchWithRetry(`${clubUrl}?${params}`, requestOptions)
     if (response.ok) {
