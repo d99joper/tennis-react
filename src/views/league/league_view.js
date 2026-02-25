@@ -122,7 +122,9 @@ const LeagueViewPage = (props) => {
   const handleTabChange = (event, newValue) => {
     const tabName = indexToTabName[newValue];
     if (tabName) {
-      setSearchParams({ tab: tabName }, { replace: true });
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('tab', tabName);
+      setSearchParams(newParams, { replace: true });
     }
   };
   

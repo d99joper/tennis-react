@@ -36,12 +36,26 @@ import { MdOutlineEmojiEvents } from "react-icons/md";
 const drawerWidthLarge = 240;
 const drawerWidthSmall = 60;
 
+const MENU_OPEN_KEY = 'menuOpen';
+
 const ResponsiveMenu = ({ ...props }) => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const isMediumScreen = useMediaQuery(theme.breakpoints.down("md"));
-  const [open, setOpen] = useState(!isSmallScreen);
-  const [drawerWidth, setDrawerWidth] = useState(drawerWidthLarge);
+  const [open, setOpenState] = useState(() => {
+    const saved = localStorage.getItem(MENU_OPEN_KEY);
+    if (saved !== null) return saved === 'true';
+    return !isSmallScreen;
+  });
+  const [drawerWidth, setDrawerWidth] = useState(() =>
+    open ? drawerWidthLarge : drawerWidthSmall
+  );
+
+  const setOpen = (value) => {
+    const next = typeof value === 'function' ? value(open) : value;
+    localStorage.setItem(MENU_OPEN_KEY, String(next));
+    setOpenState(next);
+  };
   const navigate = useNavigate();
   const location = useLocation();
   const { isLoggedIn, user, logout } = useContext(AuthContext);

@@ -283,19 +283,17 @@ const EventView = () => {
                   setSelectedDivision(division);
                   newSearchParams.set('division', index.toString());
                   
-                  // On mobile: collapse divisions and scroll to content
-                  if (isMobile) {
-                    setDivisionsExpanded(false);
-                    newSearchParams.set('divisionsExpanded', 'false');
-                    
-                    // Scroll to content after a brief delay (let React render)
-                    setTimeout(() => {
-                      contentRef.current?.scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'start' 
-                      });
-                    }, 100);
-                  }
+                  // Collapse divisions and scroll to content
+                  setDivisionsExpanded(false);
+                  newSearchParams.set('divisionsExpanded', 'false');
+                  
+                  // Scroll to content after a brief delay (let React render)
+                  setTimeout(() => {
+                    contentRef.current?.scrollIntoView({ 
+                      behavior: 'smooth', 
+                      block: 'start' 
+                    });
+                  }, 100);
                 }
                 navigate(`?${newSearchParams.toString()}`, { replace: true });
               }}
@@ -312,7 +310,7 @@ const EventView = () => {
   );
 
   // Add sticky breadcrumb when division is selected on mobile
-  const divisionBreadcrumb = selectedDivision && isMobile && !divisionsExpanded && (
+  const divisionBreadcrumb = selectedDivision && !divisionsExpanded && (
     <Box
       sx={{
         position: 'sticky',
