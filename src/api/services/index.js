@@ -1,5 +1,5 @@
 import authAPI from 'api/auth'
-import billableItemAPI from './billableItemService'
+import billableItemAPI from './billableItem'
 import clubAPI from './club'
 import commentsAPI from './comment'
 import courtAPI from './court'

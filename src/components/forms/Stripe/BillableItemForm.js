@@ -1,7 +1,8 @@
 import React from 'react';
-import { Box, TextField, MenuItem } from '@mui/material';
+import { Box, TextField } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { flexColumn } from 'styles/componentStyles';
+import RefundPolicySelect from './RefundPolicySelect';
 
 const BillableItemForm = ({ value, onChange }) => {
   const theme = useTheme();
@@ -25,7 +26,7 @@ const BillableItemForm = ({ value, onChange }) => {
           }
         }}
       />
-      
+
       <TextField
         fullWidth
         label="Description"
@@ -35,18 +36,11 @@ const BillableItemForm = ({ value, onChange }) => {
         onChange={(e) => handleChange('description', e.target.value)}
         placeholder="Tournament entry fee"
       />
-      
-      <TextField
-        select
-        fullWidth
-        label="Refund Policy"
+
+      <RefundPolicySelect
         value={value?.refund_policy || 'no_refunds'}
-        onChange={(e) => handleChange('refund_policy', e.target.value)}
-      >
-        <MenuItem value="no_refunds">No Refunds</MenuItem>
-        <MenuItem value="full_refund_before_start">Full Refund Before Start</MenuItem>
-        <MenuItem value="partial_refund">Partial Refund (50%)</MenuItem>
-      </TextField>
+        onChange={(val) => handleChange('refund_policy', val)}
+      />
     </Box>
   );
 };
