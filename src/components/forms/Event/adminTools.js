@@ -17,6 +17,8 @@ import {
   Snackbar,
   Alert,
   MenuItem,
+  ToggleButtonGroup,
+  ToggleButton,
 } from '@mui/material';
 import { clubAPI, eventAPI } from 'api/services';
 import EventRestrictions from '../League/restrictions';
@@ -25,9 +27,12 @@ import PlayerSearch from '../Player/playerSearch';
 import requestAPI from 'api/services/request';
 import { eventHelper } from 'helpers';
 import divisionAPI from 'api/services/divisions';
+import DivisionAdminTools from './DivisionAdminTools';
 import EventPaymentSettings from './EventPaymentSettings';
 
-const EventAdminTools = ({ event, setEvent }) => {
+const EventAdminTools = ({ event, setEvent, division: selectedDivision }) => {
+  const isMultievent = event.event_type === 'multievent' && event.divisions?.length > 0;
+  const [adminScope, setAdminScope] = useState(selectedDivision ? 'division' : 'event');
   const [selectedSection, setSelectedSection] = useState('settings');
   const [loading, setLoading] = useState(false);
 
@@ -58,6 +63,13 @@ const EventAdminTools = ({ event, setEvent }) => {
   const division_num = new URLSearchParams(window.location.search).get('division');
   // get the current division override settings
   const [divisionOverrideSettings, setDivisionOverrideSettings] = useState({})
+
+  // Update admin scope when selectedDivision changes
+  useEffect(() => {
+    if (selectedDivision) {
+      setAdminScope('division');
+    }
+  }, [selectedDivision]);
 
 
   const [snackbarOpen, setSnackbarOpen] = useState(false)
@@ -231,6 +243,36 @@ const EventAdminTools = ({ event, setEvent }) => {
   };
 
   return (
+    <Box>
+      {/* Scope toggle for multievents with a selected division */}
+      {isMultievent && selectedDivision && (
+        <Box sx={{ mb: 3 }}>
+          <ToggleButtonGroup
+            value={adminScope}
+            exclusive
+            onChange={(e, newScope) => {
+              if (newScope !== null) setAdminScope(newScope);
+            }}
+            size="small"
+          >
+            <ToggleButton value="event">
+              Event Settings
+            </ToggleButton>
+            <ToggleButton value="division">
+              Division: {selectedDivision.name}
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
+      )}
+
+      {/* Division Admin Tools */}
+      {adminScope === 'division' && selectedDivision ? (
+        <DivisionAdminTools
+          event={event}
+          division={selectedDivision}
+          setEvent={setEvent}
+        />
+      ) : (
     <Box display="flex">
 
       <Snackbar
@@ -581,6 +623,8 @@ const EventAdminTools = ({ event, setEvent }) => {
           <EventPaymentSettings event={event} />
         )}
       </Box>
+    </Box>
+      )}
     </Box>
   );
 };

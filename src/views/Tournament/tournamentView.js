@@ -225,7 +225,7 @@ const TournamentViewPage = ({ event: initialEvent,
             Admin Tools
           </Typography>
           <Grid container direction={'column'}>
-            <EventAdminTools event={event} participants={event.participants || []} setEvent={refreshEvent}  />
+            <EventAdminTools event={event} division={division} participants={event.participants || []} setEvent={refreshEvent}  />
             <AddParticipants event={event} callback={handleAddDeleteParticipant} />
           </Grid>
         </Box>

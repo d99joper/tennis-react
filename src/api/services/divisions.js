@@ -43,6 +43,26 @@ addDivision: async function (event_id, division_name, division_type, match_type)
     } else {
       throw new Error(response.status + ': Failed to remove participants from division')
     }
+  },
+
+  updateDivision: async function (division_id, data) {
+    const requestOptions = authAPI.getRequestOptions('PUT', data);
+    const response = await fetch(`${divisionsUrl}${division_id}/update`, requestOptions)
+    if (response.ok) {
+      return await response.json()
+    } else {
+      throw new Error(response.status + ': Failed to update division')
+    }
+  },
+
+  deleteDivision: async function (division_id) {
+    const requestOptions = authAPI.getRequestOptions('DELETE');
+    const response = await fetch(`${divisionsUrl}${division_id}/delete`, requestOptions)
+    if (response.ok) {
+      return true
+    } else {
+      throw new Error(response.status + ': Failed to delete division')
+    }
   }
 }
 

@@ -5,6 +5,8 @@ import { FaUsers, FaTrophy, FaMale, FaFemale, FaStar, FaCalendar, FaBuilding, Fa
 import { MdAccessTime } from 'react-icons/md';
 import JoinRequest from '../Notifications/joinRequests';
 
+const CARD_DESCRIPTION_MAX_LENGTH = 100;
+
 const DivisionCard = ({ 
   division, 
   event, 
@@ -23,15 +25,23 @@ const DivisionCard = ({
   const isFull = maxParticipants > 0 && currentParticipants >= maxParticipants;
   const fillPercentage = maxParticipants > 0 ? (currentParticipants / maxParticipants) * 100 : 0;
   
+  // Division override settings
+  const overrideSettings = division.override_settings || {};
+  
   // Check if registration is closed (event has started)
-  const startDate = division.content_object?.start_date || event.start_date;
+  const startDate = division.start_date || division.content_object?.start_date || event.start_date;
   const hasStarted = startDate && new Date(startDate) < new Date();
 
-  // Determine card state
-  const canSignUp = userMeetsRequirements && !isFull && !hasStarted && event.is_open_registration;
+  // Determine card state - use division override for open registration if available
+  const isOpenRegistration = overrideSettings.is_open_registration !== undefined 
+    ? overrideSettings.is_open_registration 
+    : event.is_open_registration;
+  const canSignUp = userMeetsRequirements && !isFull && !hasStarted && isOpenRegistration;
   
-  // Get restriction display
-  const restrictions = division.restrictions || event.restrictions || {};
+  // Get restriction display - division override_settings.restrictions take priority
+  const restrictions = overrideSettings.restrictions && Object.keys(overrideSettings.restrictions).length > 0
+    ? overrideSettings.restrictions
+    : (division.restrictions || event.restrictions || {});
   
   return (
     <Card
@@ -118,6 +128,15 @@ const DivisionCard = ({
         <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
           {division.name}
         </Typography>
+
+        {/* Division description */}
+        {division.description && (
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+            {division.description.length > CARD_DESCRIPTION_MAX_LENGTH
+              ? division.description.substring(0, CARD_DESCRIPTION_MAX_LENGTH) + '...' 
+              : division.description}
+          </Typography>
+        )}
 
         {/* Type badge */}
         <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
@@ -233,11 +252,11 @@ const DivisionCard = ({
 
         {/* Dates - pushes to bottom */}
         <Box sx={{ mt: 'auto' }}>
-          {division.content_object?.start_date && (
+          {startDate && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <MdAccessTime size={14} color={theme.palette.text.secondary} />
               <Typography variant="caption" color="text.secondary">
-                Starts {new Date(division.content_object.start_date).toLocaleDateString()}
+                Starts {new Date(startDate).toLocaleDateString()}
               </Typography>
             </Box>
           )}
@@ -268,12 +287,12 @@ const DivisionCard = ({
               matchType={division.content_object?.match_type || event.match_type}
               isMember={isEnrolled}
               memberText="Enrolled"
-              isOpenRegistration={event.is_open_registration}
+              isOpenRegistration={isOpenRegistration}
               callback={onSignUpSuccess}
               restrictions={restrictions}
               divisionId={division.id}
-              startDate={division.content_object?.start_date || event.start_date}
-              registrationDate={division.content_object?.registration_date || event.registration_date}
+              startDate={startDate}
+              registrationDate={overrideSettings.registration_open_date || division.content_object?.registration_date || event.registration_date}
             />
           </Box>
         </Box>

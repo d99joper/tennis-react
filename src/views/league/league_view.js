@@ -240,7 +240,7 @@ const LeagueViewPage = (props) => {
       {/* Admin Tools Tab */}
       {currentTab === 3 && isAdmin && (
         <Grid container direction={'column'}>
-          <EventAdminTools event={event} setEvent={(updatedEvent) => {
+          <EventAdminTools event={event} division={division} setEvent={(updatedEvent) => {
             setEvent(updatedEvent);
             if (props.callback) props.callback(updatedEvent);
           }} />

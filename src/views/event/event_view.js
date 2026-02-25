@@ -373,9 +373,9 @@ const EventView = () => {
       } else {
         const division_content_id = selectedDivision?.content_object?.id;
         if (selectedDivision?.type === 'league') {
-          content = <LeagueViewPage event={event} participants={participants} league_id={division_content_id} callback={refreshEvent} />;
+          content = <LeagueViewPage event={event} division={selectedDivision} participants={participants} league_id={division_content_id} callback={refreshEvent} />;
         } else if (selectedDivision?.type === 'tournament') {
-          content = <TournamentView event={event} tournament_id={division_content_id} participants={participants} callback={refreshEvent} />;
+          content = <TournamentView event={event} division={selectedDivision} tournament_id={division_content_id} participants={participants} callback={refreshEvent} />;
         } else if (selectedDivision?.type === 'ladder') {
           content = <LadderView event={event} participants={participants} callback={refreshEvent} />;
         }
