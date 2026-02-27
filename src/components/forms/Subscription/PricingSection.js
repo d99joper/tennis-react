@@ -1,97 +1,200 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   Box, Typography, Card, CardContent, CardActions,
-  Button, Chip, ToggleButtonGroup, ToggleButton, List, ListItem, ListItemIcon, ListItemText
+  Button, Chip, ToggleButtonGroup, ToggleButton, List, ListItem, ListItemIcon, ListItemText,
+  CircularProgress, Alert
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { MdCheck, MdClose } from 'react-icons/md';
 import { AuthContext } from 'contexts/AuthContext';
-import { stripeAPI } from 'api/services';
-import { loadStripe } from '@stripe/stripe-js';
+import { subscriptionAPI, stripeAPI } from 'api/services';
 import { Link } from 'react-router-dom';
+import enums from 'helpers/const';
+import SubscribePaymentDialog from './SubscribePaymentDialog';
 
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
+const { SUBSCRIPTION_LIMITS: SL } = enums;
 
-const tiers = [
-  {
-    name: 'Free',
-    key: 'free',
-    monthlyPrice: 0,
-    yearlyPrice: 0,
-    description: 'Get started with the basics',
-    features: [
-      { text: 'Profile page & player communication', included: true },
-      { text: 'View trophies and badges', included: true },
-      { text: 'Join up to 5 events (lifetime)', included: true },
-      { text: 'See last 3 matches played', included: true },
-      { text: 'Unlimited events', included: false },
-      { text: 'Full match history & filters', included: false },
-      { text: 'Player stats & rivals', included: false },
-      { text: 'Head-to-head comparisons', included: false },
-      { text: 'Create clubs & events', included: false },
-    ],
-  },
-  {
-    name: 'Basic',
-    key: 'basic',
-    monthlyPrice: 2.99,
-    yearlyPrice: 29.99,
-    planIds: { month: 'basic_monthly', year: 'basic_yearly' },
-    description: 'For the active player',
-    popular: true,
-    features: [
-      { text: 'Everything in Free', included: true },
-      { text: 'Unlimited event entries', included: true },
-      { text: 'Full match history & filters', included: true },
-      { text: 'Head-to-head stats', included: true },
-      { text: 'Player stats section', included: true },
-      { text: 'Rivals section', included: true },
-      { text: 'Create clubs & events', included: false },
-      { text: 'Club ladder for members', included: false },
-      { text: 'Charge participation fees', included: false },
-    ],
-  },
-  {
-    name: 'Pro',
-    key: 'pro',
-    monthlyPrice: 5.99,
-    yearlyPrice: 59.99,
-    planIds: { month: 'pro_monthly', year: 'pro_yearly' },
-    description: 'For club organizers',
-    features: [
-      { text: 'Everything in Basic', included: true },
-      { text: 'Create up to 2 clubs', included: true },
-      { text: 'Unlimited leagues & tournaments', included: true },
-      { text: 'Automatic club ladder', included: true },
-      { text: 'Charge participation fees', included: true },
-      { text: 'Membership fees (coming soon)', included: true },
-    ],
-  },
-];
+// Static feature lists per tier (features don't come from backend)
+const tierFeatures = {
+  free: [
+    { text: 'Profile page & player communication', included: true },
+    { text: 'View trophies and badges', included: true },
+    { text: `Join up to ${SL.FREE_MAX_EVENTS} events (lifetime)`, included: true },
+    { text: `See last ${SL.FREE_MAX_RECENT_MATCHES} matches played`, included: true },
+    { text: 'Unlimited events', included: false },
+    { text: 'Full match history & filters', included: false },
+    { text: 'Player stats & rivals', included: false },
+    { text: 'Head-to-head comparisons', included: false },
+    { text: 'Create clubs & events', included: false },
+  ],
+  basic: [
+    { text: 'Everything in Free', included: true },
+    { text: 'Unlimited event entries', included: true },
+    { text: 'Full match history & filters', included: true },
+    { text: 'Head-to-head stats', included: true },
+    { text: 'Player stats section', included: true },
+    { text: 'Rivals section', included: true },
+    { text: 'Create clubs & events', included: false },
+    { text: 'Club ladder for members', included: false },
+    { text: 'Charge participation fees', included: false },
+  ],
+  pro: [
+    { text: 'Everything in Basic', included: true },
+    { text: 'Create up to 2 clubs', included: true },
+    { text: 'Unlimited leagues & tournaments', included: true },
+    { text: 'Automatic club ladder', included: true },
+    { text: 'Charge participation fees', included: true },
+    { text: 'Membership fees (coming soon)', included: true },
+  ],
+};
+
+const tierMeta = {
+  free: { description: 'Get started with the basics' },
+  basic: { description: 'For the active player', popular: true },
+  pro: { description: 'For club organizers' },
+};
 
 const PricingSection = ({ currentTier = 'free' }) => {
   const theme = useTheme();
   const { isLoggedIn } = useContext(AuthContext);
   const [billingInterval, setBillingInterval] = useState('year');
   const [loading, setLoading] = useState(null);
+  const [plans, setPlans] = useState(null);
+  const [plansLoading, setPlansLoading] = useState(true);
+  const [subscribeError, setSubscribeError] = useState(null);
+  const [paymentClientSecret, setPaymentClientSecret] = useState(null);
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [selectedTierName, setSelectedTierName] = useState('');
+
+  // Fetch plans from backend on mount
+  useEffect(() => {
+    async function fetchPlans() {
+      try {
+        const data = await subscriptionAPI.getPlans();
+        if (Array.isArray(data)) {
+          setPlans(data);
+        } else if (data?.plans) {
+          setPlans(data.plans);
+        } else if (data?.results) {
+          setPlans(data.results);
+        }
+      } catch (err) {
+        console.error('Error fetching plans:', err);
+      } finally {
+        setPlansLoading(false);
+      }
+    }
+    fetchPlans();
+  }, []);
+
+  // Build tier cards from backend plans
+  const tiers = React.useMemo(() => {
+    const freeTier = {
+      name: 'Free',
+      key: 'free',
+      monthlyPrice: 0,
+      yearlyPrice: 0,
+      description: tierMeta.free.description,
+      features: tierFeatures.free,
+    };
+
+    if (!plans || plans.length === 0) {
+      return [freeTier];
+    }
+
+    // Group plans by name (basic, pro) and extract prices
+    const grouped = {};
+    for (const plan of plans) {
+      const tier = (plan.name || plan.tier || '').toLowerCase();
+      if (!grouped[tier]) {
+        grouped[tier] = { monthlyPrice: 0, yearlyPrice: 0, planId: plan.id };
+      }
+      if (plan.price_monthly !== undefined) {
+        grouped[tier].monthlyPrice = parseFloat(plan.price_monthly);
+      }
+      if (plan.price_yearly !== undefined) {
+        grouped[tier].yearlyPrice = parseFloat(plan.price_yearly);
+      }
+    }
+
+    const result = [freeTier];
+
+    if (grouped.basic) {
+      result.push({
+        name: 'Basic',
+        key: 'basic',
+        planId: grouped.basic.planId,
+        monthlyPrice: grouped.basic.monthlyPrice,
+        yearlyPrice: grouped.basic.yearlyPrice,
+        description: tierMeta.basic.description,
+        popular: tierMeta.basic.popular,
+        features: tierFeatures.basic,
+      });
+    }
+
+    if (grouped.pro) {
+      result.push({
+        name: 'Pro',
+        key: 'pro',
+        planId: grouped.pro.planId,
+        monthlyPrice: grouped.pro.monthlyPrice,
+        yearlyPrice: grouped.pro.yearlyPrice,
+        description: tierMeta.pro.description,
+        features: tierFeatures.pro,
+      });
+    }
+
+    return result;
+  }, [plans]);
 
   const handleSubscribe = async (tier) => {
     if (!isLoggedIn) return;
-    const planId = tier.planIds?.[billingInterval];
-    if (!planId) return;
+    if (!tier.planId) return;
+
+    const billingPeriod = billingInterval === 'year' ? 'yearly' : 'monthly';
+    const isUpgrade = currentTier !== 'free';
 
     setLoading(tier.key);
+    setSubscribeError(null);
     try {
-      const response = await stripeAPI.createSubscription(planId);
-      if (response.success && response.data.session_id) {
-        const stripe = await stripePromise;
-        await stripe.redirectToCheckout({ sessionId: response.data.session_id });
+      if (isUpgrade) {
+        // User already has a subscription — update it (Stripe handles proration)
+        const response = await stripeAPI.updateSubscription(tier.planId, billingPeriod);
+        if (response.success) {
+          // Reload so AuthContext re-fetches the updated subscription tier
+          window.location.reload();
+        } else {
+          setSubscribeError(response.data?.error || 'Unable to update subscription. Please try again.');
+        }
+      } else {
+        // New subscription from free tier — needs payment method collection
+        const response = await stripeAPI.createSubscription(tier.planId, billingPeriod);
+        if (response.success && response.data?.client_secret) {
+          // Open the payment dialog to collect card details
+          setPaymentClientSecret(response.data.client_secret);
+          setSelectedTierName(tier.name);
+          setPaymentDialogOpen(true);
+        } else if (response.success && response.data?.session_id) {
+          // Fallback: redirect to Stripe Checkout session
+          const { loadStripe } = await import('@stripe/stripe-js');
+          const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
+          await stripe.redirectToCheckout({ sessionId: response.data.session_id });
+        } else {
+          setSubscribeError(response.data?.error || 'Unable to start subscription. Please try again.');
+        }
       }
     } catch (err) {
-      console.error('Error starting subscription:', err);
+      console.error('Error subscribing:', err);
+      setSubscribeError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(null);
     }
+  };
+
+  const handlePaymentDialogClose = () => {
+    setPaymentDialogOpen(false);
+    setPaymentClientSecret(null);
+    setSelectedTierName('');
   };
 
   const getButtonProps = (tier) => {
@@ -110,13 +213,32 @@ const PricingSection = ({ currentTier = 'free' }) => {
     return {
       onClick: () => handleSubscribe(tier),
       disabled: loading === tier.key,
-      children: loading === tier.key ? 'Loading...' : `Get ${tier.name}`,
+      children: loading === tier.key
+        ? 'Loading...'
+        : currentTier !== 'free' ? `Upgrade to ${tier.name}` : `Get ${tier.name}`,
       variant: 'contained',
     };
   };
 
   return (
     <Box>
+      <SubscribePaymentDialog
+        open={paymentDialogOpen}
+        onClose={handlePaymentDialogClose}
+        clientSecret={paymentClientSecret}
+        planName={selectedTierName}
+      />
+      {subscribeError && (
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setSubscribeError(null)}>
+          {subscribeError}
+        </Alert>
+      )}
+      {plansLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
       <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
         <ToggleButtonGroup
           value={billingInterval}
@@ -230,6 +352,8 @@ const PricingSection = ({ currentTier = 'free' }) => {
           );
         })}
       </Box>
+        </>
+      )}
     </Box>
   );
 };

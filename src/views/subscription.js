@@ -8,6 +8,7 @@ import { Helmet } from 'react-helmet-async';
 import { AuthContext } from 'contexts/AuthContext';
 import { subscriptionAPI, stripeAPI } from 'api/services';
 import PricingSection from 'components/forms/Subscription/PricingSection';
+import ManageBillingModal from 'components/forms/Subscription/ManageBillingModal';
 import { Link } from 'react-router-dom';
 import { flexColumn } from 'styles/componentStyles';
 
@@ -16,8 +17,9 @@ const SubscriptionPage = () => {
   const { user, isLoggedIn } = useContext(AuthContext);
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [portalLoading, setPortalLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [billingModalOpen, setBillingModalOpen] = useState(false);
 
   const currentTier = user?.isProSubscriber ? 'pro' : user?.isBasicSubscriber ? 'basic' : 'free';
 
@@ -41,39 +43,41 @@ const SubscriptionPage = () => {
     fetchSubscription();
   }, [isLoggedIn]);
 
-  const handleManageSubscription = async () => {
-    setPortalLoading(true);
-    setError(null);
-    try {
-      const result = await subscriptionAPI.getSubscriptionPortalUrl();
-      if (result?.url) {
-        window.location.href = result.url;
-      } else {
-        setError('Unable to open subscription management. Please try again.');
-      }
-    } catch (err) {
-      setError('Error opening subscription management.');
-    } finally {
-      setPortalLoading(false);
-    }
-  };
+  const handleManageSubscription = () => setBillingModalOpen(true);
 
   const handleCancelSubscription = async () => {
-    if (!subscription?.id) return;
-    setPortalLoading(true);
+    setActionLoading(true);
     setError(null);
     try {
-      const result = await stripeAPI.cancelSubscription(subscription.id);
+      const result = await stripeAPI.cancelSubscription();
       if (result.success) {
-        setSubscription(null);
-        window.location.reload();
+        setSubscription(prev => ({ ...prev, cancel_at_period_end: true }));
+        setBillingModalOpen(false);
       } else {
         setError('Failed to cancel subscription. Please try again.');
       }
     } catch (err) {
       setError('Error canceling subscription.');
     } finally {
-      setPortalLoading(false);
+      setActionLoading(false);
+    }
+  };
+
+  const handleReactivateSubscription = async () => {
+    setActionLoading(true);
+    setError(null);
+    try {
+      const result = await stripeAPI.reactivateSubscription();
+      if (result.success) {
+        setSubscription(prev => ({ ...prev, cancel_at_period_end: false }));
+        setBillingModalOpen(false);
+      } else {
+        setError('Failed to reactivate subscription. Please try again.');
+      }
+    } catch (err) {
+      setError('Error reactivating subscription.');
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -103,44 +107,42 @@ const SubscriptionPage = () => {
 
       {error && <Alert severity="error" sx={{ mx: 'auto', maxWidth: 600 }}>{error}</Alert>}
 
-      {/* Current subscription info */}
+      {/* Manage billing modal */}
+      <ManageBillingModal
+        open={billingModalOpen}
+        onClose={() => setBillingModalOpen(false)}
+        subscription={subscription}
+        onCancel={handleCancelSubscription}
+        onReactivate={handleReactivateSubscription}
+        actionLoading={actionLoading}
+      />
+
+      {/* Current subscription summary card */}
       {isLoggedIn && subscription && (
         <Card variant="outlined" sx={{ maxWidth: 600, mx: 'auto', width: '100%' }}>
           <CardContent>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6">Your Current Subscription</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+              <Typography variant="h6">Your Subscription</Typography>
               <Chip
                 label={subscription.plan?.name || currentTier}
-                color="primary"
+                color={subscription.cancel_at_period_end ? 'warning' : 'primary'}
                 size="small"
               />
             </Box>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-              Status: {subscription.is_active ? 'Active' : 'Inactive'}
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+              {subscription.status_message || (subscription.is_active ? 'Active' : 'Inactive')}
             </Typography>
             {subscription.current_period_end && (
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Next billing date: {new Date(subscription.current_period_end).toLocaleDateString()}
+              <Typography variant="body2" color="text.secondary">
+                {subscription.cancel_at_period_end
+                  ? `Cancels on ${new Date(subscription.current_period_end).toLocaleDateString()}`
+                  : `Renews on ${new Date(subscription.current_period_end).toLocaleDateString()}`}
               </Typography>
             )}
             <Divider sx={{ my: 2 }} />
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button
-                variant="outlined"
-                onClick={handleManageSubscription}
-                disabled={portalLoading}
-              >
-                {portalLoading ? <CircularProgress size={20} /> : 'Manage Billing'}
-              </Button>
-              <Button
-                variant="outlined"
-                color="error"
-                onClick={handleCancelSubscription}
-                disabled={portalLoading}
-              >
-                Cancel Subscription
-              </Button>
-            </Box>
+            <Button variant="outlined" onClick={handleManageSubscription}>
+              Manage Billing
+            </Button>
           </CardContent>
         </Card>
       )}

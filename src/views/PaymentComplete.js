@@ -10,7 +10,13 @@ const PaymentComplete = () => {
   const theme = useTheme();
   const { isLoggedIn } = useContext(AuthContext);
   const [searchParams] = useSearchParams();
+
+  // Marketplace payment (legacy) — payment_id param
   const paymentId = searchParams.get('payment_id');
+
+  // Subscription payment — Stripe sends redirect_status + payment_intent
+  const redirectStatus = searchParams.get('redirect_status');
+  const isSubscriptionReturn = !!redirectStatus && !paymentId;
 
   const { status, loading, error } = usePaymentStatus(paymentId);
 
@@ -25,6 +31,42 @@ const PaymentComplete = () => {
     );
   }
 
+  // Subscription return — status is determined directly from redirect_status
+  if (isSubscriptionReturn) {
+    return (
+      <Box sx={{ ...flexColumn, alignItems: 'center', mt: theme.spacing(8), gap: theme.spacing(2), p: theme.spacing(3) }}>
+        <Typography variant="h5">Subscription Payment</Typography>
+        {redirectStatus === 'succeeded' ? (
+          <>
+            <Alert severity="success">Payment successful! Your subscription is now active.</Alert>
+            <Typography variant="body2" color="text.secondary">
+              It may take a moment for your account to update. Visit your subscription page to confirm.
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button variant="contained" component={RouterLink} to="/subscription">
+                View Subscription
+              </Button>
+              <Button variant="outlined" component={RouterLink} to="/">
+                Go Home
+              </Button>
+            </Box>
+          </>
+        ) : (
+          <>
+            <Alert severity="error">
+              Payment {redirectStatus === 'failed' ? 'failed' : `was not completed (${redirectStatus})`}.
+              Please try again.
+            </Alert>
+            <Button variant="contained" component={RouterLink} to="/subscription">
+              Back to Plans
+            </Button>
+          </>
+        )}
+      </Box>
+    );
+  }
+
+  // Marketplace payment (legacy polling flow)
   return (
     <Box sx={{ ...flexColumn, alignItems: 'center', mt: theme.spacing(8), gap: theme.spacing(2), p: theme.spacing(3) }}>
       <Typography variant="h5">Payment Status</Typography>

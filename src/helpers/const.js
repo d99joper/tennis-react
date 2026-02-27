@@ -62,13 +62,6 @@ const enums = {
     FREE_MAX_RECENT_MATCHES: 3,
   },
 
-  SUBSCRIPTION_PLANS: {
-    BASIC_MONTHLY: { id: 'basic_monthly', name: 'Basic Monthly', price: 2.99, interval: 'month' },
-    BASIC_YEARLY: { id: 'basic_yearly', name: 'Basic Yearly', price: 29.99, interval: 'year' },
-    PRO_MONTHLY: { id: 'pro_monthly', name: 'Pro Monthly', price: 5.99, interval: 'month' },
-    PRO_YEARLY: { id: 'pro_yearly', name: 'Pro Yearly', price: 59.99, interval: 'year' },
-  },
-
   LevelMarks: [
     { value: 2, label: '2.0' }, { value: 2.5, label: '2.5' },
     { value: 3, label: '3.0' }, { value: 3.5, label: '3.5' },

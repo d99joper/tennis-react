@@ -28,6 +28,7 @@ const Matches = ({
   originId,
   matchType = 'singles',
   pageSize = 10,
+  maxPages = null, // Hard cap on total pages (used for subscription gating)
   showFilterByPlayer = true,
   showFilterByDivision = false,
   divisions = [], // New prop for divisions
@@ -118,7 +119,7 @@ const Matches = ({
           const newMatches = [...prev, ...response.matches];
           return Array.from(new Map(newMatches.map(m => [m.id, m])).values());
         });
-        setTotalPages(response.num_pages);
+        setTotalPages(maxPages !== null ? Math.min(response.num_pages, maxPages) : response.num_pages);
         setPagesLoaded((prev) => new Set(prev).add(page));
       } catch (error) {
         console.error("Failed to fetch matches:", error);

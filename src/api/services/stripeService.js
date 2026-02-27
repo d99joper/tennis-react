@@ -259,13 +259,18 @@ const stripeAPI = {
   // ============================================
 
   /**
-   * Create a subscription payment intent for a player
-   * @param {string} plan - Plan identifier
+   * Create a new subscription (returns client_secret for Stripe.js payment confirmation)
+   * POST /stripe/subscriptions/create
+   * @param {string} planId - Plan identifier (e.g. 'basic', 'pro')
+   * @param {string} billingPeriod - 'monthly' or 'yearly'
    * @returns {{ success: boolean, statusCode: number, data: object }}
    */
-  createSubscription: async (plan) => {
+  createSubscription: async (planId, billingPeriod = 'monthly') => {
     try {
-      const requestOptions = authAPI.getRequestOptions('POST', { plan });
+      const requestOptions = authAPI.getRequestOptions('POST', {
+        plan_id: planId,
+        billing_period: billingPeriod,
+      });
       const response = await fetch(`${apiUrl}stripe/subscriptions/create`, requestOptions);
       const data = await response.json();
       return { success: response.ok, statusCode: response.status, data };
@@ -276,18 +281,91 @@ const stripeAPI = {
   },
 
   /**
-   * Cancel a player's subscription
-   * @param {string} subscriptionId
+   * Update (upgrade/downgrade) an existing subscription
+   * POST /stripe/subscriptions/update
+   * @param {string} planId - New plan identifier
+   * @param {string} billingPeriod - 'monthly' or 'yearly'
    * @returns {{ success: boolean, statusCode: number, data: object }}
    */
-  cancelSubscription: async (subscriptionId) => {
+  updateSubscription: async (planId, billingPeriod) => {
     try {
-      const requestOptions = authAPI.getRequestOptions('POST', { subscription_id: subscriptionId });
+      const requestOptions = authAPI.getRequestOptions('POST', {
+        plan_id: planId,
+        billing_period: billingPeriod,
+      });
+      const response = await fetch(`${apiUrl}stripe/subscriptions/update`, requestOptions);
+      const data = await response.json();
+      return { success: response.ok, statusCode: response.status, data };
+    } catch (err) {
+      console.error('Error updating subscription', err);
+      return { success: false, statusCode: 500, data: { error: err.message } };
+    }
+  },
+
+  /**
+   * Cancel subscription at period end
+   * POST /stripe/subscriptions/cancel
+   * @returns {{ success: boolean, statusCode: number, data: object }}
+   */
+  cancelSubscription: async () => {
+    try {
+      const requestOptions = authAPI.getRequestOptions('POST');
       const response = await fetch(`${apiUrl}stripe/subscriptions/cancel`, requestOptions);
       const data = await response.json();
       return { success: response.ok, statusCode: response.status, data };
     } catch (err) {
       console.error('Error canceling subscription', err);
+      return { success: false, statusCode: 500, data: { error: err.message } };
+    }
+  },
+
+  /**
+   * Reactivate a subscription that is pending cancellation
+   * POST /stripe/subscriptions/reactivate
+   * @returns {{ success: boolean, statusCode: number, data: object }}
+   */
+  reactivateSubscription: async () => {
+    try {
+      const requestOptions = authAPI.getRequestOptions('POST');
+      const response = await fetch(`${apiUrl}stripe/subscriptions/reactivate`, requestOptions);
+      const data = await response.json();
+      return { success: response.ok, statusCode: response.status, data };
+    } catch (err) {
+      console.error('Error reactivating subscription', err);
+      return { success: false, statusCode: 500, data: { error: err.message } };
+    }
+  },
+
+  /**
+   * Get Stripe Customer Portal URL for payment method / invoice management
+   * POST /stripe/subscriptions/create-portal-session
+   * @returns {{ success: boolean, statusCode: number, data: { url: string } }}
+   */
+  createPortalSession: async () => {
+    try {
+      const requestOptions = authAPI.getRequestOptions('POST');
+      const response = await fetch(`${apiUrl}stripe/subscriptions/create-portal-session`, requestOptions);
+      const data = await response.json();
+      return { success: response.ok, statusCode: response.status, data };
+    } catch (err) {
+      console.error('Error creating portal session', err);
+      return { success: false, statusCode: 500, data: { error: err.message } };
+    }
+  },
+
+  /**
+   * Get the payment method (card) attached to the current subscription
+   * GET /stripe/subscriptions/payment-method
+   * @returns {{ success: boolean, statusCode: number, data: { brand: string, last4: string, exp_month: number, exp_year: number } }}
+   */
+  getPaymentMethod: async () => {
+    try {
+      const requestOptions = authAPI.getRequestOptions('GET');
+      const response = await fetch(`${apiUrl}stripe/subscriptions/payment-method`, requestOptions);
+      const data = await response.json();
+      return { success: response.ok, statusCode: response.status, data };
+    } catch (err) {
+      console.error('Error fetching payment method', err);
       return { success: false, statusCode: 500, data: { error: err.message } };
     }
   },

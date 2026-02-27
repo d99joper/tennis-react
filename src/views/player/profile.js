@@ -167,7 +167,7 @@ const Profile = () => {
           setRivalsFetched(true) // Set to true to prevent infinite retry
         })
     }
-  }, [tabIndex, player, rivalsPlayerId])
+  }, [tabIndex, player, rivalsPlayerId, isFreeTier, rivalsFetched])
 
   const handleImageUpdate = async (e) => {
     try {
@@ -319,6 +319,7 @@ const Profile = () => {
                     originType={'player'}
                     matchType={'singles'}
                     pageSize={isFreeTier ? enums.SUBSCRIPTION_LIMITS.FREE_MAX_RECENT_MATCHES : 10}
+                    maxPages={isFreeTier ? 1 : null}
                     refresh={refreshIndex}
                     showAddMatch={true}
                     showComments={true}
@@ -333,6 +334,7 @@ const Profile = () => {
                     originType={'player'}
                     matchType={'doubles'}
                     pageSize={isFreeTier ? enums.SUBSCRIPTION_LIMITS.FREE_MAX_RECENT_MATCHES : 10}
+                    maxPages={isFreeTier ? 1 : null}
                     showAddMatch={true}
                     showComments={true}
                     showH2H={!isFreeTier}
