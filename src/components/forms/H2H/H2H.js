@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Box, Card, Grid, Typography, Divider } from "@mui/material";
 import { playerAPI } from "api/services";
 import { ProfileImage } from "../ProfileImage";
-import { Match } from "../index";
+import Match from "../Match/Match";
 
 const H2H = ({ winners, losers }) => {
   const [data, setData] = useState(null);

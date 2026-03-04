@@ -40,11 +40,7 @@ const ScheduleView = ({ event, division, schedule: initialSchedule, onScoreRepor
   };
 
   const isPlayer1Winner = (scheduleMatch) => {
-    if (scheduleMatch.winners)
-      return scheduleMatch.winners.some((winner) => winner.id === scheduleMatch.player1.id);
-    // return scheduleMatch.winners.some((winner) => winner.id === scheduleMatch.player1.object_id);
-    else
-      return true;
+    return matchHelper.isPlayer1SideWinner(scheduleMatch);
   }
 
   const reverseScore = (score) => {
@@ -99,13 +95,11 @@ const ScheduleView = ({ event, division, schedule: initialSchedule, onScoreRepor
               : new Date(row.played_on).toISOString().split("T")[0]
             : new Date(row.scheduled_date).toISOString().split("T")[0],
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1 }}>
-            <ProfileImage player={row.player1} size={30} />
-            <Typography>{row.player1.name}</Typography>
+            <ProfileImage player={row.player1} size={30} asLink showName />
           </Box>,
           (<b>vs</b>),
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1 }}>
-            <ProfileImage player={row.player2} size={30} />
-            <Typography>{row.player2.name}</Typography>
+            <ProfileImage player={row.player2} size={30} asLink showName />
           </Box>,
           row.reported
             ? (isPlayer1Winner(row) ? row.score : reverseScore(row.score))
@@ -145,9 +139,11 @@ const ScheduleView = ({ event, division, schedule: initialSchedule, onScoreRepor
                 new Date(row.scheduled_date).toISOString().split("T")[0]
               )}
             </Typography>
-            <Typography variant="body1" sx={{ fontWeight: "bold", fontSize: isMedium ? "1.2rem" : "1rem" }}>
-              {row.player1.name} vs {row.player2.name}
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 'bold', fontSize: isMedium ? '1.2rem' : '1rem' }}>
+              <ProfileImage player={row.player1} size={24} showAvatar={false} asLink showName />
+              <span>vs</span>
+              <ProfileImage player={row.player2} size={24} showAvatar={false} asLink showName />
+            </Box>
           </Box>
         )}
         basicContentForScreen={(row, isSmall, isMedium) => (
@@ -178,6 +174,7 @@ const ScheduleView = ({ event, division, schedule: initialSchedule, onScoreRepor
             matchType={event.match_type}
             scheduleMatchId={editingMatch.id}
             limitedParticipants={[editingMatch.player1, editingMatch.player2]}
+            participantIds={[editingMatch.participant1_id, editingMatch.participant2_id]}
             //date={editingMatch.scheduled_date}
             onSubmit={(matchData) => {
               console.log("Match reported:", matchData);

@@ -1,10 +1,70 @@
-import React, { useLayoutEffect, useRef, useState } from "react";
-import { Box, Card, Divider, Typography, CardActions, Button } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Card, Chip, Divider, Typography, CardActions, Button } from "@mui/material";
 import { AiOutlineComment } from "react-icons/ai";
+import { MdEmojiEvents } from "react-icons/md";
 import { Link } from "react-router-dom";
 import MyModal from "components/layout/MyModal";
 import { Comments } from "../Comments/Comments";
 import { H2H } from "..";
+import { getMatchContext } from "types/match";
+import { userHelper as uh } from "helpers";
+
+/** Render a list of player name links, separated by " / " for doubles */
+const PlayerNames = ({ players, variant = "body2", fontWeight, noWrap = false }) => (
+  <Typography variant={variant} fontWeight={fontWeight} noWrap={noWrap} component="span">
+    {players.map((p, i) => (
+      <React.Fragment key={p.id}>
+        {i > 0 && ' & '}
+        <Link to={`/players/${p.slug}`}>
+          {p.name}
+        </Link>
+      </React.Fragment>
+    ))}
+  </Typography>
+);
+
+/** Show event + division badges when the match belongs to an event */
+const EventBadge = ({ match }) => {
+  const { isEventMatch } = getMatchContext(match);
+  if (!isEventMatch) return null;
+
+  return (
+    <Box display="flex" alignItems="center" gap={0.5} sx={{ mt: 0.5 }}>
+      <MdEmojiEvents size={14} color="#8b6914" />
+      <Chip
+        label={match.event.name}
+        size="small"
+        variant="outlined"
+        component={Link}
+        to={`/events/${match.event.slug}`}
+        clickable
+        sx={{ height: 20, fontSize: '0.7rem' }}
+      />
+      {match.division && (
+        <Chip
+          label={match.division.name}
+          size="small"
+          variant="outlined"
+          sx={{ height: 20, fontSize: '0.7rem' }}
+        />
+      )}
+    </Box>
+  );
+};
+
+/** Show participant label when it adds value (pair / team — not solo player) */
+const ParticipantLabel = ({ match }) => {
+  const { isTeamOrPair } = getMatchContext(match);
+  if (!isTeamOrPair) return null;
+
+  const label = match.winner_participant?.content_type === 'team' ? 'Team' : 'Pair';
+
+  return (
+    <Typography variant="caption" color="text.secondary" sx={{ mt: 0.25 }}>
+      As: {match.winner_participant.name} ({label})
+    </Typography>
+  );
+};
 
 const Match = ({ match, showH2H = false, color, variant }) => {
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
@@ -22,7 +82,7 @@ const Match = ({ match, showH2H = false, color, variant }) => {
         <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5 }}>
           {match.played_on}
         </Typography>
-  
+
         {/* Shared grid layout for both rows */}
         <Box
           sx={{
@@ -33,14 +93,9 @@ const Match = ({ match, showH2H = false, color, variant }) => {
           }}
         >
           {/* Winner row */}
-          <Typography variant="body2" fontWeight="bold" noWrap>
-            <Link
-              to={`/players/${match.winners[0]?.slug}`}
-              style={{ textDecoration: 'none', color: 'inherit' }}
-            >
-              {match.winners[0]?.name}
-            </Link>
-          </Typography>
+          <Box fontWeight="bold">
+            <PlayerNames players={match.winners} variant="body2" fontWeight="bold" noWrap />
+          </Box>
           <Box display="flex" gap={1}>
             {scores.map((set, i) => (
               <Typography key={i} variant="body2">
@@ -48,19 +103,14 @@ const Match = ({ match, showH2H = false, color, variant }) => {
               </Typography>
             ))}
           </Box>
-  
+
           {/* Divider (spanning both columns) */}
           <Divider sx={{ gridColumn: '1 / -1', my: 0.5 }} />
-  
+
           {/* Loser row */}
-          <Typography variant="body2" noWrap>
-            <Link
-              to={`/players/${match.losers[0]?.slug}`}
-              style={{ textDecoration: 'none', color: 'inherit' }}
-            >
-              {match.losers[0]?.name}
-            </Link>
-          </Typography>
+          <Box>
+            <PlayerNames players={match.losers} variant="body2" noWrap />
+          </Box>
           <Box display="flex" gap={1}>
             {scores.map((set, i) => (
               <Typography key={i} variant="body2">
@@ -69,12 +119,14 @@ const Match = ({ match, showH2H = false, color, variant }) => {
             ))}
           </Box>
         </Box>
+
+        {/* Event badge & participant label */}
+        <EventBadge match={match} />
+        <ParticipantLabel match={match} />
       </Box>
     );
   }
-  
-  
-  
+
   return (
     <Card sx={{ p: 2, mb: 2, ...(color && { backgroundColor: color }) }} >
       {/* Played Date */}
@@ -82,13 +134,9 @@ const Match = ({ match, showH2H = false, color, variant }) => {
         {match.played_on}
       </Typography>
 
-      {/* Player1 and Scores */}
+      {/* Winners and Scores */}
       <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-        <Typography variant="h6">
-          <Link to={`/players/${match.winners[0]?.slug}`} style={{ textDecoration: "none", color: "inherit" }}>
-            {match.winners[0]?.name}
-          </Link>
-        </Typography>
+        <PlayerNames players={match.winners} variant="h6" />
         <Box display="flex" gap={2}>
           {scores.map((set, index) => (
             <Typography key={index} variant="h6">
@@ -101,13 +149,9 @@ const Match = ({ match, showH2H = false, color, variant }) => {
       {/* Divider */}
       <Divider />
 
-      {/* Player2 and Scores */}
+      {/* Losers and Scores */}
       <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mt: 1 }}>
-        <Typography variant="h6">
-          <Link to={`/players/${match.losers[0]?.slug}`} style={{ textDecoration: "none", color: "inherit" }}>
-            {match.losers[0]?.name}
-          </Link>
-        </Typography>
+        <PlayerNames players={match.losers} variant="h6" />
         <Box display="flex" gap={2}>
           {scores.map((set, index) => (
             <Typography key={index} variant="h6">
@@ -117,18 +161,24 @@ const Match = ({ match, showH2H = false, color, variant }) => {
         </Box>
       </Box>
 
+      {/* Event badge & participant label */}
+      <Box sx={{ mt: 1 }}>
+        <EventBadge match={match} />
+        <ParticipantLabel match={match} />
+      </Box>
+
       {/* Action Icons */}
       <Box display="flex" justifyContent="center" alignItems="center" gap={2} sx={{ mt: 2 }}>
-
         <CardActions>
           {/* Comments Icon */}
           <Button size="small" color="primary" onClick={() => setIsCommentsModalOpen(true)}>
             <AiOutlineComment size={24} /> Comments
           </Button>
           {/* H2H Icon (conditionally shown) */}
-          {showH2H && (<Button size="small" color="primary" onClick={() => setIsH2HModalOpen(true)}>
-            See H2H
-          </Button>
+          {showH2H && (
+            <Button size="small" color="primary" onClick={() => setIsH2HModalOpen(true)}>
+              See H2H
+            </Button>
           )}
         </CardActions>
       </Box>
@@ -146,9 +196,9 @@ const Match = ({ match, showH2H = false, color, variant }) => {
       <MyModal
         showHide={isH2HModalOpen}
         onClose={() => setIsH2HModalOpen(false)}
-        title={`H2H: ${match.winners[0]?.name} vs ${match.losers[0]?.name}`}
+        title={`H2H: ${uh.getPlayerNamesString(match.winners)} vs ${uh.getPlayerNamesString(match.losers)}`}
       >
-        <H2H winners={[match.winners[0]]} losers={[match.losers[0]]} />
+        <H2H winners={match.winners} losers={match.losers} />
       </MyModal>
     </Card>
   );

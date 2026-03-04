@@ -12,6 +12,7 @@ const useMatchEditorLogic = ({
   scheduleMatchId,
   onSubmit,
   limitedParticipants = [],
+  participantIds = [],
   participant,
   division_id = null
 }) => {
@@ -135,20 +136,28 @@ const useMatchEditorLogic = ({
 
   // Submit match
   const onSubmitMatch = async () => {
-    const winners = selectedWinners.map(p => {
-      // if(selectedEvent !== null) {
-      //   return p.object_id // participant's object id
-      // }
-      // else 
-      return p.id
-    })
-    const losers = selectedOpponents.map(p => {
-      // if(selectedEvent !== null) {
-      //   return p.object_id // participant's object id
-      // }
-      // else 
-      return p.id
-    })
+    // For event matches with participantIds, use those instead of player IDs
+    const hasParticipantIds = participantIds.length === 2 &&
+      participantIds[0] && participantIds[1];
+
+    let winners, losers;
+    if (hasParticipantIds) {
+      // participantIds[0] corresponds to limitedParticipants[0] (player1 side)
+      // participantIds[1] corresponds to limitedParticipants[1] (player2 side)
+      // selectedWinners[0] is whichever side the user marked as winner
+      const isPlayer1SideWinner = selectedWinners.some(
+        (w) => w.id === limitedParticipants[0]?.id
+      );
+      winners = isPlayer1SideWinner
+        ? [participantIds[0]]
+        : [participantIds[1]];
+      losers = isPlayer1SideWinner
+        ? [participantIds[1]]
+        : [participantIds[0]];
+    } else {
+      winners = selectedWinners.map((p) => p.id);
+      losers = selectedOpponents.map((p) => p.id);
+    }
     console.log(winners, selectedWinners)
     const match = {
       winners: winner? winners : losers,

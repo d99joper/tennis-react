@@ -408,6 +408,7 @@ const TournamentBracket = ({ initialBracket,
             matchType={event.match_type}
             scheduleMatchId={editingMatch.id}
             limitedParticipants={[editingMatch.player1, editingMatch.player2]}
+            participantIds={[editingMatch.participant1_id, editingMatch.participant2_id]}
             onSubmit={(matchData) => {
               console.log("Match reported:", matchData);
               handleMatchEditorSubmit(matchData);

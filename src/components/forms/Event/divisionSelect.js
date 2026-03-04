@@ -28,12 +28,12 @@ const DivisionSelect = ({
       
       // If participant was in a different division, remove them first
       if (currentDivisionId && currentDivisionId !== selectedDivisionId) {
-        await divisionAPI.removeDivisionPlayers(currentDivisionId, [participantId]);
+        await divisionAPI.removeDivisionParticipants(currentDivisionId, [participantId]);
       }
       
       // Add to new division
       if (selectedDivisionId !== '') {
-        await divisionAPI.addDivisionPlayers(selectedDivisionId, [participantId]);
+        await divisionAPI.addDivisionParticipants(selectedDivisionId, [participantId]);
       }
       
       // Notify parent component of successful assignment

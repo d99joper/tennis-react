@@ -10,6 +10,7 @@ import {
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { ProfileImage } from '../ProfileImage';
 import { AuthContext } from 'contexts/AuthContext';
+import { matchHelper } from 'helpers';
 
 // Helper function to parse and split scores
 const parseScore = (scoreString, playerNumber, winnerId, player1Id, player2Id) => {
@@ -98,16 +99,20 @@ const BracketMatch = ({
     );
   }
 
-  // Update how you determine the winner and call parseScore
+  // Doubles-aware winner detection:
+  // Extract real player IDs from each side (handles both singles & doubles entries)
+  const p1Ids = matchHelper.getPlayerIdsFromEntry(match.player1);
+  const p2Ids = matchHelper.getPlayerIdsFromEntry(match.player2);
+
   const winnerId = (match.winners && match.winners.length > 0) ? match.winners[0].id : 
                    match.winner_id || null;
-  const isPlayer1Winner = winnerId === match.player1?.id;
-  const isPlayer2Winner = winnerId === match.player2?.id;
+  const isPlayer1Winner = winnerId ? p1Ids.includes(winnerId) : false;
+  const isPlayer2Winner = winnerId ? p2Ids.includes(winnerId) : false;
 
   const player1Scores = parseScore(match.score, 1, winnerId, match.player1?.id, match.player2?.id);
   const player2Scores = parseScore(match.score, 2, winnerId, match.player1?.id, match.player2?.id);
-  const isPlayer1CurrentUser = user?.id && match.player1?.id === user.id;
-  const isPlayer2CurrentUser = user?.id && match.player2?.id === user.id;
+  const isPlayer1CurrentUser = user?.id && p1Ids.includes(user.id);
+  const isPlayer2CurrentUser = user?.id && p2Ids.includes(user.id);
   const isCurrentUserInMatch = isPlayer1CurrentUser || isPlayer2CurrentUser;
   // console.log("isCurrentUserInMatch:", isCurrentUserInMatch);
   // console.log("isself:", isSelfReported);
@@ -212,19 +217,7 @@ const BracketMatch = ({
             width: '100%',
           }}>
             {match.player1 && (
-              <ProfileImage 
-                player={match.player1} 
-                asLink={true} 
-                showName={true} 
-                size={30}
-                sx={{
-                  '& .MuiTypography-root': {
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }
-                }}
-              />
+              <ProfileImage player={match.player1} size={30} asLink showName />
             )}
             {match.seed1 && (
               <Typography
@@ -301,19 +294,7 @@ const BracketMatch = ({
             width: '100%',
           }}>
             {match.player2 && (
-              <ProfileImage 
-                player={match.player2} 
-                asLink={true} 
-                showName={true} 
-                size={30}
-                sx={{
-                  '& .MuiTypography-root': {
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }
-                }}
-              />
+              <ProfileImage player={match.player2} size={30} asLink showName />
             )}
             {match.seed2 && (
               <Typography

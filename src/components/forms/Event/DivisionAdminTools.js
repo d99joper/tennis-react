@@ -28,16 +28,17 @@ import EventRestrictions from '../League/restrictions';
 import InfoPopup from '../infoPopup';
 import { ProfileImage } from '../ProfileImage';
 import TeamDisplayName from '../Team/TeamDisplayName';
+import EventPaymentSettings from './EventPaymentSettings';
 
 const DivisionAdminTools = ({ event, division, setEvent }) => {
   const [selectedSection, setSelectedSection] = useState('divisionSettings');
   const [loading, setLoading] = useState(false);
-
+  console.log('Rendering DivisionAdminTools with division:', division);
   // Division settings state
   const [divisionName, setDivisionName] = useState(division?.name || '');
   const [divisionDescription, setDivisionDescription] = useState(division?.description || '');
-  const [divisionStartDate, setDivisionStartDate] = useState(division?.start_date || '');
-  const [divisionEndDate, setDivisionEndDate] = useState(division?.end_date || '');
+  const [divisionStartDate, setDivisionStartDate] = useState(division?.start_date || division?.content_object?.start_date || '');
+  const [divisionEndDate, setDivisionEndDate] = useState(division?.end_date || division?.content_object?.end_date || '');
 
   // Override settings state (from division.override_settings)
   const overrideSettings = division?.override_settings || {};
@@ -69,6 +70,18 @@ const DivisionAdminTools = ({ event, division, setEvent }) => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('info');
 
+  // Date validation (derived — no state needed)
+  const startDateError = divisionStartDate && divisionEndDate && divisionStartDate > divisionEndDate
+    ? 'Start date must be before the end date'
+    : null;
+  const endDateError = divisionStartDate && divisionEndDate && divisionEndDate < divisionStartDate
+    ? 'End date must be after the start date'
+    : null;
+  const regDateError = divisionRegistrationDate && divisionStartDate && divisionRegistrationDate > divisionStartDate
+    ? 'Registration open date must be before the start date'
+    : null;
+  const hasDateError = !!(startDateError || endDateError || regDateError);
+
   const showSnackbar = (message, severity = 'info') => {
     setSnackbarMessage(message);
     setSnackbarSeverity(severity);
@@ -85,8 +98,8 @@ const DivisionAdminTools = ({ event, division, setEvent }) => {
     if (division) {
       setDivisionName(division.name || '');
       setDivisionDescription(division.description || '');
-      setDivisionStartDate(division.start_date || '');
-      setDivisionEndDate(division.end_date || '');
+      setDivisionStartDate(division.start_date || division.content_object?.start_date || '');
+      setDivisionEndDate(division.end_date || division.content_object?.end_date || '');
       const os = division.override_settings || {};
       setDivisionRegistrationDate(os.registration_open_date || '');
       setDivisionIsOpenRegistration(
@@ -127,6 +140,10 @@ const DivisionAdminTools = ({ event, division, setEvent }) => {
 
   const handleUpdateDivisionSettings = async (newRestrictions = divisionRestrictions) => {
     if (!division) return;
+    if (hasDateError) {
+      showSnackbar('Please fix the date errors before saving', 'error');
+      return;
+    }
     try {
       setLoading(true);
       const data = {
@@ -169,7 +186,7 @@ const DivisionAdminTools = ({ event, division, setEvent }) => {
       onConfirm: async () => {
         try {
           setLoading(true);
-          await divisionAPI.addDivisionPlayers(division.id, [participant.id]);
+          await divisionAPI.addDivisionParticipants(division.id, [participant.id]);
           showSnackbar(`${participant.name} added to ${division.name}`, 'success');
           await fetchParticipants();
           // Refresh event to update division data
@@ -198,7 +215,7 @@ const DivisionAdminTools = ({ event, division, setEvent }) => {
       onConfirm: async () => {
         try {
           setLoading(true);
-          await divisionAPI.removeDivisionPlayers(division.id, [participant.id]);
+          await divisionAPI.removeDivisionParticipants(division.id, [participant.id]);
           showSnackbar(`${participant.name} removed from ${division.name}`, 'success');
           await fetchParticipants();
           // Refresh event to update division data
@@ -298,6 +315,12 @@ const DivisionAdminTools = ({ event, division, setEvent }) => {
               <ListItemText primary="Participants" />
             </ListItemButton>
           </ListItem>
+          <Divider />
+          <ListItem disablePadding>
+            <ListItemButton selected={selectedSection === 'divisionPayments'} onClick={() => setSelectedSection('divisionPayments')}>
+              <ListItemText primary="Payments" />
+            </ListItemButton>
+          </ListItem>
         </List>
       </Paper>
 
@@ -342,6 +365,9 @@ const DivisionAdminTools = ({ event, division, setEvent }) => {
               onChange={(e) => setDivisionStartDate(e.target.value)}
               fullWidth
               sx={{ mb: 2 }}
+              error={!!startDateError}
+              helperText={startDateError}
+              inputProps={{ max: divisionEndDate || undefined }}
             />
             <TextField
               label={
@@ -358,6 +384,9 @@ const DivisionAdminTools = ({ event, division, setEvent }) => {
               onChange={(e) => setDivisionEndDate(e.target.value)}
               fullWidth
               sx={{ mb: 2 }}
+              error={!!endDateError}
+              helperText={endDateError}
+              inputProps={{ min: divisionStartDate || undefined }}
             />
             <FormControlLabel
               control={
@@ -380,6 +409,9 @@ const DivisionAdminTools = ({ event, division, setEvent }) => {
                 onChange={(e) => setDivisionRegistrationDate(e.target.value)}
                 fullWidth
                 sx={{ mb: 2 }}
+                error={!!regDateError}
+                helperText={regDateError || 'Players can self-register from this date until the start date'}
+                inputProps={{ max: divisionStartDate || undefined }}
               />
             )}
             <FormControlLabel
@@ -400,7 +432,7 @@ const DivisionAdminTools = ({ event, division, setEvent }) => {
                 variant="contained"
                 color="primary"
                 onClick={() => handleUpdateDivisionSettings()}
-                disabled={loading}
+                disabled={loading || hasDateError}
               >
                 {loading ? <CircularProgress size={20} /> : 'Save Division Settings'}
               </Button>
@@ -547,6 +579,10 @@ const DivisionAdminTools = ({ event, division, setEvent }) => {
               </>
             )}
           </Box>
+        )}
+        {/* Division Payments */}
+        {selectedSection === 'divisionPayments' && (
+          <EventPaymentSettings event={event} division={division} />
         )}
       </Box>
     </Box>

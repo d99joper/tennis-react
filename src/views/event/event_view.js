@@ -42,6 +42,7 @@ const EventView = () => {
     if (!user?.id || !participants.length) return false;
     
     // Find participant records that include this user
+    //console.log("Participants for enrollment check:", participants);
     return participants.some(participant => {
       // Check if this participant includes the user (singles, doubles, or team)
       const isUserInParticipant = 
@@ -50,7 +51,7 @@ const EventView = () => {
       
       // Check if this participant is enrolled in the division
       const isInDivision = participant.divisions?.some(div => div.id === divisionId);
-      
+      //console.log(`Checking division ${divisionId} for participant ${participant.id}: isUserInParticipant=${isUserInParticipant}, isInDivision=${isInDivision}`);
       return isUserInParticipant && isInDivision;
     });
   };
@@ -66,7 +67,7 @@ const EventView = () => {
       // Fetch participants once at the top level with division information
       if (event.id) {
         try {
-          const res = await eventAPI.getParticipants(event.id, {include_divisions: true}, 0);
+          const res = await eventAPI.getParticipants(event.id, {include_divisions: true}, 1, 1000);
           setParticipants(res.data || []);
         } catch (err) {
           console.error('Error fetching participants:', err);
@@ -104,7 +105,7 @@ const EventView = () => {
 
       // If it's a league division, update league data
       if (division && division.type === 'league') {
-        console.log("Updating league data for division:", division);
+        //console.log("Updating league data for division:", division);
         setEvent(prevEvent => ({
           ...prevEvent,
           league_standings: division.content_object?.standings || [],
@@ -138,7 +139,7 @@ const EventView = () => {
       
       // Refresh participants when event is refreshed with division information
       if (updatedEvent.id) {
-        eventAPI.getParticipants(updatedEvent.id, {include_divisions: true}, 0)
+        eventAPI.getParticipants(updatedEvent.id, {include_divisions: true}, 1, 1000)
           .then(res => setParticipants(res.data || []))
           .catch(err => console.error('Error refreshing participants:', err));
       }

@@ -59,7 +59,7 @@ const StandingsView = ({ standings, winner, event_id, division_id, isAdmin = fal
   }
 
   const rankedStandings = standings.map((row, index) => ({ ...row, rank: index + 1 }));
-
+console.log("Ranked standings:", rankedStandings);
   return (
     <Box sx={{ padding: 2 }}>
       <ResponsiveDataLayout
@@ -89,12 +89,17 @@ const StandingsView = ({ standings, winner, event_id, division_id, isAdmin = fal
           ),
           //`${(row.rank===1 && row.id === winner?.id) ? <TennisTrophyIcon /> : ''} #${row.rank}`,
           (
-            <Link to={'/players/' + row.players[0].slug}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <ProfileImage player={row.players[0]} size={30} />
-                <Typography>{row.name}</Typography>
-              </Box>
-            </Link>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              {row.players.length === 1
+                ? <ProfileImage player={row.players[0]} size={30} asLink showName />
+                : row.players.map((p, i) => (
+                    <React.Fragment key={p.id}>
+                      {i > 0 && <Typography variant="body1" component="span">&amp;</Typography>}
+                      <ProfileImage player={p} size={30} showAvatar={false} asLink showName />
+                    </React.Fragment>
+                  ))
+              }
+            </Box>
           ),
           row.wins,
           row.losses,
@@ -143,7 +148,17 @@ const StandingsView = ({ standings, winner, event_id, division_id, isAdmin = fal
                     : <>#{row.rank}</>
                   }
                 </Typography>
-                <ProfileImage player={row.players[0]} size={30} asLink={true} showName={true} />
+                {row.players.length === 1
+                  ? <ProfileImage player={row.players[0]} size={30} asLink={true} showName={true} />
+                  : 
+                  row.players.map((p, i) => (
+                      <React.Fragment key={p.id}>
+                        {i > 0 && <Typography variant="body1" component="span" sx={{ mx: 0.25 }}>&amp;</Typography>}
+                        <ProfileImage player={p} size={30} />
+                        <Link to={'/players/' + p.slug}>{p.name}</Link>
+                      </React.Fragment>
+                    ))
+                }
               </Box>
             }
             {isSmall &&

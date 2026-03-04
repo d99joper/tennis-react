@@ -111,7 +111,12 @@ const NotificationsView = () => {
                 const items = Array.isArray(res.data) ? res.data
                   : Array.isArray(res.data?.results) ? res.data.results
                   : [];
-                setEventBillableItem(items[0] || null);
+                // Prefer the division-specific fee when the request targets a division
+                const divisionItem = merged.division_id
+                  ? items.find((i) => i.target_type === 'division' && i.target_id === merged.division_id)
+                  : null;
+                const eventItem = items.find((i) => i.target_type === 'event' || !i.target_type);
+                setEventBillableItem(divisionItem || eventItem || null);
               }
             });
           }
@@ -299,6 +304,15 @@ const NotificationsView = () => {
                           </Box>
                         </Link>
                       }
+                      {selectedNotification.type === 'join_request' && selectedNotification.division_name && (
+                        <Chip
+                          label={`Division: ${selectedNotification.division_name}`}
+                          size="small"
+                          color="primary"
+                          variant="outlined"
+                          sx={{ mt: 1 }}
+                        />
+                      )}
                     </Box>
                   )}
                   {selectedNotification.type === 'message' && isLoggedIn && (

@@ -158,7 +158,7 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
 
       // Add participants to division
       if (participantsToAdd.length > 0) {
-        await divisionAPI.addDivisionPlayers(selectedDivisionForAssignment, participantsToAdd);
+        await divisionAPI.assignDivisionParticipants(selectedDivisionForAssignment, participantsToAdd);
         // update the division's league standings if applicable
         const division = event.divisions.find(d => d.id === selectedDivisionForAssignment);
         if (division && division.type === 'league') {
@@ -168,7 +168,7 @@ const ParticipantsContent = ({ event, participants: propParticipants = null, inc
 
       // Remove participants from division
       if (participantsToRemove.length > 0) {
-        await divisionAPI.removeDivisionPlayers(selectedDivisionForAssignment, participantsToRemove);
+        await divisionAPI.removeDivisionParticipants(selectedDivisionForAssignment, participantsToRemove);
         // update the division's league standings if applicable
         const division = event.divisions.find(d => d.id === selectedDivisionForAssignment);
         if (division && division.type === 'league') {

@@ -1,6 +1,6 @@
 // Profile.js
 import React, { useState, useEffect, useContext, useMemo } from 'react'
-import { Box, LinearProgress, Typography, Modal, Card, Tab, CardContent, Tabs, CircularProgress } from '@mui/material'
+import { Box, LinearProgress, Typography, Modal, Card, Tab, CardContent, Tabs, CircularProgress, ToggleButtonGroup, ToggleButton } from '@mui/material'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { playerAPI } from 'api/services'
 import { AuthContext } from 'contexts/AuthContext'
@@ -68,6 +68,23 @@ const Profile = () => {
   
   const matchTabParam = searchParams.get('matchTab') || 'singles';
   const matchTabIndex = matchTabNameToIndex[matchTabParam] ?? 0;
+
+  // Match filter: all | event | friendly
+  const matchFilterParam = searchParams.get('matchFilter') || 'all';
+  const matchFilter = ['all', 'event', 'friendly'].includes(matchFilterParam) ? matchFilterParam : 'all';
+
+  const handleMatchFilterChange = (_, newFilter) => {
+    if (!newFilter) return; // prevent deselect
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (newFilter === 'all') {
+        next.delete('matchFilter');
+      } else {
+        next.set('matchFilter', newFilter);
+      }
+      return next;
+    }, { replace: true });
+  };
 
   useEffect(() => {
     async function fetchProfile() {
@@ -160,7 +177,7 @@ const Profile = () => {
           setRivalsFetched(true) // Set to true to prevent infinite retry
         })
     }
-  }, [tabIndex, player, rivalsPlayerId])
+  }, [tabIndex, player, rivalsPlayerId, rivalsFetched])
 
   const handleImageUpdate = async (e) => {
     try {
@@ -280,44 +297,52 @@ const Profile = () => {
             }
             {tabIndex === 1 &&
               <Box sx={{ padding: { xs: 1, sm: 2 } }}>
-                <Tabs
-                  value={matchTabIndex}
-                  onChange={(e, newValue) => {
-                    const matchTabName = indexToMatchTabName[newValue];
-                    if (matchTabName) {
-                      setSearchParams({ tab: 'matches', matchTab: matchTabName }, { replace: true });
-                    }
-                  }}
-                  sx={{ marginBottom: 2 }}
-                >
-                  <Tab label="Singles" />
-                  <Tab label="Doubles" />
-                </Tabs>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                  <Tabs
+                    value={matchTabIndex}
+                    onChange={(e, newValue) => {
+                      const matchTabName = indexToMatchTabName[newValue];
+                      if (matchTabName) {
+                        setSearchParams({ tab: 'matches', matchTab: matchTabName }, { replace: true });
+                      }
+                    }}
+                  >
+                    <Tab label="Singles" />
+                    <Tab label="Doubles" />
+                  </Tabs>
+                  <ToggleButtonGroup
+                    value={matchFilter}
+                    exclusive
+                    onChange={handleMatchFilterChange}
+                    size="small"
+                  >
+                    <ToggleButton value="all">All</ToggleButton>
+                    <ToggleButton value="event">Events</ToggleButton>
+                    <ToggleButton value="friendly">Friendly</ToggleButton>
+                  </ToggleButtonGroup>
+                </Box>
                 {matchTabIndex === 0 && (
                   <Matches
-                    key={`singles-${player.id}`}
+                    key={`singles-${player.id}-${matchFilter}`}
                     originId={player.id}
                     originType={'player'}
                     matchType={'singles'}
+                    matchFilter={matchFilter}
                     pageSize={10}
                     refresh={refreshIndex}
                     showAddMatch={true}
                     showComments={true}
                     showH2H={true}
                     callback={(matchdata) => { console.log('new match to profile', matchdata) }}
-                  // highlightedMatch={highLightedMatch}
-                  // refreshMatches={refreshMatchesCounter}
-                  //allowDelete={true}
-                  //showChallenge={true}
-                  //isLoggedIn={isLoggedIn}
                   />
                 )}
                 {matchTabIndex === 1 && (
                   <Matches
-                    key={`doubles-${player.id}`}
+                    key={`doubles-${player.id}-${matchFilter}`}
                     originId={player.id}
                     originType={'player'}
                     matchType={'doubles'}
+                    matchFilter={matchFilter}
                     pageSize={10}
                     showAddMatch={true}
                     showComments={true}

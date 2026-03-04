@@ -254,12 +254,29 @@ const EventAdminTools = ({ event, setEvent, division: selectedDivision }) => {
               if (newScope !== null) setAdminScope(newScope);
             }}
             size="small"
+            sx={{
+              '& .MuiToggleButton-root': {
+                borderColor: 'primary.main',
+                color: 'primary.main',
+                fontWeight: 500,
+                px: 2,
+              },
+              '& .MuiToggleButton-root.Mui-selected': {
+                bgcolor: 'primary.main !important',
+                color: 'primary.contrastText !important',
+                fontWeight: 700,
+                boxShadow: 2,
+              },
+              '& .MuiToggleButton-root.Mui-selected:hover': {
+                bgcolor: 'primary.dark !important',
+              },
+            }}
           >
             <ToggleButton value="event">
               Event Settings
             </ToggleButton>
             <ToggleButton value="division">
-              Division: {selectedDivision.name}
+              Division Override Settings: {selectedDivision.name}
             </ToggleButton>
           </ToggleButtonGroup>
         </Box>

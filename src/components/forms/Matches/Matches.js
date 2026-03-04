@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import {
   Box,
+  Chip,
   Pagination,
   CircularProgress,
   Typography,
@@ -12,6 +13,7 @@ import ResponsiveDataLayout from 'components/layout/Data/responsiveDataLayout';
 import { enums, userHelper as uh } from 'helpers';
 import { GiCrossedSwords, GiTennisCourt } from 'react-icons/gi';
 import { GoCommentDiscussion } from 'react-icons/go';
+import { MdEmojiEvents } from 'react-icons/md';
 import InfoPopup from '../infoPopup';
 import { useTheme } from '@emotion/react';
 import MyModal from 'components/layout/MyModal';
@@ -21,7 +23,7 @@ import MatchEditor from '../MatchEditor/MatchEditor';
 import useComponentWidth from 'helpers/useComponentWidth';
 import { ProfileImage } from '../ProfileImage';
 import MatchFilters from './MatchFilters';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 
 const Matches = ({
   originType,
@@ -36,6 +38,7 @@ const Matches = ({
   showComments = false,
   showAddMatch = false,
   refresh=0,
+  matchFilter = 'all', // 'all' | 'event' | 'friendly'
   callback,
 }) => {
   const [matchesCache, setMatchesCache] = useState({}); // Cache matches by page
@@ -86,6 +89,22 @@ const Matches = ({
   //console.log("Component width:", width, "sm breakpoint:", theme.breakpoints.values.sm);
 
   const isLargeScreen = width > 0 && width >= theme.breakpoints.values.sm;
+
+  // Client-side filter for event / friendly matches
+  const applyMatchFilter = useCallback((matches) => {
+    if (matchFilter === 'event') return matches.filter(m => m.event != null);
+    if (matchFilter === 'friendly') return matches.filter(m => m.event == null);
+    return matches;
+  }, [matchFilter]);
+
+  const filteredPagedMatches = useMemo(
+    () => applyMatchFilter(pagedMatches),
+    [pagedMatches, applyMatchFilter]
+  );
+  const filteredAllMatches = useMemo(
+    () => applyMatchFilter(allMatches),
+    [allMatches, applyMatchFilter]
+  );
 
   const observer = useRef(null);
 
@@ -225,11 +244,32 @@ const Matches = ({
           sx={{ marginBottom: 1 }}
         >
           {new Date(match.played_on).toISOString().split("T")[0]}
-
         </Typography>
         <Typography variant="body1" sx={{ fontWeight: "bold", fontSize: isMedium ? "1.2rem" : "1rem" }}>
           {uh.getPlayerNames(match.winners)} vs {uh.getPlayerNames(match.losers)}
         </Typography>
+        {match.event && (
+          <Box display="flex" alignItems="center" gap={0.5} sx={{ mt: 0.5 }}>
+            <MdEmojiEvents size={14} color="#8b6914" />
+            <Chip
+              label={match.event.name}
+              size="small"
+              variant="outlined"
+              component={Link}
+              to={`/events/${match.event.slug}`}
+              clickable
+              sx={{ height: 20, fontSize: '0.7rem' }}
+            />
+            {match.division && (
+              <Chip
+                label={match.division.name}
+                size="small"
+                variant="outlined"
+                sx={{ height: 20, fontSize: '0.7rem' }}
+              />
+            )}
+          </Box>
+        )}
       </Box>
     )
   };
@@ -285,8 +325,11 @@ const Matches = ({
         <Box sx={{ alignItems: 'flex-start', alignSelf: 'center', width: 'fit-content', display: 'flex', flexDirection: 'column' }}>
           {row.match_type?.toLowerCase() === enums.MATCH_TYPE.SINGLES.toLowerCase()
             ? <ProfileImage player={row.winners[0]} showName={true} asLink={originId !== row.winners[0].id} size={30} />
-            : row.winners.map(p => (
-              <ProfileImage player={p} showName={true} asLink={originId !== p.id} key={p.id} size={30} />
+            : row.winners.map((p, i) => (
+              <React.Fragment key={p.id}>
+                {i > 0 && <Typography variant="body2" component="span" sx={{ mx: 0.25 }}>&amp;</Typography>}
+                <ProfileImage player={p} showName={true} asLink={originId !== p.id} size={30} />
+              </React.Fragment>
             ))
           }
         </Box>
@@ -301,12 +344,41 @@ const Matches = ({
         <Box sx={{ alignItems: 'flex-start', alignSelf: 'center', width: 'fit-content', display: 'flex', flexDirection: 'column' }}>
           {row.match_type?.toLowerCase() === enums.MATCH_TYPE.SINGLES.toLowerCase()
             ? <ProfileImage player={row.losers[0]} showName={true} asLink={originId !== row.losers[0].id} size={30} />
-            : row.losers.map(p => (
-              <ProfileImage key={p.id} player={p} showName={true} asLink={originId !== p.id} size={30} />
+            : row.losers.map((p, i) => (
+              <React.Fragment key={p.id}>
+                {i > 0 && <Typography variant="body2" component="span" sx={{ mx: 0.25 }}>&amp;</Typography>}
+                <ProfileImage player={p} showName={true} asLink={originId !== p.id} size={30} />
+              </React.Fragment>
             ))
           }
         </Box></Box>,
-      row.score + (row.retired ? ' ret.' : ''),
+      <Box>
+        <Typography variant="body2" component="span">
+          {row.score}{row.retired ? ' ret.' : ''}
+        </Typography>
+        {row.event && (
+          <Box display="flex" alignItems="center" gap={0.5} sx={{ mt: 0.25 }}>
+            <MdEmojiEvents size={12} color="#8b6914" />
+            <Chip
+              label={row.event.name}
+              size="small"
+              variant="outlined"
+              component={Link}
+              to={`/events/${row.event.slug}`}
+              clickable
+              sx={{ height: 18, fontSize: '0.65rem' }}
+            />
+            {row.division && (
+              <Chip
+                label={row.division.name}
+                size="small"
+                variant="outlined"
+                sx={{ height: 18, fontSize: '0.65rem' }}
+              />
+            )}
+          </Box>
+        )}
+      </Box>,
       renderIconData(row)
     ]
   };
@@ -374,7 +446,7 @@ const Matches = ({
           { label: 'Score', key: 'score' },
           { label: '', key: 'actions' },
         ]}
-        rows={isLargeScreen ? pagedMatches : allMatches}
+        rows={isLargeScreen ? filteredPagedMatches : filteredAllMatches}
         rowKey={(match) => match.id}
         getRowData={getRowData}
         sortableColumns={['played_on']}
@@ -390,7 +462,7 @@ const Matches = ({
         </Box>
       )}
 
-      {!loading && allMatches.length === 0 && <Typography>No matches found.</Typography>}
+      {!loading && (isLargeScreen ? filteredPagedMatches : filteredAllMatches).length === 0 && <Typography>No matches found.</Typography>}
 
       {isLargeScreen && (
         <Pagination

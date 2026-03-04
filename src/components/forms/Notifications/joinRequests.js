@@ -5,7 +5,7 @@ import { AiOutlineClockCircle } from 'react-icons/ai'
 import requestAPI from 'api/services/request'
 import { Alert, Box, List, ListItem, Snackbar, Typography } from '@mui/material'
 import { AuthContext } from 'contexts/AuthContext'
-import { eventAPI, billableItemAPI, stripeAPI } from 'api/services'
+import { eventAPI, billableItemAPI, stripeAPI, divisionAPI } from 'api/services'
 import InfoPopup from '../infoPopup'
 import MyModal from 'components/layout/MyModal'
 import { Link } from 'react-router-dom'
@@ -16,7 +16,7 @@ import CheckoutForm from 'components/forms/Stripe/CheckoutForm'
 import { displayRefundPolicy } from 'helpers'
 
 const JoinRequest = ({ objectType, id, matchType, isMember,
-  memberText, isOpenRegistration = false, callback, restrictions, divisionId = null, ...props }) => {
+  memberText, isOpenRegistration = false, callback, restrictions, divisionId = null, divisionName = null, ...props }) => {
   const [status, setStatus] = useState('loading')
   const [error, setError] = useState(null)
   const [snackbarOpen, setSnackbarOpen] = useState(false)
@@ -77,7 +77,7 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
       try {
         const isEligible = await checkEligibility();
         if (isEligible) {
-          requestAPI.getRequestStatusForUser(id)
+          requestAPI.getRequestStatusForUser(id, divisionId)
             .then((status) => {
               console.log(status)
               setStatus(status.status)
@@ -100,7 +100,7 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
     if (isLoggedIn && user?.id) {
       setJoinRequest();
     }
-  }, [id, isLoggedIn, user, objectType])
+  }, [id, divisionId, isLoggedIn, user, objectType])
 
   useEffect(() => {
     const fetchBillableItems = async () => {
@@ -108,15 +108,21 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
       try {
         const res = await billableItemAPI.getEventBillableItems(id);
         if (res.success && res.data && res.data.length > 0) {
-          setBillableItem(res.data[0]);
+          const items = res.data;
+          // Prefer a division-specific fee when signed up for a division;
+          // fall back to the event-level fee.
+          const divisionItem = divisionId
+            ? items.find((i) => i.target_type === 'division' && i.target_id === divisionId)
+            : null;
+          const eventItem = items.find((i) => i.target_type === 'event' || !i.target_type);
+          setBillableItem(divisionItem || eventItem || null);
         }
       } catch (err) {
         console.warn('Failed to fetch billable items:', err);
-        // no billable items or error — treat as free event
       }
     };
     fetchBillableItems();
-  }, [id, objectType]);
+  }, [id, divisionId, objectType]);
 
   const handleSignUp = async (participant_type='player') => {
     setLoading(true)
@@ -130,7 +136,11 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
       if (divisionId) {
         participant.division_id = divisionId;
       }
-      const response = await eventAPI.addParticipant(id, participant)
+      let response
+      if (divisionId) {
+        response = await divisionAPI.addDivisionParticipants(divisionId, participant)
+      }
+      else response = await eventAPI.addParticipant(id, participant)
       if (!response || response.error) {
         throw new Error('Failed to sign up for event')
       }
@@ -191,7 +201,7 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
   const handleConfirmRequest = async () => {
     setLoading(true)
     try {
-      await requestAPI.createJoinRequest(objectType, id)
+      await requestAPI.createJoinRequest(objectType, id, divisionId)
       setStatus('pending')
       showSnackbar('Join request sent successfully!', 'success')
       handleCloseModal()
@@ -204,10 +214,19 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
   }
 
   const canRegisterDirectly = () => {
-    const today = new Date().getTime()
-    const startDate = new Date(`${props.startDate}T00:00:00Z`).getTime()
-    const registrationDate = new Date(`${props.registrationDate}T00:00:00Z`).getTime()
-    return isOpenRegistration && today < startDate && today > registrationDate
+    if (!isOpenRegistration) return false;
+    const today = new Date().getTime();
+    // If a start date is set, block registration once the event has started
+    if (props.startDate) {
+      const startDate = new Date(`${props.startDate}T00:00:00Z`).getTime();
+      if (!isNaN(startDate) && today >= startDate) return false;
+    }
+    // If a registration open date is set, block until that date has passed
+    if (props.registrationDate) {
+      const registrationDate = new Date(`${props.registrationDate}T00:00:00Z`).getTime();
+      if (!isNaN(registrationDate) && today < registrationDate) return false;
+    }
+    return true;
   }
 
   const isDirect = canRegisterDirectly()
@@ -374,15 +393,20 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
         // Free + open registration
         <Box sx={{ mb: 2 }}>
           <Typography>
-            You are about to sign up with partner <strong>{doublesPartner?.name}</strong>. Confirm to join.
+            {divisionName
+              ? <>You are about to sign up for <strong>{divisionName}</strong> with partner <strong>{doublesPartner?.name}</strong>. Confirm to join.</>
+              : <>You are about to sign up with partner <strong>{doublesPartner?.name}</strong>. Confirm to join.</>
+            }
           </Typography>
         </Box>
       ) : (
         // Free + approval required
         <Box sx={{ mb: 2 }}>
           <Typography>
-            You are about to request to join with partner <strong>{doublesPartner?.name}</strong>.
-            Your request will be sent to the organizer for review.
+            {divisionName
+              ? <>You are about to request to join <strong>{divisionName}</strong> with partner <strong>{doublesPartner?.name}</strong>. Your request will be sent to the organizer for review.</>
+              : <>You are about to request to join with partner <strong>{doublesPartner?.name}</strong>. Your request will be sent to the organizer for review.</>
+            }
           </Typography>
         </Box>
       ),
@@ -418,7 +442,10 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
       {!isPaidEvent && isDirect && (
         <>
           <Typography gutterBottom>
-            You are about to sign up for this event. Confirm to join.
+            {divisionName
+              ? <>You are about to sign up for <strong>{divisionName}</strong>. Confirm to join.</>
+              : <>You are about to sign up for this event. Confirm to join.</>
+            }
           </Typography>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
             <Button variant="outlined" onClick={handleCloseModal}>Cancel</Button>
@@ -433,8 +460,10 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
       {!isPaidEvent && !isDirect && (
         <>
           <Typography gutterBottom>
-            This event requires organizer approval. Your request will be sent for review — you'll
-            be notified once approved.
+            {divisionName
+              ? <>This division requires organizer approval. Your request to join <strong>{divisionName}</strong> will be sent for review — you'll be notified once approved.</>
+              : <>This event requires organizer approval. Your request will be sent for review — you'll be notified once approved.</>
+            }
           </Typography>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
             <Button variant="outlined" onClick={handleCloseModal}>Cancel</Button>
@@ -484,7 +513,10 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
       {isPaidEvent && !isDirect && (
         <>
           <Typography gutterBottom>
-            This event requires organizer approval before payment is collected.
+            {divisionName
+              ? <>This division (<strong>{divisionName}</strong>) requires organizer approval before payment is collected.</>
+              : <>This event requires organizer approval before payment is collected.</>
+            }
           </Typography>
           <Typography variant="subtitle1" gutterBottom fontWeight={600}>
             Entry Fee: ${parseFloat(billableItem.amount).toFixed(2)}
@@ -625,7 +657,7 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
         </Alert>
       </Snackbar>
 
-      <MyModal showHide={showModal} onClose={handleCloseModal} title="Confirm Signing up">
+      <MyModal showHide={showModal} onClose={handleCloseModal} title={divisionName ? `Sign Up: ${divisionName}` : 'Confirm Signing up'}>
         {modalType === 'doubles' && doublesModalContent}
         {modalType === 'single' && ConfirmModalContent}
       </MyModal>

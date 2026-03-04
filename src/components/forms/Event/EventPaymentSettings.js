@@ -11,7 +11,7 @@ import { useSnackbar } from 'contexts/snackbarContext';
 import { displayRefundPolicy } from 'helpers';
 import RefundPolicySelect from 'components/forms/Stripe/RefundPolicySelect';
 
-const EventPaymentSettings = ({ event }) => {
+const EventPaymentSettings = ({ event, division = null }) => {
   const theme = useTheme();
   const { showSnackbar } = useSnackbar();
 
@@ -28,6 +28,7 @@ const EventPaymentSettings = ({ event }) => {
   const [refundPolicy, setRefundPolicy] = useState('');
 
   const clubId = event?.club?.id;
+  const isDivisionScope = !!division;
 
   useEffect(() => {
     if (!clubId) { setStripeLoading(false); return; }
@@ -39,6 +40,10 @@ const EventPaymentSettings = ({ event }) => {
 
   useEffect(() => {
     if (!event?.id) { setItemLoading(false); return; }
+    // Reset form when scope changes
+    setBillableItem(null);
+    setName(''); setAmount(''); setDescription(''); setRefundPolicy('');
+    setItemLoading(true);
     billableItemAPI.getEventBillableItems(event.id).then((res) => {
       if (res.success) {
         const raw = res.data;
@@ -49,7 +54,10 @@ const EventPaymentSettings = ({ event }) => {
             : Array.isArray(raw?.data)
               ? raw.data
               : [];
-        const item = items[0] || null;
+        // Filter to the right scope: division-level or event-level
+        const item = isDivisionScope
+          ? items.find((i) => i.target_type === 'division' && i.target_id === division.id) || null
+          : items.find((i) => i.target_type === 'event' || !i.target_type) || null;
         setBillableItem(item);
         if (item) {
           setName(item.name || '');
@@ -60,7 +68,7 @@ const EventPaymentSettings = ({ event }) => {
       }
       setItemLoading(false);
     });
-  }, [event?.id]);
+  }, [event?.id, division?.id, isDivisionScope]);
 
   const stripeConnected = stripeStatus?.is_active && stripeStatus?.details_submitted;
 
@@ -72,11 +80,12 @@ const EventPaymentSettings = ({ event }) => {
     setSaving(true);
     try {
       const data = {
-        name: name || 'Entry Fee',
+        name: name || (isDivisionScope ? `${division.name} Entry Fee` : 'Entry Fee'),
         amount: parseFloat(amount),
         description,
         refund_policy: refundPolicy,
         event_id: event.id,
+        ...(isDivisionScope && { division_id: division.id }),
       };
       const res = billableItem?.id
         ? await billableItemAPI.updateBillableItem(billableItem.id, data)
@@ -123,7 +132,15 @@ const EventPaymentSettings = ({ event }) => {
 
   return (
     <Box sx={{ ...flexColumn, gap: theme.spacing(3) }}>
-      <Typography variant="h6">Payment Settings</Typography>
+      <Typography variant="h6">
+        {isDivisionScope ? `Payment Settings — ${division.name}` : 'Payment Settings'}
+      </Typography>
+      {isDivisionScope && (
+        <Alert severity="info" sx={{ py: 0.5 }}>
+          A division fee overrides the event-level fee for players joining this division.
+          If no division fee is set, the event-level fee applies.
+        </Alert>
+      )}
 
       {/* Stripe account status row */}
       <Box sx={{ ...flexRow, alignItems: 'center', gap: theme.spacing(1), flexWrap: 'wrap' }}>
@@ -175,7 +192,9 @@ const EventPaymentSettings = ({ event }) => {
         </Box>
       ) : (
         <Typography variant="body2" color="text.secondary">
-          No entry fee set — this event is free to join.
+          {isDivisionScope
+            ? 'No division fee set — the event-level fee applies (or free if none).'
+            : 'No entry fee set — this event is free to join.'}
         </Typography>
       )}
 

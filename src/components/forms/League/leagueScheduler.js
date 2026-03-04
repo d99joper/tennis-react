@@ -11,7 +11,6 @@ import {
   TextField,
   Paper,
   Autocomplete,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -63,7 +62,7 @@ const LeagueScheduler = ({ event, division, schedule, onSave }) => {
       }
     };
     fetchParticipants();
-  }, [event?.id, division?.id]);
+  }, [event?.id, division?.id, division]);
 
   useEffect(() => {
     if (Array.isArray(schedule)) {

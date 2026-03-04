@@ -25,7 +25,17 @@ addDivision: async function (event_id, division_name, division_type, match_type)
       throw new Error(response.status + ': Failed to fetchWithRetry division participants')
   },
 
-  addDivisionPlayers: async function (division_id, participant_ids) {
+  addDivisionParticipants: async function (division_id, participant) {
+    const requestOptions = authAPI.getRequestOptions('POST', { participant: participant });
+    const response = await fetch(`${divisionsUrl}${division_id}/participants/add`, requestOptions) 
+    if (response.ok) {
+      return await response.json()
+    } else {
+      throw new Error(response.status + ': Failed to add participants to division')
+    }
+  },
+
+  assignDivisionParticipants: async function (division_id, participant_ids) {
     const requestOptions = authAPI.getRequestOptions('POST', { participant_ids: participant_ids });
     const response = await fetch(`${divisionsUrl}${division_id}/assign-participants`, requestOptions) 
     if (response.ok) {
@@ -34,7 +44,8 @@ addDivision: async function (event_id, division_name, division_type, match_type)
       throw new Error(response.status + ': Failed to add participants to division')
     }
   },
-  removeDivisionPlayers: async function (division_id, participant_ids) {
+
+  removeDivisionParticipants: async function (division_id, participant_ids) {
     const requestOptions = authAPI.getRequestOptions('DELETE', { participant_ids: participant_ids });
     const response = await fetch(`${divisionsUrl}${division_id}/remove-participants`, requestOptions)    
 
@@ -46,7 +57,7 @@ addDivision: async function (event_id, division_name, division_type, match_type)
   },
 
   updateDivision: async function (division_id, data) {
-    const requestOptions = authAPI.getRequestOptions('PUT', data);
+    const requestOptions = authAPI.getRequestOptions('PATCH', data);
     const response = await fetch(`${divisionsUrl}${division_id}/update`, requestOptions)
     if (response.ok) {
       return await response.json()

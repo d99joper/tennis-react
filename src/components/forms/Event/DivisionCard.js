@@ -1,48 +1,48 @@
 import React from 'react';
 import { Card, CardContent, Typography, Button, Box, Chip, Tooltip } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { FaUsers, FaTrophy, FaMale, FaFemale, FaStar, FaCalendar, FaBuilding, FaHome } from 'react-icons/fa';
+import { FaUsers, FaTrophy, FaMale, FaFemale, FaStar, FaCalendar } from 'react-icons/fa';
 import { MdAccessTime } from 'react-icons/md';
 import JoinRequest from '../Notifications/joinRequests';
 
 const CARD_DESCRIPTION_MAX_LENGTH = 100;
 
-const DivisionCard = ({ 
-  division, 
-  event, 
+const DivisionCard = ({
+  division,
+  event,
   isSelected = false,
   isEnrolled = false,
   onClick,
   onSignUpSuccess,
-  userMeetsRequirements = true 
+  userMeetsRequirements = true
 }) => {
   const theme = useTheme();
-  
+
   // Calculate spots info
   const maxParticipants = division.content_object?.max_participants || 0;
   const currentParticipants = division.participant_count || 0;
   const spotsLeft = maxParticipants - currentParticipants;
   const isFull = maxParticipants > 0 && currentParticipants >= maxParticipants;
   const fillPercentage = maxParticipants > 0 ? (currentParticipants / maxParticipants) * 100 : 0;
-  
+
   // Division override settings
   const overrideSettings = division.override_settings || {};
-  
+
   // Check if registration is closed (event has started)
   const startDate = division.start_date || division.content_object?.start_date || event.start_date;
   const hasStarted = startDate && new Date(startDate) < new Date();
 
   // Determine card state - use division override for open registration if available
-  const isOpenRegistration = overrideSettings.is_open_registration !== undefined 
-    ? overrideSettings.is_open_registration 
+  const isOpenRegistration = overrideSettings.is_open_registration !== undefined
+    ? overrideSettings.is_open_registration
     : event.is_open_registration;
   const canSignUp = userMeetsRequirements && !isFull && !hasStarted && isOpenRegistration;
-  
+
   // Get restriction display - division override_settings.restrictions take priority
   const restrictions = overrideSettings.restrictions && Object.keys(overrideSettings.restrictions).length > 0
     ? overrideSettings.restrictions
     : (division.restrictions || event.restrictions || {});
-  
+
   return (
     <Card
       sx={{
@@ -51,14 +51,14 @@ const DivisionCard = ({
         display: 'flex',
         flexDirection: 'column',
         border: 2,
-        borderColor: isSelected 
-          ? 'primary.main' 
-          : isEnrolled 
-            ? 'success.main' 
+        borderColor: isSelected
+          ? 'primary.main'
+          : isEnrolled
+            ? 'success.main'
             : 'divider',
-        bgcolor: isSelected 
-          ? theme.palette.primary.light 
-          : isEnrolled 
+        bgcolor: isSelected
+          ? theme.palette.primary.light
+          : isEnrolled
             ? `${theme.palette.success.main}20` // 20% opacity green
             : 'background.paper',
         cursor: 'pointer',
@@ -116,11 +116,11 @@ const DivisionCard = ({
         </Box>
       </Box>
 
-      <CardContent sx={{ 
-        flexGrow: 1, 
-        display: 'flex', 
-        flexDirection: 'column', 
-        gap: 1.5, 
+      <CardContent sx={{
+        flexGrow: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 1.5,
         pt: 3,
         minHeight: 0 // Allow content to shrink
       }}>
@@ -133,15 +133,15 @@ const DivisionCard = ({
         {division.description && (
           <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
             {division.description.length > CARD_DESCRIPTION_MAX_LENGTH
-              ? division.description.substring(0, CARD_DESCRIPTION_MAX_LENGTH) + '...' 
+              ? division.description.substring(0, CARD_DESCRIPTION_MAX_LENGTH) + '...'
               : division.description}
           </Typography>
         )}
 
         {/* Type badge */}
         <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-          <Chip 
-            label={division.type} 
+          <Chip
+            label={division.type}
             size="small"
             sx={{
               textTransform: 'capitalize',
@@ -150,8 +150,8 @@ const DivisionCard = ({
             }}
           />
           {(division.content_object?.match_type || event.match_type) && (
-            <Chip 
-              label={division.content_object?.match_type || event.match_type} 
+            <Chip
+              label={division.content_object?.match_type || event.match_type}
               size="small"
               sx={{
                 textTransform: 'capitalize',
@@ -200,8 +200,8 @@ const DivisionCard = ({
             <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
               {restrictions.rating && (
                 <Tooltip title={`NTRP ${restrictions.rating.value}+`}>
-                  <Chip 
-                    icon={<FaStar size={12} />} 
+                  <Chip
+                    icon={<FaStar size={12} />}
                     label={`${restrictions.rating.value}+`}
                     size="small"
                     variant="outlined"
@@ -210,7 +210,7 @@ const DivisionCard = ({
               )}
               {restrictions.gender && (
                 <Tooltip title={restrictions.gender.value === 'male' ? 'Men only' : restrictions.gender.value === 'female' ? 'Women only' : 'Mixed'}>
-                  <Chip 
+                  <Chip
                     icon={restrictions.gender.value === 'male' ? <FaMale size={12} /> : restrictions.gender.value === 'female' ? <FaFemale size={12} /> : <FaUsers size={12} />}
                     label={restrictions.gender.value === 'male' ? 'Men' : restrictions.gender.value === 'female' ? 'Women' : 'Mixed'}
                     size="small"
@@ -231,15 +231,15 @@ const DivisionCard = ({
               {restrictions.age && (
                 <Tooltip title={
                   restrictions.age.type === 'over' ? `${restrictions.age.min}+ years` :
-                  restrictions.age.type === 'under' ? `Under ${restrictions.age.max} years` :
-                  `${restrictions.age.min}-${restrictions.age.max} years`
+                    restrictions.age.type === 'under' ? `Under ${restrictions.age.max} years` :
+                      `${restrictions.age.min}-${restrictions.age.max} years`
                 }>
-                  <Chip 
+                  <Chip
                     icon={<FaCalendar size={12} />}
                     label={
                       restrictions.age.type === 'over' ? `${restrictions.age.min}+` :
-                      restrictions.age.type === 'under' ? `<${restrictions.age.max}` :
-                      `${restrictions.age.min}-${restrictions.age.max}`
+                        restrictions.age.type === 'under' ? `<${restrictions.age.max}` :
+                          `${restrictions.age.min}-${restrictions.age.max}`
                     }
                     size="small"
                     variant="outlined"
@@ -277,24 +277,27 @@ const DivisionCard = ({
               {isSelected ? 'Viewing' : 'View Details'}
             </Button>
           </Box>
-          <Box 
-            sx={{ flex: 1, '& > *': { width: '100%' } }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <JoinRequest
-              objectType="event"
-              id={event.id}
-              matchType={division.content_object?.match_type || event.match_type}
-              isMember={isEnrolled}
-              memberText="Enrolled"
-              isOpenRegistration={isOpenRegistration}
-              callback={onSignUpSuccess}
-              restrictions={restrictions}
-              divisionId={division.id}
-              startDate={startDate}
-              registrationDate={overrideSettings.registration_open_date || division.content_object?.registration_date || event.registration_date}
-            />
-          </Box>
+          {canSignUp && (
+            <Box
+              sx={{ flex: 1, '& > *': { width: '100%' } }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <JoinRequest
+                objectType="event"
+                id={event.id}
+                matchType={division.content_object?.match_type || event.match_type}
+                isMember={isEnrolled}
+                memberText="Enrolled"
+                isOpenRegistration={isOpenRegistration}
+                callback={onSignUpSuccess}
+                restrictions={restrictions}
+                divisionId={division.id}
+                divisionName={division.name}
+                startDate={startDate}
+                registrationDate={overrideSettings.registration_open_date || division.content_object?.registration_date || event.registration_date}
+              />
+            </Box>
+          )}
         </Box>
       </CardContent>
     </Card>
