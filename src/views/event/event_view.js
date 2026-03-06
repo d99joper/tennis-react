@@ -96,7 +96,10 @@ const EventView = () => {
           division = event.divisions[division_index];
         }
       }
-      // If division_num is null or invalid, leave division as null (blank selection)
+      // If division_num is null or invalid, default to the first division
+      if (division === null && event.divisions.length > 0) {
+        division = event.divisions[0];
+      }
 
       //console.log("Setting initial/updated division:", division);
 
@@ -192,14 +195,7 @@ const EventView = () => {
           isOpenRegistration={event.is_open_registration}
           startDate={event.start_date}
           registrationDate={event.registration_open_date}
-          callback={async () => {
-            const updatedEvent = await eventAPI.getEvent(id);
-            if (updatedEvent && !updatedEvent.statusCode) {
-              setEvent(updatedEvent);
-            } else {
-              console.error(event.statusMessage);
-            }
-          }}
+          callback={fetchEvent}
         />
       )}
 
@@ -299,6 +295,10 @@ const EventView = () => {
                 navigate(`?${newSearchParams.toString()}`, { replace: true });
               }}
               onSignUpSuccess={() => {
+                setSelectedDivision(division);
+                const newSearchParams = new URLSearchParams(searchParams);
+                newSearchParams.set('division', index.toString());
+                navigate(`?${newSearchParams.toString()}`, { replace: true });
                 fetchEvent();
               }}
               userMeetsRequirements={true} // TODO: Implement actual restriction checking

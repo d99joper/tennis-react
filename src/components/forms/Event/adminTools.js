@@ -623,7 +623,7 @@ const EventAdminTools = ({ event, setEvent, division: selectedDivision }) => {
               sx={{ mb: 2 }}
             >
               <MenuItem value="singles">Singles</MenuItem>
-              <MenuItem disabled value="doubles">Doubles</MenuItem>
+              <MenuItem value="doubles">Doubles</MenuItem>
             </TextField>
             <Button
               variant="contained"

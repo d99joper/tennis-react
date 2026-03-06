@@ -22,6 +22,7 @@ export default function Wizard({
   steps,
   handleSubmit,
   submitText = 'Submit',
+  hideSubmit = false,
   showCompleteStep = false,
   showLastStepMeta = false,
   sx = null,
@@ -99,12 +100,13 @@ export default function Wizard({
                   loading ? (
                   <CircularProgress size={30} /> // Show spinner while loading
                 ) : (
-                  <Button variant="contained"
-                    onClick={async () => await handleNext(index)}
-
-                    disabled={loading}>
-                    {index === steps.length - 1 ? submitText : "Continue"}
-                  </Button>
+                  !(index === steps.length - 1 && hideSubmit) && (
+                    <Button variant="contained"
+                      onClick={async () => await handleNext(index)}
+                      disabled={loading}>
+                      {index === steps.length - 1 ? submitText : "Continue"}
+                    </Button>
+                  )
                 )
                 }
                 {activeStep !== 0 && (

@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import {
   Box,
-  Chip,
   Pagination,
   CircularProgress,
   Typography,
@@ -13,7 +12,6 @@ import ResponsiveDataLayout from 'components/layout/Data/responsiveDataLayout';
 import { enums, userHelper as uh } from 'helpers';
 import { GiCrossedSwords, GiTennisCourt } from 'react-icons/gi';
 import { GoCommentDiscussion } from 'react-icons/go';
-import { MdEmojiEvents } from 'react-icons/md';
 import InfoPopup from '../infoPopup';
 import { useTheme } from '@emotion/react';
 import MyModal from 'components/layout/MyModal';
@@ -23,7 +21,8 @@ import MatchEditor from '../MatchEditor/MatchEditor';
 import useComponentWidth from 'helpers/useComponentWidth';
 import { ProfileImage } from '../ProfileImage';
 import MatchFilters from './MatchFilters';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
+import MatchEventChips from './MatchEventChips';
 
 const Matches = ({
   originType,
@@ -248,28 +247,7 @@ const Matches = ({
         <Typography variant="body1" sx={{ fontWeight: "bold", fontSize: isMedium ? "1.2rem" : "1rem" }}>
           {uh.getPlayerNames(match.winners)} vs {uh.getPlayerNames(match.losers)}
         </Typography>
-        {match.event && (
-          <Box display="flex" alignItems="center" gap={0.5} sx={{ mt: 0.5 }}>
-            <MdEmojiEvents size={14} color="#8b6914" />
-            <Chip
-              label={match.event.name}
-              size="small"
-              variant="outlined"
-              component={Link}
-              to={`/events/${match.event.slug}`}
-              clickable
-              sx={{ height: 20, fontSize: '0.7rem' }}
-            />
-            {match.division && (
-              <Chip
-                label={match.division.name}
-                size="small"
-                variant="outlined"
-                sx={{ height: 20, fontSize: '0.7rem' }}
-              />
-            )}
-          </Box>
-        )}
+        <MatchEventChips event={match.event} division={match.division} />
       </Box>
     )
   };
@@ -356,28 +334,7 @@ const Matches = ({
         <Typography variant="body2" component="span">
           {row.score}{row.retired ? ' ret.' : ''}
         </Typography>
-        {row.event && (
-          <Box display="flex" alignItems="center" gap={0.5} sx={{ mt: 0.25 }}>
-            <MdEmojiEvents size={12} color="#8b6914" />
-            <Chip
-              label={row.event.name}
-              size="small"
-              variant="outlined"
-              component={Link}
-              to={`/events/${row.event.slug}`}
-              clickable
-              sx={{ height: 18, fontSize: '0.65rem' }}
-            />
-            {row.division && (
-              <Chip
-                label={row.division.name}
-                size="small"
-                variant="outlined"
-                sx={{ height: 18, fontSize: '0.65rem' }}
-              />
-            )}
-          </Box>
-        )}
+        <MatchEventChips event={row.event} division={row.division} showIcon={false} size="small" mt={0.25} />
       </Box>,
       renderIconData(row)
     ]

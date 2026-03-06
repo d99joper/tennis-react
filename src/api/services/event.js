@@ -78,10 +78,13 @@ const eventAPI = {
       return { error: 'Failed to reset winner' }
   },
 
-  checkRequirements: async function (event_id, player_id) {
+  checkRequirements: async function (event_id, player_id, division_id = null) {
     const requestOptions = authAPI.getRequestOptions('GET')
 
-    const response = await fetchWithRetry(`${eventsUrl}check-restrictions/${event_id}/${player_id}`, requestOptions)
+    const url = division_id
+      ? `${eventsUrl}check-restrictions/${event_id}/${player_id}?division_id=${division_id}`
+      : `${eventsUrl}check-restrictions/${event_id}/${player_id}`
+    const response = await fetchWithRetry(url, requestOptions)
     if (response.ok) {
       const data = await response.json()
       return data

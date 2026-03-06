@@ -25,7 +25,7 @@ const EventPaymentSettings = ({ event, division = null }) => {
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
-  const [refundPolicy, setRefundPolicy] = useState('');
+  const [refundPolicy, setRefundPolicy] = useState('no_refunds');
 
   const clubId = event?.club?.id;
   const isDivisionScope = !!division;
@@ -42,7 +42,7 @@ const EventPaymentSettings = ({ event, division = null }) => {
     if (!event?.id) { setItemLoading(false); return; }
     // Reset form when scope changes
     setBillableItem(null);
-    setName(''); setAmount(''); setDescription(''); setRefundPolicy('');
+    setName(''); setAmount(''); setDescription(''); setRefundPolicy('no_refunds');
     setItemLoading(true);
     billableItemAPI.getEventBillableItems(event.id).then((res) => {
       if (res.success) {
@@ -63,7 +63,7 @@ const EventPaymentSettings = ({ event, division = null }) => {
           setName(item.name || '');
           setAmount(item.amount ?? '');
           setDescription(item.description || '');
-          setRefundPolicy(item.refund_policy || '');
+          setRefundPolicy(item.refund_policy || 'no_refunds');
         }
       }
       setItemLoading(false);
@@ -97,7 +97,7 @@ const EventPaymentSettings = ({ event, division = null }) => {
         setName(saved.name || '');
         setAmount(saved.amount ?? '');
         setDescription(saved.description || '');
-        setRefundPolicy(saved.refund_policy || '');
+        setRefundPolicy(saved.refund_policy || 'no_refunds');
         showSnackbar('Entry fee saved', 'success');
       } else {
         showSnackbar(res.data?.error || 'Failed to save entry fee', 'error');
@@ -116,7 +116,7 @@ const EventPaymentSettings = ({ event, division = null }) => {
       const res = await billableItemAPI.deleteBillableItem(billableItem.id);
       if (res.success) {
         setBillableItem(null);
-        setName(''); setAmount(''); setDescription(''); setRefundPolicy('');
+        setName(''); setAmount(''); setDescription(''); setRefundPolicy('no_refunds');
         showSnackbar('Entry fee removed', 'success');
       } else {
         showSnackbar('Failed to remove entry fee', 'error');
@@ -214,6 +214,7 @@ const EventPaymentSettings = ({ event, division = null }) => {
           label="Price ($)" type="number"
           slotProps={{ htmlInput: { min: 0, step: 0.01 } }}
           value={amount} onChange={(e) => setAmount(e.target.value)}
+          onWheel={(e) => e.target.blur()}
           disabled={!stripeConnected || saving} size="small" fullWidth
         />
         <TextField

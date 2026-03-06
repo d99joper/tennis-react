@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Box, Card, Chip, Divider, Typography, CardActions, Button } from "@mui/material";
+import { Box, Card, Divider, Typography, CardActions, Button } from "@mui/material";
 import { AiOutlineComment } from "react-icons/ai";
-import { MdEmojiEvents } from "react-icons/md";
 import { Link } from "react-router-dom";
+import MatchEventChips from '../Matches/MatchEventChips';
 import MyModal from "components/layout/MyModal";
 import { Comments } from "../Comments/Comments";
 import { H2H } from "..";
@@ -22,35 +22,6 @@ const PlayerNames = ({ players, variant = "body2", fontWeight, noWrap = false })
     ))}
   </Typography>
 );
-
-/** Show event + division badges when the match belongs to an event */
-const EventBadge = ({ match }) => {
-  const { isEventMatch } = getMatchContext(match);
-  if (!isEventMatch) return null;
-
-  return (
-    <Box display="flex" alignItems="center" gap={0.5} sx={{ mt: 0.5 }}>
-      <MdEmojiEvents size={14} color="#8b6914" />
-      <Chip
-        label={match.event.name}
-        size="small"
-        variant="outlined"
-        component={Link}
-        to={`/events/${match.event.slug}`}
-        clickable
-        sx={{ height: 20, fontSize: '0.7rem' }}
-      />
-      {match.division && (
-        <Chip
-          label={match.division.name}
-          size="small"
-          variant="outlined"
-          sx={{ height: 20, fontSize: '0.7rem' }}
-        />
-      )}
-    </Box>
-  );
-};
 
 /** Show participant label when it adds value (pair / team — not solo player) */
 const ParticipantLabel = ({ match }) => {
@@ -121,7 +92,7 @@ const Match = ({ match, showH2H = false, color, variant }) => {
         </Box>
 
         {/* Event badge & participant label */}
-        <EventBadge match={match} />
+        <MatchEventChips event={match.event} division={match.division} />
         <ParticipantLabel match={match} />
       </Box>
     );
@@ -163,7 +134,7 @@ const Match = ({ match, showH2H = false, color, variant }) => {
 
       {/* Event badge & participant label */}
       <Box sx={{ mt: 1 }}>
-        <EventBadge match={match} />
+        <MatchEventChips event={match.event} division={match.division} />
         <ParticipantLabel match={match} />
       </Box>
 

@@ -8,7 +8,7 @@ import { useNotificationsContext } from 'contexts/NotificationContext';
 import { Link } from 'react-router-dom';
 import notificationAPI from 'api/services/notifications';
 import requestAPI from 'api/services/request';
-import { stripeAPI, billableItemAPI } from 'api/services';
+import { stripeAPI, billableItemAPI, eventAPI, divisionAPI } from 'api/services';
 import { ProfileImage } from 'components/forms';
 import { useSnackbar } from 'contexts/snackbarContext';
 import { Helmet } from 'react-helmet-async';
@@ -304,6 +304,16 @@ const NotificationsView = () => {
                           </Box>
                         </Link>
                       }
+                      {selectedNotification.type === 'join_request' && selectedNotification.metadata?.partner && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5, ml: 0.5 }}>
+                          <Typography variant="body2" color="text.secondary">Partner:</Typography>
+                          <Link to={'/players/' + selectedNotification.metadata.partner.slug} target='_blank'>
+                            <Typography variant="body2" fontWeight={600}>
+                              {selectedNotification.metadata.partner.name}
+                            </Typography>
+                          </Link>
+                        </Box>
+                      )}
                       {selectedNotification.type === 'join_request' && selectedNotification.division_name && (
                         <Chip
                           label={`Division: ${selectedNotification.division_name}`}
@@ -346,7 +356,7 @@ const NotificationsView = () => {
                         </Typography>
                       )}
                       <Typography variant="caption" color="text.secondary">
-                        Upon approval, the player will be notified to complete payment to confirm their spot.
+                        Upon approval, the {selectedNotification?.metadata?.partner ? 'pair' : 'player'} will be notified to complete payment to confirm their spot.
                       </Typography>
                     </Alert>
                   )}
@@ -444,10 +454,30 @@ const NotificationsView = () => {
                         >
                           <CheckoutForm
                             returnUrl={`${window.location.origin}/notifications`}
-                            onSuccess={() => {
+                            onSuccess={async () => {
                               const updated = { ...selectedNotification, status: 'paid' };
                               updateNotification(updated);
                               setSelectedNotification(updated);
+                              // Add participant to the event now that payment is complete.
+                              // Pass participant_id from metadata so the backend links the
+                              // pre-created Participant entity (doubles pair / team) rather
+                              // than creating a new one.
+                              try {
+                                const eventId = eventBillableItem?.event?.id;
+                                const participantId = selectedNotification.metadata?.participant_id ?? null;
+                                if (eventId) {
+                                  const participant = { type: 'player', id: user.id };
+                                  if (participantId) participant.participant_id = participantId;
+                                  if (selectedNotification.division_id) {
+                                    participant.division_id = selectedNotification.division_id;
+                                    await divisionAPI.addDivisionParticipants(selectedNotification.division_id, participant);
+                                  } else {
+                                    await eventAPI.addParticipant(eventId, participant);
+                                  }
+                                }
+                              } catch (err) {
+                                showSnackbar('Payment received, but failed to add you to the event. Please contact the organizer.', 'warning');
+                              }
                             }}
                             onError={() => {
                               setPaymentClientSecret(null);

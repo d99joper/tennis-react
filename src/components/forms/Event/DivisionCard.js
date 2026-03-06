@@ -36,8 +36,10 @@ const DivisionCard = ({
   const isOpenRegistration = overrideSettings.is_open_registration !== undefined
     ? overrideSettings.is_open_registration
     : event.is_open_registration;
-  const canSignUp = userMeetsRequirements && !isFull && !hasStarted && isOpenRegistration;
-
+  // Show the join control whenever the user is eligible and the event hasn't started,
+  // regardless of open-registration flag — JoinRequest handles "Sign Up" vs "Request to Join".
+  const canShowJoinRequest = userMeetsRequirements && !isFull && !hasStarted;
+  console.log('DivisionCard render', { divisionId: division.id, canShowJoinRequest, userMeetsRequirements, isFull, hasStarted, isOpenRegistration });
   // Get restriction display - division override_settings.restrictions take priority
   const restrictions = overrideSettings.restrictions && Object.keys(overrideSettings.restrictions).length > 0
     ? overrideSettings.restrictions
@@ -149,9 +151,9 @@ const DivisionCard = ({
               fontWeight: 500
             }}
           />
-          {(division.content_object?.match_type || event.match_type) && (
+          {(division?.match_type || event.match_type) && (
             <Chip
-              label={division.content_object?.match_type || event.match_type}
+              label={division?.match_type || event.match_type}
               size="small"
               sx={{
                 textTransform: 'capitalize',
@@ -277,7 +279,7 @@ const DivisionCard = ({
               {isSelected ? 'Viewing' : 'View Details'}
             </Button>
           </Box>
-          {canSignUp && (
+          {canShowJoinRequest && (
             <Box
               sx={{ flex: 1, '& > *': { width: '100%' } }}
               onClick={(e) => e.stopPropagation()}
@@ -285,7 +287,7 @@ const DivisionCard = ({
               <JoinRequest
                 objectType="event"
                 id={event.id}
-                matchType={division.content_object?.match_type || event.match_type}
+                matchType={division?.match_type || event.match_type}
                 isMember={isEnrolled}
                 memberText="Enrolled"
                 isOpenRegistration={isOpenRegistration}

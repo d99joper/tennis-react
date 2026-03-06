@@ -82,7 +82,7 @@ const ResponsiveMenu = ({ ...props }) => {
     // close the menu drawer when moving to a medium screen
     if (isMediumScreen)
       setOpen(false)
-  }, [isMediumScreen])
+  })
 
   const handleLogin = (e) => {
     e.preventDefault();

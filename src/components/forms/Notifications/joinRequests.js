@@ -5,7 +5,7 @@ import { AiOutlineClockCircle } from 'react-icons/ai'
 import requestAPI from 'api/services/request'
 import { Alert, Box, List, ListItem, Snackbar, Typography } from '@mui/material'
 import { AuthContext } from 'contexts/AuthContext'
-import { eventAPI, billableItemAPI, stripeAPI, divisionAPI } from 'api/services'
+import { eventAPI, billableItemAPI, stripeAPI, divisionAPI, participantAPI } from 'api/services'
 import InfoPopup from '../infoPopup'
 import MyModal from 'components/layout/MyModal'
 import { Link } from 'react-router-dom'
@@ -34,6 +34,8 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
   const [paymentStripeAccount, setPaymentStripeAccount] = useState(null)
   const [paymentLoading, setPaymentLoading] = useState(false)
   const [paymentDone, setPaymentDone] = useState(false)
+  const [isPostApprovalPay, setIsPostApprovalPay] = useState(false)
+  const [pendingParticipantId, setPendingParticipantId] = useState(null)
 
   const showSnackbar = (message, severity = 'info') => {
     setSnackbarMessage(message)
@@ -54,7 +56,7 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
       let passed = true
       try {
         if (objectType === 'event') {
-          const response = await eventAPI.checkRequirements(id, user.id)
+          const response = await eventAPI.checkRequirements(id, user.id, divisionId)
           passed = response.allowed
           if (!response.allowed) {
             setRestrictionResult(response.reasons || [])
@@ -81,6 +83,7 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
             .then((status) => {
               console.log(status)
               setStatus(status.status)
+              if (status.participantId) setPendingParticipantId(status.participantId)
             })
             .catch((err) => {
               setError('Error fetching join request status.')
@@ -124,10 +127,10 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
     fetchBillableItems();
   }, [id, divisionId, objectType]);
 
-  const handleSignUp = async (participant_type='player') => {
+  const handleSignUp = async (participant_type = 'player', participantId = null) => {
     setLoading(true)
     try {
-      let participant = { type: participant_type}
+      let participant = { type: participant_type }
       if (participant_type === 'player') participant.id = user.id;
       if (participant_type === 'doubles') {
         participant.player_ids = [user.id, doublesPartner.id];
@@ -136,6 +139,8 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
       if (divisionId) {
         participant.division_id = divisionId;
       }
+      // Link pre-created participant entity if available (doubles/team approval flow)
+      if (participantId) participant.participant_id = participantId;
       let response
       if (divisionId) {
         response = await divisionAPI.addDivisionParticipants(divisionId, participant)
@@ -196,15 +201,18 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
     setShowModal(false);
     setPaymentClientSecret(null);
     setPaymentDone(false);
+    setIsPostApprovalPay(false);
   }
 
-  const handleConfirmRequest = async () => {
+  const handleConfirmRequest = async (participantId = null, partnerId = null) => {
     setLoading(true)
     try {
-      await requestAPI.createJoinRequest(objectType, id, divisionId)
+      await requestAPI.createJoinRequest(objectType, id, divisionId, participantId, partnerId)
       setStatus('pending')
       showSnackbar('Join request sent successfully!', 'success')
       handleCloseModal()
+      // No callback here — the event data hasn't changed (no participant added yet).
+      // The local status update to 'pending' is sufficient to update the UI.
     } catch (err) {
       setError('Error sending join request.')
       showSnackbar('Error sending join request.', 'error')
@@ -216,7 +224,7 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
   const canRegisterDirectly = () => {
     if (!isOpenRegistration) return false;
     const today = new Date().getTime();
-    // If a start date is set, block registration once the event has started
+    // If a start date is set, block direct registration once the event has started
     if (props.startDate) {
       const startDate = new Date(`${props.startDate}T00:00:00Z`).getTime();
       if (!isNaN(startDate) && today >= startDate) return false;
@@ -226,6 +234,14 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
       const registrationDate = new Date(`${props.registrationDate}T00:00:00Z`).getTime();
       if (!isNaN(registrationDate) && today < registrationDate) return false;
     }
+    return true;
+  }
+
+  // For approval-required events, still block any signup after the event has started
+  const canSignUp = () => {
+    if (!props.startDate) return true;
+    const startDate = new Date(`${props.startDate}T00:00:00Z`).getTime();
+    if (!isNaN(startDate) && new Date().getTime() >= startDate) return false;
     return true;
   }
 
@@ -415,9 +431,26 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
   const doublesModalContent = (
     <Wizard
       steps={doublesWizardSteps}
-      handleSubmit={() => {
+      handleSubmit={async () => {
         if (!isDirect) {
-          handleConfirmRequest()
+          // Pre-create the doubles Participant entity so the organizer
+          // sees the full pair when reviewing the request.
+          // Backend links it; approval flips the EventParticipant connection.
+          let participantId = null;
+          try {
+            const res = await participantAPI.create('doubles', [user.id, doublesPartner.id]);
+            if (res.success) {
+              participantId = res.data?.participant_id ?? null;
+              if (!participantId) console.warn('participantAPI.create succeeded but no participant_id found in response:', res.data);
+            } else {
+              showSnackbar('Could not register pair. Please try again.', 'error');
+              return;
+            }
+          } catch (e) {
+            showSnackbar('Could not register pair. Please try again.', 'error');
+            return;
+          }
+          await handleConfirmRequest(participantId, doublesPartner?.id)
           return
         }
         if (isPaidEvent && !paymentDone) {
@@ -429,9 +462,9 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
         }
         // if paymentDone, handleSignUp was already called via onSuccess
       }}
+      hideSubmit={isPaidEvent && isDirect}
       submitText={
         !isDirect ? 'Send Request' :
-        isPaidEvent && !paymentDone ? 'Complete Payment Above' :
         'Confirm Sign Up'
       }
     />
@@ -467,7 +500,7 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
           </Typography>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
             <Button variant="outlined" onClick={handleCloseModal}>Cancel</Button>
-            <Button variant="contained" color="primary" onClick={handleConfirmRequest} disabled={loading}>
+            <Button variant="contained" color="primary" onClick={() => handleConfirmRequest()} disabled={loading}>
               {loading ? <CircularProgress size={20} /> : 'Send Request'}
             </Button>
           </Box>
@@ -509,8 +542,8 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
         </Box>
       )}
 
-      {/* Paid + approval required */}
-      {isPaidEvent && !isDirect && (
+      {/* Paid + approval required — pre-approval: send join request */}
+      {isPaidEvent && !isDirect && !isPostApprovalPay && (
         <>
           <Typography gutterBottom>
             {divisionName
@@ -537,11 +570,46 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
           )}
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
             <Button variant="outlined" onClick={handleCloseModal}>Cancel</Button>
-            <Button variant="contained" color="primary" onClick={handleConfirmRequest} disabled={loading}>
+            <Button variant="contained" color="primary" onClick={() => handleConfirmRequest()} disabled={loading}>
               {loading ? <CircularProgress size={20} /> : 'Send Request'}
             </Button>
           </Box>
         </>
+      )}
+
+      {/* Paid + approval required — post-approval: complete payment */}
+      {isPaidEvent && !isDirect && isPostApprovalPay && (
+        <Box>
+          <Typography variant="subtitle1" gutterBottom fontWeight={600}>
+            Entry Fee: ${parseFloat(billableItem.amount).toFixed(2)}
+          </Typography>
+          {billableItem.description && (
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              {billableItem.description}
+            </Typography>
+          )}
+          {billableItem.refund_policy && (
+            <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontStyle: 'italic' }}>
+              Refund policy: {displayRefundPolicy(billableItem.refund_policy)}
+            </Typography>
+          )}
+          {!paymentClientSecret ? (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
+              <Button variant="outlined" onClick={handleCloseModal}>Cancel</Button>
+              <Button variant="contained" color="primary" onClick={handleInitiatePayment} disabled={paymentLoading}>
+                {paymentLoading ? <CircularProgress size={20} /> : 'Proceed to Payment'}
+              </Button>
+            </Box>
+          ) : (
+            <StripeProvider clientSecret={paymentClientSecret} stripeAccount={paymentStripeAccount}>
+              <CheckoutForm
+                returnUrl={`${window.location.origin}/events/${id}`}
+                onSuccess={() => { setPaymentDone(true); setStatus('approved'); handleSignUp('player', pendingParticipantId); }}
+                onError={() => { setPaymentClientSecret(null); setPaymentStripeAccount(null); }}
+              />
+            </StripeProvider>
+          )}
+        </Box>
       )}
     </Box>
   )
@@ -610,9 +678,14 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
           {memberText || 'Member'}
         </Button>
         : <>
-          {status === 'none' && (
+          {status === 'none' && canSignUp() && (
             <Button variant="contained" color="primary" onClick={handleJoinRequest}>
               {canRegisterDirectly() ? 'Sign Up' : 'Request to Join'}
+            </Button>
+          )}
+          {status === 'none' && !canSignUp() && (
+            <Button variant="outlined" disabled>
+              Registration Closed
             </Button>
           )}
           {status === 'pending' && (
@@ -633,6 +706,7 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
                   color="inherit"
                   size="small"
                   onClick={() => {
+                    setIsPostApprovalPay(true)
                     setModalType('single')
                     setShowModal(true)
                   }}

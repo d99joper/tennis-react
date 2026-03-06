@@ -6,9 +6,12 @@ const requestUrl = apiUrl + 'requests/'
 
 const requestAPI = {
   /* API calls */
-  createJoinRequest: async function (type, id, divisionId = null) {
-    const body = divisionId ? { division_id: divisionId } : undefined;
-    const requestOptions = authAPI.getRequestOptions('POST', body);
+  createJoinRequest: async function (type, id, divisionId = null, participantId = null, partnerId = null) {
+    const body = {};
+    if (divisionId) body.division_id = divisionId;
+    if (participantId) body.participant_id = participantId;
+    if (partnerId) body.partner_id = partnerId;
+    const requestOptions = authAPI.getRequestOptions('POST', Object.keys(body).length ? body : undefined);
     const response = await fetch(`${requestUrl}join/${type}/${id}`, requestOptions);
     if (response.ok) {
       const data = await response.json();
@@ -26,7 +29,7 @@ const requestAPI = {
     const response = await fetchWithRetry(url, requestOptions)
     if (response.ok) {
       const data = await response.json();
-      return { success: response.ok, statusCode: response.statusCode, status: data.status }
+      return { success: response.ok, statusCode: response.statusCode, status: data.status, participantId: data.participant_id ?? null }
     }
     else
       return { success: response.ok, statusCode: response.statusCode, statusMessage: 'Error: Failed join request' }
