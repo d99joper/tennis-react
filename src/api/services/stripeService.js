@@ -56,7 +56,7 @@ const stripeAPI = {
         return_url: returnUrl,
         refresh_url: refreshUrl,
       });
-      const response = await fetch(`${apiUrl}stripe/clubs/${clubId}/onboarding/refresh`, requestOptions);
+      const response = await fetch(`${apiUrl}stripe/clubs/${clubId}/connect/refresh`, requestOptions);
       const data = await response.json();
       return { success: response.ok, statusCode: response.status, data };
     } catch (err) {
