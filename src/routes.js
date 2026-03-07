@@ -52,7 +52,7 @@ const preloadPage = (page) => page().then((module) => module.default);
 
 const MyRouter = (props) => {
   const location = useLocation()
-  const { isLoggedIn, user } = useContext(AuthContext)
+  const { isLoggedIn, user, authReady } = useContext(AuthContext)
   const homeDataRef = useRef(null);
 
   // useEffect(() => {
@@ -78,83 +78,89 @@ const MyRouter = (props) => {
   return (
     <ChunkErrorBoundary>
     <Suspense fallback={<LinearProgress size="large" />}>
-      <MemoizedHeader
-        show={showHeaderOrFooter(location.pathname)}
-        isLoggedIn={isLoggedIn}
-        //currentUser={props.currentUser}
-        currentUser={user}
-      />
+      {!authReady ? (
+        <LinearProgress size="large" />
+      ) : (
+        <>
+          <MemoizedHeader
+            show={showHeaderOrFooter(location.pathname)}
+            isLoggedIn={isLoggedIn}
+            //currentUser={props.currentUser}
+            currentUser={user}
+          />
 
-      <Box component="main" className='content'
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '2rem',
-          //backgroundColor: 'blueviolet',
-          flexGrow: 1, p: 3,
-          transition: 'flex-grow 0.2s ease',
-          overflowX: 'hidden', // Hide overflowing content
-        }}
-      >
-        <Routes key="MyMainRoutes">
-          <Route exact path="/" element={<Home homeDataRef={homeDataRef} />} />
-          <Route exact path="/about" element={<AboutPage  />} />
-          <Route exact path="/faq" element={<FAQPage />} />
-          <Route exact path="/rules" element={<RulesPage />} />
-          <Route exact path="/search" element={<SearchPage />} />
-          {/* <Route path="/profile/:userid" element={<ProfileNew />} /> */}
-          <Route path="/players" element={<PlayersLandingPage />} />
-          <Route path="/players/:userid" element={<Profile />} />
-          <Route path="/profile-information" element={<ProfileInfo  />} />
-          <Route path='/notifications' element={<NotificationsView />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/registration" element={<Registration />} />
-          <Route path="/user-confirmation/:userid/:key" element={<UserConfirmation />} />
-          <Route path="/user-merge/:userid/:mergeId/:key" element={<UserMerge />} />
-          <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-          <Route path="/adminTasks" element={<AdminTasks />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/temp/DTC-league-info" element={<DTCLeagueInfoPage />} />
-          <Route path='/clubs'>
-            <Route index={true} element={<ClubsLandingPage />} />
-            <Route path=":clubId" element={<ClubViewPage />} />
-          </Route>
-          <Route path='/courts'>
-            <Route index={true} element={<CourtsLanding {...props} />} />
-            <Route path=":courtsId" element={<CourtView {...props} />} />
-            <Route path="new" element={<CourtsCreate {...props} />} />
-          </Route>
-          <Route path="ladders">
-            <Route index={true} element={<LadderView isLoggedIn={isLoggedIn} currentUser={user} />} />
-            <Route path=":ladderId" element={<LadderView isLoggedIn={isLoggedIn} currentUser={user} />} />
-            <Route path="search" element={<LadderSearch isLoggedIn={isLoggedIn} />} />
-            <Route path="new" element={<LadderCreate isLoggedIn={isLoggedIn} />} />
-            {/* <Route index element={<Home />} /> */}
-          </Route>
-          <Route path='league'>
-            <Route path=":id" element={<LeagueViewPage isLoggedIn={isLoggedIn} />} />
-            <Route path="create" element={<LeagueCreate isLoggedIn={isLoggedIn} />} />
-          </Route>
-          <Route path='tournament'>
-            <Route path=":id" element={<TournamentViewPage isLoggedIn={isLoggedIn} />} />
-            <Route path="create" element={<TournamentCreate isLoggedIn={isLoggedIn} />} />
-          </Route>
-          <Route path='events'>
-            <Route index={true} element={<EventsLandingPage {...props} />} />
-            <Route path=":id" element={<EventView isLoggedIn={isLoggedIn} />} />
-            <Route path="create" element={<LeagueCreate isLoggedIn={isLoggedIn} />} />
-          </Route>
-          <Route path="/checkout/:billableItemId" element={<MarketplaceCheckout />} />
-          <Route path="/payments/complete" element={<PaymentComplete />} />
-          <Route path="/stripe/connect/return" element={<StripeConnectReturn />} />
-          <Route path="/stripe/oauth/callback" element={<StripeOAuthCallback />} />
-          <Route path="/theme-selector" element={<ThemeSelector />} />
-          <Route path="*" element={<NoPage />} />
-        </Routes>
-        {showHeaderOrFooter(location.pathname) ? <MemoizedFooter /> : null}
-      </Box>
+          <Box component="main" className='content'
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '2rem',
+              //backgroundColor: 'blueviolet',
+              flexGrow: 1, p: 3,
+              transition: 'flex-grow 0.2s ease',
+              overflowX: 'hidden', // Hide overflowing content
+            }}
+          >
+            <Routes key="MyMainRoutes">
+              <Route exact path="/" element={<Home homeDataRef={homeDataRef} />} />
+              <Route exact path="/about" element={<AboutPage  />} />
+              <Route exact path="/faq" element={<FAQPage />} />
+              <Route exact path="/rules" element={<RulesPage />} />
+              <Route exact path="/search" element={<SearchPage />} />
+              {/* <Route path="/profile/:userid" element={<ProfileNew />} /> */}
+              <Route path="/players" element={<PlayersLandingPage />} />
+              <Route path="/players/:userid" element={<Profile />} />
+              <Route path="/profile-information" element={<ProfileInfo  />} />
+              <Route path='/notifications' element={<NotificationsView />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/registration" element={<Registration />} />
+              <Route path="/user-confirmation/:userid/:key" element={<UserConfirmation />} />
+              <Route path="/user-merge/:userid/:mergeId/:key" element={<UserMerge />} />
+              <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/adminTasks" element={<AdminTasks />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/temp/DTC-league-info" element={<DTCLeagueInfoPage />} />
+              <Route path='/clubs'>
+                <Route index={true} element={<ClubsLandingPage />} />
+                <Route path=":clubId" element={<ClubViewPage />} />
+              </Route>
+              <Route path='/courts'>
+                <Route index={true} element={<CourtsLanding {...props} />} />
+                <Route path=":courtsId" element={<CourtView {...props} />} />
+                <Route path="new" element={<CourtsCreate {...props} />} />
+              </Route>
+              <Route path="ladders">
+                <Route index={true} element={<LadderView isLoggedIn={isLoggedIn} currentUser={user} />} />
+                <Route path=":ladderId" element={<LadderView isLoggedIn={isLoggedIn} currentUser={user} />} />
+                <Route path="search" element={<LadderSearch isLoggedIn={isLoggedIn} />} />
+                <Route path="new" element={<LadderCreate isLoggedIn={isLoggedIn} />} />
+                {/* <Route index element={<Home />} /> */}
+              </Route>
+              <Route path='league'>
+                <Route path=":id" element={<LeagueViewPage isLoggedIn={isLoggedIn} />} />
+                <Route path="create" element={<LeagueCreate isLoggedIn={isLoggedIn} />} />
+              </Route>
+              <Route path='tournament'>
+                <Route path=":id" element={<TournamentViewPage isLoggedIn={isLoggedIn} />} />
+                <Route path="create" element={<TournamentCreate isLoggedIn={isLoggedIn} />} />
+              </Route>
+              <Route path='events'>
+                <Route index={true} element={<EventsLandingPage {...props} />} />
+                <Route path=":id" element={<EventView isLoggedIn={isLoggedIn} />} />
+                <Route path="create" element={<LeagueCreate isLoggedIn={isLoggedIn} />} />
+              </Route>
+              <Route path="/checkout/:billableItemId" element={<MarketplaceCheckout />} />
+              <Route path="/payments/complete" element={<PaymentComplete />} />
+              <Route path="/stripe/connect/return" element={<StripeConnectReturn />} />
+              <Route path="/stripe/oauth/callback" element={<StripeOAuthCallback />} />
+              <Route path="/theme-selector" element={<ThemeSelector />} />
+              <Route path="*" element={<NoPage />} />
+            </Routes>
+            {showHeaderOrFooter(location.pathname) ? <MemoizedFooter /> : null}
+          </Box>
+        </>
+      )}
     </Suspense>
     </ChunkErrorBoundary>
   )

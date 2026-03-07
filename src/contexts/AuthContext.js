@@ -10,6 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null); // Store user details here
   const [loading, setLoading] = useState(true);  // Add loading state
+  const [authReady, setAuthReady] = useState(false); // Add authReady state
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -47,7 +48,26 @@ export const AuthProvider = ({ children }) => {
       }
     };
 
-    fetchUserDetails();
+    async function restoreAuth() {
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const response = await playerAPI.getPlayer(null, true);
+          if (response.success) {
+            setUser(response.data);
+            setIsLoggedIn(true);
+          } else {
+            localStorage.removeItem('token');
+          }
+        }
+      } catch (e) {
+        console.error('Auth restore failed', e);
+      } finally {
+        setAuthReady(true); // always mark ready
+      }
+    }
+
+    restoreAuth();
   }, []);
 
   const login = async (userData) => {
@@ -72,7 +92,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, user, login, logout, loading  }}>
+    <AuthContext.Provider value={{ user, isLoggedIn, authReady, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
