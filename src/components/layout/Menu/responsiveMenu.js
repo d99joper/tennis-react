@@ -78,11 +78,17 @@ const ResponsiveMenu = ({ ...props }) => {
     }
   }, [drawerWidth, open, isSmallScreen]);
 
+  // Reset drawer to closed on small screens (clears any stale persisted state)
   useEffect(() => {
-    // close the menu drawer when moving to a medium screen
-    if (isMediumScreen)
-      setOpen(false)
-  })
+    if (isSmallScreen) setOpen(false);
+  }, []);
+
+  useEffect(() => {
+    // close the permanent sidebar when resizing down to tablet, but not on small screens
+    // (small screens use the overlay SwipeableDrawer which is user-toggled)
+    if (isMediumScreen && !isSmallScreen)
+      setOpen(false);
+  }, [isMediumScreen, isSmallScreen]);
 
   const handleLogin = (e) => {
     e.preventDefault();
