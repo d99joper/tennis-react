@@ -6,6 +6,7 @@ import {
 import React, { lazy, Suspense, useContext, useRef } from 'react';
 import Registration from 'views/Auth/registration';
 import Header from 'components/layout/header';
+import ChunkErrorBoundary from 'components/layout/ChunkErrorBoundary';
 import { Box, LinearProgress } from '@mui/material';
 import Footer from 'components/layout/footer';
 import { Home, AboutPage, ClubViewPage, EventView, FAQPage, LeagueViewPage, PlayersLandingPage, Profile, RulesPage, SearchPage, Login } from './views/index'
@@ -75,6 +76,7 @@ const MyRouter = (props) => {
   const MemoizedFooter = React.memo(Footer);
 
   return (
+    <ChunkErrorBoundary>
     <Suspense fallback={<LinearProgress size="large" />}>
       <MemoizedHeader
         show={showHeaderOrFooter(location.pathname)}
@@ -154,6 +156,7 @@ const MyRouter = (props) => {
         {showHeaderOrFooter(location.pathname) ? <MemoizedFooter /> : null}
       </Box>
     </Suspense>
+    </ChunkErrorBoundary>
   )
 };
 
