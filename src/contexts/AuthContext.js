@@ -45,29 +45,11 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
       } finally {
         setLoading(false);
+        setAuthReady(true);
       }
     };
 
-    async function restoreAuth() {
-      try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          const response = await playerAPI.getPlayer(null, true);
-          if (response.success) {
-            setUser(response.data);
-            setIsLoggedIn(true);
-          } else {
-            localStorage.removeItem('token');
-          }
-        }
-      } catch (e) {
-        console.error('Auth restore failed', e);
-      } finally {
-        setAuthReady(true); // always mark ready
-      }
-    }
-
-    restoreAuth();
+    fetchUserDetails();
   }, []);
 
   const login = async (userData) => {
@@ -92,7 +74,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoggedIn, authReady, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoggedIn, authReady, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
