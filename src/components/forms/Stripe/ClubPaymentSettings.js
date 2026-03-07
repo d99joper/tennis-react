@@ -366,8 +366,8 @@ const ConnectedStatus = ({ stripeAccount, clubId, theme, onRefresh }) => {
       const returnUrl = `${window.location.origin}/clubs/${clubId}?tab=settings&stripe=complete`;
       const refreshUrl = `${window.location.origin}/clubs/${clubId}?tab=settings&stripe=refresh`;
       const response = await stripeAPI.refreshClubOnboardingLink(clubId, returnUrl, refreshUrl);
-      if (response.success && response.data?.url) {
-        const popup = window.open(response.data.url, 'stripe_onboarding', 'width=700,height=800');
+      if (response.success && response.data?.onboarding_url) {
+        const popup = window.open(response.data.onboarding_url, 'stripe_onboarding', 'width=700,height=800');
         const timer = setInterval(() => {
           if (popup?.closed) {
             clearInterval(timer);
