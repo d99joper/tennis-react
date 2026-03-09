@@ -2,7 +2,8 @@ import { Link, useParams, useNavigate, useSearchParams } from "react-router-dom"
 import { useCallback, useEffect, useState, useContext, useRef } from "react";
 import { Box, Typography, useMediaQuery, Grid, Collapse, IconButton, Chip } from "@mui/material";
 import { AuthContext } from "contexts/AuthContext";
-import { eventAPI } from "api/services";
+import { eventAPI, billableItemAPI } from "api/services";
+import requestAPI from "api/services/request";
 import LeagueViewPage from "views/league/league_view";
 import TournamentView from "views/Tournament/tournamentView";
 import LadderView from "views/ladder/view";
@@ -23,12 +24,15 @@ const EventView = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams(); // Use React Router's hook
   const division_num = searchParams.get('division'); // This will properly track changes
-  const { user } = useContext(AuthContext);
+  const { user, isLoggedIn } = useContext(AuthContext);
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedDivision, setSelectedDivision] = useState(null);
   const [participants, setParticipants] = useState([]);
+  const [billableItems, setBillableItems] = useState([]);
+  const [restrictionsByDivision, setRestrictionsByDivision] = useState(null);
+  const [requestStatusByDivision, setRequestStatusByDivision] = useState(null);
   const [divisionsExpanded, setDivisionsExpanded] = useState(
     searchParams.get('divisionsExpanded') !== 'false' // Default to true/expanded
   );
@@ -60,25 +64,34 @@ const EventView = () => {
     try {
       setLoading(true);
       const event = await eventAPI.getEvent(id);
-      //console.log("EventView rendering with event_type:", event.event_type);
       setEvent(event);
-      //console.log("Event data:", event);
-      
-      // Fetch participants once at the top level with division information
+
       if (event.id) {
-        try {
-          const res = await eventAPI.getParticipants(event.id, {include_divisions: true}, 1, 1000);
-          setParticipants(res.data || []);
-        } catch (err) {
-          console.error('Error fetching participants:', err);
-        }
+        // Fetch all supporting data in parallel
+        const [participantsRes, billableRes, restrictionsRes, statusRes] = await Promise.all([
+          eventAPI.getParticipants(event.id, { include_divisions: true }, 1, 1000)
+            .catch(err => { console.error('Error fetching participants:', err); return null; }),
+          billableItemAPI.getEventBillableItems(event.id)
+            .catch(() => null),
+          isLoggedIn && user?.id
+            ? eventAPI.checkRequirements(event.id, user.id).catch(() => null)
+            : Promise.resolve(null),
+          isLoggedIn && user?.id
+            ? requestAPI.getRequestStatusForUser(event.id).catch(() => null)
+            : Promise.resolve(null),
+        ]);
+
+        if (participantsRes) setParticipants(participantsRes.data || []);
+        if (billableRes?.success) setBillableItems(billableRes.data || []);
+        if (restrictionsRes) setRestrictionsByDivision(restrictionsRes);
+        if (statusRes?.success) setRequestStatusByDivision(statusRes.data);
       }
     } catch (err) {
       setError("Failed to load event");
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, user?.id, isLoggedIn]);
 
   useEffect(() => {
     fetchEvent();
@@ -105,16 +118,6 @@ const EventView = () => {
 
       // Update selectedDivision
       setSelectedDivision(division);
-
-      // If it's a league division, update league data
-      if (division && division.type === 'league') {
-        //console.log("Updating league data for division:", division);
-        setEvent(prevEvent => ({
-          ...prevEvent,
-          league_standings: division.content_object?.standings || [],
-          league_schedule: division.content_object?.schedule || [],
-        }));
-      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [event?.id, division_num]); // Only depend on event ID and division_num to prevent infinite loops
@@ -152,6 +155,8 @@ const EventView = () => {
   };
 
   const contentRef = useRef(null); // Add ref for scroll target
+  const leagueCache = useRef({});   // Persists standings+schedule across division switches
+  const bracketCache = useRef({});  // Persists bracket data across division switches
 
   if (loading) return <Typography>Loading...</Typography>;
   if (error) return <Typography color="error">{error}</Typography>;
@@ -196,6 +201,9 @@ const EventView = () => {
           startDate={event.start_date}
           registrationDate={event.registration_open_date}
           callback={fetchEvent}
+          prefetchedBillableItems={billableItems}
+          prefetchedRestrictions={restrictionsByDivision?.['event']}
+          prefetchedRequestStatus={requestStatusByDivision?.['event']}
         />
       )}
 
@@ -269,6 +277,9 @@ const EventView = () => {
               event={event}
               isSelected={selectedDivision?.id === division.id}
               isEnrolled={isUserEnrolledInDivision(division.id)}
+              billableItems={billableItems}
+              restrictionsByDivision={restrictionsByDivision}
+              requestStatusByDivision={requestStatusByDivision}
               onClick={() => {
                 const newSearchParams = new URLSearchParams(searchParams);
                 if (selectedDivision?.id === division.id) {
@@ -355,10 +366,10 @@ const EventView = () => {
   let content;
   switch (event.event_type) {
     case "league":
-      content = <LeagueViewPage event={event} participants={participants} callback={refreshEvent} />;
+      content = <LeagueViewPage event={event} participants={participants} callback={refreshEvent} leagueCache={leagueCache} />;
       break;
     case "tournament":
-      content = <TournamentView event={event} tournament_id={event.tournament_id} participants={participants} callback={refreshEvent} />;
+      content = <TournamentView event={event} tournament_id={event.tournament_id} participants={participants} callback={refreshEvent} bracketCache={bracketCache} />;
       break;
     case "ladder":
       content = <LadderView event={event} participants={participants} callback={refreshEvent} />;
@@ -374,9 +385,9 @@ const EventView = () => {
       } else {
         const division_content_id = selectedDivision?.content_object?.id;
         if (selectedDivision?.type === 'league') {
-          content = <LeagueViewPage event={event} division={selectedDivision} participants={participants} league_id={division_content_id} callback={refreshEvent} />;
+          content = <LeagueViewPage event={event} division={selectedDivision} participants={participants} league_id={division_content_id} callback={refreshEvent} leagueCache={leagueCache} />;
         } else if (selectedDivision?.type === 'tournament') {
-          content = <TournamentView event={event} division={selectedDivision} tournament_id={division_content_id} participants={participants} callback={refreshEvent} />;
+          content = <TournamentView event={event} division={selectedDivision} tournament_id={division_content_id} participants={participants} callback={refreshEvent} bracketCache={bracketCache} />;
         } else if (selectedDivision?.type === 'ladder') {
           content = <LadderView event={event} participants={participants} callback={refreshEvent} />;
         }

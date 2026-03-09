@@ -21,18 +21,16 @@ const requestAPI = {
       return { success: response.ok, statusCode: response.statusCode, statusMessage: 'Error: Failed join request' }
   },
 
-  getRequestStatusForUser: async function (id, divisionId = null) {
+  getRequestStatusForUser: async function (id) {
     const requestOptions = authAPI.getRequestOptions('GET');
-    const url = divisionId
-      ? `${requestUrl}${id}/get-status-for-user?division_id=${divisionId}`
-      : `${requestUrl}${id}/get-status-for-user`;
+    const url = `${requestUrl}${id}/get-status-for-user`;
     const response = await fetchWithRetry(url, requestOptions)
     if (response.ok) {
       const data = await response.json();
-      return { success: response.ok, statusCode: response.statusCode, status: data.status, participantId: data.participant_id ?? null }
+      return { success: true, statusCode: response.status, data: data }  // data is dict keyed by division id or 'event'
     }
     else
-      return { success: response.ok, statusCode: response.statusCode, statusMessage: 'Error: Failed join request' }
+      return { success: false, statusCode: response.status, statusMessage: 'Error: Failed to get request status' }
   },
 
   processRequest: async function (id, approve) {

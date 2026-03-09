@@ -14,7 +14,10 @@ const DivisionCard = ({
   isEnrolled = false,
   onClick,
   onSignUpSuccess,
-  userMeetsRequirements = true
+  userMeetsRequirements = true,
+  billableItems = [],
+  restrictionsByDivision = null,
+  requestStatusByDivision = null,
 }) => {
   const theme = useTheme();
 
@@ -297,6 +300,9 @@ const DivisionCard = ({
                 divisionName={division.name}
                 startDate={startDate}
                 registrationDate={overrideSettings.registration_open_date || division.content_object?.registration_date || event.registration_date}
+                prefetchedBillableItems={billableItems}
+                prefetchedRestrictions={restrictionsByDivision?.[division.id]}
+                prefetchedRequestStatus={requestStatusByDivision?.[division.id]}
               />
             </Box>
           )}

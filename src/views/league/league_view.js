@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Box,
   Tabs,
@@ -30,14 +30,12 @@ const LeagueViewPage = (props) => {
   const [selectedParticipant, setSelectedParticipant] = useState(null);
   const [event, setEvent] = useState(props.event || null);
   const division = props.division; // Use props directly to avoid state issues
-  //console.log("LeagueView division prop:", props.division);
-  // Use division data if available, otherwise fall back to event data
-  const [standings, setStandings] = useState(
-    props.division?.content_object?.standings || props.event?.league_standings || []
-  );
-  const [schedule, setSchedule] = useState(
-    props.division?.content_object?.schedule || props.event?.league_schedule || []
-  );
+  // Use parent-provided cache if available (survives remounts); fall back to local cache for standalone use
+  const localCache = useRef({});
+  const leagueCache = props.leagueCache || localCache;
+  // Standings and schedule are lazy-loaded when the division/event is known
+  const [standings, setStandings] = useState([]);
+  const [schedule, setSchedule] = useState([]);
   const winner = props.division?.content_object?.winner || props.event?.winner || null;
   const [editSchedule, setEditSchedule] = useState(false);
   const [isParticipant, setIsParticipant] = useState(props.event?.is_participant || false)
@@ -97,26 +95,58 @@ const LeagueViewPage = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]); // Only depend on id - props.event and props.division cause infinite loops
 
-  // Add useEffect to handle division changes
+  // Lazy-load standings and schedule when division or event changes
   useEffect(() => {
-    if (props.division && props.division.content_object) {
-      //console.log("Division changed in LeagueView, updating standings/schedule:", props.division);
-      setStandings(props.division.content_object.standings || []);
-      setSchedule(props.division.content_object.schedule || []);
-    } else if (props.event && !props.division) {
-      // Fall back to event-level data only if no division
-      setStandings(props.event.league_standings || []);
-      setSchedule(props.event.league_schedule || []);
+    const leagueId = props.division?.content_object?.id ?? props.event?.league_id;
+    if (!leagueId) return;
+
+    // Use cache if already loaded
+    if (leagueCache.current[leagueId]) {
+      const cached = leagueCache.current[leagueId];
+      setStandings(cached.standings);
+      setSchedule(cached.schedule);
+      return;
     }
+
+    const fetchLeagueData = async () => {
+      try {
+        const [standingsRes, scheduleRes] = await Promise.all([
+          leagueAPI.getStandings(leagueId),
+          leagueAPI.getSchedule(leagueId),
+        ]);
+        const standings = standingsRes?.standings || [];
+        const schedule = scheduleRes?.schedule || [];
+        leagueCache.current[leagueId] = { standings, schedule };
+        setStandings(standings);
+        setSchedule(schedule);
+      } catch (err) {
+        console.error('Failed to fetch league data:', err);
+      }
+    };
+    fetchLeagueData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.division?.id, props.event?.id]); // Use IDs instead of full objects to prevent infinite loops
+  }, [props.division?.id, props.event?.id]);
 
 
   const handleAddDeleteParticipant = async () => {
     const e = await eventHelper.refreshEvent(id);
     setEvent(e);
-    setStandings(e.league_standings || []);
-    setSchedule(e.league_schedule || []);
+    const leagueId = division?.content_object?.id ?? e.league_id;
+    if (leagueId) {
+      try {
+        const [standingsRes, scheduleRes] = await Promise.all([
+          leagueAPI.getStandings(leagueId),
+          leagueAPI.getSchedule(leagueId),
+        ]);
+        const standings = standingsRes?.standings || [];
+        const schedule = scheduleRes?.schedule || [];
+        leagueCache.current[leagueId] = { standings, schedule };
+        setStandings(standings);
+        setSchedule(schedule);
+      } catch (err) {
+        console.error('Failed to refresh league data:', err);
+      }
+    }
   }
 
   const handleTabChange = (event, newValue) => {
@@ -134,14 +164,16 @@ const LeagueViewPage = (props) => {
   };
 
   const handleScoreReported = async (new_schedule) => {
-    //console.log('Score reported, refreshing standings and schedule', new_schedule);
     const leagueId = division ? division.content_object?.id : event.league_id;
     const data = await leagueAPI.getStandings(leagueId);
-    //console.log(data);
     if (data?.standings) {
-      //console.log('update standings')
-      setStandings(data.standings)
-      setSchedule(new_schedule)
+      const standings = data.standings;
+      // Invalidate cache for this league then update state
+      if (leagueCache.current[leagueId]) {
+        leagueCache.current[leagueId] = { standings, schedule: new_schedule };
+      }
+      setStandings(standings);
+      setSchedule(new_schedule);
     }
   }
 

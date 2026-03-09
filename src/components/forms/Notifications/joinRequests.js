@@ -16,7 +16,9 @@ import CheckoutForm from 'components/forms/Stripe/CheckoutForm'
 import { displayRefundPolicy } from 'helpers'
 
 const JoinRequest = ({ objectType, id, matchType, isMember,
-  memberText, isOpenRegistration = false, callback, restrictions, divisionId = null, divisionName = null, ...props }) => {
+  memberText, isOpenRegistration = false, callback, restrictions, divisionId = null, divisionName = null,
+  prefetchedBillableItems = null, prefetchedRestrictions = null, prefetchedRequestStatus = null,
+  ...props }) => {
   const [status, setStatus] = useState('loading')
   const [error, setError] = useState(null)
   const [snackbarOpen, setSnackbarOpen] = useState(false)
@@ -56,10 +58,16 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
       let passed = true
       try {
         if (objectType === 'event') {
-          const response = await eventAPI.checkRequirements(id, user.id, divisionId)
-          passed = response.allowed
-          if (!response.allowed) {
-            setRestrictionResult(response.reasons || [])
+          if (prefetchedRestrictions != null) {
+            // Use pre-fetched data — no API call needed
+            passed = prefetchedRestrictions.allowed
+            if (!passed) setRestrictionResult(prefetchedRestrictions.reasons || [])
+          } else {
+            // Fallback: fetch and resolve the right key from the dict
+            const response = await eventAPI.checkRequirements(id, user.id)
+            const divData = response[divisionId] ?? response['event']
+            passed = divData.allowed
+            if (!passed) setRestrictionResult(divData.reasons || [])
           }
         }
       }
@@ -79,17 +87,23 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
       try {
         const isEligible = await checkEligibility();
         if (isEligible) {
-          requestAPI.getRequestStatusForUser(id, divisionId)
-            .then((status) => {
-              console.log(status)
-              setStatus(status.status)
-              if (status.participantId) setPendingParticipantId(status.participantId)
-            })
-            .catch((err) => {
+          if (prefetchedRequestStatus != null) {
+            // Use pre-fetched data — no API call needed
+            setStatus(prefetchedRequestStatus.status || 'none')
+            if (prefetchedRequestStatus.participant_id) setPendingParticipantId(prefetchedRequestStatus.participant_id)
+          } else {
+            // Fallback: fetch and resolve the right key from the dict
+            const res = await requestAPI.getRequestStatusForUser(id)
+            if (res.success) {
+              const statusData = res.data[divisionId] ?? res.data['event']
+              setStatus(statusData?.status || 'none')
+              if (statusData?.participant_id) setPendingParticipantId(statusData.participant_id)
+            } else {
               setError('Error fetching join request status.')
               setStatus('none')
               showSnackbar('Error fetching join request status.', 'error')
-            })
+            }
+          }
         }
         else {
           setStatus('not_eligible')
@@ -103,17 +117,22 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
     if (isLoggedIn && user?.id) {
       setJoinRequest();
     }
-  }, [id, divisionId, isLoggedIn, user, objectType])
+  }, [id, divisionId, isLoggedIn, user, objectType, prefetchedRestrictions, prefetchedRequestStatus])
 
   useEffect(() => {
     const fetchBillableItems = async () => {
       if (objectType !== 'event' || !id) return;
       try {
-        const res = await billableItemAPI.getEventBillableItems(id);
-        if (res.success && res.data && res.data.length > 0) {
-          const items = res.data;
-          // Prefer a division-specific fee when signed up for a division;
-          // fall back to the event-level fee.
+        // Use pre-fetched items if available, otherwise fetch
+        let items;
+        if (prefetchedBillableItems !== null) {
+          items = prefetchedBillableItems;
+        } else {
+          const res = await billableItemAPI.getEventBillableItems(id);
+          items = res.success ? (res.data || []) : [];
+        }
+        if (items.length > 0) {
+          // Prefer a division-specific fee; fall back to event-level fee
           const divisionItem = divisionId
             ? items.find((i) => i.target_type === 'division' && i.target_id === divisionId)
             : null;
@@ -125,7 +144,7 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
       }
     };
     fetchBillableItems();
-  }, [id, divisionId, objectType]);
+  }, [id, divisionId, objectType, prefetchedBillableItems]);
 
   const handleSignUp = async (participant_type = 'player', participantId = null) => {
     setLoading(true)

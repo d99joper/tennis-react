@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { Box, Typography, CircularProgress, Tabs, Tab, useMediaQuery, Grid, Button } from '@mui/material';
 import TournamentBracket from 'components/forms/Tournament/bracket';
@@ -19,7 +19,8 @@ const TournamentViewPage = ({ event: initialEvent,
   showEventDetails = true,
   division=null,
   showAdmin = true, 
-  callback}
+  callback,
+  bracketCache: externalBracketCache = null}
 ) => {
 
   const { id } = useParams();
@@ -32,6 +33,9 @@ const TournamentViewPage = ({ event: initialEvent,
     initialEvent?.tournament_bracket || initialEvent?.tournament?.bracket || null
   );
   const [showBracketGenerator, setShowBracketGenerator] = useState(false);
+  // Use parent-provided cache if available (survives remounts); fall back to local cache for standalone use
+  const localCache = useRef({});
+  const bracketCache = externalBracketCache || localCache;
 
   // Tab name mappings
   const tabNameToIndex = { 'bracket': 0, 'matches': 1, 'admin': 2 };
@@ -44,10 +48,23 @@ const TournamentViewPage = ({ event: initialEvent,
   useEffect(() => {
     if (event?.event_type === 'multievent') {
       setEvent(event);
-      //console.log("Multi-event detected, using first division's bracket");
-      const currentDivision = division || event.divisions[0];
-      setBracket(currentDivision.content_object?.bracket || null);
-      //console.log("Bracket data:", currentDivision.content_object?.bracket);
+      const currentDivision = division || event.divisions?.[0];
+      const tournamentId = currentDivision?.content_object?.id;
+      if (tournamentId) {
+        if (bracketCache.current[tournamentId] !== undefined) {
+          setBracket(bracketCache.current[tournamentId]);
+        } else {
+          tournamentsAPI.getTournament(tournamentId)
+            .then(t => {
+              const b = t?.bracket || null;
+              bracketCache.current[tournamentId] = b;
+              setBracket(b);
+            })
+            .catch(err => console.error('Error loading bracket', err));
+        }
+      } else {
+        setBracket(null);
+      }
       return;
     }
     if (event) return; // already have event from props
@@ -63,19 +80,34 @@ const TournamentViewPage = ({ event: initialEvent,
       }
     };
     fetchEvent();
-  }, [id, event, tournament_id, division]); 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, event, tournament_id, division]);
 
-  // Add this new useEffect to handle division changes
+  // Lazy-load bracket when division changes
   useEffect(() => {
     if (event?.event_type === 'multievent' && division) {
-      //console.log("Division changed, updating bracket for division:", division.id);
-      setBracket(division.content_object?.bracket || null);
+      const tournamentId = division.content_object?.id;
+      if (!tournamentId) return;
+      if (bracketCache.current[tournamentId] !== undefined) {
+        setBracket(bracketCache.current[tournamentId]);
+        return;
+      }
+      tournamentsAPI.getTournament(tournamentId)
+        .then(t => {
+          const b = t?.bracket || null;
+          bracketCache.current[tournamentId] = b;
+          setBracket(b);
+        })
+        .catch(err => console.error('Error loading bracket', err));
     }
-  }, [division, event?.event_type]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [division?.id, event?.event_type]);
 
   const handleMatchSubmit = (updatedBracket, updatedDivision) => {
-    console.log('New bracket submitted:', updatedBracket);
     setBracket(updatedBracket);
+    // Update cache with new bracket
+    const tournamentId = updatedDivision?.content_object?.id || tournament_id || id;
+    if (tournamentId) bracketCache.current[tournamentId] = updatedBracket;
     
     let updatedEvent = null;
     
@@ -114,17 +146,18 @@ const TournamentViewPage = ({ event: initialEvent,
   };
 
   const refreshEvent = (updatedEvent) => {
-    console.log('TournamentView received updated event:', updatedEvent);
     setEvent(updatedEvent);
-    
-    // If it's a multi-event and we have divisions, update the bracket for the current division
+
+    // Bracket is lazy-loaded — re-fetch when admin actions change the tournament state
     if (updatedEvent?.event_type === 'multievent' && division) {
-      const updatedDivision = updatedEvent.divisions?.find(d => d.id === division.id);
-      if (updatedDivision) {
-        setBracket(updatedDivision.content_object?.bracket || null);
+      const tournamentId = division.content_object?.id;
+      if (tournamentId) {
+        tournamentsAPI.getTournament(tournamentId)
+          .then(t => setBracket(t?.bracket || null))
+          .catch(err => console.error('Error refreshing bracket', err));
       }
     }
-    
+
     // Propagate changes to parent (EventView)
     callback && callback(updatedEvent);
   }
@@ -141,7 +174,13 @@ const TournamentViewPage = ({ event: initialEvent,
     try {
       const updatedEvent = await eventHelper.refreshEvent(id);
       setEvent(updatedEvent);
-      setBracket(updatedEvent.tournament_bracket || updatedEvent.tournament?.bracket);
+      const tournamentId = division?.content_object?.id || tournament_id || updatedEvent.tournament_id;
+      if (tournamentId) {
+        const t = await tournamentsAPI.getTournament(tournamentId);
+        const b = t?.bracket || null;
+        bracketCache.current[tournamentId] = b;
+        setBracket(b);
+      }
       if (callback) callback(updatedEvent);
     } catch (err) {
       console.error('Error refreshing event', err);
