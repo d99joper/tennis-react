@@ -17,8 +17,8 @@ const BillableItemForm = ({ value, onChange }) => {
         fullWidth
         label="Entry Fee"
         type="number"
-        value={value?.amount ? value.amount / 100 : ''}
-        onChange={(e) => handleChange('amount', parseFloat(e.target.value) * 100)}
+        value={value?.amount ?? ''}
+        onChange={(e) => handleChange('amount', parseFloat(e.target.value))}
         placeholder="25.00"
         slotProps={{
           input: {

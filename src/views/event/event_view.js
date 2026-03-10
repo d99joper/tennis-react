@@ -36,6 +36,7 @@ const EventView = () => {
   const [divisionsExpanded, setDivisionsExpanded] = useState(
     searchParams.get('divisionsExpanded') !== 'false' // Default to true/expanded
   );
+  const [participantRefreshTrigger, setParticipantRefreshTrigger] = useState(0);
 
   // Responsive design
   const theme = useTheme();
@@ -95,6 +96,12 @@ const EventView = () => {
 
   useEffect(() => {
     fetchEvent();
+  }, [fetchEvent]);
+
+  // After a participant joins, re-fetch event data and signal child league views to refresh standings
+  const handleParticipantJoined = useCallback(async () => {
+    await fetchEvent();
+    setParticipantRefreshTrigger(t => t + 1);
   }, [fetchEvent]);
 
   // Handle initial division selection after event loads
@@ -200,7 +207,7 @@ const EventView = () => {
           isOpenRegistration={event.is_open_registration}
           startDate={event.start_date}
           registrationDate={event.registration_open_date}
-          callback={fetchEvent}
+          callback={handleParticipantJoined}
           prefetchedBillableItems={billableItems}
           prefetchedRestrictions={restrictionsByDivision?.['event']}
           prefetchedRequestStatus={requestStatusByDivision?.['event']}
@@ -270,7 +277,7 @@ const EventView = () => {
       </Box>
       <Collapse in={divisionsExpanded}>
         <Grid container spacing={2} sx={{ mt: 1, width: '100%' }}>
-        {event.divisions.map((division, index) => (
+        {[...event.divisions].sort((a, b) => a.name.localeCompare(b.name)).map((division, index) => (
           <Grid size={{xs:12, sm:6, md:4}} key={division.id} sx={{ display: 'flex' }}>
             <DivisionCard
               division={division}
@@ -310,7 +317,7 @@ const EventView = () => {
                 const newSearchParams = new URLSearchParams(searchParams);
                 newSearchParams.set('division', index.toString());
                 navigate(`?${newSearchParams.toString()}`, { replace: true });
-                fetchEvent();
+                handleParticipantJoined();
               }}
               userMeetsRequirements={true} // TODO: Implement actual restriction checking
             />
@@ -366,7 +373,7 @@ const EventView = () => {
   let content;
   switch (event.event_type) {
     case "league":
-      content = <LeagueViewPage event={event} participants={participants} callback={refreshEvent} leagueCache={leagueCache} />;
+      content = <LeagueViewPage event={event} participants={participants} callback={refreshEvent} leagueCache={leagueCache} refreshTrigger={participantRefreshTrigger} />;
       break;
     case "tournament":
       content = <TournamentView event={event} tournament_id={event.tournament_id} participants={participants} callback={refreshEvent} bracketCache={bracketCache} />;
@@ -385,7 +392,7 @@ const EventView = () => {
       } else {
         const division_content_id = selectedDivision?.content_object?.id;
         if (selectedDivision?.type === 'league') {
-          content = <LeagueViewPage event={event} division={selectedDivision} participants={participants} league_id={division_content_id} callback={refreshEvent} leagueCache={leagueCache} />;
+          content = <LeagueViewPage event={event} division={selectedDivision} participants={participants} league_id={division_content_id} callback={refreshEvent} leagueCache={leagueCache} refreshTrigger={participantRefreshTrigger} />;
         } else if (selectedDivision?.type === 'tournament') {
           content = <TournamentView event={event} division={selectedDivision} tournament_id={division_content_id} participants={participants} callback={refreshEvent} bracketCache={bracketCache} />;
         } else if (selectedDivision?.type === 'ladder') {

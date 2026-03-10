@@ -21,6 +21,9 @@ const StripeProvider = ({ clientSecret, stripeAccount, children }) => {
         colorPrimary: '#4caf50',
       },
     },
+    savedPaymentMethodsOptions: {
+      paymentMethodSave: 'disabled',
+    },
   }), [clientSecret]);
 
   if (!stripePromise || !clientSecret) return null;

@@ -33,6 +33,8 @@ const LeagueViewPage = (props) => {
   // Use parent-provided cache if available (survives remounts); fall back to local cache for standalone use
   const localCache = useRef({});
   const leagueCache = props.leagueCache || localCache;
+  // Track previous refreshTrigger value to detect when a participant has just joined
+  const prevRefreshTrigger = useRef(props.refreshTrigger ?? 0);
   // Standings and schedule are lazy-loaded when the division/event is known
   const [standings, setStandings] = useState([]);
   const [schedule, setSchedule] = useState([]);
@@ -100,6 +102,13 @@ const LeagueViewPage = (props) => {
     const leagueId = props.division?.content_object?.id ?? props.event?.league_id;
     if (!leagueId) return;
 
+    // If refreshTrigger changed, a participant just joined — invalidate the cache so we get fresh standings
+    const triggerChanged = props.refreshTrigger !== undefined && props.refreshTrigger !== prevRefreshTrigger.current;
+    if (triggerChanged) {
+      prevRefreshTrigger.current = props.refreshTrigger;
+      delete leagueCache.current[leagueId];
+    }
+
     // Use cache if already loaded
     if (leagueCache.current[leagueId]) {
       const cached = leagueCache.current[leagueId];
@@ -125,7 +134,7 @@ const LeagueViewPage = (props) => {
     };
     fetchLeagueData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.division?.id, props.event?.id]);
+  }, [props.division?.id, props.event?.id, props.refreshTrigger]);
 
 
   const handleAddDeleteParticipant = async () => {
