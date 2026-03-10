@@ -151,11 +151,16 @@ const PlayerSearch = ({
         }}
         onInputChange={(event, newInputValue, reason) => {
           // IMPORTANT: only treat real typing as search input.
-          // MUI will call this with reason='reset' on selection/blur; don't let that wipe user typing.
+          // MUI will call this with reason='reset' on selection; sync the display text so the
+          // selected player's name stays visible in the field.
           if (reason === 'input') {
               setInputValue(newInputValue);
               if (!manualSearch) debouncedFetchPlayers(newInputValue, fromProfileId);
             }
+
+          if (reason === 'reset') {
+            setInputValue(newInputValue);
+          }
 
           if (reason === 'clear') {
             setInputValue('');
