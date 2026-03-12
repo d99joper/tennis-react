@@ -5,7 +5,7 @@ import notificationAPI from "api/services/notifications";
 import { ProfileImage } from "components/forms";
 import { AuthContext } from "contexts/AuthContext";
 
-const Conversation = ({ player1, player2 }) => {
+const Conversation = ({ player2 }) => {
   const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState("");
   const [loading, setLoading] = useState(true);
@@ -75,9 +75,9 @@ const Conversation = ({ player1, player2 }) => {
         ) : (
           messages.length > 0 ?
           messages.map((msg) => (
-            <Box key={msg.id} mb={2} textAlign={msg.sender_id === player1.id ? "right" : "left"}>
-              <Typography variant="body2" bgcolor={msg.sender_id === player1.id ? "#d0e9cf" : "#f0f0f0"} p={1} borderRadius={1} display="inline-block">
-                <b>{msg.sender_id === player1.id ? "You" : player2.name}:</b> {msg.message}
+            <Box key={msg.id} mb={2} textAlign={msg.sender_id === user.id ? "right" : "left"}>
+              <Typography variant="body2" bgcolor={msg.sender_id === user.id ? "#d0e9cf" : "#f0f0f0"} p={1} borderRadius={1} display="inline-block">
+                <b>{msg.sender_id === user.id ? "You" : player2.name}:</b> {msg.message}
               </Typography>
               <Typography variant="caption" display="block" color="gray">
                 {new Date(msg.created_at).toLocaleString()}

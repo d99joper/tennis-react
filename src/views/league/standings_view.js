@@ -123,7 +123,7 @@ console.log("Ranked standings:", rankedStandings);
             }
             { // allow chat in singles when viewing another player's row
               user && row.players.length === 1 && row.players[0].id !== user?.id && (
-                <ConverstationButton player1={user} player2={row.players[0]} title={`Message ${row.players[0].name}`} />
+                <ConverstationButton player2={row.players[0]} title={`Message ${row.players[0].name}`} />
               )
             }
           </>
@@ -157,7 +157,7 @@ console.log("Ranked standings:", rankedStandings);
                     ))
                 }
                 {user && row.players.length === 1 && row.players[0].id !== user?.id && (
-                  <ConverstationButton player1={user} player2={row.players[0]} title={`Message ${row.players[0].name}`} size={20} />
+                  <ConverstationButton player2={row.players[0]} title={`Message ${row.players[0].name}`} size={20} />
                 )}
               </Box>
             }
@@ -174,7 +174,7 @@ console.log("Ranked standings:", rankedStandings);
                   </Typography>
                 </Link>
                 {user && row.players.length === 1 && row.players[0].id !== user?.id && (
-                  <ConverstationButton player1={user} player2={row.players[0]} title={`Message ${row.players[0].name}`} size={18} />
+                  <ConverstationButton player2={row.players[0]} title={`Message ${row.players[0].name}`} size={18} />
                 )}
               </Box>
             }

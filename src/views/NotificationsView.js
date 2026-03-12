@@ -514,7 +514,7 @@ const NotificationsView = () => {
             title={`Send ${selectedNotification?.name} a message`}
           >
             Send a message
-            <Conversation player1={user} player2={selectedNotification?.sender} />
+            <Conversation player2={selectedNotification?.sender} />
           </MyModal>
         </Box>
       </Grid>

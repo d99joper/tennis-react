@@ -4,7 +4,7 @@ import { Box, Typography } from "@mui/material";
 import { AiOutlineMessage } from "react-icons/ai";
 import { useState } from "react";
 
-const ConverstationButton = ({ player1, player2, title, text, size }) => {
+const ConverstationButton = ({ player2, title, text, size }) => {
   const [showChatModal, setShowChatModal] = useState(false);
   //console.log(player1, title, text, size)
 
@@ -24,7 +24,7 @@ const ConverstationButton = ({ player1, player2, title, text, size }) => {
         title={title || 'Send a message'}
       >
         Send a message
-        <Conversation player1={player1} player2={player2} />
+        <Conversation player2={player2} />
       </MyModal>
     </Box>
   )
