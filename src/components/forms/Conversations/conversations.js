@@ -75,9 +75,9 @@ const Conversation = ({ player1, player2 }) => {
         ) : (
           messages.length > 0 ?
           messages.map((msg) => (
-            <Box key={msg.id} mb={2} textAlign={msg.sender === player1.id ? "right" : "left"}>
-              <Typography variant="body2" bgcolor={msg.sender === player1.id ? "#d0e9cf" : "#f0f0f0"} p={1} borderRadius={1} display="inline-block">
-                <b>{msg.sender === player1.id ? "You" : player2.name}:</b> {msg.message}
+            <Box key={msg.id} mb={2} textAlign={msg.sender_id === player1.id ? "right" : "left"}>
+              <Typography variant="body2" bgcolor={msg.sender_id === player1.id ? "#d0e9cf" : "#f0f0f0"} p={1} borderRadius={1} display="inline-block">
+                <b>{msg.sender_id === player1.id ? "You" : player2.name}:</b> {msg.message}
               </Typography>
               <Typography variant="caption" display="block" color="gray">
                 {new Date(msg.created_at).toLocaleString()}

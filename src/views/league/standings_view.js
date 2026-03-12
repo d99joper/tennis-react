@@ -8,12 +8,11 @@ import {
 import ResponsiveDataLayout from "components/layout/Data/responsiveDataLayout";
 import { ProfileImage } from "components/forms";
 import { Link } from "react-router-dom";
-import { eventAPI } from "api/services";
+import { divisionAPI, eventAPI } from "api/services";
 import { MdDelete } from "react-icons/md";
 import MyModal from "components/layout/MyModal";
 import TennisTrophyIcon from "components/icons/trophy";
 import { AuthContext } from "contexts/AuthContext";
-import Conversation from "components/forms/Conversations/conversations";
 import ConverstationButton from "components/forms/Conversations/ConversationButton";
 
 const StandingsView = ({ standings, winner, event_id, division_id, isAdmin = false, isParticipant = false, callback }) => {
@@ -38,7 +37,7 @@ const StandingsView = ({ standings, winner, event_id, division_id, isAdmin = fal
   const handleRemoveParticipant = async () => {
     if (division_id) {
       // remove from division
-      await eventAPI.removeParticipantFromDivision(division_id, participantToRemove.id)
+      await divisionAPI.removeDivisionParticipants(division_id, [participantToRemove.id])
     } else {
       // remove from event
       await eventAPI.removeParticipant(event_id, participantToRemove.id)
@@ -122,11 +121,9 @@ console.log("Ranked standings:", rankedStandings);
                   />
               )
             }
-            { // if participant, allow chat (update for doubles)
-              isParticipant && row.players[0].id !== user?.id && (
-                loading[index]
-                  ? <CircularProgress size={20} />
-                  : <ConverstationButton player1={user} player2={row.players[0]} title={`Message ${row.players[0].name}`} />
+            { // allow chat in singles when viewing another player's row
+              user && row.players.length === 1 && row.players[0].id !== user?.id && (
+                <ConverstationButton player1={user} player2={row.players[0]} title={`Message ${row.players[0].name}`} />
               )
             }
           </>
@@ -159,19 +156,27 @@ console.log("Ranked standings:", rankedStandings);
                       </React.Fragment>
                     ))
                 }
+                {user && row.players.length === 1 && row.players[0].id !== user?.id && (
+                  <ConverstationButton player1={user} player2={row.players[0]} title={`Message ${row.players[0].name}`} size={20} />
+                )}
               </Box>
             }
             {isSmall &&
-              <Link to={'/players/' + row.players[0].slug}>
-                <Typography
-                  variant={"h6"}
-                  sx={{ fontWeight: "bold", color: "primary.main" }}
-                >
-                  {row.id === winner?.id &&
-                    <TennisTrophyIcon size={35} />
-                  } #{row.rank} {row.name}
-                </Typography>
-              </Link>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Link to={'/players/' + row.players[0].slug}>
+                  <Typography
+                    variant={"h6"}
+                    sx={{ fontWeight: "bold", color: "primary.main" }}
+                  >
+                    {row.id === winner?.id &&
+                      <TennisTrophyIcon size={35} />
+                    } #{row.rank} {row.name}
+                  </Typography>
+                </Link>
+                {user && row.players.length === 1 && row.players[0].id !== user?.id && (
+                  <ConverstationButton player1={user} player2={row.players[0]} title={`Message ${row.players[0].name}`} size={18} />
+                )}
+              </Box>
             }
           </>
         )
