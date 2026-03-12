@@ -4,41 +4,41 @@ import {
   useLocation
 } from 'react-router-dom';
 import React, { lazy, Suspense, useContext, useRef } from 'react';
-import Registration from 'views/Auth/registration';
-import Header from 'components/layout/header';
-import ChunkErrorBoundary from 'components/layout/ChunkErrorBoundary';
+import Registration from 'features/auth/pages/registration';
+import Header from 'shared/components/layout/header';
+import ChunkErrorBoundary from 'shared/components/layout/ChunkErrorBoundary';
 import { Box, LinearProgress } from '@mui/material';
-import Footer from 'components/layout/footer';
+import Footer from 'shared/components/layout/footer';
 import { Home, AboutPage, ClubViewPage, EventView, FAQPage, LeagueViewPage, PlayersLandingPage, Profile, RulesPage, SearchPage, Login } from './views/index'
 import NotificationsView from 'views/NotificationsView';
 import { AuthContext } from 'contexts/AuthContext';
-import ForgotPassword from 'views/Auth/forgotpassword';
-import ResetPassword from 'views/Auth/resetpassword';
+import ForgotPassword from 'features/auth/pages/forgotpassword';
+import ResetPassword from 'features/auth/pages/resetpassword';
 import DTCLeagueInfoPage from 'views/Temp/DTCLeagueInfo';
-import TournamentViewPage from 'views/Tournament/tournamentView';
-import TournamentCreate from 'components/forms/Tournament/createTournament';
+import TournamentViewPage from 'features/tournament/pages/tournamentView';
+import TournamentCreate from 'features/tournament/components/createTournament';
 
 // const Profile = lazy(() => import('./views/profile'))
-const ProfileInfo = lazy(() => import('./views/player/profile-information'))
-const UserConfirmation = lazy(() => import('./views/Auth/user-confirmation'))
-const UserMerge = lazy(() => import('./views/Auth/user-merge'))
-const LadderCreate = lazy(() => import('./views/ladder/create'))
-const LadderSearch = lazy(() => import('./views/ladder/search'))
-const LadderView = lazy(() => import('./views/ladder/view'))
-const CourtsCreate = lazy(() => import('./components/forms/Courts/create'))
-const CourtsLanding = lazy(() => import('./views/court/courtsLanding'))
-const CourtView = lazy(() => import('./views/court/courtView'))
-const ClubsLandingPage = lazy(() => import('./views/club/clubsLanding'))
-const EventsLandingPage = lazy(() => import('./views/event/eventsLanding'))
+const ProfileInfo = lazy(() => import('features/player/pages/profile-information'))
+const UserConfirmation = lazy(() => import('features/auth/pages/user-confirmation'))
+const UserMerge = lazy(() => import('features/auth/pages/user-merge'))
+const LadderCreate = lazy(() => import('features/ladder/pages/create'))
+const LadderSearch = lazy(() => import('features/ladder/pages/search'))
+const LadderView = lazy(() => import('features/ladder/pages/view'))
+const CourtsCreate = lazy(() => import('features/court/components/create'))
+const CourtsLanding = lazy(() => import('features/court/pages/courtsLanding'))
+const CourtView = lazy(() => import('features/court/pages/courtView'))
+const ClubsLandingPage = lazy(() => import('features/club/pages/clubsLanding'))
+const EventsLandingPage = lazy(() => import('features/event/pages/eventsLanding'))
 const NoPage = lazy(() => import('./views/NoPage'))
 const AdminTasks = lazy(() => import('./views/adminTasks'))
 const PrivacyPolicyPage = lazy(() => import('./views/privacyPolicyPage'))
 const TermsOfServicePage = lazy(() => import('./views/termsOfServicePage'))
-const LeagueCreate = lazy(() => import('./components/forms/League/create'))
-const MarketplaceCheckout = React.lazy(() => import('views/MarketplaceCheckout'));
-const PaymentComplete = React.lazy(() => import('views/PaymentComplete'));
-const StripeConnectReturn = React.lazy(() => import('views/StripeConnectReturn'));
-const StripeOAuthCallback = React.lazy(() => import('views/StripeOAuthCallback'));
+const LeagueCreate = lazy(() => import('features/league/components/create'))
+const MarketplaceCheckout = React.lazy(() => import('features/stripe/pages/MarketplaceCheckout'));
+const PaymentComplete = React.lazy(() => import('features/stripe/pages/PaymentComplete'));
+const StripeConnectReturn = React.lazy(() => import('features/stripe/pages/StripeConnectReturn'));
+const StripeOAuthCallback = React.lazy(() => import('features/stripe/pages/StripeOAuthCallback'));
 const ThemeSelector = React.lazy(() => import('views/ThemeSelector'));
 const preloadPage = (page) => page().then((module) => module.default);
 

@@ -9,14 +9,14 @@ import { Link } from 'react-router-dom';
 import notificationAPI from 'api/services/notifications';
 import requestAPI from 'api/services/request';
 import { stripeAPI, billableItemAPI, eventAPI, divisionAPI } from 'api/services';
-import { ProfileImage } from 'components/forms';
+import { ProfileImage } from 'shared/components/ProfileImage';
 import { useSnackbar } from 'contexts/snackbarContext';
 import { Helmet } from 'react-helmet-async';
-import MyModal from 'components/layout/MyModal';
-import Conversation from 'components/forms/Conversations/conversations';
+import MyModal from 'shared/components/layout/MyModal';
+import Conversation from 'shared/components/Conversations/conversations';
 import { AuthContext } from 'contexts/AuthContext';
-import StripeProvider from 'components/forms/Stripe/StripeProvider';
-import CheckoutForm from 'components/forms/Stripe/CheckoutForm';
+import StripeProvider from 'features/stripe/components/StripeProvider';
+import CheckoutForm from 'features/stripe/components/CheckoutForm';
 import { displayRefundPolicy } from 'helpers';
 
 const NotificationsView = () => {

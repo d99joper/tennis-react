@@ -13,11 +13,11 @@ import {
 } from '@mui/material'
 import { MdOutlineSportsTennis } from 'react-icons/md'
 import { clubAPI, eventAPI, matchAPI } from 'api/services'
-import { Match } from 'components/forms'
+import Match from 'features/match/components/Match'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { AuthContext } from 'contexts/AuthContext'
-import SeoHelmet from 'components/seoHelmet';
+import SeoHelmet from 'shared/components/seoHelmet';
 
 const CACHE_DURATION_MS = 1000 * 60 * 60; // 1 hour
 

@@ -2,7 +2,9 @@
     "compilerOptions": {
         "baseUrl": "./src",
         "paths": {
-            "views":  ["src/views"]
+            "views": ["views"],
+            "features/*": ["features/*"],
+            "shared/*": ["shared/*"]
         },
         "checkJs": false
     },

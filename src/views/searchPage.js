@@ -2,7 +2,8 @@ import { Box, Button, Checkbox, CircularProgress, Collapse, FormControlLabel, In
   List, ListItem, ListItemText, Paper, Slider, TextField, ToggleButton, ToggleButtonGroup,
   Typography, useMediaQuery, useTheme } from "@mui/material";
 import { courtAPI, ladderAPI, playerAPI, clubAPI, eventAPI } from "api/services";
-import { AutoCompletePlaces, ProfileImage } from "components/forms";
+import AutoCompletePlaces from "shared/components/Autocomplete/AutocompletePlaces";
+import { ProfileImage } from "shared/components/ProfileImage";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaSearch, FaMapMarkerAlt, FaUsers, FaBuilding, FaCalendarAlt } from "react-icons/fa";
