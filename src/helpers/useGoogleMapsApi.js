@@ -7,49 +7,55 @@ const useGoogleMapsApi = () => {
 
   useEffect(() => {
     async function loadGoogleMapsAPI() {
-      if (window.google && window.google.maps) {
+      // Already fully loaded (marker + places attached)
+      if (window.google?.maps?.marker && window.google?.maps?.places?.PlaceAutocompleteElement) {
         setMapApi(window.google.maps);
         return;
       }
 
       if (loadingPromise) {
-        loadingPromise.then(setMapApi);
+        loadingPromise.then(setMapApi).catch(console.error);
         return;
       }
 
+      const apiKey = process.env.REACT_APP_PLACES_API_KEY;
+      const mapId = process.env.REACT_APP_MAP_ID;
+      if (!apiKey) {
+        console.error("Google Maps API Key is missing");
+        return;
+      }
+
+      // With loading=async the script only bootstraps google.maps.importLibrary.
+      // Libraries must be loaded via importLibrary() — NOT via the libraries= param.
+      // We use a named callback so we know when the bootstrap is ready.
       loadingPromise = new Promise((resolve, reject) => {
-        const apiKey = process.env.REACT_APP_PLACES_API_KEY;
-        const mapId = process.env.REACT_APP_MAP_ID;
-        if (!apiKey) {
-          console.error("Google Maps API Key is missing");
-          reject(new Error("API Key is required"));
-          return;
-        }
-
-        const script = document.createElement("script");
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,marker&map_ids=${mapId}`;
-        script.async = true;
-        script.defer = true;
-
-        script.onload = () => {
-          if (window.google && window.google.maps) {
-            if (!window.google.maps.marker) {
-              reject(new Error("Google Maps Marker library failed to load"));
-              return;
-            }
+        window.__googleMapsReady = async () => {
+          try {
+            // importLibrary populates google.maps.* namespaces in addition to returning them
+            await Promise.all([
+              window.google.maps.importLibrary("maps"),
+              window.google.maps.importLibrary("marker"),
+              window.google.maps.importLibrary("places"),
+            ]);
             resolve(window.google.maps);
-            setMapApi(window.google.maps);
-          } else {
-            reject(new Error("Google Maps API failed to load"));
+          } catch (err) {
+            reject(err);
           }
         };
 
-        script.onerror = () => reject(new Error("Error loading Google Maps API"));
-
+        const script = document.createElement("script");
+        script.async = true;
+        script.src =
+          `https://maps.googleapis.com/maps/api/js` +
+          `?key=${apiKey}` +
+          `&loading=async` +
+          `&callback=__googleMapsReady` +
+          `&map_ids=${mapId}`;
+        script.onerror = () => reject(new Error("Error loading Google Maps API script"));
         document.body.appendChild(script);
       });
 
-      loadingPromise.then(setMapApi).catch((error) => console.error(error));
+      loadingPromise.then(setMapApi).catch((err) => console.error("Google Maps load error:", err));
     }
 
     loadGoogleMapsAPI();

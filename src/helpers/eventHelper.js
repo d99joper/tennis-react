@@ -10,9 +10,11 @@ const eventHelper = {
     return event.is_participant || event.is_admin;
   },
   canReportScheduledMatch: function (event, match, currentUser) {
+    // Delegate to matchHelper for doubles-aware user detection
+    const { default: matchHelper } = require('./matchHelper');
     if (event.is_admin) return true;
     if (event.end_date < todayYMD) return false;
-    return match.player1.id === currentUser?.id || match.player2.id === currentUser?.id;
+    return matchHelper.isUserInScheduleMatch(match, currentUser?.id);
   },
   hasEventEnded: function (event) {
     //console.log(event.end_date, todayYMD)

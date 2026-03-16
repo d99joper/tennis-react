@@ -2,11 +2,15 @@ import { useState, useEffect, useMemo } from "react";
 import { Button, Card, FormControl, InputLabel, MenuItem, Select, Tab, Tabs, Box, TextField } from "@mui/material";
 import { useSearchParams, Link } from "react-router-dom";
 import { authAPI, ladderAPI, matchAPI, playerAPI } from "api/services";
-import { AddPlayerToClub, CreateClub, ErrorHandler, MatchEditor, SelectWithFetch } from "components/forms";
-import ClubSearchAutocomplete from "components/forms/Club/club_search";
+import AddPlayerToClub from "features/club/components/addPlayerToClub";
+import CreateClub from "features/club/components/create_club";
+import ErrorHandler from "shared/components/Error/error";
+import MatchEditor from "features/match/components/MatchEditor";
+import { SelectWithFetch } from "shared/components/Autocomplete/SelectFetch";
+import ClubSearchAutocomplete from "features/club/components/club_search";
 import { enums, helpers, matchHelper } from "helpers";
 import XLSX from 'xlsx';
-import PlayerSearch from "components/forms/Player/playerSearch";
+import PlayerSearch from "features/player/components/playerSearch";
 import { Helmet } from "react-helmet-async";
 
 const AdminTasks = () => {

@@ -6,8 +6,12 @@ const requestUrl = apiUrl + 'requests/'
 
 const requestAPI = {
   /* API calls */
-  createJoinRequest: async function (type, id) {
-    const requestOptions = authAPI.getRequestOptions('POST');
+  createJoinRequest: async function (type, id, divisionId = null, participantId = null, partnerId = null) {
+    const body = {};
+    if (divisionId) body.division_id = divisionId;
+    if (participantId) body.participant_id = participantId;
+    if (partnerId) body.partner_id = partnerId;
+    const requestOptions = authAPI.getRequestOptions('POST', Object.keys(body).length ? body : undefined);
     const response = await fetch(`${requestUrl}join/${type}/${id}`, requestOptions);
     if (response.ok) {
       const data = await response.json();
@@ -19,13 +23,14 @@ const requestAPI = {
 
   getRequestStatusForUser: async function (id) {
     const requestOptions = authAPI.getRequestOptions('GET');
-    const response = await fetchWithRetry(`${requestUrl}${id}/get-status-for-user`, requestOptions)
+    const url = `${requestUrl}${id}/get-status-for-user`;
+    const response = await fetchWithRetry(url, requestOptions)
     if (response.ok) {
       const data = await response.json();
-      return { success: response.ok, statusCode: response.statusCode, status: data.status }
+      return { success: true, statusCode: response.status, data: data }  // data is dict keyed by division id or 'event'
     }
     else
-      return { success: response.ok, statusCode: response.statusCode, statusMessage: 'Error: Failed join request' }
+      return { success: false, statusCode: response.status, statusMessage: 'Error: Failed to get request status' }
   },
 
   processRequest: async function (id, approve) {

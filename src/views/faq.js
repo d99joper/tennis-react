@@ -58,6 +58,7 @@ const faqCategories = [
           <Typography variant="body1">
             When you are logged in, navigate to your profile page by clicking &quot;My Profile&quot; in the menu.
             From there you can update your profile picture, bio, and other information.
+            Click on any editable field to make changes.
           </Typography>
         ),
       },
@@ -251,6 +252,7 @@ const FAQPage = () => {
       ))}
 
       <Box sx={{ mt: 4, p: 3, textAlign: 'center', backgroundColor: 'background.default', borderRadius: 2 }}>
+>>>>>>> refactor/feature-structure
         <Typography variant="h6" gutterBottom>
           Ready to get more out of My Tennis Space?
         </Typography>

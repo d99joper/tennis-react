@@ -67,7 +67,19 @@ const enums = {
     { value: 3, label: '3.0' }, { value: 3.5, label: '3.5' },
     { value: 4, label: '4.0' }, { value: 4.5, label: '4.5' },
     { value: 5, label: '5.0' }, { value: 5.5, label: '5.5' },
-    { value: 6, label: '6.0' }, { value: 6.5, label: '6.5' }]
+    { value: 6, label: '6.0' }, { value: 6.5, label: '6.5' }],
+
+  REFUND_POLICIES: [
+    { value: 'no_refunds', label: 'No Refunds' },
+    { value: 'full_refund', label: 'Full Refund Before Start' },
+    { value: 'partial_refund', label: 'Partial Refund (50%)' },
+    { value: 'event_cancelled_only', label: 'Refund Only If Event Cancelled' },
+  ],
 }
+
+export const displayRefundPolicy = (policy) => {
+  const found = enums.REFUND_POLICIES.find(p => p.value === policy);
+  return found ? found.label : (policy || '—');
+};
 
 export default enums

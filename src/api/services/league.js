@@ -96,7 +96,15 @@ const leagueAPI = {
       return await response.json()
     else 
       return {statusCode: response.status, error: response.error}
+  },
 
+  getSchedule: async function(leagueId) {
+    const requestOptions = authAPI.getRequestOptions('GET');
+    const response = await fetchWithRetry(leaguesUrl + leagueId + '/schedule', requestOptions)
+    if(response.ok)
+      return await response.json()
+    else
+      return {statusCode: response.status, error: response.error}
   },
 }
 

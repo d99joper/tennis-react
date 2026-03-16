@@ -1,4 +1,4 @@
-import FloatingAward from 'components/forms/FloatingAward'
+import FloatingAward from 'shared/components/FloatingAward'
 import { useState } from 'react'
 
 export default function useAwardToast() {

@@ -56,7 +56,7 @@ const stripeAPI = {
         return_url: returnUrl,
         refresh_url: refreshUrl,
       });
-      const response = await fetch(`${apiUrl}stripe/clubs/${clubId}/onboarding/refresh`, requestOptions);
+      const response = await fetch(`${apiUrl}stripe/clubs/${clubId}/connect/refresh`, requestOptions);
       const data = await response.json();
       return { success: response.ok, statusCode: response.status, data };
     } catch (err) {
@@ -215,7 +215,7 @@ const stripeAPI = {
   },
 
   /**
-   * Get the status of a specific payment
+   * Get the status of a specific payment by payment ID
    * @param {string} paymentId
    * @returns {{ success: boolean, statusCode: number, data: object }}
    */
@@ -227,6 +227,24 @@ const stripeAPI = {
       return { success: response.ok, statusCode: response.status, data };
     } catch (err) {
       console.error('Error fetching payment status', err);
+      return { success: false, statusCode: 500, data: { error: err.message } };
+    }
+  },
+
+  /**
+   * Check whether the current user has paid for a billable item.
+   * @param {string} billableItemId
+   * @returns {{ success: boolean, statusCode: number, data: { has_payment: boolean, status?: string } }}
+   *   status (when has_payment=true): 'succeeded' | 'pending' | 'failed' | 'refunded'
+   */
+  getBillableItemPaymentStatus: async (billableItemId) => {
+    try {
+      const requestOptions = authAPI.getRequestOptions('GET');
+      const response = await fetch(`${apiUrl}stripe/billable-items/${billableItemId}/payment-status`, requestOptions);
+      const data = await response.json();
+      return { success: response.ok, statusCode: response.status, data };
+    } catch (err) {
+      console.error('Error fetching billable item payment status', err);
       return { success: false, statusCode: 500, data: { error: err.message } };
     }
   },

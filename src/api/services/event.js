@@ -18,11 +18,15 @@ const eventAPI = {
   },
 
   getEvents: async function (filter, page, pageSize) {
-    const url = new URL(eventsUrl)
-    if (filter)
-      url.search = helpers.parseFilter(filter)
+      // const url = new URL(eventsUrl)
+      // if (filter)
+      //   url.search = helpers.parseFilter(filter)
     const requestOptions = authAPI.getRequestOptions('GET')
-    const response = await fetchWithRetry(url + `&page=${page || 1}&num-per-page=${pageSize || 10}`, requestOptions)
+    const params = new URLSearchParams(filter)
+    // add pagination params
+    if (page) params.append('page', page);
+    if (pageSize) params.append('num-per-page', pageSize);
+    const response = await fetchWithRetry(eventsUrl + `?${params}`, requestOptions)
     if (response.ok)
       return await response.json()
     else
@@ -76,11 +80,11 @@ const eventAPI = {
 
   checkRequirements: async function (event_id, player_id) {
     const requestOptions = authAPI.getRequestOptions('GET')
-
-    const response = await fetchWithRetry(`${eventsUrl}check-restrictions/${event_id}/${player_id}`, requestOptions)
+    const url = `${eventsUrl}check-restrictions/${event_id}/${player_id}`
+    const response = await fetchWithRetry(url, requestOptions)
     if (response.ok) {
       const data = await response.json()
-      return data
+      return data  // dict keyed by division id or 'event'
     }
     else
       throw new Error(response.status + ': Failed to check requirements for event')

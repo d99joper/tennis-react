@@ -10,6 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null); // Store user details here
   const [loading, setLoading] = useState(true);  // Add loading state
+  const [authReady, setAuthReady] = useState(false); // Add authReady state
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -44,6 +45,7 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
       } finally {
         setLoading(false);
+        setAuthReady(true);
       }
     };
 
@@ -72,7 +74,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, user, login, logout, loading  }}>
+    <AuthContext.Provider value={{ user, isLoggedIn, authReady, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

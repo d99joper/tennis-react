@@ -4,22 +4,37 @@ import { Box } from '@mui/material';
 
 const userHelper = {
 
+	/**
+	 * Return the participant's display name only when it adds value
+	 * (playerpair or team). Returns null for solo-player participants.
+	 *
+	 * @param {import('types/match').MiniParticipant | null | undefined} participant
+	 * @returns {{ label: string, type: string } | null}
+	 */
+	getParticipantLabel: function (participant) {
+		if (!participant) return null;
+		if (participant.content_type === 'player') return null;
+		const type = participant.content_type === 'team' ? 'Team' : 'Pair';
+		return { label: participant.name, type };
+	},
+
 	getPlayerNames: function (players) {
-		console.log(players)
 		return (
 			<>
 				{players.map((p, index) => (
-					<span key={p.id}>
+					<React.Fragment key={p.id}>
+						{index > 0 && ' & '}
+					<Link to={`/players/${p.slug}`}>
 						{p.name}
-						{index < players.length - 1 && <br />}
-					</span>
+					</Link>
+					</React.Fragment>
 				))}
 			</>
 		)
 	},
 
 	getPlayerNamesString: function (players) {
-		return players.map(p => p.name).join(', \n');
+		return players.map(p => p.name).join(' & ');
 	},
 
 	SetPlayerName_old: function (player, lastnameOnly, boldText) {

@@ -7,8 +7,8 @@ import { useTheme } from '@mui/material/styles';
 import { Helmet } from 'react-helmet-async';
 import { AuthContext } from 'contexts/AuthContext';
 import { subscriptionAPI, stripeAPI } from 'api/services';
-import PricingSection from 'components/forms/Subscription/PricingSection';
-import ManageBillingModal from 'components/forms/Subscription/ManageBillingModal';
+import PricingSection from 'features/stripe/components/PricingSection';
+import ManageBillingModal from 'features/stripe/components/ManageBillingModal';
 import { Link } from 'react-router-dom';
 import { flexColumn } from 'styles/componentStyles';
 

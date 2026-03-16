@@ -1,6 +1,7 @@
 import authAPI from 'api/auth'
-import billableItemAPI from './billableItemService'
+import billableItemAPI from './billableItem'
 import clubAPI from './club'
+import participantAPI from './participant'
 import commentsAPI from './comment'
 import courtAPI from './court'
 import divisionAPI from './divisions'
@@ -17,6 +18,7 @@ export {
   authAPI,
   billableItemAPI,
   clubAPI,
+  participantAPI,
   commentsAPI,
   courtAPI,
   divisionAPI,

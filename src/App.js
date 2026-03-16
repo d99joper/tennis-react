@@ -4,7 +4,7 @@ import './App.css';
 import MyRouter from './routes';
 import { BrowserRouter } from 'react-router-dom';
 import { Box, CssBaseline, GlobalStyles } from '@mui/material';
-import { ProfileImageProvider } from "components/forms";
+import { ProfileImageProvider } from "shared/components/ProfileImage";
 import { requestNotificationPermission } from "./firebase/requestNotificationPermission";
 import { setupNotificationListener, onNotificationReceived, removeNotificationListener } from "./firebase/notificationService";
 import { ToastContainer, toast } from "react-toastify";
@@ -18,7 +18,12 @@ import useAwardToast from 'helpers/useAwardsToast';
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
       <HelmetProvider>
         <ThemeProvider>
           <ThemedApp />
