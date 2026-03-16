@@ -23,20 +23,6 @@ const PlayerNames = ({ players, variant = "body2", fontWeight, noWrap = false })
   </Typography>
 );
 
-/** Show participant label when it adds value (pair / team — not solo player) */
-const ParticipantLabel = ({ match }) => {
-  const { isTeamOrPair } = getMatchContext(match);
-  if (!isTeamOrPair) return null;
-
-  const label = match.winner_participant?.content_type === 'team' ? 'Team' : 'Pair';
-
-  return (
-    <Typography variant="caption" color="text.secondary" sx={{ mt: 0.25 }}>
-      As: {match.winner_participant.name} ({label})
-    </Typography>
-  );
-};
-
 const Match = ({ match, showH2H = false, color, variant }) => {
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
   const [isH2HModalOpen, setIsH2HModalOpen] = useState(false);
@@ -93,7 +79,6 @@ const Match = ({ match, showH2H = false, color, variant }) => {
 
         {/* Event badge & participant label */}
         <MatchEventChips event={match.event} division={match.division} />
-        <ParticipantLabel match={match} />
       </Box>
     );
   }
@@ -135,7 +120,6 @@ const Match = ({ match, showH2H = false, color, variant }) => {
       {/* Event badge & participant label */}
       <Box sx={{ mt: 1 }}>
         <MatchEventChips event={match.event} division={match.division} />
-        <ParticipantLabel match={match} />
       </Box>
 
       {/* Action Icons */}
