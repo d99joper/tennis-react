@@ -5,39 +5,59 @@ import { fetchWithRetry } from "api/fetchWithRetry"
 const subscriptionsUrl = apiUrl + 'subscriptions/'
 
 const subscriptionAPI = {
-  getSubscription: async function (id) {
-    const requestOptions = authAPI.getRequestOptions('GET')
-    let response = await fetchWithRetry(subscriptionsUrl + id, requestOptions)
-
-    if (response.ok) {
-      const data = await response.json()
-      return data
+  /**
+   * List available subscription plans & prices (public)
+   * GET /subscriptions/
+   */
+  getPlans: async function () {
+    try {
+      const response = await fetch(subscriptionsUrl)
+      if (response.ok)
+        return await response.json()
+      else
+        return { statusCode: response.status, statusMessage: 'Error: Failed to get plans' }
+    } catch (err) {
+      console.error('Error fetching plans:', err)
+      return { statusCode: 500, statusMessage: err.message }
     }
-    else
-      return { status: response.status, statusCode: response.statusCode, statusText: response.statusText, error: 'No subscription Found' }
   },
 
-  getSubscriptions: async function() {
-    
+  /**
+   * Get current player's subscription state
+   * GET /subscriptions/get-for-player
+   */
+  getPlayerSubscription: async function () {
     const requestOptions = authAPI.getRequestOptions('GET')
-    let response = await fetchWithRetry(subscriptionsUrl, requestOptions)
-    
-    if (response.ok) {
-      return await response.json()
+    try {
+      const response = await fetchWithRetry(subscriptionsUrl + 'get-for-player', requestOptions)
+      if (response.ok) {
+        const result = await response.json()
+        return result.data !== undefined ? result.data : result
+      } else {
+        return null
+      }
+    } catch (err) {
+      console.error('Error fetching player subscription:', err)
+      return null
     }
-    else
-      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get subscriptions' }
   },
 
-  getPlayerSubscription: async function() {
+  /**
+   * Get player's lifetime event count (for free tier gating)
+   * GET /subscriptions/event-count
+   */
+  getPlayerEventCount: async function () {
     const requestOptions = authAPI.getRequestOptions('GET')
-
-    const response = await fetchWithRetry(subscriptionsUrl + 'get-for-player', requestOptions)
-    if (response.ok)
-      return await response.json()
-    else
-      return { statusCode: response.statusCode, statusMessage: 'Error: Failed to get player subscription' }
-  }
+    try {
+      const response = await fetch(subscriptionsUrl + 'event-count', requestOptions)
+      if (response.ok)
+        return await response.json()
+      else
+        return { event_count: 0 }
+    } catch {
+      return { event_count: 0 }
+    }
+  },
 }
 
 export default subscriptionAPI

@@ -31,7 +31,7 @@ import { GiTennisCourt, GiWhistle } from "react-icons/gi";
 import { CiMail } from "react-icons/ci";
 import NotificationBadge from "./NotificationBadge";
 import { AuthContext } from "contexts/AuthContext";
-import { MdOutlineEmojiEvents } from "react-icons/md";
+import { MdOutlineEmojiEvents, MdCardMembership } from "react-icons/md";
 
 const drawerWidthLarge = 240;
 const drawerWidthSmall = 60;
@@ -136,6 +136,12 @@ const ResponsiveMenu = ({ ...props }) => {
               </Badge> */}
             </ListItemIcon>
             <ListItemText primary={open ? "Messages" : ""} />
+          </ListItemButton>
+          <ListItemButton title="Subscription" component={Link} to="/subscription">
+            <ListItemIcon>
+              <MdCardMembership size="1.5rem" />
+            </ListItemIcon>
+            <ListItemText primary={open ? "Subscription" : ""} />
           </ListItemButton>
         </React.Fragment>
       )}

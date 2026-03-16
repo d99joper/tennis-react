@@ -51,6 +51,17 @@ const enums = {
     DELETE: 'DELETE'
   },
 
+  SUBSCRIPTION_TIERS: {
+    FREE: 'free',
+    BASIC: 'basic',
+    PRO: 'pro',
+  },
+
+  SUBSCRIPTION_LIMITS: {
+    FREE_MAX_EVENTS: 5,
+    FREE_MAX_RECENT_MATCHES: 3,
+  },
+
   LevelMarks: [
     { value: 2, label: '2.0' }, { value: 2.5, label: '2.5' },
     { value: 3, label: '3.0' }, { value: 3.5, label: '3.5' },

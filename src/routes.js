@@ -40,6 +40,7 @@ const PaymentComplete = React.lazy(() => import('features/stripe/pages/PaymentCo
 const StripeConnectReturn = React.lazy(() => import('features/stripe/pages/StripeConnectReturn'));
 const StripeOAuthCallback = React.lazy(() => import('features/stripe/pages/StripeOAuthCallback'));
 const ThemeSelector = React.lazy(() => import('views/ThemeSelector'));
+const SubscriptionPage = React.lazy(() => import('views/subscription'));
 const preloadPage = (page) => page().then((module) => module.default);
 
 
@@ -154,6 +155,7 @@ const MyRouter = (props) => {
               <Route path="/payments/complete" element={<PaymentComplete />} />
               <Route path="/stripe/connect/return" element={<StripeConnectReturn />} />
               <Route path="/stripe/oauth/callback" element={<StripeOAuthCallback />} />
+              <Route path="/subscription" element={<SubscriptionPage />} />
               <Route path="/theme-selector" element={<ThemeSelector />} />
               <Route path="*" element={<NoPage />} />
             </Routes>
@@ -161,6 +163,7 @@ const MyRouter = (props) => {
           </Box>
         </>
       )}
+
     </Suspense>
     </ChunkErrorBoundary>
   )
