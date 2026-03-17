@@ -268,13 +268,12 @@ const LeagueViewPage = (props) => {
           <Matches
             originType={'event'}
             originId={event.id}
-            //initialMatches={event.matches}
             divisions={event.divisions}
-            //showFilterByDivision={event.divisions && event.divisions.length > 0} 
+            divisionId={division?.id}
+            matchType={division?.match_type || event?.match_type}
             pageSize={10}
             showComments={true}
             showH2H={true}
-
           />
         </Box>
       )}

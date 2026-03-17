@@ -32,6 +32,7 @@ const Matches = ({
   showFilterByPlayer = true,
   showFilterByDivision = false,
   divisions = [], // New prop for divisions
+  divisionId = null, // Directly set division filter (overrides URL-based lookup)
   showAsSmallScreen = false,
   showH2H = false,
   showComments = false,
@@ -50,8 +51,9 @@ const Matches = ({
   const [searchParams] = useSearchParams();
   const division_id_from_url = searchParams.get('division');
   
-  // Initialize selectedDivisionId immediately with URL param value
+  // Initialize selectedDivisionId: prefer explicit divisionId prop, then URL param lookup
   const [selectedDivisionId, setSelectedDivisionId] = useState(() => {
+    if (divisionId) return divisionId;
     if (divisions && division_id_from_url) {
       return divisions[division_id_from_url]?.id || '';
     }
@@ -73,15 +75,22 @@ const Matches = ({
     setIsModalOpen(true);
   };
 
+  // Update selectedDivisionId when divisionId prop changes
+  useEffect(() => {
+    if (divisionId && divisionId !== selectedDivisionId) {
+      setSelectedDivisionId(divisionId);
+    }
+  }, [divisionId]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Simplified effect - only update if URL param changes after initial load
   useEffect(() => {
-    if (divisions && division_id_from_url) {
+    if (!divisionId && divisions && division_id_from_url) {
       const newDivisionId = divisions[division_id_from_url]?.id || '';
       if (newDivisionId !== selectedDivisionId) {
         setSelectedDivisionId(newDivisionId);
       }
     }
-  }, [division_id_from_url, divisions, selectedDivisionId]);
+  }, [division_id_from_url, divisions, selectedDivisionId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const theme = useTheme();
   const [ref, width] = useComponentWidth();
