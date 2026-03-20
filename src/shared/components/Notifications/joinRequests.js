@@ -5,7 +5,8 @@ import { AiOutlineClockCircle } from 'react-icons/ai'
 import requestAPI from 'api/services/request'
 import { Alert, Box, List, ListItem, Snackbar, Typography } from '@mui/material'
 import { AuthContext } from 'contexts/AuthContext'
-import { eventAPI, billableItemAPI, stripeAPI, divisionAPI, participantAPI } from 'api/services'
+import { eventAPI, billableItemAPI, divisionAPI, participantAPI } from 'api/services'
+import useMarketplacePayment from 'helpers/useMarketplacePayment'
 import InfoPopup from '../infoPopup'
 import MyModal from 'shared/components/layout/MyModal'
 import { Link } from 'react-router-dom'
@@ -32,9 +33,14 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
   const [doublesCandidates, setDoublesCandidates] = useState([])
   const [doublesPartner, setDoublesPartner] = useState(null)
   const [billableItem, setBillableItem] = useState(null)
-  const [paymentClientSecret, setPaymentClientSecret] = useState(null)
-  const [paymentStripeAccount, setPaymentStripeAccount] = useState(null)
-  const [paymentLoading, setPaymentLoading] = useState(false)
+  const {
+    clientSecret: paymentClientSecret,
+    stripeAccount: paymentStripeAccount,
+    loading: paymentLoading,
+    initiatePayment,
+    cancelPayment,
+    reset: resetPayment,
+  } = useMarketplacePayment()
   const [paymentDone, setPaymentDone] = useState(false)
   const [isPostApprovalPay, setIsPostApprovalPay] = useState(false)
   const [pendingParticipantId, setPendingParticipantId] = useState(null)
@@ -186,39 +192,20 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
   }
 
   const handleInitiatePayment = async () => {
-    setPaymentLoading(true);
-    try {
-      const statusRes = await stripeAPI.getBillableItemPaymentStatus(billableItem.id);
-      if (statusRes.success && statusRes.data?.has_payment) {
-        if (statusRes.data.status === 'succeeded') {
-          showSnackbar('Payment already completed for this entry.', 'info');
-          setPaymentDone(true);
-          setPaymentLoading(false);
-          return;
-        }
-        if (statusRes.data.status === 'pending') {
-          showSnackbar('A payment is already being processed. Please wait.', 'warning');
-          setPaymentLoading(false);
-          return;
-        }
-      }
-      const res = await stripeAPI.createPaymentIntent(billableItem.id);
-      if (res.success && res.data?.client_secret) {
-        setPaymentClientSecret(res.data.client_secret);
-        setPaymentStripeAccount(res.data.stripe_account_id || null);
-      } else {
-        showSnackbar(res.data?.error || 'Failed to start payment', 'error');
-      }
-    } catch (err) {
-      showSnackbar(err.message, 'error');
-    } finally {
-      setPaymentLoading(false);
+    const result = await initiatePayment(billableItem.id, pendingParticipantId);
+    if (result.alreadyPaid) {
+      showSnackbar('Payment already completed for this entry.', 'info');
+      setPaymentDone(true);
+    } else if (result.processing) {
+      showSnackbar('A payment is already being processed. Please wait.', 'warning');
+    } else if (result.error) {
+      showSnackbar(result.error, 'error');
     }
   }
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setPaymentClientSecret(null);
+    cancelPayment();
     setPaymentDone(false);
     setIsPostApprovalPay(false);
   }
@@ -399,7 +386,7 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
               <CheckoutForm
                 returnUrl={`${window.location.origin}/events/${id}`}
                 onSuccess={() => { setPaymentDone(true); handleSignUp('doubles'); }}
-                onError={() => { setPaymentClientSecret(null); setPaymentStripeAccount(null); }}
+                onError={() => { resetPayment(); }}
               />
             </StripeProvider>
           )}
@@ -554,7 +541,7 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
               <CheckoutForm
                 returnUrl={`${window.location.origin}/events/${id}`}
                 onSuccess={() => { setPaymentDone(true); handleSignUp(); }}
-                onError={() => { setPaymentClientSecret(null); setPaymentStripeAccount(null); }}
+                onError={() => { resetPayment(); }}
               />
             </StripeProvider>
           )}
@@ -624,7 +611,7 @@ const JoinRequest = ({ objectType, id, matchType, isMember,
               <CheckoutForm
                 returnUrl={`${window.location.origin}/events/${id}`}
                 onSuccess={() => { setPaymentDone(true); setStatus('approved'); handleSignUp('player', pendingParticipantId); }}
-                onError={() => { setPaymentClientSecret(null); setPaymentStripeAccount(null); }}
+                onError={() => { resetPayment(); }}
               />
             </StripeProvider>
           )}

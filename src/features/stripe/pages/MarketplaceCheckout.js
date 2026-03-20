@@ -33,7 +33,7 @@ const MarketplaceCheckout = () => {
       setLoading(true);
       setError(null);
 
-      const response = await stripeAPI.createPaymentIntent(billableItemId);
+      const response = await stripeAPI.createPaymentIntent(billableItemId, participantId);
 
       if (!response.success) {
         setError(response.data?.error || 'Failed to initialize payment.');

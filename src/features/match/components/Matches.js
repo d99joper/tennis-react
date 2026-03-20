@@ -114,6 +114,20 @@ const Matches = ({
     [allMatches, applyMatchFilter]
   );
 
+  // When divisions are provided, derive matchType from the selected division.
+  // When "all" is selected (no selectedDivisionId), omit the match-type filter.
+  // When no divisions are provided, fall back to the matchType prop.
+  const effectiveMatchType = useMemo(() => {
+    if (divisions?.length > 0) {
+      if (selectedDivisionId) {
+        const div = divisions.find(d => d.id === selectedDivisionId);
+        return div?.match_type || matchType;
+      }
+      return null; // "All divisions" — don't restrict by match_type
+    }
+    return matchType;
+  }, [selectedDivisionId, divisions, matchType]);
+
   const observer = useRef(null);
 
   const fetchMatches = useCallback(
@@ -125,7 +139,7 @@ const Matches = ({
         const filter = {
           ...originType ? { "origin-type": originType } : {},
           ...originId ? { "origin-id": originId } : {},
-          ...matchType ? { "match-type": matchType } : {},
+          ...effectiveMatchType ? { "match-type": effectiveMatchType } : {},
           ...selectedPlayers.length > 0 ? { "player-ids": selectedPlayers.map(p => p.id).join(',') } : {},
           ...selectedDivisionId ? { "division": selectedDivisionId } : {}
         };
@@ -153,7 +167,7 @@ const Matches = ({
         setLoading(false);
       }
     },
-    [originType, originId, pageSize, selectedPlayers, selectedDivisionId, matchType]
+    [originType, originId, pageSize, selectedPlayers, selectedDivisionId, effectiveMatchType]
   );
 
   // Effect to handle cache clearing when originId changes
@@ -256,7 +270,7 @@ const Matches = ({
         <Typography variant="body1" sx={{ fontWeight: "bold", fontSize: isMedium ? "1.2rem" : "1rem" }}>
           {uh.getPlayerNames(match.winners)} vs {uh.getPlayerNames(match.losers)}
         </Typography>
-        <MatchEventChips event={match.event} division={match.division} />
+        {!selectedDivisionId && <MatchEventChips event={match.event} division={match.division} divisions={divisions} />}
       </Box>
     )
   };
@@ -343,7 +357,7 @@ const Matches = ({
         <Typography variant="body2" component="span">
           {row.score}{row.retired ? ' ret.' : ''}
         </Typography>
-        <MatchEventChips event={row.event} division={row.division} showIcon={false} size="small" mt={0.25} />
+        {!selectedDivisionId && <MatchEventChips event={row.event} division={row.division} divisions={divisions} showIcon={false} size="small" mt={0.25} />}
       </Box>,
       renderIconData(row)
     ]
@@ -362,7 +376,7 @@ const Matches = ({
                   participant={currentUser}
                   originType={originType}
                   originId={originId}
-                  matchType={matchType}
+                  matchType={effectiveMatchType}
                   onSubmit={(matchData) => {
                     console.log("Match reported:", matchData);
                     let matches = isLargeScreen ? pagedMatches : allMatches;

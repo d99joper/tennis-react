@@ -24,6 +24,7 @@ const EventView = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams(); // Use React Router's hook
   const division_num = searchParams.get('division'); // This will properly track changes
+  const division_id_param = searchParams.get('divisionId'); // alternative: link by ID
   const { user, isLoggedIn } = useContext(AuthContext);
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -115,6 +116,8 @@ const EventView = () => {
         if (division_index >= 0 && division_index < event.divisions.length) {
           division = event.divisions[division_index];
         }
+      } else if (division_id_param) {
+        division = event.divisions.find(d => String(d.id) === String(division_id_param)) || null;
       }
       // If division_num is null or invalid, default to the first division
       if (division === null && event.divisions.length > 0) {
@@ -127,7 +130,7 @@ const EventView = () => {
       setSelectedDivision(division);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [event?.id, division_num]); // Only depend on event ID and division_num to prevent infinite loops
+  }, [event?.id, division_num, division_id_param]); // Only depend on event ID and division_num to prevent infinite loops
 
   const refreshEvent = (updatedEvent) => {
     //console.log('EventView received updated event:', updatedEvent);

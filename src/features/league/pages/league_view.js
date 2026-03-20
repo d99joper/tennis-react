@@ -271,6 +271,7 @@ const LeagueViewPage = (props) => {
             divisions={event.divisions}
             divisionId={division?.id}
             matchType={division?.match_type || event?.match_type}
+            showFilterByDivision={event?.divisions?.length > 0}
             pageSize={10}
             showComments={true}
             showH2H={true}

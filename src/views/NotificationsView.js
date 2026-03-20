@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import notificationAPI from 'api/services/notifications';
 import requestAPI from 'api/services/request';
 import { stripeAPI, billableItemAPI, eventAPI, divisionAPI } from 'api/services';
+import useMarketplacePayment from 'helpers/useMarketplacePayment';
 import { ProfileImage } from 'shared/components/ProfileImage';
 import { useSnackbar } from 'contexts/snackbarContext';
 import { Helmet } from 'react-helmet-async';
@@ -24,9 +25,14 @@ const NotificationsView = () => {
   const [showChatModal, setShowChatModal] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [eventBillableItem, setEventBillableItem] = useState(null);
-  const [paymentClientSecret, setPaymentClientSecret] = useState(null);
-  const [paymentStripeAccount, setPaymentStripeAccount] = useState(null);
-  const [paymentLoading, setPaymentLoading] = useState(false);
+  const {
+    clientSecret: paymentClientSecret,
+    stripeAccount: paymentStripeAccount,
+    loading: paymentLoading,
+    initiatePayment,
+    cancelPayment,
+    reset: resetPayment,
+  } = useMarketplacePayment();
   const [paymentStatus, setPaymentStatus] = useState(null);
 
   const paymentDone =
@@ -82,8 +88,7 @@ const NotificationsView = () => {
         markAsRead(selectedNotification.id, true);
       }
       // Reset payment state immediately
-      setPaymentClientSecret(null);
-      setPaymentStripeAccount(null);
+      cancelPayment();
       setEventBillableItem(null);
       setPaymentStatus(null);
       setLoading(true);
@@ -152,37 +157,18 @@ const NotificationsView = () => {
   const handlePayNow = async () => {
     const billableItemId = selectedNotification?.related_object?.id;
     if (!billableItemId) return;
-    // Double-check server-side before creating a new payment intent
-    setPaymentLoading(true);
-    try {
-      const statusRes = await stripeAPI.getBillableItemPaymentStatus(billableItemId);
-      if (statusRes.success && statusRes.data?.has_payment) {
-        const status = statusRes.data.status;
-        setPaymentStatus(status);
-        if (status === 'succeeded') {
-          const updated = { ...selectedNotification, status: 'paid' };
-          updateNotification(updated);
-          setSelectedNotification(updated);
-          showSnackbar('This entry fee has already been paid.', 'info');
-          return;
-        }
-        if (status === 'pending') {
-          showSnackbar('Your payment is still processing. Please wait.', 'info');
-          return;
-        }
-        // failed / refunded — fall through and allow retry
-      }
-      const res = await stripeAPI.createPaymentIntent(billableItemId);
-      if (res.success && res.data?.client_secret) {
-        setPaymentClientSecret(res.data.client_secret);
-        setPaymentStripeAccount(res.data.stripe_account_id || null);
-      } else {
-        showSnackbar(res.data?.error || 'Failed to initiate payment. Please try again.', 'error');
-      }
-    } catch (err) {
-      showSnackbar(err.message, 'error');
-    } finally {
-      setPaymentLoading(false);
+    const participantId = selectedNotification?.metadata?.participant_id ?? null;
+    const result = await initiatePayment(billableItemId, participantId);
+    if (result.alreadyPaid) {
+      setPaymentStatus('succeeded');
+      const updated = { ...selectedNotification, status: 'paid' };
+      updateNotification(updated);
+      setSelectedNotification(updated);
+      showSnackbar('This entry fee has already been paid.', 'info');
+    } else if (result.processing) {
+      showSnackbar('Your payment is processing. Please wait.', 'info');
+    } else if (result.error) {
+      showSnackbar(result.error || 'Failed to initiate payment. Please try again.', 'error');
     }
   };
 
@@ -389,7 +375,7 @@ const NotificationsView = () => {
                         Checking payment status...
                       </Typography>
                     </Box>
-                  ) : paymentStatus === 'pending' ? (
+                  ) : paymentStatus === 'processing' ? (
                     <Alert severity="info">
                       Your payment is processing — hang tight. You'll get a notification once confirmed.
                     </Alert>
@@ -397,7 +383,7 @@ const NotificationsView = () => {
                     <Alert severity="warning">
                       Your previous payment was refunded. Contact the organizer if you have questions.
                     </Alert>
-                  ) : ['unpaid', 'failed'].includes(paymentStatus) ? (
+                  ) : ['unpaid', 'failed', 'pending'].includes(paymentStatus) ? (
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                       <Alert severity="warning">
                         <Typography variant="body2" fontWeight={600}>
@@ -480,8 +466,7 @@ const NotificationsView = () => {
                               }
                             }}
                             onError={() => {
-                              setPaymentClientSecret(null);
-                              setPaymentStripeAccount(null);
+                              resetPayment();
                             }}
                           />
                         </StripeProvider>

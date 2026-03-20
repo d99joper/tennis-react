@@ -200,10 +200,12 @@ const stripeAPI = {
    * @param {string} billableItemId
    * @returns {{ success: boolean, statusCode: number, data: object }}
    */
-  createPaymentIntent: async (billableItemId) => {
+  createPaymentIntent: async (billableItemId, participantId = null) => {
     const idempotencyKey = crypto.randomUUID();
     try {
-      const requestOptions = authAPI.getRequestOptions('POST');
+      const body = {};
+      if (participantId) body.participant_id = participantId;
+      const requestOptions = authAPI.getRequestOptions('POST', body);
       requestOptions.headers['Idempotency-Key'] = idempotencyKey;
       const response = await fetch(`${apiUrl}stripe/billable-items/${billableItemId}/payment`, requestOptions);
       const data = await response.json();
@@ -268,6 +270,23 @@ const stripeAPI = {
       return { success: response.ok, statusCode: response.status, data };
     } catch (err) {
       console.error('Error refunding payment', err);
+      return { success: false, statusCode: 500, data: { error: err.message } };
+    }
+  },
+
+  /**
+   * Cancel a marketplace payment intent
+   * @param {string} paymentId
+   * @returns {{ success: boolean, statusCode: number, data: object }}
+   */
+  cancelPaymentIntent: async (paymentId) => {
+    try {
+      const requestOptions = authAPI.getRequestOptions('POST');
+      const response = await fetch(`${apiUrl}stripe/payments/${paymentId}/cancel`, requestOptions);
+      const data = await response.json().catch(() => ({}));
+      return { success: response.ok, statusCode: response.status, data };
+    } catch (err) {
+      console.error('Error canceling payment intent', err);
       return { success: false, statusCode: 500, data: { error: err.message } };
     }
   },
